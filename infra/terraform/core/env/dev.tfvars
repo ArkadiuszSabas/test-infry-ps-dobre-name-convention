@@ -17,8 +17,8 @@ cmk = {
 }
 
 # Set true only after the matching ProService decisions are formally approved.
-security_design_approved        = false
-resource_provider_list_verified = false
+security_design_approved        = true
+resource_provider_list_verified = true
 runtime_dependencies_ready      = false # for core-foundation set it to 'false'
 foundry_enabled                 = true
 
