@@ -46,7 +46,6 @@ gpt_deployment = {
 # dd6db8823c197072c15c5d75d0d50b0f23a05b4b.
 container_apps = {
   web = {
-    name                  = "ca-ocr-web-dev"
     container_name        = "web"
     image                 = "acrocrdevarksab01.azurecr.io/docmind/web@sha256:fdf961371d22475a03cc7596d7c76546832fd28b5ef8c1907cc676cd24375248"
     target_port           = 3000
@@ -60,7 +59,6 @@ container_apps = {
     environment_variables = {}
   }
   api = {
-    name                = "ca-ocr-api-dev"
     container_name      = "api"
     image               = "acrocrdevarksab01.azurecr.io/docmind/api@sha256:8615274bb9a4880920c97b28414bd8bbbdb2a8ce1a8c2d780ae365379c40f5e2"
     target_port         = 8000
@@ -106,7 +104,6 @@ container_apps = {
     }
   }
   llmmagic = {
-    name             = "ca-ocr-llmmagic-dev"
     container_name   = "llmmagic"
     image            = "acrocrdevarksab01.azurecr.io/docmind/llmmagic@sha256:bc8a6f7781cc65dd407ba39601233684851cab8f64ceab6545e79c7eb60cbb66"
     target_port      = 8000
@@ -157,7 +154,6 @@ container_apps = {
     }
   }
   worker = {
-    name                = "ca-ocr-worker-dev"
     container_name      = "worker"
     image               = "acrocrdevarksab01.azurecr.io/docmind/worker@sha256:c3b3c82483e586458aa84d48f9b71a14fccc3bd76b761e7b6d37ce582bd7f7ad"
     target_port         = 8000
@@ -194,7 +190,6 @@ container_apps = {
 
 dapr_components = {
   servicebus-pubsub-api = {
-    name                         = "docmind-servicebus-pubsub-api"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -205,7 +200,6 @@ dapr_components = {
     service_bus_metadata_enabled = true
   }
   servicebus-pubsub-worker = {
-    name                         = "docmind-servicebus-pubsub-worker"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -219,7 +213,6 @@ dapr_components = {
 
 container_app_jobs = {
   api-migrations = {
-    name                       = "caj-ocr-api-migrate-dev"
     container_name             = "api-migrations"
     image                      = "acrocrdevarksab01.azurecr.io/docmind/api@sha256:8615274bb9a4880920c97b28414bd8bbbdb2a8ce1a8c2d780ae365379c40f5e2"
     command                    = ["python"]

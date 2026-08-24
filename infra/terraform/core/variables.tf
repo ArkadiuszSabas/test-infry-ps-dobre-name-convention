@@ -132,7 +132,6 @@ variable "gpt_deployment" {
 variable "container_apps" {
   description = "Complete runtime app definitions. Identity keys resolve against workload_identities. Keep the map cumulative after workloads are introduced."
   type = map(object({
-    name                  = string
     container_name        = string
     image                 = string
     target_port           = number
@@ -167,7 +166,6 @@ variable "container_apps" {
 variable "dapr_components" {
   description = "Dapr components attached to the Container Apps Environment. Runtime configuration must include servicebus-pubsub-api and servicebus-pubsub-worker."
   type = map(object({
-    name                         = string
     component_type               = string
     version                      = string
     ignore_errors                = bool
@@ -191,7 +189,6 @@ variable "dapr_components" {
 variable "container_app_jobs" {
   description = "Manual Container Apps jobs. Runtime configuration must retain the api-migrations job."
   type = map(object({
-    name                       = string
     container_name             = string
     image                      = string
     command                    = list(string)

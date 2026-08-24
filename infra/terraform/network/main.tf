@@ -38,6 +38,17 @@ locals {
   nat_gateway_public_ip_name = "pip-${local.app_token}-${local.environment_token}-nat-${local.instance_token}"
   nat_gateway_name           = "ng-${local.app_token}-${local.environment_token}-${local.instance_token}"
 
+  private_endpoint_workloads = {
+    "key-vault"              = "kv"
+    "storage-blob"           = "stblob"
+    "service-bus"            = "sb"
+    "postgresql"             = "psql"
+    "document-intelligence"  = "di"
+    "foundry"                = "foundry"
+    "azure-monitor"          = "ampls"
+    "container-apps"         = "cae"
+  }
+
   private_dns_zone_names = {
     azure_monitor       = "privatelink.monitor.azure.com"
     azure_monitor_agent = "privatelink.agentsvc.azure-automation.net"
@@ -149,6 +160,14 @@ resource "terraform_data" "approved_design_guard" {
       ])
       error_message = "Every Private Endpoint target must belong to the configured application resource group."
     }
+
+    precondition {
+      condition = alltrue([
+        for endpoint_key in keys(var.private_endpoints) :
+        contains(keys(local.private_endpoint_workloads), endpoint_key)
+      ])
+      error_message = "Every Private Endpoint key must have an approved naming-convention workload token."
+    }
   }
 }
 
@@ -207,7 +226,7 @@ module "private_endpoints" {
   resource_group_name = data.azurerm_resource_group.network.name
   private_endpoints = {
     for key, endpoint in var.private_endpoints : key => {
-      name                           = endpoint.name
+      name                           = "pep-${local.app_token}-${local.environment_token}-${local.private_endpoint_workloads[key]}-${local.instance_token}"
       subnet_id                      = data.azurerm_subnet.private_endpoints.id
       private_connection_resource_id = endpoint.private_connection_resource_id
       subresource_names              = endpoint.subresource_names

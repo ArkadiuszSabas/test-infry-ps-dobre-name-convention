@@ -1,16 +1,11 @@
 subscription_id                 = "16060ea2-28be-4b09-8e6d-060249d69ddd"
+app_id                          = "ocr"
+environment                     = "dev"
+instance_number                 = "01"
 application_resource_group_name = "rg-ocr-dev-arksab"
 
-# Existing UAI resources. RBAC reads their principal IDs automatically.
-workload_identities = {
-  web                    = { name = "id-ocr-web-dev" }
-  api                    = { name = "id-ocr-api-dev" }
-  api-migrator           = { name = "id-ocr-api-migrator-dev" }
-  dapr-servicebus-api    = { name = "id-ocr-dapr-sb-api-dev" }
-  dapr-servicebus-worker = { name = "id-ocr-dapr-sb-worker-dev" }
-  llmmagic               = { name = "id-ocr-llmmagic-dev" }
-  worker                 = { name = "id-ocr-worker-dev" }
-}
+# Existing UAI resources. RBAC derives and reads their names automatically.
+workload_identity_workloads = ["web", "api", "api-migrator", "dapr-servicebus-api", "dapr-servicebus-worker", "llmmagic", "worker"]
 
 role_assignments = {
   acr-pull-web = {

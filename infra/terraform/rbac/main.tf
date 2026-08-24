@@ -1,9 +1,18 @@
 locals {
   role_assignment_uuid_namespace = "6ba7b811-9dad-11d1-80b4-00c04fd430c8"
+  app_token                      = lower(replace(var.app_id, "/[^0-9A-Za-z]/", ""))
+  environment_token              = lower(replace(var.environment, "/[^0-9A-Za-z]/", ""))
+  instance_token                 = lower(replace(var.instance_number, "/[^0-9A-Za-z]/", ""))
+
+  workload_identities = {
+    for workload in var.workload_identity_workloads : workload => {
+      name = "id-${local.app_token}-${local.environment_token}-${workload}-${local.instance_token}"
+    }
+  }
 }
 
 data "azurerm_user_assigned_identity" "workload" {
-  for_each = var.workload_identities
+  for_each = local.workload_identities
 
   name                = each.value.name
   resource_group_name = var.application_resource_group_name
@@ -33,7 +42,7 @@ resource "azurerm_role_assignment" "this" {
 
   lifecycle {
     precondition {
-      condition     = each.value.workload_identity_key == null || contains(keys(var.workload_identities), each.value.workload_identity_key)
+      condition     = each.value.workload_identity_key == null || contains(keys(local.workload_identities), each.value.workload_identity_key)
       error_message = "workload_identity_key must exist in workload_identities."
     }
 

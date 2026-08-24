@@ -117,6 +117,10 @@ locals {
     name = "dep-${local.app_token}-${local.environment_token}-gpt55-${local.instance_token}"
   })
 
+  container_app_job_workloads = {
+    "api-migrations" = "api-migrate"
+  }
+
   cmk_identities = {
     "cmk-document-intelligence" = { name = "id-${local.app_token}-${local.environment_token}-cmk-document-intelligence-${local.instance_token}" }
     "cmk-postgresql"            = { name = "id-${local.app_token}-${local.environment_token}-cmk-postgresql-${local.instance_token}" }
@@ -125,7 +129,7 @@ locals {
 
   container_apps = {
     for key, app in var.container_apps : key => {
-      name                  = app.name
+      name                  = "ca-${local.app_token}-${local.environment_token}-${key}-${local.instance_token}"
       container_name        = app.container_name
       image                 = app.image
       target_port           = app.target_port
@@ -159,7 +163,7 @@ locals {
 
   dapr_components = {
     for key, component in var.dapr_components : key => {
-      name           = component.name
+      name           = "dapr-${local.app_token}-${local.environment_token}-${key}-${local.instance_token}"
       component_type = component.component_type
       version        = component.version
       ignore_errors  = component.ignore_errors
@@ -180,7 +184,7 @@ locals {
 
   container_app_jobs = {
     for key, job in var.container_app_jobs : key => {
-      name                       = job.name
+      name                       = "caj-${local.app_token}-${local.environment_token}-${local.container_app_job_workloads[key]}-${local.instance_token}"
       container_name             = job.container_name
       image                      = job.image
       command                    = job.command

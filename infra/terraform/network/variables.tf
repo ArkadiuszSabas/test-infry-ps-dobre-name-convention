@@ -119,7 +119,6 @@ variable "additional_container_apps_private_dns_locations" {
 variable "private_endpoints" {
   description = "Complete Private Endpoint desired state keyed by logical service name. Keep the map cumulative after endpoints are introduced."
   type = map(object({
-    name                           = string
     private_connection_resource_id = string
     subresource_names              = list(string)
     private_dns_zone_ids           = list(string)

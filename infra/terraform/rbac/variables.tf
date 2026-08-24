@@ -13,16 +13,24 @@ variable "application_resource_group_name" {
   type        = string
 }
 
-variable "workload_identities" {
-  description = "Workload user-assigned managed identities read by the RBAC phase."
-  type = map(object({
-    name = string
-  }))
+variable "app_id" {
+  description = "Application identifier used in workload managed identity names."
+  type        = string
+}
 
-  validation {
-    condition     = alltrue([for identity in values(var.workload_identities) : trimspace(identity.name) != ""])
-    error_message = "Every workload identity must have a non-empty name."
-  }
+variable "environment" {
+  description = "Environment identifier used in workload managed identity names."
+  type        = string
+}
+
+variable "instance_number" {
+  description = "Application instance identifier used in workload managed identity names."
+  type        = string
+}
+
+variable "workload_identity_workloads" {
+  description = "Workloads whose user-assigned managed identities are read by the RBAC phase."
+  type        = set(string)
 }
 
 variable "role_assignments" {
