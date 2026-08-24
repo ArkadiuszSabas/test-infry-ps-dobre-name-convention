@@ -1,6 +1,9 @@
-subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
+subscription_id                 = "fe31d3c8-576f-4c09-913c-0635306834ff0"
 location                        = "swedencentral"
 environment                     = "dev"
+tenant_prefix                   = "ee7c45"
+app_id                          = "ocr"
+instance_number                 = "01"
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 
@@ -22,30 +25,15 @@ runtime_dependencies_ready      = false # for core-foundation set it to 'false'
 foundry_enabled                 = true
 foundry_cmk_enabled             = false
 
-resource_names = {
-  key_vault                  = "kv-ocr-dev"
-  storage_account            = "stocrdev01"
-  container_registry         = "acrocrdev01"
-  log_analytics              = "law-ocr-dev"
-  application_insights       = "appi-ocr-dev"
-  monitor_private_link       = "ampls-ocr-dev"
-  service_bus                = "sb-ocr-dev"
-  document_intelligence      = "di-ocr-dev"
-  foundry_account            = "ai-ocr-dev"
-  foundry_project            = "aifp-ocr-dev"
-  container_apps_environment = "cae-ocr-dev"
-  postgresql                 = "psql-ocr-dev"
-}
-
-workload_identities = {
-  web                    = { name = "id-ocr-web-dev" }
-  api                    = { name = "id-ocr-api-dev" }
-  api-migrator           = { name = "id-ocr-api-migrator-dev" }
-  dapr-servicebus-api    = { name = "id-ocr-dapr-sb-api-dev" }
-  dapr-servicebus-worker = { name = "id-ocr-dapr-sb-worker-dev" }
-  llmmagic               = { name = "id-ocr-llmmagic-dev" }
-  worker                 = { name = "id-ocr-worker-dev" }
-}
+workload_identity_workloads = [
+  "web",
+  "api",
+  "api-migrator",
+  "dapr-servicebus-api",
+  "dapr-servicebus-worker",
+  "llmmagic",
+  "worker",
+]
 
 storage_containers = [
   "archive",
@@ -56,27 +44,7 @@ storage_containers = [
   "quarantine",
 ]
 
-service_bus_queues = {
-  document-processing = {
-    dead_lettering_on_message_expiration = true
-    default_message_ttl                  = "P14D"
-    lock_duration                        = "PT1M"
-    max_delivery_count                   = 10
-    max_size_in_megabytes                = 1024
-  }
-  processing-results = {
-    dead_lettering_on_message_expiration = true
-    default_message_ttl                  = "P14D"
-    lock_duration                        = "PT1M"
-    max_delivery_count                   = 10
-    max_size_in_megabytes                = 1024
-  }
-}
-
-postgresql_database_names = ["db-ocr-dev"]
-
 gpt_deployment = {
-  name                       = "gpt-5-5"
   model_format               = "OpenAI"
   model_name                 = "gpt-5.5"
   model_version              = "2026-04-24"

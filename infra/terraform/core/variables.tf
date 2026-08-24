@@ -24,6 +24,21 @@ variable "environment" {
   }
 }
 
+variable "tenant_prefix" {
+  description = "Tenant prefix used in resource names."
+  type        = string
+}
+
+variable "app_id" {
+  description = "Application identifier used in resource names."
+  type        = string
+}
+
+variable "instance_number" {
+  description = "Application instance identifier used in resource names."
+  type        = string
+}
+
 variable "application_resource_group_name" {
   description = "Pre-created ProService application resource group."
   type        = string
@@ -92,29 +107,9 @@ variable "container_apps_infrastructure_subnet_name" {
   type        = string
 }
 
-variable "resource_names" {
-  description = "Approved ProService resource names."
-  type = object({
-    key_vault                  = string
-    storage_account            = string
-    container_registry         = string
-    log_analytics              = string
-    application_insights       = string
-    monitor_private_link       = string
-    service_bus                = string
-    document_intelligence      = string
-    foundry_account            = string
-    foundry_project            = string
-    container_apps_environment = string
-    postgresql                 = string
-  })
-}
-
-variable "workload_identities" {
-  description = "Managed identity definitions keyed by workload name. Must include api-migrator."
-  type = map(object({
-    name = string
-  }))
+variable "workload_identity_workloads" {
+  description = "Workloads for which Core creates user-assigned managed identities."
+  type        = set(string)
 }
 
 variable "storage_containers" {
@@ -122,26 +117,16 @@ variable "storage_containers" {
   type        = set(string)
 }
 
-variable "service_bus_queues" {
-  description = "Premium Service Bus queues."
-  type = map(object({
-    dead_lettering_on_message_expiration = bool
-    default_message_ttl                  = string
-    lock_duration                        = string
-    max_delivery_count                   = number
-    max_size_in_megabytes                = number
-  }))
-}
-
-variable "postgresql_database_names" {
-  description = "Application PostgreSQL databases."
-  type        = set(string)
+variable "postgresql_database_name" {
+  description = "Optional PostgreSQL database name. Null derives the standard application database name."
+  type        = string
+  default     = null
+  nullable    = true
 }
 
 variable "gpt_deployment" {
   description = "Approved Azure AI model deployment."
   type = object({
-    name                       = string
     model_format               = string
     model_name                 = string
     model_version              = string

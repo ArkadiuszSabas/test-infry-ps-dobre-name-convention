@@ -63,12 +63,66 @@ resource "terraform_data" "approved_design_guard" {
 }
 
 locals {
+  tenant_token      = lower(replace(var.tenant_prefix, "/[^0-9A-Za-z]/", ""))
+  app_token         = lower(replace(var.app_id, "/[^0-9A-Za-z]/", ""))
+  environment_token = lower(replace(var.environment, "/[^0-9A-Za-z]/", ""))
+  instance_token    = lower(replace(var.instance_number, "/[^0-9A-Za-z]/", ""))
+
+  resource_names = {
+    key_vault                  = "${local.tenant_token}kv${local.app_token}${local.environment_token}${local.instance_token}"
+    storage_account            = "${local.tenant_token}st${local.app_token}${local.environment_token}doc${local.instance_token}"
+    container_registry         = "${local.tenant_token}cr${local.app_token}${local.environment_token}${local.instance_token}"
+    log_analytics              = "log-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    application_insights       = "appi-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    monitor_private_link       = "ampls-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    service_bus                = "${local.tenant_token}sbns${local.app_token}${local.environment_token}${local.instance_token}"
+    document_intelligence      = "${local.tenant_token}di${local.app_token}${local.environment_token}${local.instance_token}"
+    foundry_account            = "ais-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    foundry_project            = "proj-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    container_apps_environment = "cae-${local.app_token}-${local.environment_token}-${local.instance_token}"
+    postgresql                 = "psql-${local.app_token}-${local.environment_token}-${local.instance_token}"
+  }
+
+  workload_identities = {
+    for workload in var.workload_identity_workloads : workload => {
+      name = "id-${local.app_token}-${local.environment_token}-${workload}-${local.instance_token}"
+    }
+  }
+
+  service_bus_queues = {
+    "sbq-${local.app_token}-${local.environment_token}-docproc-${local.instance_token}" = {
+      dead_lettering_on_message_expiration = true
+      default_message_ttl                  = "P14D"
+      lock_duration                        = "PT1M"
+      max_delivery_count                   = 10
+      max_size_in_megabytes                = 1024
+    }
+    "sbq-${local.app_token}-${local.environment_token}-procres-${local.instance_token}" = {
+      dead_lettering_on_message_expiration = true
+      default_message_ttl                  = "P14D"
+      lock_duration                        = "PT1M"
+      max_delivery_count                   = 10
+      max_size_in_megabytes                = 1024
+    }
+  }
+
+  postgresql_database_names = toset([
+    coalesce(
+      var.postgresql_database_name,
+      "db-${local.app_token}-${local.environment_token}-app",
+    ),
+  ])
+
+  gpt_deployment = merge(var.gpt_deployment, {
+    name = "dep-${local.app_token}-${local.environment_token}-gpt55-${local.instance_token}"
+  })
+
   cmk_identities = {
-    "cmk-document-intelligence" = { name = "id-${var.environment}-cmk-document-intelligence" }
-    "cmk-foundry"               = { name = "id-${var.environment}-cmk-foundry" }
-    "cmk-postgresql"            = { name = "id-${var.environment}-cmk-postgresql" }
-    "cmk-servicebus"            = { name = "id-${var.environment}-cmk-servicebus" }
-    "cmk-storage"               = { name = "id-${var.environment}-cmk-storage" }
+    "cmk-document-intelligence" = { name = "id-${local.app_token}-${local.environment_token}-cmk-document-intelligence-${local.instance_token}" }
+    "cmk-foundry"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-foundry-${local.instance_token}" }
+    "cmk-postgresql"            = { name = "id-${local.app_token}-${local.environment_token}-cmk-postgresql-${local.instance_token}" }
+    "cmk-servicebus"            = { name = "id-${local.app_token}-${local.environment_token}-cmk-servicebus-${local.instance_token}" }
+    "cmk-storage"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-storage-${local.instance_token}" }
   }
 
   container_apps = {
@@ -159,7 +213,7 @@ module "managed_identities" {
 
   location            = var.location
   resource_group_name = data.azurerm_resource_group.environment.name
-  identities          = var.workload_identities
+  identities          = local.workload_identities
   tags                = var.tags
 
   depends_on = [terraform_data.approved_design_guard]
@@ -177,7 +231,7 @@ data "azurerm_user_assigned_identity" "cmk" {
 module "key_vault" {
   source = "../modules/key-vault"
 
-  name                          = var.resource_names.key_vault
+  name                          = local.resource_names.key_vault
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.environment.name
   tenant_id                     = data.azurerm_client_config.current.tenant_id
@@ -194,7 +248,7 @@ module "key_vault" {
 module "storage" {
   source = "../modules/storage"
 
-  name                              = var.resource_names.storage_account
+  name                              = local.resource_names.storage_account
   location                          = var.location
   resource_group_name               = data.azurerm_resource_group.environment.name
   replication_type                  = var.environment == "prd" ? "GRS" : "LRS"
@@ -211,7 +265,7 @@ module "storage" {
 module "container_registry" {
   source = "../modules/container-registry"
 
-  name                = var.resource_names.container_registry
+  name                = local.resource_names.container_registry
   location            = var.location
   resource_group_name = data.azurerm_resource_group.environment.name
   sku                 = "Premium"
@@ -223,9 +277,9 @@ module "container_registry" {
 module "observability" {
   source = "../modules/observability"
 
-  log_analytics_workspace_name    = var.resource_names.log_analytics
-  application_insights_name       = var.resource_names.application_insights
-  monitor_private_link_scope_name = var.resource_names.monitor_private_link
+  log_analytics_workspace_name    = local.resource_names.log_analytics
+  application_insights_name       = local.resource_names.application_insights
+  monitor_private_link_scope_name = local.resource_names.monitor_private_link
   location                        = var.location
   resource_group_name             = data.azurerm_resource_group.environment.name
   retention_in_days               = var.environment == "prd" ? 90 : 30
@@ -233,7 +287,7 @@ module "observability" {
 }
 
 resource "azurerm_servicebus_namespace" "this" {
-  name                          = var.resource_names.service_bus
+  name                          = local.resource_names.service_bus
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.environment.name
   sku                           = "Premium"
@@ -257,7 +311,7 @@ resource "azurerm_servicebus_namespace" "this" {
 }
 
 resource "azurerm_servicebus_queue" "this" {
-  for_each = var.service_bus_queues
+  for_each = local.service_bus_queues
 
   name                                 = each.key
   namespace_id                         = azurerm_servicebus_namespace.this.id
@@ -274,14 +328,14 @@ module "ai_services" {
 
   foundry_enabled                                     = var.foundry_enabled
   foundry_cmk_enabled                                 = var.foundry_cmk_enabled
-  document_intelligence_name                          = var.resource_names.document_intelligence
+  document_intelligence_name                          = local.resource_names.document_intelligence
   document_intelligence_sku_name                      = "S0"
-  foundry_account_name                                = var.resource_names.foundry_account
+  foundry_account_name                                = local.resource_names.foundry_account
   foundry_sku_name                                    = "S0"
-  foundry_project_name                                = var.resource_names.foundry_project
+  foundry_project_name                                = local.resource_names.foundry_project
   foundry_project_display_name                        = "DocMind.Ai ${upper(var.environment)}"
   foundry_project_description                         = "DocMind.Ai ${var.environment} AI project."
-  gpt_deployment                                      = var.gpt_deployment
+  gpt_deployment                                      = local.gpt_deployment
   location                                            = var.location
   document_intelligence_location                      = var.location
   resource_group_name                                 = data.azurerm_resource_group.environment.name
@@ -305,7 +359,7 @@ module "ai_services" {
 module "postgresql" {
   source = "../modules/postgresql"
 
-  name                          = var.resource_names.postgresql
+  name                          = local.resource_names.postgresql
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.environment.name
   tenant_id                     = data.azurerm_client_config.current.tenant_id
@@ -315,14 +369,14 @@ module "postgresql" {
   storage_mb                    = var.environment == "prd" ? 65536 : 32768
   backup_retention_days         = var.environment == "prd" ? 35 : 7
   geo_redundant_backup_enabled  = var.environment == "prd"
-  database_names                = var.postgresql_database_names
+  database_names                = local.postgresql_database_names
   firewall_ip_addresses         = []
   public_network_access_enabled = false
   cmk_key_vault_key_id          = var.cmk.postgresql_key_id
   cmk_user_assigned_identity_id = data.azurerm_user_assigned_identity.cmk["cmk-postgresql"].id
   active_directory_administrator = {
     object_id      = module.managed_identities.principal_ids["api-migrator"]
-    principal_name = var.workload_identities["api-migrator"].name
+    principal_name = local.workload_identities["api-migrator"].name
     principal_type = "ServicePrincipal"
   }
   tags = var.tags
@@ -331,7 +385,7 @@ module "postgresql" {
 module "container_apps" {
   source = "../modules/container-apps"
 
-  environment_name           = var.resource_names.container_apps_environment
+  environment_name           = local.resource_names.container_apps_environment
   location                   = var.location
   resource_group_name        = data.azurerm_resource_group.environment.name
   log_analytics_workspace_id = module.observability.log_analytics_workspace_id
