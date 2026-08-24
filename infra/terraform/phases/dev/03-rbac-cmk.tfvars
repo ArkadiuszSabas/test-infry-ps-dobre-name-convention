@@ -1,8 +1,8 @@
-subscription_id                 = "16060ea2-28be-4b09-8e6d-060249d69ddd"
+subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
 environment                     = "dev"
-application_resource_group_name = "rg-ocr-dev-arksab"
-key_vault_name                  = "kv-ocr-dev-cmk-arksab"
-key_vault_resource_group_name   = "rg-ocr-dev-arksab"
+application_resource_group_name = "rg-ocr-dev"
+key_vault_name                  = "kv-ocr-dev-cmk-arksab2"
+key_vault_resource_group_name   = "rg-ocr-dev"
 
 cmk_identities = {
   cmk-document-intelligence = { name = "id-dev-cmk-document-intelligence" }
