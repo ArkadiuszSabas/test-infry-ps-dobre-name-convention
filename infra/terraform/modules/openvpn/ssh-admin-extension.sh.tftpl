@@ -1,0 +1,362 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+admin_user='${admin_username}'
+ssh_port='${ssh_port}'
+ssh_enabled='${ssh_enabled}'
+authorized_keys_base64='${authorized_keys_base64}'
+openvpn_profile_script_base64='${openvpn_profile_script_base64}'
+profile_lock_storage_account_name='${profile_lock_storage_account_name}'
+profile_lock_container_name='${profile_lock_container_name}'
+server_json_base64='${server_json_base64}'
+
+log() {
+  printf 'docmind-openvpn-ssh-admin: %s\n' "$1"
+}
+
+if ! id "$admin_user" >/dev/null 2>&1; then
+  log "admin user '$admin_user' does not exist"
+  exit 1
+fi
+
+user_home="$(getent passwd "$admin_user" | cut -d: -f6)"
+if [ -z "$user_home" ] || [ ! -d "$user_home" ]; then
+  log "admin user home directory could not be resolved"
+  exit 1
+fi
+
+restart_sshd() {
+  sshd -t
+  systemctl restart ssh || systemctl restart sshd
+}
+
+converge_openvpn_sync_gate() {
+  gate_dir='/etc/systemd/system/openvpn-server@server.service.d'
+  gate_path="$gate_dir/10-docmind-sync-gate.conf"
+  gate_content='[Unit]
+Requires=docmind-openvpn-sync.service
+After=docmind-openvpn-sync.service
+'
+
+  install -d -m 755 "$gate_dir"
+  printf '%s' "$gate_content" > "$gate_path.tmp"
+  chmod 644 "$gate_path.tmp"
+
+  if [ ! -f "$gate_path" ] || ! cmp -s "$gate_path.tmp" "$gate_path"; then
+    mv -f "$gate_path.tmp" "$gate_path"
+    log "OpenVPN sync gate is converged"
+  else
+    rm -f "$gate_path.tmp"
+  fi
+
+  systemctl daemon-reload
+}
+
+converge_runtime_config() {
+  config_dir='/usr/local/share/docmind-openvpn'
+  config_path="$config_dir/server.json"
+
+  converge_openvpn_sync_gate
+  install -d -m 755 "$config_dir"
+  printf '%s' "$server_json_base64" | base64 --decode > "$config_path.tmp"
+  chmod 644 "$config_path.tmp"
+  mv -f "$config_path.tmp" "$config_path"
+
+  for attempt in $(seq 1 60); do
+    if [ -x /usr/local/sbin/docmind-openvpn-sync ]; then
+      /usr/local/sbin/docmind-openvpn-sync
+      log "OpenVPN runtime configuration is synchronized"
+      return
+    fi
+    sleep 5
+  done
+
+  log "OpenVPN sync command did not become available"
+  return 1
+}
+
+cleanup_disabled_ssh() {
+  rm -f /etc/ssh/sshd_config.d/60-docmind-openvpn-admin.conf
+  rm -f /usr/local/bin/docmind-openvpn-profile
+  rm -f /usr/local/lib/docmind-openvpn/openvpn-profiles.ps1
+  rmdir /usr/local/lib/docmind-openvpn 2>/dev/null || true
+  rm -f /etc/cron.d/docmind-openvpn-profile-cleanup
+  rm -rf "$user_home/docmind-openvpn-profiles"
+
+  if [ -f "$user_home/.ssh/authorized_keys.docmind-before-ssh-admin" ]; then
+    mv -f "$user_home/.ssh/authorized_keys.docmind-before-ssh-admin" "$user_home/.ssh/authorized_keys"
+    chown "$admin_user:$admin_user" "$user_home/.ssh/authorized_keys"
+    chmod 600 "$user_home/.ssh/authorized_keys"
+  else
+    rm -f "$user_home/.ssh/authorized_keys"
+  fi
+
+  if [ -f /etc/ssh/sshd_config.docmind-original ]; then
+    cp /etc/ssh/sshd_config.docmind-original /etc/ssh/sshd_config
+  fi
+
+  restart_sshd
+  log "SSH admin access is disabled and extension-managed state has been removed"
+}
+
+if [ "$ssh_enabled" != "true" ]; then
+  cleanup_disabled_ssh
+  converge_runtime_config
+  exit 0
+fi
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y ca-certificates curl gnupg lsb-release openssl python3
+
+if ! command -v az >/dev/null 2>&1; then
+  azure_cli_installer="/tmp/docmind-install-azure-cli.sh"
+  curl --fail --show-error --silent --location --connect-timeout 15 --max-time 120 https://aka.ms/InstallAzureCLIDeb -o "$azure_cli_installer"
+  test -s "$azure_cli_installer"
+  bash -n "$azure_cli_installer"
+  bash "$azure_cli_installer"
+  rm -f "$azure_cli_installer"
+fi
+
+if ! command -v pwsh >/dev/null 2>&1; then
+  . /etc/os-release
+  microsoft_repo="/tmp/packages-microsoft-prod.deb"
+  curl --fail --show-error --silent --location --connect-timeout 15 --max-time 120 "https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb" -o "$microsoft_repo"
+  test -s "$microsoft_repo"
+  dpkg -i "$microsoft_repo"
+  rm -f "$microsoft_repo"
+  apt-get update
+  apt-get install -y powershell
+fi
+
+install -d -m 700 -o "$admin_user" -g "$admin_user" "$user_home/.ssh"
+if [ -f "$user_home/.ssh/authorized_keys" ] && [ ! -f "$user_home/.ssh/authorized_keys.docmind-before-ssh-admin" ]; then
+  cp -p "$user_home/.ssh/authorized_keys" "$user_home/.ssh/authorized_keys.docmind-before-ssh-admin"
+fi
+printf '%s' "$authorized_keys_base64" | base64 --decode > "$user_home/.ssh/authorized_keys"
+chown "$admin_user:$admin_user" "$user_home/.ssh/authorized_keys"
+chmod 600 "$user_home/.ssh/authorized_keys"
+
+if [ -f /etc/ssh/sshd_config ]; then
+  cp -n /etc/ssh/sshd_config /etc/ssh/sshd_config.docmind-original || true
+  sed -i -E 's/^[[:space:]]*Port[[:space:]]+[0-9]+/# DocMind managed SSH port; original disabled: &/' /etc/ssh/sshd_config
+fi
+
+install -d -m 755 /etc/ssh/sshd_config.d
+cat > /etc/ssh/sshd_config.d/60-docmind-openvpn-admin.conf <<SSHDCONFIG
+Port $ssh_port
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+ChallengeResponseAuthentication no
+AuthenticationMethods publickey
+PermitRootLogin no
+AllowUsers $admin_user
+AllowTcpForwarding no
+X11Forwarding no
+SSHDCONFIG
+
+sshd -t
+restart_sshd
+
+install -d -m 755 /usr/local/lib/docmind-openvpn
+printf '%s' "$openvpn_profile_script_base64" | base64 --decode > /usr/local/lib/docmind-openvpn/openvpn-profiles.ps1
+chmod 644 /usr/local/lib/docmind-openvpn/openvpn-profiles.ps1
+
+cat > /usr/local/bin/docmind-openvpn-profile <<'WRAPPER'
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  docmind-openvpn-profile generate-profile --client-common-name <cn> [--subscription-id <id>] [--access-profile private] [--vpn-ip <ip>] [--certificate-days <days>] [--force] [--break-stale-operation-lock --confirm-no-active-operation]
+  docmind-openvpn-profile download-profile --client-common-name <cn> [--subscription-id <id>]
+  docmind-openvpn-profile revoke-profile --client-common-name <cn> [--subscription-id <id>] [--break-stale-operation-lock --confirm-no-active-operation]
+  docmind-openvpn-profile rotate-ca [--subscription-id <id>] [--certificate-days <days>] [--force] [--break-stale-operation-lock --confirm-no-active-operation]
+USAGE
+}
+
+die() {
+  printf 'docmind-openvpn-profile: %s\n' "$1" >&2
+  exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+  usage
+  exit 2
+fi
+
+action="$1"
+shift
+client_common_name=""
+access_profile="private"
+vpn_ip=""
+certificate_days="825"
+force="false"
+subscription_id=""
+break_stale_operation_lock="false"
+confirm_no_active_operation="false"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --client-common-name)
+      [ "$#" -ge 2 ] || die "--client-common-name requires a value"
+      client_common_name="$2"
+      shift 2
+      ;;
+    --access-profile)
+      [ "$#" -ge 2 ] || die "--access-profile requires a value"
+      access_profile="$2"
+      shift 2
+      ;;
+    --vpn-ip)
+      [ "$#" -ge 2 ] || die "--vpn-ip requires a value"
+      vpn_ip="$2"
+      shift 2
+      ;;
+    --certificate-days)
+      [ "$#" -ge 2 ] || die "--certificate-days requires a value"
+      certificate_days="$2"
+      shift 2
+      ;;
+    --subscription-id)
+      [ "$#" -ge 2 ] || die "--subscription-id requires a value"
+      subscription_id="$2"
+      shift 2
+      ;;
+    --force)
+      force="true"
+      shift
+      ;;
+    --break-stale-operation-lock)
+      break_stale_operation_lock="true"
+      shift
+      ;;
+    --confirm-no-active-operation)
+      confirm_no_active_operation="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "unknown argument '$1'"
+      ;;
+  esac
+done
+
+case "$action" in
+  generate-profile|download-profile|revoke-profile|rotate-ca) ;;
+  *) die "action must be generate-profile, download-profile, revoke-profile, or rotate-ca" ;;
+esac
+
+if [ "$action" != "rotate-ca" ] && [ -z "$client_common_name" ]; then
+  die "--client-common-name is required for $action"
+fi
+
+if [ "$break_stale_operation_lock" = "true" ] && [ "$confirm_no_active_operation" != "true" ]; then
+  die "--break-stale-operation-lock also requires --confirm-no-active-operation"
+fi
+
+if [ -n "$client_common_name" ] && ! [[ "$client_common_name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$ ]]; then
+  die "client common name has an invalid format"
+fi
+
+server_config="/usr/local/share/docmind-openvpn/server.json"
+profile_script="/usr/local/lib/docmind-openvpn/openvpn-profiles.ps1"
+[ -f "$server_config" ] || die "OpenVPN server config was not found at $server_config"
+[ -f "$profile_script" ] || die "OpenVPN profile script was not found at $profile_script"
+
+server_value() {
+  python3 -c 'import json, sys; data=json.load(open(sys.argv[1], encoding="utf-8")); print(data.get(sys.argv[2], ""))' "$server_config" "$1"
+}
+
+runtime_key_vault="$(server_value key_vault_name)"
+ca_key_vault="$(server_value ca_key_vault_name)"
+client_cidr="$(server_value client_cidr)"
+endpoint_host="$(server_value remote_host)"
+endpoint_port="$(server_value port)"
+protocol="$(server_value protocol)"
+
+[ -n "$runtime_key_vault" ] || die "runtime Key Vault name is missing from server config"
+[ -n "$ca_key_vault" ] || die "CA Key Vault name is missing from server config"
+[ -n "$client_cidr" ] || die "client CIDR is missing from server config"
+[ -n "$endpoint_host" ] || die "remote host is missing from server config"
+[ -n "$endpoint_port" ] || endpoint_port="1194"
+[ -n "$protocol" ] || protocol="udp"
+
+azure_config_dir="$(mktemp -d)"
+legacy_profile_root="$HOME/docmind-openvpn-profiles"
+operation_completion_marker=""
+cleanup() {
+  rm -rf "$azure_config_dir"
+  if [ -n "$operation_completion_marker" ]; then
+    rm -f "$operation_completion_marker"
+  fi
+}
+trap cleanup EXIT
+chmod 700 "$azure_config_dir"
+rm -rf "$legacy_profile_root"
+export AZURE_CONFIG_DIR="$azure_config_dir"
+
+printf 'Starting isolated Azure CLI device-code login for this profile operation.\n' >&2
+az login --use-device-code --output none >/dev/null
+if [ -n "$subscription_id" ]; then
+  az account set --subscription "$subscription_id" >/dev/null
+fi
+az account get-access-token --resource https://vault.azure.net --output none >/dev/null
+
+arguments=(
+  -Action "$action"
+  -RuntimeKeyVaultName "$runtime_key_vault"
+  -CaKeyVaultName "$ca_key_vault"
+  -ClientCommonName "$client_common_name"
+  -AccessProfile "$access_profile"
+  -VpnIp "$vpn_ip"
+  -ClientCidr "$client_cidr"
+  -EndpointHost "$endpoint_host"
+  -EndpointPort "$endpoint_port"
+  -Protocol "$protocol"
+  -CertificateDays "$certificate_days"
+  -OperationLockStorageAccountName "__PROFILE_LOCK_STORAGE_ACCOUNT__"
+  -OperationLockContainerName "__PROFILE_LOCK_CONTAINER__"
+  -LocalServerSync
+)
+
+if [ "$force" = "true" ]; then
+  arguments+=(-Force)
+fi
+
+if [ "$break_stale_operation_lock" = "true" ]; then
+  arguments+=(-BreakStaleOperationLock)
+fi
+
+if [ "$action" != "download-profile" ]; then
+  operation_completion_marker="$(mktemp)"
+  chmod 600 "$operation_completion_marker"
+  arguments+=(-OperationCompletionMarkerPath "$operation_completion_marker")
+fi
+
+pwsh -NoProfile -ExecutionPolicy Bypass -File "$profile_script" "$${arguments[@]}"
+
+if [ -n "$operation_completion_marker" ]; then
+  completion_state="$(tr -d '\r\n' < "$operation_completion_marker")"
+  if [ "$completion_state" != "completed:$action" ]; then
+    die "OpenVPN operation did not reach durable completion; no success or download instruction will be reported. Confirm whether the operation lock is still active before retrying."
+  fi
+fi
+
+if [ "$action" = "generate-profile" ]; then
+  printf 'OpenVPN profile generation, registry synchronization, and operation lock release completed. Download without VM staging from your local shell with: ssh -p <ssh-port> -i <ssh-key> <admin-user>@<openvpn-host> "docmind-openvpn-profile download-profile --client-common-name %s%s" > %s.ovpn\n' "$client_common_name" "$${subscription_id:+ --subscription-id $subscription_id}" "$client_common_name" >&2
+fi
+WRAPPER
+
+sed -i "s/__PROFILE_LOCK_STORAGE_ACCOUNT__/$profile_lock_storage_account_name/g" /usr/local/bin/docmind-openvpn-profile
+sed -i "s/__PROFILE_LOCK_CONTAINER__/$profile_lock_container_name/g" /usr/local/bin/docmind-openvpn-profile
+chmod 755 /usr/local/bin/docmind-openvpn-profile
+rm -f /etc/cron.d/docmind-openvpn-profile-cleanup
+rm -rf "$user_home/docmind-openvpn-profiles"
+
+converge_runtime_config
+log "SSH admin access is configured on TCP port $ssh_port"

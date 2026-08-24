@@ -1,0 +1,49 @@
+{
+  "api_routes": [],
+  "capabilities": [
+    {
+      "contract_version": 1,
+      "id": "manual_upload",
+      "kind": "input",
+      "module_id": null,
+      "required_permissions": [
+        "documents.create"
+      ],
+      "safe_metadata": {
+        "description": null,
+        "extra": {},
+        "label": "Manual upload"
+      },
+      "status": "enabled",
+      "ui_surfaces": [
+        "inbox.upload"
+      ],
+      "visibility": "public"
+    }
+  ],
+  "connector_instances": [
+    {
+      "capability_id": "manual_upload",
+      "config_references": {},
+      "connector_instance_id": "core.manual_upload.primary",
+      "health": {},
+      "module_id": null,
+      "profile_id": "ps",
+      "safe_metadata": {
+        "description": null,
+        "extra": {},
+        "label": "Manual upload"
+      },
+      "secret_references": {},
+      "status": "enabled",
+      "visibility": "public"
+    }
+  ],
+  "installed_modules": [],
+  "migration_bundles": [],
+  "profile_id": "ps",
+  "runtime_policies": {},
+  "schema_version": 1,
+  "ui_extensions": [],
+  "worker_hooks": []
+}

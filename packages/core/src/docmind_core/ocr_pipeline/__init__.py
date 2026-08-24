@@ -1,0 +1,41 @@
+"""Public OCR pipeline transport contracts."""
+
+from docmind_core.ocr_pipeline.contracts import (
+    LLMMAGIC_DISPATCH_REJECTED,
+    OCR_DOCUMENT_PROCESSING_TOPIC,
+    OCR_PIPELINE_EVENT_ROUTE,
+    OCR_PROCESSING_RESULTS_TOPIC,
+    OCR_RUN_REQUESTED_ROUTE,
+    DispatchFailedV1,
+    OcrDispatchDispositionV1,
+    OcrDispatchFailureCodeV1,
+    OcrPipelineEventKindV1,
+    OcrPipelineEventV1,
+    OcrPipelineRunAcceptanceStatusV1,
+    OcrPipelineRunAcceptedV1,
+    OcrPipelineSafeErrorV1,
+    OcrPipelineStatusV1,
+    OcrPipelineStepSnapshotV1,
+    OcrPipelineStepStatusV1,
+    OcrRunRequestedV1,
+)
+
+__all__ = [
+    "LLMMAGIC_DISPATCH_REJECTED",
+    "OCR_DOCUMENT_PROCESSING_TOPIC",
+    "OCR_PIPELINE_EVENT_ROUTE",
+    "OCR_PROCESSING_RESULTS_TOPIC",
+    "OCR_RUN_REQUESTED_ROUTE",
+    "DispatchFailedV1",
+    "OcrDispatchDispositionV1",
+    "OcrDispatchFailureCodeV1",
+    "OcrPipelineEventKindV1",
+    "OcrPipelineEventV1",
+    "OcrPipelineRunAcceptanceStatusV1",
+    "OcrPipelineRunAcceptedV1",
+    "OcrPipelineSafeErrorV1",
+    "OcrPipelineStatusV1",
+    "OcrPipelineStepSnapshotV1",
+    "OcrPipelineStepStatusV1",
+    "OcrRunRequestedV1",
+]

@@ -1,0 +1,757 @@
+#cloud-config
+bootcmd:
+  - [ mkdir, -p, /usr/local/share/docmind-openvpn ]
+write_files:
+  - path: /usr/local/share/docmind-openvpn/server.json
+    owner: root:root
+    permissions: "0644"
+    content: |
+      ${server_json}
+  - path: /usr/local/share/docmind-openvpn/clients-bootstrap.json
+    owner: root:root
+    permissions: "0644"
+    content: |
+      ${clients_json}
+  - path: /usr/local/sbin/docmind-openvpn-sync
+    owner: root:root
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env python3
+      import hashlib
+      import ipaddress
+      import json
+      import os
+      import re
+      import subprocess
+      import tempfile
+      import urllib.error
+      import urllib.parse
+      import urllib.request
+      from datetime import datetime, timezone
+      from pathlib import Path
+
+      BASE_DIR = Path("/usr/local/share/docmind-openvpn")
+      SERVER_DIR = Path("/etc/openvpn/server")
+      CCD_DIR = SERVER_DIR / "ccd"
+      LOG_PREFIX = "docmind-openvpn-sync"
+
+      SERVER = json.loads((BASE_DIR / "server.json").read_text(encoding="utf-8"))
+      SECRET_NAMES = SERVER["key_vault_secret_names"]
+      CA_KEY_VAULT_NAME = SERVER["ca_key_vault_name"]
+      CA_KEY_SECRET_NAME = SERVER["ca_key_secret_name"]
+      RUNTIME_SECRET_KEYS = ("ca_cert", "server_cert", "server_key", "dh_pem", "tls_crypt_key")
+      ROTATION_BUNDLE_KEY = "rotation_bundle"
+      ROTATION_STATE_KEY = "rotation_state"
+      CLIENT_CN_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$")
+      CERT_FINGERPRINT_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+      ACCESS_TOKEN = None
+
+      class MissingSecret(Exception):
+          pass
+
+      def log(message):
+          print(f"{LOG_PREFIX}: {message}", flush=True)
+
+      def run(command, check=True):
+          subprocess.run(command, check=check)
+
+      def get_token():
+          global ACCESS_TOKEN
+          if ACCESS_TOKEN:
+              return ACCESS_TOKEN
+          query = {
+              "api-version": "2018-02-01",
+              "resource": "https://vault.azure.net",
+              "client_id": SERVER["identity_client_id"],
+          }
+          url = "http://169.254.169.254/metadata/identity/oauth2/token?" + urllib.parse.urlencode(query)
+          request = urllib.request.Request(url, headers={"Metadata": "true"})
+          with urllib.request.urlopen(request, timeout=10) as response:
+              ACCESS_TOKEN = json.loads(response.read().decode("utf-8"))["access_token"]
+              return ACCESS_TOKEN
+
+      def get_secret(secret_name, required=True, vault_name=None):
+          token = get_token()
+          encoded_name = urllib.parse.quote(secret_name, safe="")
+          target_vault_name = vault_name or SERVER["key_vault_name"]
+          url = f"https://{target_vault_name}.vault.azure.net/secrets/{encoded_name}?api-version=7.4"
+          request = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  return json.loads(response.read().decode("utf-8"))["value"]
+          except urllib.error.HTTPError as error:
+              if error.code == 404:
+                  if not required:
+                      return None
+                  raise MissingSecret(secret_name) from error
+              raise
+
+      def set_secret(secret_name, value, vault_name=None):
+          token = get_token()
+          encoded_name = urllib.parse.quote(secret_name, safe="")
+          target_vault_name = vault_name or SERVER["key_vault_name"]
+          url = f"https://{target_vault_name}.vault.azure.net/secrets/{encoded_name}?api-version=7.4"
+          payload = json.dumps({"value": value}).encode("utf-8")
+          request = urllib.request.Request(
+              url,
+              data=payload,
+              method="PUT",
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Content-Type": "application/json",
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              response.read()
+
+      def write_if_changed(path, content, mode):
+          content = content.rstrip() + "\n"
+          existing = path.read_text(encoding="utf-8") if path.exists() else None
+          if existing == content:
+              return False
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(content, encoding="utf-8")
+          path.chmod(mode)
+          return True
+
+      def read_text(path):
+          return path.read_text(encoding="utf-8")
+
+      def hash_values(values):
+          digest = hashlib.sha256()
+          for value in values:
+              digest.update(value.encode("utf-8"))
+              digest.update(b"\0")
+          return digest.hexdigest()
+
+      def now_utc():
+          return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+      def route_push_line(cidr):
+          network = ipaddress.ip_network(cidr, strict=False)
+          return f'push "route {network.network_address} {network.netmask}"'
+
+      def normalize_clients(raw_clients):
+          clients = raw_clients
+          if isinstance(raw_clients, dict) and "clients" in raw_clients:
+              clients = raw_clients["clients"]
+          if not isinstance(clients, dict):
+              raise ValueError("OpenVPN clients JSON must be an object.")
+
+          normalized = {}
+          used_ips = {}
+          access_profiles = SERVER["access_profiles"]
+          client_network = ipaddress.ip_network(SERVER["client_cidr"], strict=False)
+          gateway_ip = next(client_network.hosts())
+          reserved_client_ips = {
+              client_network.network_address,
+              gateway_ip,
+              client_network.broadcast_address,
+          }
+
+          for client_cn, client in sorted(clients.items()):
+              if not isinstance(client_cn, str) or not CLIENT_CN_PATTERN.fullmatch(client_cn):
+                  raise ValueError(f"OpenVPN client common name '{client_cn}' is not supported.")
+              if client_cn.lower() == "server":
+                  raise ValueError("OpenVPN client common name 'server' is reserved.")
+              if not isinstance(client, dict):
+                  raise ValueError(f"OpenVPN client '{client_cn}' must be an object.")
+
+              access_profile = client.get("access_profile") or client.get("accessProfile")
+              vpn_ip = client.get("vpn_ip") or client.get("vpnIp")
+              certificate_fingerprint = client.get("certificate_fingerprint_sha256") or client.get("certificateFingerprintSha256")
+              if access_profile not in access_profiles:
+                  raise ValueError(f"OpenVPN client '{client_cn}' uses unsupported access profile '{access_profile}'.")
+
+              vpn_ip_address = ipaddress.ip_address(vpn_ip)
+              if vpn_ip_address.version != 4:
+                  raise ValueError(f"OpenVPN client '{client_cn}' IP '{vpn_ip}' must be IPv4.")
+              if vpn_ip_address not in client_network:
+                  raise ValueError(f"OpenVPN client '{client_cn}' IP '{vpn_ip}' is outside {client_network}.")
+              if vpn_ip_address in reserved_client_ips:
+                  raise ValueError(f"OpenVPN client '{client_cn}' IP '{vpn_ip}' is reserved by {client_network}.")
+
+              normalized_ip = str(vpn_ip_address)
+              if normalized_ip in used_ips:
+                  raise ValueError(f"OpenVPN clients '{used_ips[normalized_ip]}' and '{client_cn}' use the same IP '{normalized_ip}'.")
+              used_ips[normalized_ip] = client_cn
+
+              if "routes" in client:
+                  raise ValueError(f"OpenVPN client '{client_cn}' must not override routes from access profile '{access_profile}'.")
+              if not isinstance(certificate_fingerprint, str) or not CERT_FINGERPRINT_PATTERN.fullmatch(certificate_fingerprint):
+                  raise ValueError(f"OpenVPN client '{client_cn}' must include a SHA256 certificate fingerprint.")
+              routes = [str(ipaddress.ip_network(route, strict=False)) for route in access_profiles[access_profile]]
+              normalized[client_cn] = {
+                  "access_profile": access_profile,
+                  "certificate_fingerprint_sha256": certificate_fingerprint.lower(),
+                  "routes": routes,
+                  "vpn_ip": normalized_ip,
+              }
+
+          return normalized
+
+      def seed_clients_registry_secret():
+          raw = get_secret(SECRET_NAMES["clients_json"], required=False)
+          if raw is not None and raw.strip() != "":
+              return
+
+          bootstrap_clients = normalize_clients(
+              json.loads((BASE_DIR / "clients-bootstrap.json").read_text(encoding="utf-8"))
+          )
+          client_document = {
+              "schemaVersion": 1,
+              "updatedAtUtc": now_utc(),
+              "clients": {
+                  client_cn: {
+                      "access_profile": client["access_profile"],
+                      "certificate_fingerprint_sha256": client["certificate_fingerprint_sha256"],
+                      "vpn_ip": client["vpn_ip"],
+                  }
+                  for client_cn, client in sorted(bootstrap_clients.items())
+              },
+          }
+          set_secret(SECRET_NAMES["clients_json"], json.dumps(client_document, sort_keys=True))
+          log(f"seeded OpenVPN client registry secret with {len(bootstrap_clients)} bootstrap clients")
+
+      def load_clients():
+          raw = get_secret(SECRET_NAMES["clients_json"], required=False)
+          if raw is None or raw.strip() == "":
+              raw = (BASE_DIR / "clients-bootstrap.json").read_text(encoding="utf-8")
+          return normalize_clients(json.loads(raw))
+
+      def render_clients(clients):
+          changed = False
+          client_network = ipaddress.ip_network(SERVER["client_cidr"], strict=False)
+          dns_ip = next(client_network.hosts())
+          CCD_DIR.mkdir(parents=True, exist_ok=True)
+
+          desired_names = set(clients.keys())
+          for existing_path in CCD_DIR.iterdir() if CCD_DIR.exists() else []:
+              if existing_path.is_file() and existing_path.name not in desired_names:
+                  existing_path.unlink()
+                  changed = True
+
+          for client_cn, client in sorted(clients.items()):
+              lines = [
+                  f"ifconfig-push {client['vpn_ip']} {client_network.netmask}",
+                  f'push "dhcp-option DNS {dns_ip}"',
+              ]
+              lines.extend(route_push_line(route) for route in client["routes"])
+              changed = write_if_changed(CCD_DIR / client_cn, "\n".join(lines), 0o644) or changed
+
+          client_list = "\n".join(sorted(desired_names))
+          changed = write_if_changed(BASE_DIR / "client-cns.txt", client_list, 0o644) or changed
+          client_fingerprints = "\n".join(
+              f"{client_cn} {client['certificate_fingerprint_sha256']}"
+              for client_cn, client in sorted(clients.items())
+          )
+          changed = write_if_changed(BASE_DIR / "client-fingerprints.txt", client_fingerprints, 0o644) or changed
+          connect_script = """#!/usr/bin/env bash
+      set -eo pipefail
+
+      CN="$${common_name:-}"
+      if [ -z "$CN" ]; then
+        exit 1
+      fi
+
+      grep -Fxq -- "$CN" /usr/local/share/docmind-openvpn/client-cns.txt
+      """
+          changed = write_if_changed(Path("/usr/local/sbin/docmind-openvpn-client-connect"), connect_script, 0o755) or changed
+          tls_verify_script = """#!/usr/bin/env bash
+      set -eo pipefail
+
+      DEPTH="$${1:-}"
+      if [ "$DEPTH" != "0" ]; then
+        exit 0
+      fi
+
+      CN="$${X509_0_CN:-}"
+      if [ -z "$CN" ]; then
+        exit 1
+      fi
+
+      DIGEST="$${tls_digest_sha256_0:-}"
+      if [ -z "$DIGEST" ]; then
+        exit 1
+      fi
+      DIGEST="$(printf '%s' "$DIGEST" | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+
+      grep -Fxq -- "$CN $DIGEST" /usr/local/share/docmind-openvpn/client-fingerprints.txt
+      """
+          changed = write_if_changed(Path("/usr/local/sbin/docmind-openvpn-tls-verify"), tls_verify_script, 0o755) or changed
+          return changed
+
+      def render_server_config():
+          client_network = ipaddress.ip_network(SERVER["client_cidr"], strict=False)
+          gateway_ip = next(client_network.hosts())
+          server_conf = f"""port {SERVER["port"]}
+      proto {SERVER["protocol"]}
+      dev tun
+      topology subnet
+      server {client_network.network_address} {client_network.netmask}
+      client-config-dir /etc/openvpn/server/ccd
+      script-security 2
+      x509-track CN
+      tls-verify /usr/local/sbin/docmind-openvpn-tls-verify
+      client-connect /usr/local/sbin/docmind-openvpn-client-connect
+      keepalive 10 120
+      cipher AES-256-GCM
+      auth SHA256
+      tls-crypt /etc/openvpn/server/ta.key
+      ca /etc/openvpn/server/ca.crt
+      cert /etc/openvpn/server/server.crt
+      key /etc/openvpn/server/server.key
+      dh /etc/openvpn/server/dh.pem
+      user nobody
+      group nogroup
+      persist-key
+      persist-tun
+      status /var/log/openvpn-status.log
+      verb 3
+      explicit-exit-notify 1
+      """
+          dnsmasq_conf = f"""bind-dynamic
+      interface=tun0
+      listen-address=127.0.0.1,{gateway_ip}
+      server={SERVER["private_dns_ip"]}
+      domain-needed
+      bogus-priv
+      """
+          changed = write_if_changed(SERVER_DIR / "server.conf", server_conf, 0o644)
+          changed = write_if_changed(Path("/etc/dnsmasq.d/docmind-openvpn.conf"), dnsmasq_conf, 0o644) or changed
+          return changed
+
+      def render_firewall(clients):
+          client_network = ipaddress.ip_network(SERVER["client_cidr"], strict=False)
+          lines = [
+              "#!/usr/bin/env bash",
+              "set -euo pipefail",
+              "EGRESS_IFACE=\"$(ip route show default | awk '{print $5; exit}')\"",
+              "iptables -N DOCMIND_OVPN 2>/dev/null || true",
+              "iptables -F DOCMIND_OVPN",
+              "iptables -N DOCMIND_OVPN_INPUT 2>/dev/null || true",
+              "iptables -F DOCMIND_OVPN_INPUT",
+              "iptables -D FORWARD -j DOCMIND_OVPN 2>/dev/null || true",
+              "iptables -I FORWARD 1 -j DOCMIND_OVPN",
+              "iptables -D INPUT -i tun0 -j DOCMIND_OVPN_INPUT 2>/dev/null || true",
+              "iptables -I INPUT 1 -i tun0 -j DOCMIND_OVPN_INPUT",
+              f"iptables -t nat -D POSTROUTING -s {client_network} -o \"$EGRESS_IFACE\" -j MASQUERADE 2>/dev/null || true",
+              f"iptables -t nat -A POSTROUTING -s {client_network} -o \"$EGRESS_IFACE\" -j MASQUERADE",
+              "iptables -A DOCMIND_OVPN -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT",
+              "iptables -A DOCMIND_OVPN_INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT",
+              "iptables -A DOCMIND_OVPN_INPUT -p udp --dport 53 -j ACCEPT",
+              "iptables -A DOCMIND_OVPN_INPUT -p tcp --dport 53 -j ACCEPT",
+              "iptables -A DOCMIND_OVPN_INPUT -j DROP",
+          ]
+          for client in clients.values():
+              for route in client["routes"]:
+                  lines.append(f"iptables -A DOCMIND_OVPN -s {client['vpn_ip']}/32 -d {route} -i tun0 -o \"$EGRESS_IFACE\" -j ACCEPT")
+          lines.extend([
+              f"iptables -A DOCMIND_OVPN -s {client_network} -i tun0 -j DROP",
+              "iptables -A DOCMIND_OVPN -i tun0 -j DROP",
+              "iptables-save > /etc/iptables/rules.v4",
+          ])
+          return write_if_changed(Path("/usr/local/sbin/docmind-openvpn-firewall"), "\n".join(lines), 0o700)
+
+      def render_fail_closed_firewall():
+          client_network = ipaddress.ip_network(SERVER["client_cidr"], strict=False)
+          lines = [
+              "#!/usr/bin/env bash",
+              "set -euo pipefail",
+              "iptables -N DOCMIND_OVPN 2>/dev/null || true",
+              "iptables -F DOCMIND_OVPN",
+              "iptables -N DOCMIND_OVPN_INPUT 2>/dev/null || true",
+              "iptables -F DOCMIND_OVPN_INPUT",
+              "iptables -D FORWARD -j DOCMIND_OVPN 2>/dev/null || true",
+              "iptables -I FORWARD 1 -j DOCMIND_OVPN",
+              "iptables -D INPUT -i tun0 -j DOCMIND_OVPN_INPUT 2>/dev/null || true",
+              "iptables -I INPUT 1 -i tun0 -j DOCMIND_OVPN_INPUT",
+              f"iptables -A DOCMIND_OVPN -s {client_network} -i tun0 -j DROP",
+              "iptables -A DOCMIND_OVPN -i tun0 -j DROP",
+              "iptables -A DOCMIND_OVPN_INPUT -i tun0 -j DROP",
+              "iptables-save > /etc/iptables/rules.v4",
+          ]
+          return write_if_changed(Path("/usr/local/sbin/docmind-openvpn-firewall"), "\n".join(lines), 0o700)
+
+      def fail_closed(message):
+          log(f"{message}; clearing client allowlist and stopping OpenVPN")
+          try:
+              render_clients({})
+              render_fail_closed_firewall()
+              run(["/usr/local/sbin/docmind-openvpn-firewall"], check=False)
+          except Exception as fail_closed_error:
+              log(f"failed to render fail-closed client controls: {type(fail_closed_error).__name__}")
+          run(["systemctl", "stop", "openvpn-server@server"], check=False)
+          return 1
+
+      def new_tls_crypt_key():
+          key_hex = os.urandom(256).hex()
+          key_lines = [key_hex[index:index + 32] for index in range(0, len(key_hex), 32)]
+          return "\n".join([
+              "#",
+              "# 2048 bit OpenVPN static key",
+              "#",
+              "-----BEGIN OpenVPN Static key V1-----",
+              *key_lines,
+              "-----END OpenVPN Static key V1-----",
+          ])
+
+      def generate_ca_material(working_dir):
+          ca_key_path = working_dir / "ca.key"
+          ca_cert_path = working_dir / "ca.crt"
+          run(["openssl", "genrsa", "-out", str(ca_key_path), "4096"])
+          run([
+              "openssl", "req", "-x509", "-new", "-nodes",
+              "-key", str(ca_key_path),
+              "-sha256",
+              "-days", "3650",
+              "-subj", "/CN=DocMind OpenVPN Bootstrap CA",
+              "-out", str(ca_cert_path),
+          ])
+          return {
+              "ca_cert": read_text(ca_cert_path),
+              "ca_key": read_text(ca_key_path),
+          }
+
+      def generate_ca_cert_from_key(working_dir, ca_key):
+          ca_key_path = working_dir / "ca.key"
+          ca_cert_path = working_dir / "ca.crt"
+          ca_key_path.write_text(ca_key, encoding="utf-8")
+          run([
+              "openssl", "req", "-x509", "-new", "-nodes",
+              "-key", str(ca_key_path),
+              "-sha256",
+              "-days", "3650",
+              "-subj", "/CN=DocMind OpenVPN Bootstrap CA",
+              "-out", str(ca_cert_path),
+          ])
+          return read_text(ca_cert_path)
+
+      def generate_server_material(working_dir, ca_cert, ca_key):
+          ca_cert_path = working_dir / "ca.crt"
+          ca_key_path = working_dir / "ca.key"
+          server_key_path = working_dir / "server.key"
+          server_csr_path = working_dir / "server.csr"
+          server_cert_path = working_dir / "server.crt"
+          server_ext_path = working_dir / "server.ext"
+
+          ca_cert_path.write_text(ca_cert, encoding="utf-8")
+          ca_key_path.write_text(ca_key, encoding="utf-8")
+          server_ext_path.write_text(
+              "\n".join([
+                  "basicConstraints=CA:FALSE",
+                  "keyUsage=digitalSignature,keyEncipherment",
+                  "extendedKeyUsage=serverAuth",
+                  "subjectAltName=DNS:server",
+              ]),
+              encoding="utf-8",
+          )
+
+          run(["openssl", "genrsa", "-out", str(server_key_path), "2048"])
+          run(["openssl", "req", "-new", "-key", str(server_key_path), "-subj", "/CN=server", "-out", str(server_csr_path)])
+          run([
+              "openssl", "x509", "-req",
+              "-in", str(server_csr_path),
+              "-CA", str(ca_cert_path),
+              "-CAkey", str(ca_key_path),
+              "-CAcreateserial",
+              "-out", str(server_cert_path),
+              "-days", "825",
+              "-sha256",
+              "-extfile", str(server_ext_path),
+          ])
+          return {
+              "server_cert": read_text(server_cert_path),
+              "server_key": read_text(server_key_path),
+          }
+
+      def generate_dh_pem(working_dir):
+          dh_path = working_dir / "dh.pem"
+          run(["openssl", "dhparam", "-out", str(dh_path), "2048"])
+          return read_text(dh_path)
+
+      def validate_server_pki(working_dir, ca_cert, server_cert, server_key):
+          ca_cert_path = working_dir / "validate-ca.crt"
+          server_cert_path = working_dir / "validate-server.crt"
+          server_key_path = working_dir / "validate-server.key"
+          ca_cert_path.write_text(ca_cert, encoding="utf-8")
+          server_cert_path.write_text(server_cert, encoding="utf-8")
+          server_key_path.write_text(server_key, encoding="utf-8")
+
+          run(["openssl", "verify", "-CAfile", str(ca_cert_path), str(server_cert_path)])
+          cert_modulus = subprocess.check_output(["openssl", "x509", "-noout", "-modulus", "-in", str(server_cert_path)])
+          key_modulus = subprocess.check_output(["openssl", "rsa", "-noout", "-modulus", "-in", str(server_key_path)])
+          if cert_modulus != key_modulus:
+              raise ValueError("OpenVPN server certificate does not match server private key.")
+
+      def validate_runtime_pki(pki):
+          with tempfile.TemporaryDirectory(prefix="docmind-openvpn-validate-") as temp_dir:
+              validate_server_pki(
+                  Path(temp_dir),
+                  pki["ca_cert"],
+                  pki["server_cert"],
+                  pki["server_key"],
+              )
+
+      def read_rotation_bundle():
+          bundle_secret_name = SECRET_NAMES.get(ROTATION_BUNDLE_KEY)
+          if not bundle_secret_name:
+              return None
+
+          raw = get_secret(bundle_secret_name, required=False)
+          if raw is None or raw.strip() == "":
+              return None
+
+          document = json.loads(raw)
+          if (
+              document.get("schemaVersion") != 1 or
+              not isinstance(document.get("pki"), dict) or
+              not isinstance(document.get("clients"), dict)
+          ):
+              raise ValueError("OpenVPN rotation bundle has an unsupported schema.")
+
+          pki = document["pki"]
+          missing = [
+              key
+              for key in RUNTIME_SECRET_KEYS
+              if not isinstance(pki.get(key), str) or pki[key].strip() == ""
+          ]
+          if missing:
+              raise ValueError(f"OpenVPN rotation bundle is missing PKI field(s): {', '.join(missing)}.")
+
+          return {
+              "generation_id": document.get("generationId"),
+              "pki": {key: pki[key] for key in RUNTIME_SECRET_KEYS},
+              "clients": document["clients"],
+          }
+
+      def read_rotation_state():
+          state_secret_name = SECRET_NAMES.get(ROTATION_STATE_KEY)
+          if not state_secret_name:
+              raise ValueError("OpenVPN rotation state secret name is missing from server configuration.")
+
+          raw = get_secret(state_secret_name, required=False)
+          if raw is None or raw.strip() == "":
+              return None
+
+          document = json.loads(raw)
+          active_generation_id = document.get("activeGenerationId")
+          pending_generation_id = document.get("pendingGenerationId")
+          if active_generation_id is None:
+              active_generation_id = ""
+          if pending_generation_id is None:
+              pending_generation_id = ""
+          if (
+              document.get("schemaVersion") != 1 or
+              not isinstance(active_generation_id, str) or
+              not isinstance(pending_generation_id, str) or
+              (active_generation_id.strip() == "" and pending_generation_id.strip() == "")
+          ):
+              raise ValueError("OpenVPN rotation state has an unsupported schema.")
+          return {
+              "activeGenerationId": active_generation_id,
+              "pendingGenerationId": pending_generation_id,
+          }
+
+      def ensure_pki_secrets(rotation_bundle=None):
+          if rotation_bundle is not None:
+              return rotation_bundle["pki"]
+
+          values = {
+              key: get_secret(SECRET_NAMES[key], required=False)
+              for key in RUNTIME_SECRET_KEYS
+          }
+          missing = [key for key, value in values.items() if value is None or value.strip() == ""]
+          if not missing:
+              return {key: str(values[key]) for key in RUNTIME_SECRET_KEYS}
+
+          needs_ca_key = (
+              values["ca_cert"] is None or values["ca_cert"].strip() == "" or
+              values["server_cert"] is None or values["server_cert"].strip() == "" or
+              values["server_key"] is None or values["server_key"].strip() == ""
+          )
+          server_pki_exists = (
+              values["server_cert"] is not None and values["server_cert"].strip() != "" or
+              values["server_key"] is not None and values["server_key"].strip() != ""
+          )
+          ca_key = get_secret(CA_KEY_SECRET_NAME, required=False, vault_name=CA_KEY_VAULT_NAME) if needs_ca_key else None
+          if needs_ca_key and (ca_key is None or ca_key.strip() == ""):
+              missing.append("ca_key")
+
+          log(f"missing OpenVPN PKI secret(s): {', '.join(missing)}; bootstrapping missing material in Key Vault")
+          with tempfile.TemporaryDirectory(prefix="docmind-openvpn-bootstrap-") as temp_dir:
+              working_dir = Path(temp_dir)
+              if values["ca_cert"] is None or values["ca_cert"].strip() == "":
+                  if ca_key is not None and ca_key.strip() != "":
+                      if server_pki_exists:
+                          raise ValueError("OpenVPN CA certificate is missing while server PKI exists; refusing automatic repair.")
+                      values["ca_cert"] = generate_ca_cert_from_key(working_dir, str(ca_key))
+                      set_secret(SECRET_NAMES["ca_cert"], values["ca_cert"])
+                      log("repaired OpenVPN bootstrap CA certificate from existing Key Vault CA private key")
+                  else:
+                      if server_pki_exists:
+                          raise ValueError("OpenVPN CA material is missing while server PKI exists; refusing automatic repair.")
+                      ca_material = generate_ca_material(working_dir)
+                      values["ca_cert"] = ca_material["ca_cert"]
+                      ca_key = ca_material["ca_key"]
+                      set_secret(CA_KEY_SECRET_NAME, ca_key, vault_name=CA_KEY_VAULT_NAME)
+                      set_secret(SECRET_NAMES["ca_cert"], values["ca_cert"])
+                      log("seeded OpenVPN CA certificate and private key in Key Vault")
+              elif needs_ca_key and (ca_key is None or ca_key.strip() == ""):
+                  raise ValueError("OpenVPN CA private key is missing while server PKI repair requires signing material; refusing automatic repair.")
+
+              if (
+                  values["server_cert"] is None or values["server_cert"].strip() == "" or
+                  values["server_key"] is None or values["server_key"].strip() == ""
+              ):
+                  server_material = generate_server_material(working_dir, str(values["ca_cert"]), str(ca_key))
+                  values["server_cert"] = server_material["server_cert"]
+                  values["server_key"] = server_material["server_key"]
+                  set_secret(SECRET_NAMES["server_cert"], values["server_cert"])
+                  set_secret(SECRET_NAMES["server_key"], values["server_key"])
+                  log("seeded OpenVPN server certificate and private key in Key Vault")
+
+              if values["dh_pem"] is None or values["dh_pem"].strip() == "":
+                  values["dh_pem"] = generate_dh_pem(working_dir)
+                  set_secret(SECRET_NAMES["dh_pem"], values["dh_pem"])
+                  log("seeded OpenVPN Diffie-Hellman parameters in Key Vault")
+
+              if values["tls_crypt_key"] is None or values["tls_crypt_key"].strip() == "":
+                  values["tls_crypt_key"] = new_tls_crypt_key()
+                  set_secret(SECRET_NAMES["tls_crypt_key"], values["tls_crypt_key"])
+                  log("seeded OpenVPN tls-crypt key in Key Vault")
+
+          return {key: str(values[key]) for key in RUNTIME_SECRET_KEYS}
+
+      def sync():
+          try:
+              rotation_bundle = read_rotation_bundle()
+              rotation_state = read_rotation_state()
+              if rotation_bundle is not None:
+                  bundle_generation_id = rotation_bundle.get("generation_id")
+                  active_generation_id = rotation_state.get("activeGenerationId") if rotation_state is not None else None
+                  if not isinstance(bundle_generation_id, str) or bundle_generation_id.strip() == "" or active_generation_id != bundle_generation_id:
+                      raise ValueError("OpenVPN rotation bundle is not committed in rotation state; refusing bundle cutover.")
+              elif rotation_state is not None and rotation_state.get("activeGenerationId", "").strip() != "":
+                  raise ValueError("OpenVPN rotation bundle is missing after a rotation generation was published; refusing standalone fallback.")
+              pki = ensure_pki_secrets(rotation_bundle)
+              validate_runtime_pki(pki)
+              if rotation_bundle is None:
+                  seed_clients_registry_secret()
+                  clients = load_clients()
+              else:
+                  clients = normalize_clients(rotation_bundle["clients"])
+
+              SERVER_DIR.mkdir(parents=True, exist_ok=True)
+              changed = False
+              changed = write_if_changed(SERVER_DIR / "ca.crt", pki["ca_cert"], 0o644) or changed
+              changed = write_if_changed(SERVER_DIR / "server.crt", pki["server_cert"], 0o644) or changed
+              changed = write_if_changed(SERVER_DIR / "server.key", pki["server_key"], 0o600) or changed
+              changed = write_if_changed(SERVER_DIR / "dh.pem", pki["dh_pem"], 0o644) or changed
+              changed = write_if_changed(SERVER_DIR / "ta.key", pki["tls_crypt_key"], 0o600) or changed
+              changed = render_clients(clients) or changed
+              changed = render_server_config() or changed
+              changed = render_firewall(clients) or changed
+
+              run(["/usr/local/sbin/docmind-openvpn-firewall"])
+              run(["systemctl", "enable", "dnsmasq"], check=False)
+              run(["systemctl", "enable", "openvpn-server@server"], check=False)
+              gate_mode = os.environ.get("DOCMIND_OPENVPN_SYNC_GATE") == "1"
+              if changed:
+                  log("configuration changed; restarting OpenVPN and dnsmasq")
+                  run(["systemctl", "restart", "dnsmasq"])
+                  if gate_mode:
+                      log("OpenVPN start delegated to systemd sync gate")
+                  else:
+                      run(["systemctl", "restart", "openvpn-server@server"])
+              else:
+                  if subprocess.run(["systemctl", "is-active", "--quiet", "dnsmasq"]).returncode != 0:
+                      run(["systemctl", "start", "dnsmasq"])
+                  if not gate_mode and subprocess.run(["systemctl", "is-active", "--quiet", "openvpn-server@server"]).returncode != 0:
+                      run(["systemctl", "start", "openvpn-server@server"])
+
+              current_hash = hash_values([
+                  pki["ca_cert"],
+                  pki["server_cert"],
+                  pki["server_key"],
+                  pki["dh_pem"],
+                  pki["tls_crypt_key"],
+                  json.dumps(clients, sort_keys=True),
+              ])
+              write_if_changed(BASE_DIR / "last-sync.sha256", current_hash, 0o600)
+              log(f"synchronized {len(clients)} OpenVPN clients from Key Vault")
+              return 0
+          except MissingSecret:
+              return fail_closed("required Key Vault secret is not available")
+          except Exception as error:
+              return fail_closed(f"OpenVPN synchronization failed with {type(error).__name__}")
+
+      if __name__ == "__main__":
+          try:
+              raise SystemExit(sync())
+          except Exception as error:
+              log(f"failed with unexpected {type(error).__name__}")
+              raise SystemExit(1)
+  - path: /etc/systemd/system/docmind-openvpn-sync.service
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=DocMind OpenVPN Key Vault sync gate
+      Wants=network-online.target
+      After=network-online.target
+      Before=openvpn-server@server.service
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      Environment=DOCMIND_OPENVPN_SYNC_GATE=1
+      ExecStart=/usr/local/sbin/docmind-openvpn-sync
+
+      [Install]
+      WantedBy=multi-user.target
+  - path: /etc/systemd/system/openvpn-server@server.service.d/10-docmind-sync-gate.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Unit]
+      Requires=docmind-openvpn-sync.service
+      After=docmind-openvpn-sync.service
+  - path: /usr/local/sbin/docmind-openvpn-bootstrap
+    owner: root:root
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get install -y dnsmasq iptables-persistent openvpn openssl python3
+
+      install -d -m 0755 /usr/local/share/docmind-openvpn
+      install -d -m 0755 /etc/openvpn/server/ccd
+      install -d -m 0755 /etc/openvpn/server
+      install -d -m 0755 /var/log
+
+      echo "net.ipv4.ip_forward=1" >/etc/sysctl.d/99-docmind-openvpn.conf
+      sysctl --system >/dev/null
+
+      python3 - <<'PY'
+      import json
+      from pathlib import Path
+
+      server = json.loads(Path("/usr/local/share/docmind-openvpn/server.json").read_text(encoding="utf-8"))
+      interval = int(server.get("certificate_sync_interval_minutes", 30))
+      Path("/etc/cron.d/docmind-openvpn-sync").write_text(
+          f"*/{interval} * * * * root /usr/local/sbin/docmind-openvpn-sync >> /var/log/docmind-openvpn-sync.log 2>&1\n",
+          encoding="utf-8",
+      )
+      PY
+      chmod 0644 /etc/cron.d/docmind-openvpn-sync
+      systemctl daemon-reload
+      systemctl enable docmind-openvpn-sync.service
+      systemctl enable openvpn-server@server.service
+
+      systemctl start openvpn-server@server.service || true
+runcmd:
+  - [ bash, /usr/local/sbin/docmind-openvpn-bootstrap ]

@@ -1,0 +1,16 @@
+[project]
+name = "docmind-integrations"
+version = "0.1.0"
+description = "Service-neutral external integration clients for DocMind.ai."
+requires-python = ">=3.14"
+dependencies = [
+    "azure-identity>=1.25.0",
+    "httpx>=0.28.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docmind_integrations"]

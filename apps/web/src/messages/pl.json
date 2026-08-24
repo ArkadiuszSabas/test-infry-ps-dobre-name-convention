@@ -1,0 +1,2331 @@
+{
+  "Metadata": {
+    "title": "DocMind.Ai",
+    "description": "Obszar roboczy inteligencji dokumentów"
+  },
+  "PasswordVisibility": {
+    "show": "Pokaż hasło",
+    "hide": "Ukryj hasło"
+  },
+  "Shell": {
+    "toggleNavigation": "Przełącz nawigację",
+    "searchDocuments": "Szukaj dokumentów",
+    "searchPlaceholder": "Szukaj dokumentów, batchy, przepływów...",
+    "notifications": "Powiadomienia",
+    "help": "Pomoc",
+    "settings": "Ustawienia",
+    "administrator": "Administrator",
+    "actorFallback": "Użytkownik",
+    "actorLoading": "Ładowanie użytkownika",
+    "roles": {
+      "admin": "Administrator",
+      "operator": "Operator",
+      "reviewer": "Weryfikator",
+      "viewer": "Obserwator",
+      "document_deleter": "Trwałe usuwanie dokumentów"
+    },
+    "languageSwitcher": {
+      "label": "Język",
+      "options": {
+        "pl": {
+          "selected": "Polski, wybrany",
+          "switchTo": "Przełącz na polski"
+        },
+        "en": {
+          "selected": "Angielski, wybrany",
+          "switchTo": "Przełącz na angielski"
+        }
+      }
+    },
+    "accountMenu": {
+      "open": "Otwórz menu konta",
+      "changePassword": "Zmień hasło",
+      "logout": "Wyloguj",
+      "loggingOut": "Wylogowanie",
+      "password": {
+        "title": "Zmień hasło",
+        "description": "Zaktualizuj lokalne hasło DocMind. Po udanej zmianie zalogujesz się ponownie.",
+        "fields": {
+          "currentPassword": "Aktualne hasło",
+          "newPassword": "Nowe hasło",
+          "confirmPassword": "Potwierdź hasło"
+        },
+        "errors": {
+          "currentPasswordRequired": "Podaj aktualne hasło.",
+          "newPasswordRequired": "Podaj nowe hasło.",
+          "confirmPasswordRequired": "Potwierdź nowe hasło.",
+          "passwordMismatch": "Hasła nie są zgodne.",
+          "saveFailed": "Nie udało się zmienić hasła."
+        },
+        "cancel": "Anuluj",
+        "save": "Zmień hasło",
+        "saving": "Zmienianie"
+      }
+    }
+  },
+  "CollectionView": {
+    "search": "Szukaj",
+    "allFilter": "Wszystkie: {label}",
+    "noResults": "Brak wyników",
+    "noResultsDescription": "Zmień wyszukiwaną frazę albo wyczyść pole, aby zobaczyć wszystkie elementy.",
+    "sort": {
+      "asc": "Sortuj {column} rosnąco",
+      "desc": "Sortuj {column} malejąco"
+    }
+  },
+  "Sidebar": {
+    "dashboardAria": "Panel DocMind.Ai",
+    "workspace": "Obszar roboczy",
+    "navigation": {
+      "dashboard": "Panel główny",
+      "inbox": "Inbox",
+      "archive": "Archiwum",
+      "admin": "Administracja"
+    }
+  },
+  "Archive": {
+    "title": "Archiwum",
+    "description": "Zatwierdzone dokumenty są dostępne tutaj wyłącznie do odczytu.",
+    "back": "Wróć do Archiwum",
+    "approvalCompleted": {
+      "title": "Dokument zatwierdzony",
+      "description": "Dokument został zatwierdzony i przeniesiony do Archiwum."
+    },
+    "sharePoint": {
+      "openFolder": "Otwórz folder w SharePoint",
+      "unavailable": "Dokument w trakcie archiwizacji. Link będzie dostępny wkrótce"
+    },
+    "empty": {
+      "title": "Brak zatwierdzonych dokumentów",
+      "description": "Dokumenty pojawią się tutaj po końcowym zatwierdzeniu."
+    }
+  },
+  "Inbox": {
+    "title": "Inbox",
+    "description": "Dokumenty gotowe do przetworzenia OCR trafiają tutaj przed dalszą ekstrakcją, weryfikacją i eksportem.",
+    "filters": {
+      "documentTypes": "Typ dokumentu",
+      "allDocumentTypesLabel": "Wszystkie typy",
+      "displayMode": "Sposób wyświetlania",
+      "status": "Status",
+      "allStatuses": "Wszystkie statusy ({count})",
+      "statusValue": "{status} ({count})"
+    },
+    "upload": {
+      "action": "Prześlij PDF",
+      "drawerTitle": "Prześlij dokument",
+      "drawerDescription": "Wybierz typ dokumentu, wskaż plik PDF i przygotuj metadane dokumentu.",
+      "uploading": "Przesyłanie",
+      "cancel": "Anuluj",
+      "submit": "Prześlij dokument",
+      "fileInputLabel": "Wybierz plik PDF",
+      "documentTypeLabel": "Typ dokumentu",
+      "documentTypePlaceholder": "Wybierz typ dokumentu",
+      "noActiveDocumentTypes": "Ręczne przesyłanie wymaga aktywnego typu dokumentu.",
+      "documentTypeCard": {
+        "title": "Typ dokumentu",
+        "description": "Wybierz rekord słownika systemowego.",
+        "displayMode": "Wyświetlanie",
+        "displayModePlaceholder": "Wybierz sposób wyświetlania",
+        "noDisplayModes": "Brak aktywnych trybów wyświetlania"
+      },
+      "file": {
+        "label": "Plik dokumentu",
+        "emptyTitle": "Nie wybrano pliku",
+        "emptyDescription": "Wskaż plik PDF z urządzenia.",
+        "dropTitle": "Upuść PDF tutaj",
+        "dropDescription": "Przeciągnij plik w ten obszar albo otwórz wybór pliku.",
+        "choose": "Wskaż PDF",
+        "selected": "Wybrano PDF ({size})"
+      },
+      "metadata": {
+        "title": "Metadane",
+        "placeholder": "Wybierz wartość",
+        "groups": {
+          "required": {
+            "title": "Wymagane metadane",
+            "description": "Uzupełnij te wartości przed przesłaniem."
+          },
+          "optional": {
+            "title": "Opcjonalne metadane",
+            "description": "Dodaj te wartości, jeśli są dostępne."
+          }
+        },
+        "types": {
+          "boolean": "Tak/Nie",
+          "date": "Data",
+          "datetime": "Data i czas",
+          "integer": "Liczba całkowita",
+          "number": "Liczba",
+          "string": "Tekst"
+        },
+        "boolean": {
+          "true": "Tak",
+          "false": "Nie"
+        },
+        "errors": {
+          "required": "Uzupełnij wartość.",
+          "integer": "Podaj liczbę całkowitą.",
+          "number": "Podaj liczbę."
+        },
+        "contractNumber": "Numer umowy",
+        "counterparty": "Kontrahent"
+      },
+      "errors": {
+        "documentTypeRequired": "Wybierz typ dokumentu przed przesłaniem.",
+        "generic": "Nie udało się przesłać pliku PDF.",
+        "metadataOptions": "Nie udało się załadować opcji metadanych.",
+        "options": "Nie udało się załadować typów dokumentów."
+      }
+    },
+    "table": {
+      "title": "Ręczne przesłania",
+      "returned": "{count, plural, one {# dokument} few {# dokumenty} many {# dokumentów} other {# dokumentu}}",
+      "unknownSize": "Nieznany",
+      "loadMore": "Załaduj więcej",
+      "loadingMore": "Ładowanie",
+      "columns": {
+        "name": "Nazwa",
+        "type": "Typ dokumentu",
+        "input": "Źródło",
+        "status": "Status",
+        "size": "Rozmiar",
+        "created": "Przesłano",
+        "actions": "Akcje"
+      },
+      "preview": "Otwórz podgląd PDF: {name}",
+      "previewAction": "Otwórz podgląd PDF z akcji: {name}",
+      "actionsFor": "Akcje dla {name}",
+      "previewMenu": "Otwórz dokument",
+      "deleteMenu": "Usuń trwale"
+    },
+    "deletion": {
+      "action": "Usuń trwale",
+      "title": "Trwale usunąć dokument?",
+      "description": "Ta operacja trwale usunie „{name}” i wszystkie jego lokalne dane z DocMind. Nie można jej cofnąć.",
+      "impactLoading": "Sprawdzanie wpływu na connector…",
+      "impactError": "Nie udało się ustalić wpływu usunięcia. Operacja pozostaje zablokowana.",
+      "preservedArtifacts": "Zewnętrzne artefakty zostaną zachowane: {artifacts}.",
+      "deletedExternalArtifacts": "Aktywny connector trwale usunie również powiązane artefakty zewnętrzne.",
+      "notReady": "Aktywny connector nie przygotował bezpiecznie trwałego usunięcia. Operacja pozostaje zablokowana.",
+      "confirmLabel": "Wpisz dokładną nazwę dokumentu, aby potwierdzić: {name}",
+      "cancel": "Anuluj",
+      "confirm": "Usuń trwale",
+      "retry": "Spróbuj ponownie",
+      "deleting": "Usuwanie",
+      "deleteError": "Usuwanie nie zostało zakończone. Sprawdź bieżący status przed ponowieniem.",
+      "checkStatus": "Sprawdź status",
+      "state": {
+        "in_progress": "Usuwanie jest w toku.",
+        "retryable": "Usuwanie zatrzymało się bezpiecznie i można je wznowić.",
+        "blocked": "Usuwanie zostało zablokowane przez politykę connectora.",
+        "ambiguous": "Wynik connectora jest niejednoznaczny. Wyjaśnij go przed ponowieniem.",
+        "completed": "Usuwanie zakończone."
+      }
+    },
+    "preview": {
+      "iframeTitle": "Podgląd PDF: {name}",
+      "unknownSize": "Nieznany",
+      "metadata": {
+        "type": "Typ dokumentu",
+        "status": "Status",
+        "size": "Rozmiar",
+        "created": "Przesłano"
+      },
+      "status": {
+        "received": "Odebrano"
+      },
+      "unavailable": {
+        "title": "PDF nie jest dostępny w podglądzie",
+        "description": "Nie udało się otworzyć pliku źródłowego w podglądzie.",
+        "close": "Zamknij podgląd"
+      },
+      "errors": {
+        "title": "Nie można załadować PDF",
+        "description": "Zamknij podgląd i spróbuj ponownie."
+      }
+    },
+    "detail": {
+      "back": "Wróć do Inboxa",
+      "title": "Podgląd dokumentu",
+      "description": "Przejrzyj plik źródłowy, metadane i stan obsługi dokumentu.",
+      "loading": "Ładowanie dokumentu",
+      "previous": "Poprzedni",
+      "next": "Następny",
+      "notFoundTitle": "Nie znaleziono dokumentu",
+      "notFoundDescription": "Ten dokument nie znajduje się na aktualnej liście ręcznych przesłań.",
+      "panelTitle": "Szczegóły dokumentu",
+      "sections": {
+        "metadata": "Metadane",
+        "parameters": "Parametry",
+        "source": "Źródło",
+        "workflow": "Przepływ"
+      },
+      "tabs": {
+        "details": "Szczegóły dokumentu",
+        "metadata": "Metadane"
+      },
+      "parameters": {
+        "description": "Najpierw widoczne są parametry wymagane. Parametry opcjonalne są oznaczone.",
+        "loading": "Ładowanie parametrów dokumentu",
+        "empty": "Ten typ dokumentu nie ma zdefiniowanych parametrów.",
+        "loadErrorTitle": "Nie można załadować parametrów",
+        "loadErrorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+        "count": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
+        "groupCount": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
+        "notProvided": "Nie uzupełniono",
+        "missingRequired": "Brakuje wymaganej wartości.",
+        "missingOptional": "Wartość opcjonalna nie jest uzupełniona.",
+        "unsupportedType": "Ten typ parametru nie jest jeszcze obsługiwany w podglądzie.",
+        "dictionaryLoading": "Ładowanie opcji słownika.",
+        "dictionaryError": "Nie można załadować opcji słownika.",
+        "groups": {
+          "required": "Parametry wymagane",
+          "optional": "Parametry opcjonalne"
+        },
+        "requirements": {
+          "required": "Wymagane",
+          "optional": "Opcjonalne"
+        },
+        "sources": {
+          "dictionary": "Słownik"
+        },
+        "types": {
+          "boolean": "Tak/Nie",
+          "date": "Data",
+          "datetime": "Data i czas",
+          "integer": "Liczba całkowita",
+          "legacy_scalar": "Wartość",
+          "number": "Liczba",
+          "string": "Tekst",
+          "unsupported": "Nieobsługiwany",
+          "uuid": "UUID"
+        },
+        "boolean": {
+          "true": "Tak",
+          "false": "Nie"
+        }
+      },
+      "fields": {
+        "originalFile": "Plik źródłowy",
+        "input": "Źródło",
+        "uploadedBy": "Przesłane przez",
+        "documentId": "ID dokumentu"
+      },
+      "workflowPlaceholder": "Panel wyników ekstrakcji i weryfikacji zostanie podłączony w kolejnym kroku przepływu dokumentu.",
+      "ocr": {
+        "title": "Wynik OCR",
+        "loadingRuns": "Ładowanie runów OCR",
+        "loadingResult": "Ładowanie wyniku OCR",
+        "loadFailed": "Nie udało się załadować runów OCR.",
+        "resultLoadFailed": "Nie udało się załadować wyniku OCR.",
+        "empty": "Ten dokument nie ma jeszcze dostępnego runu OCR.",
+        "availableWithoutPayload": "Run jest oznaczony jako dostępny, ale starszy wynik nie zawiera payloadu do wyświetlenia.",
+        "unavailable": "Wynik OCR nie jest jeszcze dostępny ({reason}).",
+        "unknownReason": "nieznany powód",
+        "notAvailable": "Niedostępne",
+        "noText": "Dla tej strony nie zwrócono tekstu.",
+        "truncated": "Wyświetlany tekst OCR został skrócony do bezpiecznego podglądu.",
+        "pagesTruncated": "W tym bezpiecznym podglądzie pokazano tylko pierwsze strony OCR.",
+        "pagesSummary": "{succeeded}/{total} ukończone, {failed} błędne",
+        "pageTitle": "Strona {page}",
+        "warningCodes": "Ostrzeżenia: {codes}",
+        "errorCode": "Błąd: {code}",
+        "fields": {
+          "provider": "Provider",
+          "model": "Model",
+          "pages": "Strony",
+          "confidence": "Pewność"
+        },
+        "runStatus": {
+          "pending": "Oczekuje",
+          "running": "W toku",
+          "succeeded": "Zakończony",
+          "partialFailed": "Częściowy",
+          "failed": "Błąd"
+        },
+        "pageStatus": {
+          "parsed": "Odczytana",
+          "succeeded": "Zakończona",
+          "failed": "Błąd",
+          "skipped": "Pominięta"
+        }
+      }
+    },
+    "empty": {
+      "title": "Brak przesłanych dokumentów",
+      "description": "Wybierz plik PDF, aby dodać pierwszy dokument do Inboxa.",
+      "readOnlyDescription": "Na Twoim koncie nie ma jeszcze dostępnych ręcznych przesłań.",
+      "filteredTitle": "Brak dokumentów dla wybranych filtrów",
+      "filteredDescription": "Zmień filtry albo załaduj więcej dokumentów."
+    },
+    "errors": {
+      "loadTitle": "Nie udało się załadować dokumentów.",
+      "loadDescription": "Odśwież listę i spróbuj ponownie."
+    },
+    "status": {
+      "received": "Odebrano",
+      "waiting_for_review": "Oczekuje na weryfikację",
+      "in_review": "W weryfikacji",
+      "approved": "Zatwierdzono",
+      "failed": "OCR nie powiodło się"
+    },
+    "ocrRun": {
+      "title": "Pipeline OCR",
+      "description": "Uruchom opublikowany pipeline OCR i śledź bezpieczny postęp runu dla tego dokumentu.",
+      "actions": {
+        "start": "Uruchom OCR",
+        "starting": "Uruchamianie"
+      },
+      "disabled": {
+        "permission": "Do uruchomienia OCR potrzebujesz uprawnienia tworzenia dokumentów.",
+        "unknownSize": "OCR można uruchomić, gdy rozmiar dokumentu jest znany.",
+        "historyLoading": "Sprawdzanie ostatnich runów OCR przed uruchomieniem nowego.",
+        "historyUnavailable": "OCR można uruchomić po poprawnym załadowaniu historii ostatnich runów.",
+        "runInProgress": "Dla tego dokumentu trwa już run OCR."
+      },
+      "history": {
+        "loading": "Ładowanie runów OCR",
+        "loadErrorTitle": "Nie można załadować historii runów OCR.",
+        "loadErrorDescription": "Odśwież dokument i spróbuj ponownie.",
+        "title": "Ostatnie runy"
+      },
+      "empty": {
+        "title": "Brak runu OCR",
+        "description": "Uruchom OCR, gdy dokument jest gotowy i dostępny jest opublikowany pipeline."
+      },
+      "status": {
+        "pending": "Oczekuje",
+        "running": "W toku",
+        "succeeded": "Zakończony",
+        "partial_failed": "Częściowy błąd",
+        "failed": "Błąd"
+      },
+      "stepStatus": {
+        "pending": "Oczekuje",
+        "running": "W toku",
+        "succeeded": "Zakończony",
+        "failed": "Błąd",
+        "skipped": "Pominięty"
+      },
+      "severity": {
+        "error": "Błąd",
+        "warning": "Ostrzeżenie"
+      },
+      "pipeline": "{name} v{version}",
+      "pipelineFallback": "Pipeline {id} v{version}",
+      "refreshing": "Odświeżanie",
+      "statusLoadErrorTitle": "Nie można załadować statusu runu OCR.",
+      "statusLoadErrorDescription": "Odśwież dokument albo wybierz inny run z historii.",
+      "fields": {
+        "started": "Start",
+        "notStarted": "Jeszcze nie uruchomiono",
+        "updated": "Aktualizacja",
+        "completed": "Koniec"
+      },
+      "progress": {
+        "label": "Postęp",
+        "steps": "{completed}/{total} kroków gotowych",
+        "noSteps": "Brak śladu kroków"
+      },
+      "steps": {
+        "title": "Kroki pipeline'u",
+        "duration": "Czas: {seconds}s"
+      },
+      "diagnostics": {
+        "title": "Ostrzeżenia i błędy",
+        "step": "Krok: {stepId}"
+      },
+      "runErrorTitle": "Run zakończył się bezpiecznym błędem",
+      "result": {
+        "waiting": "Status wyniku pojawi się po zakończeniu runu.",
+        "loading": "Sprawdzanie dostępności wyniku",
+        "loadErrorTitle": "Nie można załadować statusu wyniku.",
+        "loadErrorDescription": "Status runu jest widoczny, ale nie udało się odświeżyć dostępności wyniku.",
+        "availableTitle": "Wynik dostępny",
+        "availableDescription": "API oznaczyło bezpieczny wynik OCR jako dostępny dla dalszego workflow.",
+        "unavailableTitle": "Wynik niedostępny",
+        "reasons": {
+          "runNotFinished": "Run jeszcze się nie zakończył.",
+          "llmMagicUnavailable": "LLM Magic był niedostępny, więc ten run nie wytworzył wyniku.",
+          "generic": "API zwróciło kod powodu {code}."
+        }
+      },
+      "errors": {
+        "genericStartTitle": "Nie można uruchomić OCR.",
+        "genericStartDescription": "Odśwież dokument i spróbuj ponownie.",
+        "apiTitle": "Run OCR został odrzucony.",
+        "noPublishedDefault": {
+          "title": "Brak opublikowanego pipeline'u OCR",
+          "description": "Opublikuj i wybierz domyślny pipeline OCR przed uruchomieniem runu dokumentu."
+        },
+        "pipelineNotRunnable": {
+          "title": "Pipeline nie może zostać uruchomiony",
+          "description": "Wybrany opublikowany pipeline nie ma bezpiecznego skompilowanego snapshotu albo przekracza limity bezpośredniego uruchomienia."
+        },
+        "documentSizeUnknown": {
+          "title": "Rozmiar dokumentu jest nieznany",
+          "description": "API nie może jeszcze potwierdzić, że dokument mieści się w limitach bezpośredniego OCR."
+        },
+        "limitExceeded": {
+          "title": "Dokument przekracza limity OCR",
+          "description": "Bezpośrednie OCR jest celowo ograniczone. Użyj mniejszego dokumentu albo poczekaj na orkiestrację przez workera."
+        },
+        "llmMagicUnavailable": {
+          "title": "LLM Magic niedostępny",
+          "description": "Usługa OCR runu nie jest osiągalna dla bezpośredniej ścieżki uruchamiania OCR."
+        },
+        "documentNotFound": {
+          "title": "Nie znaleziono dokumentu",
+          "description": "API nie znalazło tego dokumentu do przetwarzania OCR."
+        },
+        "alreadyActive": {
+          "title": "Run OCR jest już w toku",
+          "description": "Dla tego dokumentu jest już aktywny inny run OCR. Odśwież dokument, aby śledzić aktualny run."
+        }
+      }
+    },
+    "documentTypeChange": {
+      "label": "Zmień typ dokumentu",
+      "placeholder": "Wybierz typ dokumentu",
+      "searchPlaceholder": "Szukaj typów dokumentów",
+      "empty": "Brak aktywnych typów dokumentów.",
+      "loadError": "Nie można załadować typów dokumentów.",
+      "saveError": "Nie można zmienić typu dokumentu.",
+      "impactTitle": "Potwierdź zmianę typu dokumentu",
+      "impactDescription": "Zmiana może wpłynąć na pola dokumentu i wyniki walidacji. Potwierdź, aby ją zapisać.",
+      "confirm": "Potwierdź zmianę",
+      "cancel": "Anuluj"
+    }
+  },
+  "ReviewWorkspace": {
+    "description": "Sprawdź źródłowy PDF i sekcje weryfikacji w widoku dokumentu.",
+    "loading": "Ładowanie danych weryfikacji…",
+    "unknownSize": "Nieznany",
+    "statusAria": "Status weryfikacji: {status}",
+    "status": {
+      "received": "Odebrano",
+      "in_review": "W weryfikacji",
+      "needs_changes": "Do poprawy",
+      "approved": "Zatwierdzono",
+      "rejected": "Odrzucono"
+    },
+    "navigation": {
+      "previousAria": "Otwórz poprzedni dokument w weryfikacji: {name}",
+      "nextAria": "Otwórz następny dokument w weryfikacji: {name}"
+    },
+    "workspacePanel": {
+      "label": "Obszar pracy z dokumentem"
+    },
+    "tabs": {
+      "review": "Weryfikacja",
+      "details": "Szczegóły dokumentu"
+    },
+    "panel": {
+      "label": "Panel weryfikacji",
+      "title": "Panel weryfikacji",
+      "description": "Sprawdź wartości, confidence i wyniki walidacji.",
+      "editDescription": "Wszystkie wartości można edytować do czasu zapisania całej listy.",
+      "editingBadge": "Tryb edycji"
+    },
+    "quality": {
+      "title": "Wynik jakości",
+      "description": "Sygnał walidacji dla bieżącej weryfikacji.",
+      "score": "{score}%",
+      "errors": "Błędne: {count}",
+      "unavailable": "Niedostępny"
+    },
+    "approval": {
+      "title": "Akceptacja w trybie 4 oczu",
+      "titleSingle": "Zatwierdzanie dokumentu",
+      "expand": "Rozwiń akceptację w trybie 4 oczu",
+      "expandSingle": "Rozwiń zatwierdzanie dokumentu",
+      "collapse": "Zwiń akceptację w trybie 4 oczu",
+      "collapseSingle": "Zwiń zatwierdzanie dokumentu",
+      "statuses": {
+        "pending": "Do weryfikacji · {approved}/{total}",
+        "inReview": "Podczas weryfikacji · {approved}/{total}",
+        "approved": "Przeszło weryfikację · {approved}/{total}",
+        "rejected": "Odrzucone · {approved}/{total}"
+      },
+      "steps": "Kroki akceptacji",
+      "step": "Krok {number}",
+      "stepStatuses": {
+        "waiting": "Oczekuje",
+        "approved": "Zatwierdzony"
+      },
+      "unassigned": "Nieprzypisany weryfikator",
+      "samePersonRule": "Drugą akceptację musi wykonać inny weryfikator.",
+      "comment": "Komentarz do decyzji",
+      "commentPlaceholder": "Dodaj komentarz (wymagany przy odrzuceniu)",
+      "approve": "Zatwierdź",
+      "approveFinal": "Zatwierdź i przenieś do Archiwum",
+      "finalizing": "Finalizowanie zatwierdzenia…",
+      "checkingFinalization": "Sprawdzamy, czy zatwierdzenie zostało zapisane…",
+      "finalizationNotSaved": "Końcowe zatwierdzenie nie zostało potwierdzone. Sprawdź aktualny status i spróbuj ponownie.",
+      "finalizationUnknown": "Nie udało się potwierdzić wyniku operacji. Nie zatwierdzaj ponownie przed sprawdzeniem statusu.",
+      "checkStatus": "Sprawdź status ponownie",
+      "reject": "Odrzuć",
+      "rejectHint": "Przy odrzuceniu dokumentu wymagane jest uzasadnienie.",
+      "editingBlocked": "Zapisz lub anuluj zmiany pól przed podjęciem decyzji akceptacyjnej.",
+      "missingRequiredBlocked": "Zatwierdzenie blokuje {count, plural, one {# brakujące pole wymagane} few {# brakujące pola wymagane} many {# brakujących pól wymaganych} other {# brakującego pola wymaganego}}. Uzupełnij je przed zatwierdzeniem.",
+      "error": "Nie udało się zapisać decyzji.",
+      "versionConflict": "Weryfikacja zmieniła się przed zapisaniem decyzji. Wczytano najnowszą wersję; sprawdź ją przed ponowną decyzją.",
+      "versionConflictRefreshFailed": "Weryfikacja zmieniła się, ale nie udało się wczytać najnowszej wersji. Odśwież stronę przed ponowną decyzją.",
+      "history": "Historia decyzji",
+      "historyDecisions": {
+        "approved": "Zatwierdzono",
+        "rejected": "Odrzucono"
+      },
+      "noComment": "Bez komentarza",
+      "historyItem": "{timestamp} · Krok {step} · {decision} · {comment} · {actor}"
+    },
+    "fields": {
+      "empty": "Brak dostępnych przechwyconych pól.",
+      "confidence": "Pewność: {score}%",
+      "confidenceAria": "Confidence: {score}%",
+      "statuses": {
+        "present": "Rozpoznano",
+        "missing": "Nie znaleziono",
+        "unidentified": "Do weryfikacji",
+        "uncertain": "Niska pewność",
+        "conflicting": "Konflikt wartości"
+      },
+      "groups": {
+        "required": "Wymagane",
+        "optional": "Opcjonalne",
+        "other": "Inne"
+      },
+      "sectionFilterLabel": "Sekcje:",
+      "sectionFilterAria": "Widoczne sekcje",
+      "sectionFilterOption": "{name} ({count})",
+      "noSectionsSelected": "Nie wybrano żadnej sekcji.",
+      "showAllSections": "Pokaż wszystkie sekcje",
+      "emptyFiltered": "Brak pól spełniających wybrany filtr.",
+      "searchAria": "Szukaj pól klucz-wartość",
+      "searchPlaceholder": "Szukaj klucza lub wartości",
+      "booleanYes": "Tak",
+      "booleanNo": "Nie",
+      "notProvided": "Nie podano",
+      "edit": "Edytuj",
+      "add": "Dodaj pole",
+      "save": "Zapisz zmiany",
+      "saving": "Zapisywanie…",
+      "cancel": "Anuluj",
+      "filterAria": "Filtruj pola weryfikacji",
+      "confidenceOriginal": "Wyszarzone, ponieważ ten wynik dotyczy tylko pierwotnej wartości.",
+      "noManualConfidence": "Wartość wpisana ręcznie — confidence jest niedostępny.",
+      "manualAdded": "Dodane ręcznie",
+      "manualChanged": "Zmienione ręcznie",
+      "deleteAria": "Usuń pole {name}",
+      "valueAria": "Wartość pola {name}",
+      "filters": {
+        "all": "Wszystkie pola",
+        "errors": "Tylko błędne",
+        "unverified": "Niezweryfikowane"
+      }
+    },
+    "unavailable": {
+      "title": "Wyniki ekstrakcji nie są jeszcze dostępne",
+      "description": "Backend nie udostępnił jeszcze listy atrybutów dla tego dokumentu. Spróbuj ponownie później."
+    },
+    "notRun": {
+      "title": "Pipeline nie został jeszcze uruchomiony",
+      "description": "Uruchom pipeline OCR w zakładce Szczegóły dokumentu, aby zobaczyć wyniki weryfikacji."
+    },
+    "details": {
+      "title": "Szczegóły dokumentu",
+      "description": "Grupy metadanych, źródła i przepływu.",
+      "metadata": "Metadane",
+      "source": "Źródło",
+      "flow": "Przepływ",
+      "defaultNextStep": "Sprawdź przechwycone pola i poproś o drugą akceptację.",
+      "labels": {
+        "nextStep": "Następny krok",
+        "documentType": "Typ dokumentu",
+        "status": "Status",
+        "size": "Rozmiar",
+        "uploaded": "Przesłano",
+        "filename": "Nazwa pliku",
+        "source": "Źródło",
+        "documentId": "ID dokumentu"
+      }
+    },
+    "errors": {
+      "loadTitle": "Nie można załadować weryfikacji dokumentu",
+      "loadDescription": "Dane weryfikacji dokumentu są niedostępne. Otwórz zakładkę szczegółów albo wróć do Inboxa i spróbuj ponownie.",
+      "saveDescription": "Nie udało się zapisać zmian. Spróbuj ponownie.",
+      "conflictRefreshDescription": "Weryfikacja została zmieniona na serwerze, ale nie udało się pobrać jej najnowszej wersji. Twój lokalny draft jest nadal dostępny. Spróbuj zapisać go ponownie później."
+    },
+    "addField": {
+      "title": "Dodaj pole",
+      "description": "Utwórz pole wprowadzone ręcznie przez weryfikatora.",
+      "name": "Nazwa pola",
+      "type": "Typ wartości",
+      "value": "Wartość",
+      "add": "Dodaj pole",
+      "cancel": "Anuluj",
+      "types": {
+        "string": "Tekst",
+        "number": "Liczba",
+        "integer": "Liczba całkowita",
+        "date": "Data",
+        "datetime": "Data i czas",
+        "boolean": "Tak / nie"
+      }
+    },
+    "dialogs": {
+      "cancelTitle": "Odrzucić niezapisane zmiany?",
+      "cancelDescription": "Lista pól wróci do ostatniej wersji otrzymanej z serwera.",
+      "keepEditing": "Kontynuuj edycję",
+      "discard": "Odrzuć zmiany",
+      "deleteTitle": "Usunąć to pole?",
+      "deleteDescription": "Pole zostanie usunięte po zapisaniu całej listy. Jego przywrócenie może wymagać ponownego przetworzenia dokumentu.",
+      "cancel": "Anuluj",
+      "delete": "Usuń pole",
+      "conflictTitle": "Dane zostały zmienione w innej sesji",
+      "conflictDescription": "Twój lokalny draft jest nadal dostępny. Na serwerze znajduje się nowsza wersja weryfikacji. Możesz kontynuować edycję draftu albo jawnie wczytać wersję serwerową i odrzucić swoje zmiany.",
+      "conflictEditor": "Zmienił(a)",
+      "conflictUnknownEditor": "Nieznany weryfikator",
+      "conflictUpdatedAt": "Czas zmiany",
+      "conflictUnknownTime": "Nieznany czas",
+      "conflictKeepDraft": "Zachowaj mój draft",
+      "conflictReload": "Wczytaj wersję serwerową"
+    }
+  },
+  "AuthGuard": {
+    "loading": "Sprawdzanie sesji",
+    "errorTitle": "Nie można załadować panelu",
+    "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+    "retry": "Ponów",
+    "unauthorizedTitle": "Dostęp ograniczony",
+    "unauthorizedDescription": "Rola DocMind nie obejmuje dostępu do tego obszaru.",
+    "returnToDashboard": "Wróć do panelu"
+  },
+  "Login": {
+    "title": "Zaloguj się",
+    "description": "Użyj konta lokalnego albo rozpocznij logowanie Entra ID.",
+    "fields": {
+      "login": {
+        "label": "Login",
+        "required": "Podaj login."
+      },
+      "password": {
+        "label": "Hasło",
+        "required": "Podaj hasło."
+      }
+    },
+    "actions": {
+      "signIn": "Zaloguj",
+      "signingIn": "Logowanie",
+      "entra": "Zaloguj przez Entra ID"
+    },
+    "errors": {
+      "accountDisabled": "To konto zostało zablokowane przez administratora.",
+      "invalidCredentials": "Login lub hasło są nieprawidłowe.",
+      "temporarilyLocked": "Logowanie zostało tymczasowo zablokowane. Spróbuj ponownie za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}}.",
+      "untrustedOrigin": "Ten adres aplikacji nie jest dopuszczony przez API.",
+      "generic": "Nie udało się zalogować. Spróbuj ponownie."
+    }
+  },
+  "Admin": {
+    "title": "Administracja",
+    "description": "Konfiguracja produktu, dostęp użytkowników i kontrola operacyjna.",
+    "open": "Otwórz",
+    "back": "Wróć do administracji",
+    "entries": {
+      "adminUsers": {
+        "title": "Zarządzanie użytkownikami",
+        "description": "Użytkownicy, zaproszenia i kontrola dostępu."
+      },
+      "adminDictionaries": {
+        "title": "Zarządzanie słownikami",
+        "description": "Typy dokumentów, atrybuty i macierz wymagalności."
+      },
+      "adminPipelines": {
+        "title": "Pipeline'y OCR",
+        "description": "Szkice, walidacja, publikacja i domyślny pipeline OCR."
+      },
+      "adminConnectors": {
+        "title": "Konfiguracja konektorów",
+        "description": "Skonfiguruj konektory dostępne w tym profilu wdrożenia."
+      },
+      "adminApprovals": {
+        "title": "Zatwierdzanie dokumentów",
+        "description": "Ustaw, ile osób musi zatwierdzić dokument przed archiwizacją."
+      }
+    },
+    "sections": {
+      "adminUsers": {
+        "title": "Przegląd dostępu",
+        "description": "Bieżący punkt wejścia zarządzania użytkownikami.",
+        "metrics": {
+          "primary": {
+            "label": "Źródło ról",
+            "value": "API"
+          },
+          "secondary": {
+            "label": "Sesje",
+            "value": "Aktywne"
+          },
+          "tertiary": {
+            "label": "Granica",
+            "value": "RBAC"
+          }
+        }
+      },
+      "adminDictionaries": {
+        "title": "Przegląd słowników",
+        "description": "Bieżący punkt wejścia zarządzania słownikami.",
+        "metrics": {
+          "primary": {
+            "label": "Katalog",
+            "value": "Typy"
+          },
+          "secondary": {
+            "label": "Schemat",
+            "value": "Atrybuty"
+          },
+          "tertiary": {
+            "label": "Granica",
+            "value": "RBAC"
+          }
+        }
+      },
+      "adminPipelines": {
+        "title": "Przegląd pipeline'ów OCR",
+        "description": "Bieżący punkt wejścia konfiguracji pipeline'u OCR.",
+        "metrics": {
+          "primary": {
+            "label": "Katalog",
+            "value": "Bloki"
+          },
+          "secondary": {
+            "label": "Cykl życia",
+            "value": "Szkice"
+          },
+          "tertiary": {
+            "label": "Granica",
+            "value": "API"
+          }
+        }
+      }
+    }
+  },
+  "AdminApprovalSettings": {
+    "title": "Zatwierdzanie dokumentów",
+    "description": "Skonfiguruj globalną regułę dla dokumentów oczekujących na zatwierdzenie.",
+    "back": "Wróć do administracji",
+    "sectionTitle": "Wymagana liczba zatwierdzeń",
+    "sectionDescription": "Wybierz, ile różnych osób musi zatwierdzić dokument przed archiwizacją.",
+    "options": {
+      "1": {
+        "title": "Jedna osoba",
+        "description": "Pierwsze zatwierdzenie kończy workflow i archiwizuje dokument."
+      },
+      "2": {
+        "title": "Dwie osoby",
+        "description": "Dokument muszą zatwierdzić dwie różne osoby. To ustawienie domyślne."
+      }
+    },
+    "scopeNote": "Zmiana obejmuje też dokumenty oczekujące na pierwszą decyzję. Workflow z zatwierdzeniem lub odrzuceniem zachowają obecną regułę.",
+    "save": "Zapisz ustawienia",
+    "saving": "Zapisywanie...",
+    "saved": "Ustawienia zatwierdzania zostały zapisane.",
+    "loadError": "Nie udało się wczytać ustawień.",
+    "loadErrorDescription": "Odśwież stronę i spróbuj ponownie.",
+    "saveError": "Nie udało się zapisać ustawień.",
+    "saveErrorDescription": "Ustawienia mogły zostać zmienione w innej sesji. Odśwież stronę i spróbuj ponownie."
+  },
+  "AdminConnectors": {
+    "title": "Konfiguracja konektorów",
+    "description": "Skonfiguruj konektory dostępne w tym profilu wdrożenia.",
+    "back": "Wróć do administracji",
+    "backToList": "Wróć do konektorów",
+    "loadError": "Nie można załadować konfiguracji konektorów.",
+    "loadConfigurationError": "Nie można załadować konfiguracji.",
+    "noDocumentTypes": "Brak aktywnych typów dokumentów.",
+    "empty": "W tym wdrożeniu nie ma dostępnej konfiguracji konektorów.",
+    "emptyTitle": "Brak konektorów",
+    "search": "Szukaj konektorów",
+    "view": {
+      "ariaLabel": "Widok listy konektorów",
+      "cards": "Kafelki",
+      "list": "Lista"
+    },
+    "columns": {
+      "connector": "Konektor",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "actions": {
+      "configure": "Konfiguruj"
+    },
+    "status": {
+      "degraded": "Problem",
+      "disabled": "Nieaktywny",
+      "enabled": "Aktywny",
+      "unconfigured": "Nieskonfigurowany"
+    },
+    "cancel": "Anuluj",
+    "fixFields": "Popraw wyróżnione pola.",
+    "required": "Pole wymagane",
+    "searchDocumentTypes": "Szukaj typu dokumentu",
+    "save": "Zapisz konfigurację",
+    "saveError": "Nie udało się zapisać konfiguracji.",
+    "saving": "Zapisywanie",
+    "unsupportedConfiguration": "Ten konektor nie udostępnia formularza konfiguracji.",
+    "understood": "Rozumiem"
+  },
+  "AdminOcrPipelines": {
+    "title": "Pipeline'y OCR",
+    "description": "Konfiguruj definicje OCR fazy 1 używane przed przepływami uruchomienia dokumentów.",
+    "back": "Wróć do administracji",
+    "errorTitle": "Nie można załadować pipeline'ów OCR",
+    "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+    "emptyDescription": "Brak pipeline'ów OCR dla aktualnego filtra.",
+    "actionFailed": "Akcja na pipelinie OCR nie powiodła się.",
+    "routingStatus": {
+      "noPipelines": {
+        "title": "Brak skonfigurowanego pipeline'u OCR",
+        "description": "Utwórz, zwaliduj, opublikuj i oznacz pipeline jako domyślny, zanim routing OCR będzie miał aktywną konfigurację."
+      },
+      "noPublished": {
+        "title": "Brak opublikowanego pipeline'u OCR",
+        "description": "Szkice nie są używane w routingu OCR. Opublikuj zwalidowany szkic przed wyborem domyślnego pipeline'u."
+      },
+      "noDefault": {
+        "title": "Nie wybrano domyślnego pipeline'u OCR",
+        "description": "Opublikowany pipeline istnieje, ale routing OCR nadal wymaga oznaczenia jednej opublikowanej wersji jako domyślnej."
+      }
+    },
+    "filters": {
+      "label": "Cykl życia pipeline'u",
+      "all": "Wszystkie ({count})",
+      "draft": "Szkice ({count})",
+      "published": "Opublikowane ({count})",
+      "archived": "Zarchiwizowane ({count})"
+    },
+    "columns": {
+      "pipeline": "Pipeline",
+      "lifecycle": "Cykl życia",
+      "validation": "Walidacja",
+      "updatedAt": "Aktualizacja",
+      "actions": "Akcje"
+    },
+    "badges": {
+      "default": "Domyślny",
+      "draftChanges": "Nieopublikowane zmiany"
+    },
+    "lifecycle": {
+      "draft": "Szkic",
+      "published": "Opublikowany",
+      "archived": "Zarchiwizowany"
+    },
+    "validationState": {
+      "valid": "Poprawny",
+      "invalid": "Niepoprawny",
+      "unknown": "Brak walidacji"
+    },
+    "failurePolicy": {
+      "required": "Wymagany",
+      "optional": "Opcjonalny"
+    },
+    "actions": {
+      "create": "Utwórz pipeline",
+      "confidenceColors": "Progi confidence – kolory",
+      "open": "Otwórz {name}",
+      "edit": "Edytuj {name}",
+      "editDraft": "Edytuj szkic",
+      "validate": "Waliduj",
+      "validating": "Walidacja",
+      "publish": "Publikuj",
+      "publishing": "Publikowanie",
+      "archive": "Archiwizuj {name}",
+      "duplicate": "Duplikuj {name}",
+      "delete": "Usuń {name}",
+      "makeDefault": "Ustaw {name} jako domyślny"
+    },
+    "confidenceColors": {
+      "title": "Progi confidence – kolory",
+      "description": "Skonfiguruj kolory pewności pól OCR używane w widoku dokumentu split-view.",
+      "coverageHint": "Zdefiniuj od 1 do 5 domkniętych zakresów całkowitych. Razem muszą pokrywać wszystkie wartości od 0% do 100% bez luk i nakładania.",
+      "fields": {
+        "start": "Od (%)",
+        "end": "Do (%)",
+        "color": "Kolor",
+        "colorAria": "Kolor pasma confidence {number}"
+      },
+      "colors": {
+        "red": "Czerwony",
+        "orange": "Pomarańczowy",
+        "yellow": "Żółty",
+        "green": "Zielony",
+        "blue": "Niebieski"
+      },
+      "add": "Dodaj zakres",
+      "removeAria": "Usuń pasmo confidence {number}",
+      "cancel": "Anuluj",
+      "save": "Zapisz konfigurację",
+      "saving": "Zapisywanie",
+      "errors": {
+        "loadFailed": "Nie udało się załadować konfiguracji kolorów confidence.",
+        "saveFailed": "Nie udało się zapisać konfiguracji kolorów confidence.",
+        "bandCount": "Zdefiniuj od 1 do 5 pasm confidence.",
+        "boundaryRequired": "Podaj obie granice zakresu.",
+        "boundaryInteger": "Granice zakresu muszą być liczbami całkowitymi.",
+        "boundaryRange": "Granice zakresu muszą mieścić się od 0 do 100.",
+        "invertedRange": "Początek zakresu nie może być większy niż jego koniec.",
+        "incompleteCoverage": "Zakresy muszą pokrywać cały przedział 0–100%.",
+        "gapOrOverlap": "Zakresy nie mogą się nakładać ani pozostawiać luk.",
+        "unsupportedColor": "Wybierz kolor z obsługiwanej palety."
+      }
+    },
+    "tooltips": {
+      "edit": "Edytuj szkic",
+      "duplicate": "Duplikuj",
+      "makeDefault": "Ustaw jako domyślny",
+      "archive": "Archiwizuj",
+      "delete": "Usuń"
+    },
+    "detail": {
+      "loadingTitle": "Ładowanie pipeline'u",
+      "loadingDescription": "Pobieranie szczegółów pipeline'u OCR.",
+      "loadFailed": "Nie można załadować szczegółów pipeline'u OCR.",
+      "loadFailedDescription": "Odśwież szczegóły i spróbuj ponownie.",
+      "emptyTitle": "Nie wybrano pipeline'u",
+      "emptyDescription": "Wybierz pipeline z listy albo utwórz szkic.",
+      "unnamed": "Pipeline OCR",
+      "noDescription": "Brak opisu",
+      "definitionViewLabel": "Wersja pipeline'u do podglądu",
+      "draftView": "Szkic",
+      "publishedView": "Opublikowana v{version}",
+      "draftViewTitle": "Wyświetlasz nieopublikowany szkic",
+      "draftViewDescription": "Walidacja i publikacja dotyczą tego szkicu. Aktywna wersja routingu OCR to v{version}.",
+      "publishedViewTitle": "Wyświetlasz aktywną opublikowaną wersję v{version}",
+      "publishedViewDescription": "Ta wersja jest obecnie używana przez routing OCR. Wróć do szkicu, aby walidować lub publikować zmiany.",
+      "metrics": {
+        "steps": "Kroki",
+        "version": "Wersja opublikowana",
+        "versionValue": "v{version}",
+        "noVersion": "Tylko szkic",
+        "catalog": "Katalog",
+        "noCatalog": "Nie zapisano"
+      },
+      "stepsTitle": "Kolejność kroków",
+      "stepEnabled": "Włączony",
+      "stepDisabled": "Wyłączony",
+      "validationTitle": "Diagnostyka walidacji",
+      "noDiagnosticsTitle": "Brak diagnostyki",
+      "noDiagnosticsDescription": "Uruchom walidację, aby zapisać diagnostykę API i LLM Magic.",
+      "noValidationDiagnosticsTitle": "Brak problemów walidacyjnych",
+      "noValidationDiagnosticsDescription": "Walidacja nie zwróciła ostrzeżeń ani blokujących problemów.",
+      "validationReadyTitle": "Walidacja zakończona powodzeniem",
+      "validationReadyDescription": "Ten szkic pipeline'u jest gotowy do publikacji.",
+      "validateFailed": "Walidacja pipeline'u OCR nie powiodła się.",
+      "publishFailed": "Nie udało się opublikować pipeline'u OCR.",
+      "publishBlockedTitle": "Publikacja jest zablokowana przez błędy walidacji",
+      "publishBlockedDescription": "Usuń diagnostykę z błędami i uruchom walidację ponownie przed publikacją tego szkicu.",
+      "diagnosticFields": {
+        "severity": "Waga",
+        "code": "Kod",
+        "target": "Cel",
+        "stepId": "ID kroku",
+        "path": "Ścieżka",
+        "control": "Kontrolka",
+        "targetPipeline": "Pipeline",
+        "targetStep": "Krok {number}: {name}",
+        "severityValues": {
+          "error": "Błąd",
+          "warning": "Ostrzeżenie",
+          "info": "Informacja"
+        }
+      },
+      "diagnostics": {
+        "stepLocation": "Krok: {stepId}.",
+        "pathLocation": "Ścieżka: {path}.",
+        "duplicateArtifactProducer": {
+          "title": "Zbyt wiele kroków tworzy ten sam wynik",
+          "description": "Tylko jeden włączony krok może tworzyć końcowy wynik normalizacji. Pozostaw jeden krok normalizacji pól albo połącz konfigurację przed publikacją."
+        },
+        "pipelineStepsRequired": {
+          "title": "Dodaj kroki do pipeline'u",
+          "description": "Dodaj wymagane kroki przygotowania i parsowania OCR przed walidacją lub publikacją pipeline'u."
+        },
+        "requiredStepTypeMissing": {
+          "title": "Brakuje wymaganego kroku pipeline'u",
+          "description": "Dodaj i włącz wymagany krok przygotowania albo parsowania OCR. Szczegóły diagnostyczne wskazują brakujący krok."
+        },
+        "genericError": {
+          "title": "Pipeline wymaga zmian w konfiguracji",
+          "description": "Walidacja wykryła blokujący problem. Sprawdź kolejność kroków, wymagane bloki i wybrane katalogi przed publikacją."
+        },
+        "genericWarning": {
+          "title": "Pipeline ma uwagę walidacyjną",
+          "description": "Walidacja zakończyła się z nieblokującą uwagą. Sprawdź konfigurację przed publikacją, jeśli ten wynik jest nieoczekiwany."
+        },
+        "genericInfo": {
+          "title": "Informacja z walidacji pipeline'u",
+          "description": "Walidacja zwróciła dodatkową informację o konfiguracji tego pipeline'u."
+        }
+      }
+    },
+    "builder": {
+      "createTitle": "Utwórz pipeline OCR",
+      "createDescription": "Zapisz szkic definicji z bloków katalogu.",
+      "duplicateTitle": "Duplikuj pipeline OCR",
+      "duplicateDescription": "Utwórz nowy szkic z istniejącej uporządkowanej definicji.",
+      "duplicateNameSuffix": "kopia",
+      "editTitle": "Edytuj szkic pipeline'u OCR",
+      "editDescription": "Zmień metadane i kolejność kroków.",
+      "emptySteps": "Nie dodano kroków.",
+      "noEditableConfig": "Ten krok nie ma edytowalnych ustawień.",
+      "blockStatus": {
+        "available": "Dostępny",
+        "disabled": "Wyłączony",
+        "planned": "Planowany",
+        "deprecated": "Przestarzały"
+      },
+      "fields": {
+        "name": "Nazwa",
+        "description": "Opis",
+        "descriptionDescription": "Opcjonalny opis widoczny dla operatorów i w przeglądzie pipeline'u.",
+        "requiredField": "Pole wymagane",
+        "block": "Blok",
+        "blockDescription": "Wybierz dostępny blok katalogu i dodaj go do kolejności wykonania.",
+        "blockPlaceholder": "Wybierz blok",
+        "displayName": "Nazwa wyświetlana",
+        "enabled": "Włączony",
+        "failurePolicy": "Polityka błędu",
+        "failurePolicyDescription": "Określ, czy błąd tego kroku zatrzymuje cały pipeline.",
+        "configuration": "Konfiguracja",
+        "configurationDescription": "Ustawienia wybranego kroku. Sekcja startuje zwinięta dla czytelności listy kroków.",
+        "preset": "Preset",
+        "provider": "Provider",
+        "modelId": "Model ID",
+        "documentType": "Typ dokumentu",
+        "documentTypeDisplayMode": "Sposób wyświetlania",
+        "documentTypePlaceholder": "Wybierz typ dokumentu",
+        "attributes": "Atrybuty"
+      },
+      "selectorCatalog": {
+        "loading": "Ładowanie selectorów typów dokumentów i atrybutów."
+      },
+      "actions": {
+        "addStep": "Dodaj krok",
+        "moveUp": "Przenieś krok {number} wyżej",
+        "moveDown": "Przenieś krok {number} niżej",
+        "removeStep": "Usuń krok {number}",
+        "cancel": "Anuluj",
+        "save": "Zapisz szkic",
+        "saving": "Zapisywanie"
+      },
+      "errors": {
+        "nameRequired": "Podaj nazwę pipeline'u.",
+        "nameTooLong": "Nazwa pipeline'u może mieć maksymalnie {max} znaków.",
+        "stepDisplayNameInvalid": "Popraw wyróżnione nazwy wyświetlane kroków.",
+        "stepDisplayNameRequired": "Każdy krok wymaga nazwy wyświetlanej.",
+        "stepDisplayNameTooLong": "Nazwa wyświetlana kroku może mieć maksymalnie {max} znaków.",
+        "fixFields": "Popraw wyróżnione pola.",
+        "saveFailed": "Nie udało się zapisać pipeline'u OCR.",
+        "selectorCatalogFailed": "Nie można załadować katalogów selectorów."
+      }
+    },
+    "confirm": {
+      "archive": {
+        "title": "Archiwizuj pipeline OCR",
+        "description": "{name} nie będzie już wybierany dla nowego routingu OCR.",
+        "confirm": "Archiwizuj"
+      },
+      "delete": {
+        "title": "Usuń szkic",
+        "description": "{name} zostanie trwale usunięty, jeśli nigdy nie był opublikowany.",
+        "confirm": "Usuń"
+      },
+      "makeDefault": {
+        "title": "Zmień domyślny pipeline OCR",
+        "description": "{name} zostanie domyślnym opublikowanym pipelinem OCR.",
+        "confirm": "Ustaw domyślny"
+      }
+    }
+  },
+  "AdminDictionaries": {
+    "title": "Zarządzanie słownikami",
+    "description": "Wybierz słownik, który chcesz skonfigurować.",
+    "back": "Wróć do administracji",
+    "detailBack": "Wróć do słowników",
+    "open": "Otwórz",
+    "search": "Szukaj słowników",
+    "filters": {
+      "label": "Typ słownika",
+      "all": "Wszystkie słowniki ({count})",
+      "system": "Systemowe ({count})",
+      "custom": "Custom ({count})"
+    },
+    "badges": {
+      "system": "Systemowy",
+      "custom": "Custom"
+    },
+    "sections": {
+      "custom": {
+        "title": "Słowniki własne",
+        "description": "{count, plural, one {# słownik zarządzany przez klienta} few {# słowniki zarządzane przez klienta} many {# słowników zarządzanych przez klienta} other {# słownika zarządzanego przez klienta}}"
+      },
+      "system": {
+        "title": "Konfiguracja systemowa",
+        "description": "Katalogi konfiguracji dokumentów sterujące ekstrakcją i walidacją."
+      }
+    },
+    "entries": {
+      "documentTypes": {
+        "title": "Typy dokumentów",
+        "description": "Słownik rodzajów dokumentów obsługiwanych w klasyfikacji."
+      },
+      "attributeCategories": {
+        "title": "Kategorie atrybutów",
+        "description": "Systemowe kategorie do grupowania atrybutów i flag poziomu kategorii."
+      },
+      "attributes": {
+        "title": "Atrybuty",
+        "description": "Słownik pól ekstrahowanych i walidowanych w procesie OCR."
+      },
+      "attributeMatrix": {
+        "title": "Macierz atrybutów",
+        "description": "Konfiguracja wymaganych i opcjonalnych atrybutów per typ dokumentu."
+      }
+    }
+  },
+  "AdminUsers": {
+    "title": "Zarządzanie użytkownikami",
+    "description": "Zarządzaj lokalnymi użytkownikami, stanem kont, rolami, hasłami i oczekującymi zaproszeniami.",
+    "back": "Wróć do administracji",
+    "common": {
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie",
+      "notSet": "Brak"
+    },
+    "users": {
+      "title": "Użytkownicy",
+      "description": "Aktywne i zablokowane konta zwracane przez granicę auth API.",
+      "create": "Utwórz użytkownika",
+      "passwordTitle": "Ustaw hasło użytkownika",
+      "passwordDescription": "Ustaw nowe lokalne hasło dla {name}. Hasło nie jest pokazywane po zapisie.",
+      "passwordSuccess": "Hasło użytkownika {name} zostało zmienione.",
+      "actionFailed": "Akcja na użytkowniku nie powiodła się.",
+      "selfLabel": "To jest Twoje konto",
+      "filters": {
+        "all": "Wszyscy ({count})",
+        "active": "Aktywni ({count})",
+        "inactive": "Zablokowani ({count})",
+        "deleted": "Usunięci ({count})",
+        "showDeleted": "Pokaż usuniętych",
+        "hideDeleted": "Ukryj usuniętych"
+      },
+      "metrics": {
+        "total": {
+          "label": "Łącznie"
+        },
+        "active": {
+          "label": "Aktywni"
+        },
+        "inactive": {
+          "label": "Zablokowani"
+        }
+      },
+      "columns": {
+        "user": "Użytkownik",
+        "status": "Status",
+        "roles": "Role",
+        "providers": "Providerzy",
+        "updatedAt": "Aktualizacja",
+        "actions": "Akcje"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Zablokowany",
+        "deleted": "Usunięty"
+      },
+      "providers": {
+        "local": "Lokalny",
+        "entra_id": "Entra ID"
+      },
+      "actions": {
+        "edit": "Edytuj {name}",
+        "block": "Zablokuj {name}",
+        "unblock": "Odblokuj {name}",
+        "setPassword": "Ustaw hasło dla {name}",
+        "delete": "Usuń {name}"
+      },
+      "emptyTitle": "Brak użytkowników",
+      "emptyDescription": "Utwórz lokalnego użytkownika, gdy ktoś potrzebuje dostępu.",
+      "errorTitle": "Nie można załadować użytkowników",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "confirm": {
+        "toggleStatus": {
+          "title": "Zmień status konta",
+          "description": "{name} zostanie zablokowany albo odblokowany zgodnie z aktualnym stanem.",
+          "confirm": "Zmień status"
+        },
+        "delete": {
+          "title": "Usuń użytkownika",
+          "description": "{name} zostanie miękko usunięty i ukryty z normalnej listy użytkowników.",
+          "confirm": "Usuń użytkownika"
+        }
+      },
+      "form": {
+        "createTitle": "Utwórz lokalnego użytkownika",
+        "createDescription": "Hasło jest wysyłane raz do utworzenia lokalnych poświadczeń i nigdy nie wraca z API.",
+        "editTitle": "Edytuj użytkownika",
+        "editDescription": "Edycja {name}",
+        "fields": {
+          "displayName": "Nazwa wyświetlana",
+          "login": "Login/email",
+          "password": "Hasło tymczasowe",
+          "roles": "Role",
+          "status": "Status"
+        },
+        "statusOptions": {
+          "active": "Aktywny",
+          "inactive": "Zablokowany"
+        },
+        "errors": {
+          "displayNameRequired": "Podaj nazwę wyświetlaną.",
+          "loginRequired": "Podaj login lub email.",
+          "loginInvalid": "Podaj poprawny login.",
+          "passwordRequired": "Podaj hasło tymczasowe.",
+          "rolesRequired": "Wybierz co najmniej jedną rolę.",
+          "saveFailed": "Nie udało się zapisać użytkownika."
+        },
+        "selfRoleLock": "Zmiana ról jest zablokowana dla tego konta.",
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      }
+    },
+    "passwordForm": {
+      "fields": {
+        "currentPassword": "Aktualne hasło",
+        "newPassword": "Nowe hasło",
+        "confirmPassword": "Potwierdź hasło"
+      },
+      "errors": {
+        "currentPasswordRequired": "Podaj aktualne hasło.",
+        "newPasswordRequired": "Podaj nowe hasło.",
+        "confirmPasswordRequired": "Potwierdź nowe hasło.",
+        "passwordMismatch": "Hasła nie są zgodne.",
+        "saveFailed": "Nie udało się zapisać hasła."
+      },
+      "cancel": "Anuluj",
+      "save": "Zapisz hasło",
+      "saving": "Zapisywanie"
+    },
+    "metrics": {
+      "pending": {
+        "label": "Oczekujące"
+      },
+      "delivery": {
+        "label": "Dostarczanie",
+        "values": {
+          "available": "Dostępne",
+          "unavailable": "Tylko rekord"
+        }
+      },
+      "expiringSoon": {
+        "label": "Wygasa w 24h"
+      }
+    },
+    "form": {
+      "title": "Utwórz zaproszenie",
+      "description": "API tworzy oczekujący rekord zaproszenia. Nie zwraca tokenu ani nie wysyła wiadomości.",
+      "fields": {
+        "email": "Email",
+        "roles": "Role"
+      },
+      "errors": {
+        "emailRequired": "Podaj adres email.",
+        "emailInvalid": "Podaj poprawny adres email.",
+        "rolesRequired": "Wybierz co najmniej jedną rolę.",
+        "createFailed": "Nie udało się utworzyć zaproszenia."
+      },
+      "reset": "Resetuj",
+      "create": "Utwórz zaproszenie",
+      "creating": "Tworzenie"
+    },
+    "invitations": {
+      "title": "Oczekujące zaproszenia",
+      "description": "Aktywne oczekujące rekordy zaproszeń zwracane przez API.",
+      "filters": {
+        "all": "Wszystkie ({count})",
+        "pending": "Oczekujące ({count})",
+        "cancelled": "Anulowane ({count})",
+        "accepted": "Przyjęte ({count})"
+      },
+      "columns": {
+        "email": "Email",
+        "roles": "Role",
+        "status": "Status",
+        "createdAt": "Utworzono",
+        "expiresAt": "Wygasa",
+        "actions": "Akcje"
+      },
+      "status": {
+        "pending": "Oczekuje",
+        "cancelled": "Anulowane",
+        "accepted": "Przyjęte"
+      },
+      "actions": {
+        "cancel": "Anuluj zaproszenie dla {email}"
+      },
+      "emptyTitle": "Brak oczekujących zaproszeń",
+      "emptyDescription": "Utwórz rekord zaproszenia, gdy nowy użytkownik potrzebuje dostępu.",
+      "filteredEmptyTitle": "Brak zaproszeń dla wybranego filtra",
+      "filteredEmptyDescription": "Wybierz inny filtr statusu.",
+      "errorTitle": "Nie można załadować zaproszeń",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie."
+    },
+    "confirm": {
+      "cancel": {
+        "title": "Anuluj zaproszenie",
+        "description": "{email} nie będzie już mógł przyjąć tego oczekującego zaproszenia.",
+        "keep": "Zostaw zaproszenie",
+        "confirm": "Anuluj zaproszenie",
+        "cancelling": "Anulowanie",
+        "failed": "Nie udało się anulować zaproszenia."
+      }
+    }
+  },
+  "AdminSettings": {
+    "title": "Konfiguracja dokumentów",
+    "description": "Zarządzanie katalogami typów dokumentów i atrybutów oparte o endpointy API.",
+    "back": "Wróć do administracji",
+    "tabs": {
+      "documentTypes": "Typy dokumentów",
+      "attributes": "Atrybuty",
+      "attributeMatrix": "Macierz atrybutów"
+    },
+    "common": {
+      "cancel": "Anuluj",
+      "notSet": "Brak",
+      "requiredField": "Pole wymagane",
+      "unsavedChanges": {
+        "title": "Odrzucić niezapisane zmiany?",
+        "description": "Wprowadzone zmiany nie zostały zapisane. Czy chcesz opuścić ten ekran bez ich zapisywania?",
+        "stay": "Pozostań na ekranie",
+        "discard": "Odrzuć zmiany"
+      },
+      "status": {
+        "active": "Aktywny",
+        "inactive": "Nieaktywny"
+      }
+    },
+    "documentTypes": {
+      "title": "Typy dokumentów",
+      "create": "Utwórz typ",
+      "configureDefinition": "Konfiguruj definicję",
+      "metrics": {
+        "total": {
+          "label": "Łącznie"
+        },
+        "active": {
+          "label": "Aktywne"
+        },
+        "inactive": {
+          "label": "Nieaktywne"
+        }
+      },
+      "filters": {
+        "active": "Aktywne ({count})",
+        "inactive": "Nieaktywne ({count})",
+        "all": "Wszystkie ({count})"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Nazwa",
+        "description": "Opis",
+        "status": "Status",
+        "updatedAt": "Aktualizacja",
+        "actions": "Akcje"
+      },
+      "actions": {
+        "configureMatrix": "Otwórz macierz atrybutów dla {name}",
+        "edit": "Edytuj {name}",
+        "deactivate": "Dezaktywuj {name}",
+        "delete": "Usuń {name}"
+      },
+      "emptyTitle": "Brak typów dokumentów",
+      "emptyDescription": "Wybrany filtr cyklu życia nie ma wpisów katalogu.",
+      "errorTitle": "Nie można załadować typów dokumentów",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "actionFailed": "Akcja na typie dokumentu nie powiodła się.",
+      "confirm": {
+        "deactivate": {
+          "title": "Dezaktywuj typ dokumentu",
+          "description": "{name} pozostanie w katalogu ze statusem nieaktywnym.",
+          "confirm": "Dezaktywuj"
+        },
+        "delete": {
+          "title": "Usuń typ dokumentu",
+          "description": "{name} zostanie trwale usunięty, jeśli API nie znajdzie zależności.",
+          "confirm": "Usuń"
+        }
+      },
+      "form": {
+        "createTitle": "Utwórz typ dokumentu",
+        "createDescription": "Nowe wpisy są zapisywane jako aktywne rekordy katalogu.",
+        "editTitle": "Edytuj typ dokumentu",
+        "editDescription": "Edycja {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Opcjonalny stabilny klucz używany przez importy, eksporty i integracje. Zostaw puste, aby API wygenerowało go automatycznie.",
+          "externalIdPlaceholder": "Generowany z nazwy, gdy jest pusty",
+          "name": "Nazwa",
+          "description": "Opis",
+          "descriptionDescription": "Opcjonalny opis widoczny dla operatorów i konfiguracji."
+        },
+        "parameters": {
+          "title": "Parametry typu dokumentu",
+          "description": "Wartości pól zdefiniowanych w konfiguracji słownika typów dokumentów.",
+          "loading": "Ładowanie definicji parametrów",
+          "empty": "Brak aktywnych parametrów dla typów dokumentów.",
+          "loadErrorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+          "dictionaryPlaceholder": "Wybierz wartość",
+          "textPlaceholder": "Opcjonalnie",
+          "none": "Brak"
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory używane przez API, importy i konektory."
+        },
+        "errors": {
+          "nameRequired": "Podaj nazwę.",
+          "extensionRequired": "Uzupełnij wartość.",
+          "definitionLoadFailed": "Nie można załadować definicji typu dokumentu.",
+          "dictionaryEntriesLoadFailed": "Nie można załadować wartości słownikowych.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać typu dokumentu."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      },
+      "definition": {
+        "title": "Definicja słownika: Typy dokumentów",
+        "description": "Pola i sposoby wyświetlania wspólne dla typów dokumentów.",
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie",
+        "fields": {
+          "title": "Pola rozszerzające",
+          "description": "Dodatkowe pola słownikowe lub tekstowe dostępne dla wszystkich typów dokumentów.",
+          "add": "Dodaj pole",
+          "empty": "Brak pól rozszerzających.",
+          "newField": "Nowe pole",
+          "label": "Nazwa",
+          "code": "Kod",
+          "valueType": "Typ wartości",
+          "dictionary": "Słownik",
+          "mappedAttribute": "Mapowanie atrybutu",
+          "required": "Wymagane",
+          "showInOverview": "Pokazuj na kartach/listach",
+          "active": "Aktywne",
+          "none": "Brak",
+          "moveUp": "Przenieś pole wyżej",
+          "moveDown": "Przenieś pole niżej",
+          "remove": "Usuń pole",
+          "types": {
+            "dictionary": "Słownik",
+            "text": "Tekst"
+          }
+        },
+        "displayModes": {
+          "title": "Sposoby wyświetlania",
+          "description": "Określ, jak typy dokumentów będą prezentowane na listach i w dropdownach.",
+          "add": "Dodaj sposób",
+          "empty": "Brak sposobów wyświetlania.",
+          "newMode": "Nowy sposób",
+          "name": "Nazwa",
+          "default": "Domyślny",
+          "active": "Aktywny",
+          "parts": "Części etykiety",
+          "addBaseName": "Dodaj nazwę typu",
+          "addFieldPart": "Dodaj pole",
+          "moveUp": "Przenieś sposób wyżej",
+          "moveDown": "Przenieś sposób niżej",
+          "remove": "Usuń sposób"
+        },
+        "parts": {
+          "sourceType": "Źródło części",
+          "baseName": "Nazwa typu",
+          "extensionField": "Pole rozszerzenia",
+          "field": "Pole",
+          "separator": "Separator przed",
+          "separatorPlaceholder": "np.  - ",
+          "none": "Brak",
+          "moveUp": "Przenieś część wyżej",
+          "moveDown": "Przenieś część niżej",
+          "remove": "Usuń część"
+        },
+        "errors": {
+          "definitionRequired": "Poczekaj na załadowanie definicji.",
+          "loadFailed": "Nie można załadować definicji słownika.",
+          "loadDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+          "saveFailed": "Nie udało się zapisać definicji słownika.",
+          "fieldIdentityRequired": "Każde pole musi mieć nazwę i kod.",
+          "duplicateFieldCode": "Kody pól muszą być unikalne.",
+          "dictionaryRequired": "Pole słownikowe wymaga aktywnego słownika.",
+          "defaultModeRequired": "Wybierz dokładnie jeden aktywny tryb domyślny.",
+          "duplicateModeName": "Nazwy sposobów wyświetlania muszą być unikalne.",
+          "modeNameRequired": "Każdy aktywny sposób wyświetlania musi mieć nazwę.",
+          "modePartsRequired": "Aktywny sposób wyświetlania wymaga co najmniej jednej części.",
+          "modeFieldRequired": "Część oparta o pole musi wskazywać pole rozszerzenia.",
+          "requiredBackfillTitle": "Nie można jeszcze zapisać pola wymaganego.",
+          "requiredBackfillDescription": "Pola wymagane muszą mieć wartości we wszystkich aktywnych typach dokumentów, zanim zapiszesz definicję.",
+          "requiredBackfillFooter": "Uzupełnij brakujące wartości wymaganych pól przed zapisem.",
+          "requiredBackfillField": "Brak wartości dla pola {field}",
+          "requiredBackfillNewFieldHint": "To jest nowe pole. Najpierw wyłącz Wymagane i zapisz je jako opcjonalne, uzupełnij wartości w typach dokumentów, a potem wróć i włącz Wymagane.",
+          "editDocumentType": "Edytuj {name}"
+        }
+      }
+    },
+    "attributes": {
+      "title": "Atrybuty",
+      "create": "Utwórz atrybut",
+      "schemaVersion": "v{version}",
+      "metrics": {
+        "total": {
+          "label": "Łącznie"
+        },
+        "active": {
+          "label": "Aktywne"
+        },
+        "inactive": {
+          "label": "Nieaktywne"
+        }
+      },
+      "categories": {
+        "all": "Wszystkie kategorie",
+        "named": "{category} ({count})"
+      },
+      "filters": {
+        "active": "Aktywne ({count})",
+        "inactive": "Nieaktywne ({count})",
+        "all": "Wszystkie ({count})"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Nazwa",
+        "category": "Kategoria",
+        "schema": "Schemat",
+        "status": "Status",
+        "updatedAt": "Aktualizacja",
+        "actions": "Akcje"
+      },
+      "actions": {
+        "edit": "Edytuj {name}",
+        "deactivate": "Dezaktywuj {name}",
+        "delete": "Usuń {name}"
+      },
+      "dataTypes": {
+        "string": "Tekst",
+        "integer": "Liczba całkowita",
+        "number": "Liczba",
+        "boolean": "Tak/Nie",
+        "date": "Data",
+        "datetime": "Data i czas",
+        "legacy_scalar": "Legacy"
+      },
+      "valueSources": {
+        "free_text": "Tekst dowolny",
+        "inline_allowed_values": "Wartości inline",
+        "dictionary": "Słownik"
+      },
+      "sources": {
+        "ai": "AI",
+        "user": "Użytkownik"
+      },
+      "emptyTitle": "Brak atrybutów",
+      "emptyDescription": "Wybrane filtry nie mają definicji atrybutów.",
+      "errorTitle": "Nie można załadować atrybutów",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "actionFailed": "Akcja na atrybucie nie powiodła się.",
+      "confirm": {
+        "deactivate": {
+          "title": "Dezaktywuj atrybut",
+          "description": "{name} pozostanie w katalogu ze statusem nieaktywnym.",
+          "confirm": "Dezaktywuj"
+        },
+        "delete": {
+          "title": "Usuń atrybut",
+          "description": "{name} zostanie trwale usunięty, jeśli API nie znajdzie zależności.",
+          "confirm": "Usuń"
+        }
+      },
+      "form": {
+        "createTitle": "Utwórz atrybut",
+        "createDescription": "Nowe wpisy są zapisywane jako aktywne definicje atrybutów.",
+        "editTitle": "Edytuj atrybut",
+        "editDescription": "Edycja {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Stabilny klucz dla importów, eksportów i integracji. Zostaw puste, aby API wygenerowało go automatycznie.",
+          "externalIdPlaceholder": "Generowany z nazwy, gdy jest pusty",
+          "name": "Nazwa",
+          "category": "Kategoria",
+          "categoryPlaceholder": "Wybierz aktywną kategorię",
+          "source": "Źródło",
+          "valueSource": "Źródło wartości",
+          "dataType": "Typ danych",
+          "dictionary": "Słownik",
+          "dictionaryPlaceholder": "Wybierz aktywny słownik",
+          "minLength": "Min. długość",
+          "maxLength": "Maks. długość",
+          "pattern": "Wzorzec",
+          "minValue": "Min. wartość",
+          "maxValue": "Maks. wartość",
+          "allowedValues": "Dozwolone wartości",
+          "comment": "Komentarz",
+          "llmContext": "Kontekst LLM",
+          "llmContextDescription": "Opcjonalne instrukcje dla tego pola, dostępne podczas ekstrakcji LLM. Formatowanie i podział wierszy zostaną zachowane. Maksymalnie 1000 znaków.",
+          "llmContextPlaceholder": "Opisz, gdzie i w jaki sposób model powinien wyodrębnić ten atrybut..."
+        },
+        "valueSource": {
+          "description": "Wybierz, jak można wprowadzać wartości tego atrybutu.",
+          "freeTextHint": "Tekst dowolny może używać dowolnego wspieranego typu skalarnego."
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory i notatki używane przez klientów API oraz operatorów.",
+          "sourceDescription": "Wybierz, czy wartość zwykle pochodzi z ekstrakcji AI, czy od użytkownika."
+        },
+        "llm": {
+          "title": "Ekstrakcja LLM",
+          "description": "Opcjonalne wskazówki dotyczące ekstrakcji tego atrybutu.",
+          "configured": "Skonfigurowano",
+          "optional": "Opcjonalne"
+        },
+        "validation": {
+          "title": "Walidacja",
+          "description": "Opcjonalne ograniczenia obsługiwane przez wybrany typ danych.",
+          "dictionaryOnly": "Atrybuty słownikowe walidują się przez wybrany słownik, dlatego dodatkowe ograniczenia są ukryte.",
+          "noConstraints": "Backend obecnie nie obsługuje ograniczeń dla tego typu danych."
+        },
+        "errors": {
+          "nameRequired": "Podaj nazwę.",
+          "categoryRequired": "Wybierz aktywną kategorię.",
+          "allowedValuesRequired": "Podaj co najmniej jedną wartość inline.",
+          "dictionaryRequired": "Wybierz aktywny słownik.",
+          "integer": "Podaj nieujemną liczbę całkowitą.",
+          "number": "Podaj liczbę.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać atrybutu."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      }
+    },
+    "attributeCategories": {
+      "create": "Utwórz kategorię",
+      "filters": {
+        "active": "Aktywne ({count})",
+        "inactive": "Nieaktywne ({count})",
+        "all": "Wszystkie ({count})"
+      },
+      "columns": {
+        "name": "Nazwa",
+        "flags": "Flagi",
+        "status": "Status",
+        "updatedAt": "Aktualizacja",
+        "actions": "Akcje"
+      },
+      "actions": {
+        "edit": "Edytuj {name}",
+        "deactivate": "Dezaktywuj {name}",
+        "delete": "Usuń {name}"
+      },
+      "flags": {
+        "isMetadata": "Metadane"
+      },
+      "emptyTitle": "Brak kategorii atrybutów",
+      "emptyDescription": "API nie zwróciło aktywnych ani nieaktywnych kategorii.",
+      "errorTitle": "Nie można załadować kategorii atrybutów",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "actionFailed": "Akcja na kategorii atrybutów nie powiodła się.",
+      "confirm": {
+        "deactivate": {
+          "title": "Dezaktywuj kategorię",
+          "description": "{name} pozostanie w katalogu ze statusem nieaktywnym, jeśli API nie znajdzie aktywnych zależności.",
+          "confirm": "Dezaktywuj"
+        },
+        "delete": {
+          "title": "Usuń kategorię",
+          "description": "{name} zostanie trwale usunięta, jeśli API nie znajdzie zależności.",
+          "confirm": "Usuń"
+        }
+      },
+      "form": {
+        "createTitle": "Utwórz kategorię atrybutów",
+        "createDescription": "Nowe kategorie są zapisywane jako aktywne wpisy systemowe.",
+        "editTitle": "Edytuj kategorię atrybutów",
+        "editDescription": "Edycja {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Stabilny klucz używany przez importy, eksporty i integracje. Zostaw puste, aby wygenerować go automatycznie.",
+          "externalIdPlaceholder": "Generowany z nazwy, gdy jest pusty",
+          "label": "Nazwa",
+          "isMetadata": "Metadane",
+          "isMetadataDescription": "Atrybuty w tej kategorii są traktowane jako metadane dokumentu w uploadach, konektorach i integracjach."
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory używane przez klientów API i operatorów."
+        },
+        "flags": {
+          "title": "Flagi",
+          "description": "Przełączniki poziomu kategorii używane przez uploady i integracje."
+        },
+        "errors": {
+          "labelRequired": "Podaj nazwę.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać kategorii."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      }
+    },
+    "customDictionaries": {
+      "title": "Słowniki własne",
+      "create": "Utwórz słownik",
+      "search": "Szukaj słowników",
+      "schemaVersion": "Schemat v{version}",
+      "entriesVersion": "Wpisy v{version}",
+      "filters": {
+        "active": "Aktywne ({count})",
+        "inactive": "Nieaktywne ({count})",
+        "all": "Wszystkie ({count})"
+      },
+      "columns": {
+        "id": "External ID",
+        "name": "Nazwa",
+        "versions": "Wersje",
+        "status": "Status",
+        "updatedAt": "Aktualizacja",
+        "actions": "Akcje"
+      },
+      "actions": {
+        "open": "Otwórz {name}",
+        "more": "Więcej akcji dla {name}",
+        "edit": "Edytuj {name}",
+        "deactivate": "Dezaktywuj {name}",
+        "delete": "Usuń {name}"
+      },
+      "menu": {
+        "edit": "Edytuj szczegóły",
+        "deactivate": "Dezaktywuj",
+        "delete": "Usuń"
+      },
+      "metrics": {
+        "schema": "Schemat",
+        "entries": "Wpisy"
+      },
+      "emptyTitle": "Brak słowników własnych",
+      "emptyDescription": "Utwórz słownik zarządzany przez klienta dla powtarzalnych wartości metadanych.",
+      "errorTitle": "Nie można załadować słowników",
+      "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "actionFailed": "Akcja na słowniku nie powiodła się.",
+      "confirm": {
+        "deactivate": {
+          "title": "Dezaktywuj słownik",
+          "description": "{name} pozostanie dostępny dla historii ze statusem nieaktywnym.",
+          "confirm": "Dezaktywuj"
+        },
+        "delete": {
+          "title": "Usuń słownik",
+          "description": "{name} zostanie trwale usunięty tylko wtedy, gdy API nie znajdzie użycia.",
+          "confirm": "Usuń"
+        }
+      },
+      "form": {
+        "createTitle": "Utwórz słownik własny",
+        "createDescription": "Nowe słowniki są aktywne od razu po zapisie w API.",
+        "editTitle": "Edytuj słownik własny",
+        "editDescription": "Edycja {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Opcjonalny klucz integracyjny. Zostaw puste, aby wygenerować go z nazwy słownika.",
+          "externalIdPlaceholder": "Generowany z nazwy, gdy jest pusty",
+          "name": "Nazwa",
+          "description": "Opis"
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory są używane w API, importach i konektorach. Nie są wymagane do codziennego zarządzania słownikiem."
+        },
+        "errors": {
+          "externalIdRequired": "Podaj stabilny external ID.",
+          "nameRequired": "Podaj nazwę.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać słownika."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      },
+      "fieldsForm": {
+        "title": "Edytuj schemat pól",
+        "description": "Zastąp typowany schemat pól używany do walidacji wartości wpisów.",
+        "add": "Dodaj pole",
+        "remove": "Usuń pole",
+        "rowTitle": "Pole {number}",
+        "emptyTitle": "Brak definicji pól",
+        "emptyDescription": "Dodaj pole, aby odbudować schemat, albo zapisz pusty schemat po usunięciu wszystkich wpisów.",
+        "deleteWarningTitle": "Definicje pól zostaną trwale usunięte",
+        "deleteWarningDescription": "Usuwane pola: {fields}. API pozwoli na to tylko wtedy, gdy ten słownik nie ma wpisów.",
+        "advanced": {
+          "title": "Zaawansowana walidacja JSON",
+          "summary": "{count, plural, =0 {Brak ustawień} one {# ustawienie} few {# ustawienia} many {# ustawień} other {# ustawienia}}",
+          "constraintsDescription": "Reguły walidacji, np. max_length, pattern, min_value albo allowed_values.",
+          "normalizationDescription": "Czyszczenie danych przed walidacją, np. trim albo zmiana wielkości liter.",
+          "formatDescription": "Wskazówki UI i presety semantyczne, np. przykłady, maski albo ustawienia generowanych identyfikatorów."
+        },
+        "fields": {
+          "externalId": "External ID",
+          "label": "Etykieta",
+          "labelDescription": "Widoczna nazwa pola używana w formularzach wpisów i tabelach.",
+          "dataType": "Typ danych",
+          "dataTypeDescription": "Wybierz typ wartości biznesowej. Presety identyfikatorów są zapisywane na bazowych typach API.",
+          "status": "Status",
+          "statusDescription": "Nieaktywne pola pozostają widoczne dla istniejących wartości, ale nie są używane dla nowych aktywnych wpisów.",
+          "flags": "Flagi",
+          "flagsDescription": "Wymagane waliduje każdy wpis. Unikalne blokuje duplikaty wartości w tym słowniku.",
+          "sortOrder": "Kolejność",
+          "constraints": "Constraints JSON",
+          "normalization": "Normalization JSON",
+          "format": "Format JSON"
+        },
+        "dataTypes": {
+          "string": "Tekst",
+          "uuid": "UUID",
+          "uuid_auto": "UUID, nadawany automatycznie",
+          "integer_identifier": "Identyfikator liczbowy",
+          "integer_identifier_auto": "Identyfikator liczbowy, nadawany automatycznie",
+          "integer": "Liczba całkowita",
+          "number": "Liczba",
+          "boolean": "Tak/Nie",
+          "date": "Data",
+          "datetime": "Data i czas"
+        },
+        "flags": {
+          "required": "Wymagane",
+          "unique": "Unikalne"
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory pola używane przez importy, eksporty i systemy zewnętrzne.",
+          "generated": "Generowany, gdy jest pusty",
+          "externalIdDescription": "Opcjonalny stabilny klucz dla importów, eksportów i systemów zewnętrznych. Zostaw puste, aby wygenerować go z etykiety.",
+          "externalIdPlaceholder": "Generowany z etykiety, gdy jest pusty"
+        },
+        "order": {
+          "drag": "Przeciągnij pole {number}",
+          "position": "Pozycja {number}",
+          "moveUp": "Przenieś pole {number} wyżej",
+          "moveDown": "Przenieś pole {number} niżej"
+        },
+        "errors": {
+          "externalIdRequired": "Podaj external ID pola.",
+          "externalIdDuplicate": "External ID pól muszą być unikalne.",
+          "labelRequired": "Podaj etykietę.",
+          "jsonObject": "Podaj poprawny obiekt JSON.",
+          "deleteFieldsCountUnknown": "Poczekaj na wczytanie liczby wpisów przed usunięciem definicji pól.",
+          "deleteFieldsWithEntries": "Usuń wszystkie wpisy w tym słowniku przed usunięciem definicji pól. Aktualnie: {count}.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać schematu pól."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz schemat",
+        "saving": "Zapisywanie"
+      },
+      "entriesForm": {
+        "createTitle": "Utwórz wpis słownika",
+        "createDescription": "Uzupełnij wartości zdefiniowane w schemacie tego słownika.",
+        "editTitle": "Edytuj wpis słownika",
+        "editDescription": "Edycja {id}",
+        "fields": {
+          "externalId": "External ID",
+          "label": "Etykieta",
+          "sortOrder": "Kolejność"
+        },
+        "integration": {
+          "title": "Integracja",
+          "description": "Techniczne identyfikatory wpisu używane przez importy, eksporty i integracje.",
+          "generated": "Generowany, gdy jest pusty",
+          "externalIdDescription": "Opcjonalna stabilna wartość dla integracji metadanych. Zostaw puste, aby wygenerować ją z wartości wpisu.",
+          "externalIdPlaceholder": "Generowany z wartości, gdy jest pusty"
+        },
+        "fieldHints": {
+          "uuid": "Wpisz wartość UUID.",
+          "uuid_auto": "Generowany automatycznie z presetu schematu.",
+          "integer_identifier": "Wpisz stabilny identyfikator liczbowy.",
+          "integer_identifier_auto": "Generowany automatycznie podczas zapisu wpisu."
+        },
+        "boolean": {
+          "true": "Prawda",
+          "false": "Fałsz"
+        },
+        "noFieldsTitle": "Brak aktywnych pól",
+        "noFieldsDescription": "Zapisz co najmniej jedno aktywne pole, aby wpisy mogły przenosić typowane wartości.",
+        "errors": {
+          "externalIdRequired": "Podaj external ID wpisu.",
+          "labelRequired": "Podaj etykietę.",
+          "requiredValue": "Uzupełnij {field}.",
+          "displayValueRequired": "Uzupełnij co najmniej jedną wartość, która może być nazwą wpisu.",
+          "fixFields": "Popraw wyróżnione pola.",
+          "saveFailed": "Nie udało się zapisać wpisu."
+        },
+        "cancel": "Anuluj",
+        "save": "Zapisz",
+        "saving": "Zapisywanie"
+      }
+    },
+    "customDictionaryDetail": {
+      "back": "Wróć do słowników",
+      "loadingTitle": "Słownik",
+      "loadingDescription": "Ładowanie szczegółów słownika.",
+      "description": "Zarządzaj schematem i wpisami dla {id}.",
+      "schemaVersion": "Schemat v{version}",
+      "entriesVersion": "Wpisy v{version}",
+      "loadDictionaryTitle": "Nie można załadować słownika",
+      "loadDictionaryDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+      "metrics": {
+        "externalId": "External ID",
+        "status": "Status",
+        "schemaVersion": "Wersja schematu",
+        "entriesVersion": "Wersja wpisów"
+      },
+      "fields": {
+        "edit": "Edytuj schemat",
+        "emptyBadge": "Brak pól",
+        "summaryTitle": "Schemat pól",
+        "summaryDescription": "Aktywne i nieaktywne pola używane przez wartości wpisów.",
+        "count": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
+        "errorTitle": "Nie można załadować schematu pól",
+        "errorDescription": "Odśwież połączenie z API i spróbuj ponownie."
+      },
+      "entries": {
+        "create": "Utwórz wpis",
+        "search": "Szukaj wpisów",
+        "previous": "Poprzednia",
+        "next": "Następna",
+        "pageSummary": "{count} z {total} wpisów",
+        "filters": {
+          "active": "Aktywne ({count})",
+          "inactive": "Nieaktywne ({count})",
+          "all": "Wszystkie ({count})"
+        },
+        "columns": {
+          "id": "External ID",
+          "entry": "Wpis",
+          "label": "Etykieta",
+          "values": "Wartości",
+          "status": "Status",
+          "updatedAt": "Aktualizacja",
+          "actions": "Akcje"
+        },
+        "actions": {
+          "edit": "Edytuj {name}",
+          "deactivate": "Dezaktywuj {name}",
+          "delete": "Usuń {name}"
+        },
+        "emptyTitle": "Brak wpisów",
+        "emptyDescription": "Brak wpisów dla aktualnych filtrów.",
+        "errorTitle": "Nie można załadować wpisów",
+        "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+        "actionFailed": "Akcja na wpisie nie powiodła się.",
+        "confirm": {
+          "deactivate": {
+            "title": "Dezaktywuj wpis",
+            "description": "{name} pozostanie dostępny dla wartości historycznych, ale nie będzie wybierany jako nowa wartość.",
+            "confirm": "Dezaktywuj"
+          },
+          "delete": {
+            "title": "Usuń wpis",
+            "description": "{name} zostanie trwale usunięty z tego słownika. Używaj tego tylko dla wartości, które nie są potrzebne w historii ani integracjach.",
+            "confirm": "Usuń"
+          }
+        }
+      }
+    },
+    "attributeMatrix": {
+      "title": "Macierz atrybutów",
+      "categorySummary": "{required} wymagane, {optional} opcjonalne",
+      "includeMetadataInContextResolver": "Uwzględnij metadane w Context Resolverze",
+      "emptyTitle": "Brak atrybutów w macierzy",
+      "emptyDescription": "Wybrany typ dokumentu nie ma widocznych definicji atrybutów.",
+      "search": "Szukaj atrybutów",
+      "filters": {
+        "requirement": "Wymagalność"
+      },
+      "categories": {
+        "label": "Typ atrybutu",
+        "all": "Wszystkie typy atrybutów"
+      },
+      "metrics": {
+        "total": {
+          "label": "Łącznie"
+        },
+        "assigned": {
+          "label": "Przypisane"
+        },
+        "required": {
+          "label": "Wymagane"
+        },
+        "optional": {
+          "label": "Opcjonalne"
+        },
+        "unassigned": {
+          "label": "Nieprzypisane"
+        }
+      },
+      "documentTypes": {
+        "label": "Typ dokumentu",
+        "displayMode": "Sposób wyświetlania",
+        "loading": "Ładowanie typów dokumentów",
+        "emptyTitle": "Brak typów dokumentów",
+        "emptyDescription": "Utwórz typ dokumentu przed konfiguracją jego macierzy atrybutów.",
+        "errorTitle": "Nie można załadować typów dokumentów",
+        "errorDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+        "discardChanges": {
+          "title": "Odrzucić niezapisane zmiany?",
+          "description": "Zmiany w macierzy nie zostały zapisane. Czy chcesz je odrzucić i zmienić typ dokumentu?",
+          "stay": "Pozostań na ekranie",
+          "discard": "Odrzuć zmiany"
+        }
+      },
+      "columns": {
+        "attribute": "Atrybut",
+        "category": "Kategoria",
+        "status": "Status",
+        "requirement": "Wymagalność",
+        "missingAction": "Brak wartości",
+        "updatedAt": "Aktualizacja",
+        "validation": "Walidacja"
+      },
+      "states": {
+        "unassigned": "Nieprzypisany",
+        "optional": "Opcjonalny",
+        "required": "Wymagany"
+      },
+      "missingActions": {
+        "block_approval": "Blokuj akceptację",
+        "require_review": "Wymagaj weryfikacji",
+        "notApplicable": "Nie dotyczy"
+      },
+      "validation": {
+        "ready": "Gotowe"
+      },
+      "actions": {
+        "reset": "Resetuj",
+        "save": "Zapisz macierz",
+        "saving": "Zapisywanie"
+      },
+      "errors": {
+        "loadFailed": "Nie można załadować macierzy atrybutów",
+        "loadDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+        "saveFailed": "Nie udało się zapisać macierzy atrybutów.",
+        "inlineHint": "Wiersze wymagające uwagi są oznaczone w kolumnie walidacji.",
+        "unknownBackendIds": "API zgłosiło też nieznane ID atrybutów: {ids}.",
+        "duplicate": "Ten atrybut występuje więcej niż raz w payloadzie.",
+        "inactiveAssigned": "Nieaktywnych atrybutów nie można przypisać do aktywnego typu dokumentu.",
+        "missing": "API zgłosiło ten atrybut jako brakujący."
+      }
+    }
+  },
+  "Dashboard": {
+    "title": "Panel DocMind.Ai",
+    "subtitle": "Oto co dzieje się dziś z Twoimi dokumentami.",
+    "generatedAt": "Dane z {value}",
+    "window": {
+      "aria": "Wybierz okres dashboardu",
+      "days": "{count} dni"
+    },
+    "operational": {
+      "title": "Stan operacyjny",
+      "toReview": "do weryfikacji",
+      "processing": "w przetwarzaniu",
+      "requiresAttention": "wymagają uwagi"
+    },
+    "activity": {
+      "title": "Aktywność dokumentów",
+      "aria": "Dzienny wykres aktywności dokumentów",
+      "date": "Data",
+      "accepted": "Przyjęte",
+      "successfulOcr": "Udane OCR",
+      "archived": "Zarchiwizowane"
+    },
+    "ocrTiming": {
+      "title": "Czas OCR",
+      "averageLabel": "Średnio",
+      "seconds": "{value} s",
+      "minimum": "min. {value} s",
+      "average": "średnio {value} s",
+      "maximum": "maks. {value} s",
+      "samples": "{count} udanych przebiegów · ostatnie {days} dni",
+      "perPage": "{value} s / stronę",
+      "empty": "Brak danych w wybranym okresie",
+      "rangeAria": "Czas kroku OCR: minimum {minimum} sekund, średnio {average} sekund, maksimum {maximum} sekund"
+    },
+    "archiveSummary": {
+      "title": "Archiwum",
+      "added": "+{count} w ostatnich {days} dniach",
+      "open": "Otwórz Archiwum"
+    },
+    "lists": {
+      "toReview": "Do weryfikacji",
+      "requiresAttention": "Wymaga uwagi",
+      "viewInbox": "Zobacz cały Inbox",
+      "toReviewEmpty": "Brak dokumentów oczekujących na weryfikację.",
+      "attentionEmpty": "Brak dokumentów wymagających uwagi."
+    },
+    "statuses": {
+      "received": "Przyjęty",
+      "waiting_for_review": "Oczekuje",
+      "in_review": "W weryfikacji",
+      "approved": "Zatwierdzony",
+      "pending": "Oczekuje",
+      "running": "W toku",
+      "succeeded": "Zakończony",
+      "partial_failed": "Częściowy",
+      "failed": "Błąd"
+    },
+    "error": {
+      "title": "Nie udało się pobrać danych dashboardu",
+      "description": "Możesz nadal przesłać dokument lub przejść do pozostałych widoków.",
+      "retry": "Spróbuj ponownie"
+    },
+    "welcome": {
+      "heading": "Zacznij przetwarzać dokumenty",
+      "description": "Prześlij dokument i uruchom automatyczne rozpoznawanie danych.",
+      "cta": "Prześlij dokument",
+      "greeting": {
+        "morning": "Dzień dobry, {name}",
+        "afternoon": "Dzień dobry, {name}",
+        "evening": "Dobry wieczór, {name}"
+      },
+      "greetingNeutral": {
+        "morning": "Dzień dobry",
+        "afternoon": "Dzień dobry",
+        "evening": "Dobry wieczór"
+      }
+    },
+    "quickActions": {
+      "title": "Szybkie akcje",
+      "dictionaries": {
+        "title": "Zarządzaj słownikami",
+        "description": "Konfiguruj typy dokumentów, atrybuty i macierz wymagalności"
+      },
+      "users": {
+        "title": "Zarządzaj użytkownikami",
+        "description": "Zarządzaj użytkownikami, zaproszeniami, rolami i dostępem"
+      },
+      "pipeline": {
+        "title": "Zarządzaj pipelinem",
+        "description": "Ustaw strategię OCR i modele LLM"
+      }
+    },
+    "common": {
+      "viewAll": "Zobacz wszystko"
+    },
+    "metrics": {
+      "documentsProcessed": {
+        "label": "Przetworzone dokumenty",
+        "detail": "względem ostatnich 7 dni"
+      },
+      "awaitingReview": {
+        "label": "Oczekujące na weryfikację",
+        "detail": "względem wczoraj"
+      },
+      "extractionAccuracy": {
+        "label": "Dokładność ekstrakcji",
+        "detail": "względem ostatnich 7 dni"
+      },
+      "failedJobs": {
+        "label": "Nieudane zadania",
+        "detail": "względem wczoraj"
+      }
+    },
+    "pipeline": {
+      "title": "Pipeline przetwarzania",
+      "menu": "Menu pipeline'u",
+      "range": {
+        "last24h": "24 godz.",
+        "last7d": "7 dni",
+        "last30d": "30 dni"
+      },
+      "steps": {
+        "ingestion": "Ingestia",
+        "ocrParsing": "OCR / parsowanie",
+        "extraction": "Ekstrakcja",
+        "validation": "Walidacja",
+        "review": "Weryfikacja",
+        "export": "Eksport"
+      },
+      "chartLabel": "Wykres przepustowości pipeline'u",
+      "chartTitle": "Trend przepustowości i wąskiego gardła pipeline'u",
+      "throughput": "Przepustowość",
+      "bottleneck": "Wąskie gardło"
+    },
+    "reviewQueue": {
+      "title": "Kolejka weryfikacji",
+      "customer": "Klient:",
+      "fields": "{count, plural, one {# pole} few {# pola} many {# pól} other {# pola}}",
+      "timeAgo": "{minutes, plural, =0 {teraz} one {# minutę temu} few {# minuty temu} many {# minut temu} other {# minuty temu}}",
+      "openMenu": "Otwórz menu {fileName}",
+      "priority": {
+        "high": "Wysoki priorytet",
+        "normal": "Normalny",
+        "lowConfidence": "Niska pewność"
+      },
+      "status": {
+        "inReview": "W weryfikacji",
+        "pending": "Oczekuje"
+      },
+      "documentType": {
+        "invoice": "Faktura",
+        "contract": "Umowa",
+        "purchaseOrder": "Zamówienie",
+        "receipt": "Paragon"
+      }
+    },
+    "batches": {
+      "title": "Ostatnie batche dokumentów",
+      "filters": {
+        "all": "Wszystkie",
+        "success": "Sukces",
+        "processing": "Przetwarzanie",
+        "failed": "Błędy"
+      },
+      "columns": {
+        "batchId": "ID batcha",
+        "source": "Źródło",
+        "documents": "Dokumenty",
+        "processed": "Przetworzone",
+        "status": "Status",
+        "started": "Start",
+        "duration": "Czas trwania",
+        "actions": "Akcje"
+      },
+      "status": {
+        "done": "Ukończono",
+        "review": "Ukończono z ostrzeżeniami",
+        "processing": "Przetwarzanie",
+        "failed": "Niepowodzenie"
+      },
+      "open": "Otwórz {batchId}",
+      "openMenu": "Otwórz menu {batchId}",
+      "showing": "Wyświetlono {from}-{to} z {total} wyników",
+      "page": "Strona {page}"
+    }
+  }
+}

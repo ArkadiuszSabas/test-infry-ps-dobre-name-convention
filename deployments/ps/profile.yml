@@ -1,0 +1,36 @@
+schema_version: 1
+profile_id: ps
+display_name: ProService deployment profile
+installed_modules: []
+enabled_capabilities:
+- id: manual_upload
+  module_id: null
+  kind: input
+  status: enabled
+  visibility: public
+  contract_version: 1
+  ui_surfaces:
+  - inbox.upload
+  required_permissions:
+  - documents.create
+  safe_metadata:
+    label: Manual upload
+    description: null
+    extra: {}
+connector_instances:
+- connector_instance_id: core.manual_upload.primary
+  capability_id: manual_upload
+  module_id: null
+  profile_id: ps
+  status: enabled
+  visibility: public
+  config_references: {}
+  secret_references: {}
+  health: {}
+  safe_metadata:
+    label: Manual upload
+    description: null
+    extra: {}
+ui_extensions: []
+migration_bundles: []
+runtime_policies: {}

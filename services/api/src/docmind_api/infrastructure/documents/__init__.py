@@ -1,0 +1,1 @@
+"""Document registry infrastructure adapters."""

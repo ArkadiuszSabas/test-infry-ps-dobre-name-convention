@@ -1,0 +1,16 @@
+[project]
+name = "docmind-core"
+version = "0.1.0"
+description = "Framework-free DocMind.ai shared contracts."
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.13,<3",
+    "pyyaml>=6.0.2",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docmind_core"]

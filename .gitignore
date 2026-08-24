@@ -1,0 +1,45 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+.docmind-storage/
+
+# Legacy local DM-E2E state retained for existing clones
+/.codex/dm-e2e/
+
+# Local API client workspaces
+/.postman/
+/postman/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Node / Next.js
+node_modules/
+.next/
+next-env.d.ts
+out/
+dist/
+coverage/
+.turbo/
+
+# IDE and OS
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*

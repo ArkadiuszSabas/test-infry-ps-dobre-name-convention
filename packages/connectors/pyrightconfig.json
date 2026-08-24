@@ -1,0 +1,18 @@
+{
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "strict",
+  "include": [
+    "hatch_build.py",
+    "src",
+    "tests"
+  ],
+  "exclude": [
+    "**/__pycache__"
+  ],
+  "extraPaths": [
+    "src",
+    "../core/src"
+  ],
+  "venv": ".venv",
+  "venvPath": "../.."
+}

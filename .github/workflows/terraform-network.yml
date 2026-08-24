@@ -1,0 +1,145 @@
+name: Terraform network
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Protected GitHub Environment
+        required: true
+        type: environment
+      apply:
+        description: Apply the generated plan from a protected ref
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: proservice-terraform-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      TF_BACKEND_CONTAINER: ${{ vars.TF_NETWORK_CONTAINER }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
+      TF_IN_AUTOMATION: "true"
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/terraform/network
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Validate environment and apply source
+        env:
+          TF_APPLY_REQUESTED: ${{ inputs.apply }}
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          case "$TF_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
+          esac
+          test -f "env/${TF_ENVIRONMENT}.tfvars" || {
+            echo "::error::Missing env/${TF_ENVIRONMENT}.tfvars"; exit 1;
+          }
+          for variable_name in TF_BACKEND_RESOURCE_GROUP TF_BACKEND_STORAGE_ACCOUNT TF_BACKEND_CONTAINER; do
+            if [[ -z "${!variable_name}" ]]; then
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"
+              exit 1
+            fi
+          done
+          if [[ "$TF_APPLY_REQUESTED" == "true" && "$TF_REF_PROTECTED" != "true" ]]; then
+            echo "::error::Terraform apply is allowed only from a protected ref."
+            exit 1
+          fi
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_NETWORK_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.15.0
+          terraform_wrapper: false
+      - run: terraform fmt -check -recursive
+      - name: Initialize isolated network state
+        run: >-
+          terraform init -input=false
+          -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
+          -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
+          -backend-config="container_name=${TF_BACKEND_CONTAINER}"
+          -backend-config="key=${TF_ENVIRONMENT}.network.tfstate"
+          -backend-config="use_azuread_auth=true"
+      - name: Plan complete network desired state
+        run: terraform plan -input=false -lock-timeout=5m -var-file="env/${TF_ENVIRONMENT}.tfvars" -out=tfplan
+      - name: Upload generated network plan
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: terraform-network-plan
+          path: infra/terraform/network/tfplan
+          if-no-files-found: error
+
+  apply:
+    needs: plan
+    if: inputs.apply
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: proservice-terraform-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      TF_BACKEND_CONTAINER: ${{ vars.TF_NETWORK_CONTAINER }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
+      TF_IN_AUTOMATION: "true"
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/terraform/network
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Validate approved apply source
+        env:
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          [[ "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::Terraform apply is allowed only from a protected ref."; exit 1;
+          }
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_NETWORK_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.15.0
+          terraform_wrapper: false
+      - name: Initialize isolated network state
+        run: >-
+          terraform init -input=false
+          -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
+          -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
+          -backend-config="container_name=${TF_BACKEND_CONTAINER}"
+          -backend-config="key=${TF_ENVIRONMENT}.network.tfstate"
+          -backend-config="use_azuread_auth=true"
+      - name: Download approved network plan
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: terraform-network-plan
+          path: infra/terraform/network
+      - name: Apply approved network plan
+        run: terraform apply -input=false -lock-timeout=5m tfplan
+      - name: Remove local plan
+        if: always()
+        run: rm -f tfplan

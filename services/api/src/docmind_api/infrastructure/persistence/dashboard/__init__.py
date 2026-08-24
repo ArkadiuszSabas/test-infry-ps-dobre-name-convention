@@ -1,0 +1,1 @@
+"""PostgreSQL dashboard read adapters."""

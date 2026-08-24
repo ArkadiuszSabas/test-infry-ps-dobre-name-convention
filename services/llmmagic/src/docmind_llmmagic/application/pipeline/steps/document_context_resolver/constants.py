@@ -1,0 +1,6 @@
+"""Context Resolver step identifiers."""
+
+DOCUMENT_CONTEXT_RESOLVER_IMPLEMENTATION_ID = "document.extraction.context_resolver"
+CONTEXT_RESOLUTION_RESULT_ARTIFACT_KEY = "document.context_resolution.result"
+CONTEXT_RESOLVER_MAX_ATTRIBUTE_COUNT = 500
+CONTEXT_RESOLVER_MAX_LLM_CONTEXT_LENGTH = 1000

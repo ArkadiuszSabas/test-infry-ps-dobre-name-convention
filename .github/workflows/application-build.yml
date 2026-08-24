@@ -1,0 +1,137 @@
+name: Application build
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment containing the target ACR configuration
+        required: true
+        default: dev
+        type: environment
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    environment: ${{ inputs.environment || 'dev' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: proservice-application-build-${{ inputs.environment || 'dev' }}
+      cancel-in-progress: false
+    env:
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment || 'dev' }}
+      DOCKER_CONFIG: /tmp/docmind-docker-${{ github.run_id }}-${{ github.run_attempt }}
+      IMAGE_TAG: ${{ github.sha }}
+      PROFILE_ID: ps
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Validate build configuration
+        env:
+          ACR_NAME: ${{ vars.ACR_NAME }}
+          AZURE_BUILD_CLIENT_ID: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          set -euo pipefail
+          case "$DEPLOYMENT_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $DEPLOYMENT_ENVIRONMENT"; exit 1 ;;
+          esac
+          [[ "$TF_REF_PROTECTED" == "true" && "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" ]] || {
+            echo "::error::Application images may be built only from the protected main branch."; exit 1;
+          }
+          [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::The image tag must be the full source commit SHA."; exit 1;
+          }
+          for variable_name in ACR_NAME AZURE_BUILD_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Build and push application images
+        env:
+          ACR_NAME: ${{ vars.ACR_NAME }}
+        run: |
+          set -euo pipefail
+          login_server=""
+          cleanup_registry() {
+            if [[ -n "$login_server" ]]; then
+              docker logout "$login_server" >/dev/null 2>&1 || true
+            fi
+            rm -f -- "$DOCKER_CONFIG/config.json"
+            rmdir -- "$DOCKER_CONFIG" >/dev/null 2>&1 || true
+          }
+          trap cleanup_registry EXIT
+
+          login_server="$(az acr show --name "$ACR_NAME" --query loginServer --output tsv)"
+          [[ -n "$login_server" ]] || {
+            echo "::error::Could not resolve the ACR login server."; exit 1;
+          }
+          mkdir -p "$DOCKER_CONFIG"
+          az acr login --name "$ACR_NAME"
+
+          build_image() {
+            local service="$1"
+            local dockerfile="$2"
+            shift 2
+            local image="${login_server}/docmind/${service}:${IMAGE_TAG}"
+            docker build --file "$dockerfile" --tag "$image" "$@" .
+            docker push "$image"
+          }
+
+          build_image api services/api/Dockerfile
+          build_image llmmagic services/llmmagic/Dockerfile
+          build_image worker services/worker/Dockerfile
+          build_image web apps/web/Dockerfile --build-arg "DOCMIND_CONNECTOR_PROFILE_ID=${PROFILE_ID}"
+
+          resolve_digest() {
+            local service="$1"
+            local digest
+            digest="$(az acr repository show \
+              --name "$ACR_NAME" \
+              --image "docmind/${service}:${IMAGE_TAG}" \
+              --query digest \
+              --output tsv)"
+            [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+              echo "::error::ACR returned an invalid digest for ${service}."; exit 1;
+            }
+            printf '%s' "$digest"
+          }
+
+          api_digest="$(resolve_digest api)"
+          llmmagic_digest="$(resolve_digest llmmagic)"
+          worker_digest="$(resolve_digest worker)"
+          web_digest="$(resolve_digest web)"
+
+          mkdir -p generated
+          cat > generated/application-image-manifest.json <<EOF
+          {
+            "sourceVersion": "${IMAGE_TAG}",
+            "profileId": "${PROFILE_ID}",
+            "registry": "${login_server}",
+            "images": {
+              "api": "${login_server}/docmind/api@${api_digest}",
+              "llmmagic": "${login_server}/docmind/llmmagic@${llmmagic_digest}",
+              "worker": "${login_server}/docmind/worker@${worker_digest}",
+              "web": "${login_server}/docmind/web@${web_digest}"
+            }
+          }
+          EOF
+          cat generated/application-image-manifest.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish image manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: application-image-manifest-${{ github.sha }}
+          path: generated/application-image-manifest.json
+          if-no-files-found: error
+          retention-days: 30

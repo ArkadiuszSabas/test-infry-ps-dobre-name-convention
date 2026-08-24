@@ -1,0 +1,358 @@
+[project]
+name = "docmind-ai-backend"
+version = "0.1.0"
+description = "DocMind.ai backend workspace and shared quality gate tooling."
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "bandit>=1.8.6",
+    "hatchling>=1.27.0",
+    "httpx>=0.28.0",
+    "import-linter>=2.7.0",
+    "pyright>=1.1.400",
+    "pytest>=8.3.5",
+    "ruff>=0.11.0",
+    "testcontainers>=4.10.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = [
+    "packages/backend-runtime",
+    "packages/connectors",
+    "packages/core",
+    "packages/integrations",
+    "services/api",
+    "services/llmmagic",
+    "services/worker",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = [
+    "packages/backend-runtime/src",
+    "packages/connectors/src",
+    "packages/connectors/*/src",
+    "packages/core/src",
+    "packages/integrations/src",
+    "services/api/src",
+    "services/llmmagic/src",
+    "services/worker/src",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "E",
+    "F",
+    "I",
+    "N",
+    "RUF",
+    "UP",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "docmind_backend_runtime",
+    "docmind_connectors",
+    "docmind_core",
+    "docmind_integrations",
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+include = [
+    "packages/backend-runtime/src",
+    "packages/backend-runtime/tests",
+    "packages/connectors/src",
+    "packages/connectors/tests",
+    "packages/core/src",
+    "packages/core/tests",
+    "packages/integrations/src",
+    "packages/integrations/tests",
+    "services/api/src",
+    "services/api/tests",
+    "services/llmmagic/src",
+    "services/llmmagic/tests",
+    "services/worker/src",
+    "services/worker/tests",
+]
+exclude = [
+    ".venv",
+    "**/__pycache__",
+]
+venv = ".venv"
+venvPath = "."
+
+[[tool.pyright.executionEnvironments]]
+root = "packages/backend-runtime"
+extraPaths = ["src"]
+
+[[tool.pyright.executionEnvironments]]
+root = "packages/core"
+extraPaths = ["src"]
+
+[[tool.pyright.executionEnvironments]]
+root = "packages/integrations"
+extraPaths = ["src"]
+
+[[tool.pyright.executionEnvironments]]
+root = "packages/connectors"
+extraPaths = [
+    "src",
+    "../core/src",
+]
+
+[[tool.pyright.executionEnvironments]]
+root = "services/api"
+extraPaths = [
+    "src",
+    "../../packages/backend-runtime/src",
+    "../../packages/connectors/src",
+    "../../packages/core/src",
+]
+
+[[tool.pyright.executionEnvironments]]
+root = "services/llmmagic"
+extraPaths = [
+    "src",
+    "../../packages/backend-runtime/src",
+    "../../packages/core/src",
+]
+
+[[tool.pyright.executionEnvironments]]
+root = "services/worker"
+extraPaths = [
+    "src",
+    "../../packages/backend-runtime/src",
+    "../../packages/connectors/src",
+    "../../packages/core/src",
+]
+
+[tool.importlinter]
+root_packages = [
+    "docmind_backend_runtime",
+    "docmind_connectors",
+    "docmind_core",
+    "docmind_integrations",
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+id = "core-is-framework-free"
+name = "Core contracts do not import frameworks, services, or connector modules"
+type = "forbidden"
+source_modules = [
+    "docmind_core",
+]
+forbidden_modules = [
+    "azure",
+    "docmind_api",
+    "docmind_backend_runtime",
+    "docmind_connectors",
+    "docmind_llmmagic",
+    "docmind_worker",
+    "fastapi",
+    "httpx",
+    "opentelemetry",
+    "pydantic_settings",
+    "sqlalchemy",
+    "starlette",
+]
+
+[[tool.importlinter.contracts]]
+id = "connectors-do-not-import-services"
+name = "Connector modules do not import service internals"
+type = "forbidden"
+source_modules = [
+    "docmind_connectors",
+]
+forbidden_modules = [
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+
+[[tool.importlinter.contracts]]
+id = "integrations-do-not-import-apps-or-connectors"
+name = "Integration clients do not import services or connectors"
+type = "forbidden"
+source_modules = [
+    "docmind_integrations",
+]
+forbidden_modules = [
+    "docmind_api",
+    "docmind_backend_runtime",
+    "docmind_connectors",
+    "docmind_core",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+
+[[tool.importlinter.contracts]]
+id = "backend-service-layers"
+name = "Backend services use layer-first Clean Architecture"
+type = "layers"
+containers = [
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+layers = [
+    "main",
+    "bootstrap",
+    "settings",
+    "api | infrastructure",
+    "application",
+    "domain",
+]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+id = "main-only-enters-through-bootstrap"
+name = "Service main modules enter the application through bootstrap"
+type = "forbidden"
+allow_indirect_imports = true
+source_modules = [
+    "docmind_api.main",
+    "docmind_llmmagic.main",
+    "docmind_worker.main",
+]
+forbidden_modules = [
+    "docmind_api.api",
+    "docmind_api.application",
+    "docmind_api.domain",
+    "docmind_api.infrastructure",
+    "docmind_llmmagic.api",
+    "docmind_llmmagic.application",
+    "docmind_llmmagic.domain",
+    "docmind_llmmagic.infrastructure",
+    "docmind_worker.api",
+    "docmind_worker.application",
+    "docmind_worker.domain",
+    "docmind_worker.infrastructure",
+]
+
+[[tool.importlinter.contracts]]
+id = "settings-do-not-import-service-layers"
+name = "Settings modules do not import service layers"
+type = "forbidden"
+source_modules = [
+    "docmind_api.settings",
+    "docmind_llmmagic.settings",
+    "docmind_worker.settings",
+]
+forbidden_modules = [
+    "docmind_api.api",
+    "docmind_api.application",
+    "docmind_api.bootstrap",
+    "docmind_api.domain",
+    "docmind_api.infrastructure",
+    "docmind_llmmagic.api",
+    "docmind_llmmagic.application",
+    "docmind_llmmagic.bootstrap",
+    "docmind_llmmagic.domain",
+    "docmind_llmmagic.infrastructure",
+    "docmind_worker.api",
+    "docmind_worker.application",
+    "docmind_worker.bootstrap",
+    "docmind_worker.domain",
+    "docmind_worker.infrastructure",
+]
+
+[[tool.importlinter.contracts]]
+id = "domain-is-pure"
+name = "Domain layers do not import frameworks or IO"
+type = "forbidden"
+source_modules = [
+    "docmind_api.domain",
+    "docmind_llmmagic.domain",
+    "docmind_worker.domain",
+]
+forbidden_modules = [
+    "azure",
+    "fastapi",
+    "httpx",
+    "opentelemetry",
+    "pydantic",
+    "pydantic_settings",
+    "sqlalchemy",
+    "starlette",
+]
+
+[[tool.importlinter.contracts]]
+id = "application-is-framework-free"
+name = "Application layers do not import frameworks or infrastructure libraries"
+type = "forbidden"
+source_modules = [
+    "docmind_api.application",
+    "docmind_llmmagic.application",
+    "docmind_worker.application",
+]
+forbidden_modules = [
+    "azure",
+    "fastapi",
+    "httpx",
+    "opentelemetry",
+    "pydantic",
+    "pydantic_settings",
+    "sqlalchemy",
+    "starlette",
+]
+
+[[tool.importlinter.contracts]]
+id = "services-do-not-import-each-other"
+name = "Backend services do not import each other"
+type = "independence"
+modules = [
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+
+[[tool.importlinter.contracts]]
+id = "runtime-does-not-import-services"
+name = "Shared backend runtime does not import service packages"
+type = "forbidden"
+source_modules = [
+    "docmind_backend_runtime",
+]
+forbidden_modules = [
+    "docmind_api",
+    "docmind_llmmagic",
+    "docmind_worker",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
+pythonpath = [
+    "services/api/tests",
+]
+filterwarnings = [
+    "error",
+]
+testpaths = [
+    "packages/backend-runtime/tests",
+    "packages/connectors/tests",
+    "packages/connectors/*/tests",
+    "packages/core/tests",
+    "packages/integrations/tests",
+    "services/api/tests",
+    "services/llmmagic/tests",
+    "services/worker/tests",
+]

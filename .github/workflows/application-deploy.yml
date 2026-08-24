@@ -1,0 +1,228 @@
+name: Application deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Protected GitHub Environment to deploy
+        required: true
+        type: environment
+      image_tag:
+        description: Full 40-character commit SHA produced by Application build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: proservice-application-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      ACR_NAME: ${{ vars.ACR_NAME }}
+      API_CONTAINER_APP_NAME: ${{ vars.API_CONTAINER_APP_NAME }}
+      API_MIGRATION_JOB_NAME: ${{ vars.API_MIGRATION_JOB_NAME }}
+      APP_RESOURCE_GROUP: ${{ vars.APP_RESOURCE_GROUP }}
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      LLMMAGIC_CONTAINER_APP_NAME: ${{ vars.LLMMAGIC_CONTAINER_APP_NAME }}
+      MIGRATION_CONTAINER_NAME: ${{ vars.API_MIGRATION_CONTAINER_NAME }}
+      WEB_CONTAINER_APP_NAME: ${{ vars.WEB_CONTAINER_APP_NAME }}
+      WORKER_CONTAINER_APP_NAME: ${{ vars.WORKER_CONTAINER_APP_NAME }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate deployment configuration
+        env:
+          AZURE_DEPLOY_CLIENT_ID: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          set -euo pipefail
+          case "$DEPLOYMENT_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $DEPLOYMENT_ENVIRONMENT"; exit 1 ;;
+          esac
+          [[ "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::Application deploy is allowed only from a protected ref."; exit 1;
+          }
+          [[ "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" ]] || {
+            echo "::error::Application deploy must be dispatched from the protected main branch."; exit 1;
+          }
+          [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::image_tag must be a full lowercase commit SHA."; exit 1;
+          }
+          git cat-file -e "${IMAGE_TAG}^{commit}" 2>/dev/null || {
+            echo "::error::image_tag does not identify a commit in this repository."; exit 1;
+          }
+          git merge-base --is-ancestor "$IMAGE_TAG" "$GITHUB_SHA" || {
+            echo "::error::image_tag is not reachable from the selected main revision."; exit 1;
+          }
+          for variable_name in \
+            ACR_NAME API_CONTAINER_APP_NAME API_MIGRATION_JOB_NAME APP_RESOURCE_GROUP \
+            AZURE_DEPLOY_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID \
+            LLMMAGIC_CONTAINER_APP_NAME WEB_CONTAINER_APP_NAME WORKER_CONTAINER_APP_NAME; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Resolve and verify application images
+        run: |
+          set -euo pipefail
+          login_server="$(az acr show --name "$ACR_NAME" --query loginServer --output tsv)"
+          [[ -n "$login_server" ]] || {
+            echo "::error::Could not resolve the ACR login server."; exit 1;
+          }
+          resolve_image() {
+            local service="$1"
+            local digest
+            digest="$(az acr repository show \
+              --name "$ACR_NAME" \
+              --image "docmind/${service}:${IMAGE_TAG}" \
+              --query digest \
+              --output tsv)"
+            [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+              echo "::error::ACR returned an invalid digest for ${service}."; exit 1;
+            }
+            printf '%s/docmind/%s@%s' "$login_server" "$service" "$digest"
+          }
+
+          api_image="$(resolve_image api)"
+          llmmagic_image="$(resolve_image llmmagic)"
+          worker_image="$(resolve_image worker)"
+          web_image="$(resolve_image web)"
+
+          {
+            echo "API_IMAGE=${api_image}"
+            echo "LLMMAGIC_IMAGE=${llmmagic_image}"
+            echo "WORKER_IMAGE=${worker_image}"
+            echo "WEB_IMAGE=${web_image}"
+          } >> "$GITHUB_ENV"
+      - name: Apply API migrations
+        run: |
+          set -euo pipefail
+          migration_container_name="${MIGRATION_CONTAINER_NAME:-api-migrations}"
+          az containerapp job update \
+            --name "$API_MIGRATION_JOB_NAME" \
+            --resource-group "$APP_RESOURCE_GROUP" \
+            --image "$API_IMAGE" \
+            --output none
+          migration_container="$(az containerapp job show \
+            --name "$API_MIGRATION_JOB_NAME" \
+            --resource-group "$APP_RESOURCE_GROUP" \
+            --query "properties.template.containers[?name=='${migration_container_name}'] | [0]" \
+            --output json)"
+          actual_image="$(jq -r '.image // empty' <<<"$migration_container")"
+          [[ "$actual_image" == "$API_IMAGE" ]] || {
+            echo "::error::Migration job image was not updated."; exit 1;
+          }
+          [[ "$(jq -r '.command[]? // empty' <<<"$migration_container")" == "python" ]] || {
+            echo "::error::Migration job command is not configured for Python."; exit 1;
+          }
+          jq -e '.args | index("/usr/local/lib/python3.14/site-packages/docmind_api/bootstrap/commands/apply_migrations.py") != null' \
+            <<<"$migration_container" >/dev/null || {
+            echo "::error::Migration job does not use the approved migration entrypoint."; exit 1;
+          }
+          execution_name="$(az containerapp job start \
+            --name "$API_MIGRATION_JOB_NAME" \
+            --resource-group "$APP_RESOURCE_GROUP" \
+            --query name \
+            --output tsv)"
+          [[ -n "$execution_name" ]] || {
+            echo "::error::Migration job did not return an execution name."; exit 1;
+          }
+          for _ in {1..30}; do
+            status="$(az containerapp job execution show \
+              --name "$API_MIGRATION_JOB_NAME" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --job-execution-name "$execution_name" \
+              --query properties.status \
+              --output tsv)"
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed|Canceled)
+                echo "::error::Migration execution ${execution_name} finished with status ${status}."; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Migration execution ${execution_name} timed out."; exit 1
+      - name: Deploy and verify Container Apps
+        run: |
+          set -euo pipefail
+          deploy_app() {
+            local service="$1"
+            local app_name="$2"
+            local image="$3"
+            local provisioning_state
+            local actual_image
+            local latest_revision
+            local running_state
+
+            echo "Started deploying application '${app_name}'."
+            az containerapp update \
+              --name "$app_name" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --image "$image" \
+              --output none
+
+            provisioning_state="$(az containerapp show \
+              --name "$app_name" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --query properties.provisioningState \
+              --output tsv)"
+            actual_image="$(az containerapp show \
+              --name "$app_name" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --query 'properties.template.containers[0].image' \
+              --output tsv)"
+            latest_revision="$(az containerapp show \
+              --name "$app_name" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --query properties.latestRevisionName \
+              --output tsv)"
+            [[ "$provisioning_state" == "Succeeded" ]] || {
+              echo "::error::${app_name} provisioning state is ${provisioning_state}."; exit 1;
+            }
+            [[ "$actual_image" == "$image" ]] || {
+              echo "::error::${app_name} is not running the requested image."; exit 1;
+            }
+            [[ -n "$latest_revision" ]] || {
+              echo "::error::${app_name} did not create a latest revision."; exit 1;
+            }
+
+            for _ in {1..18}; do
+              running_state="$(az containerapp revision show \
+                --name "$app_name" \
+                --resource-group "$APP_RESOURCE_GROUP" \
+                --revision "$latest_revision" \
+                --query properties.runningState \
+                --output tsv)"
+              case "$running_state" in
+                Running|"Scale to 0")
+                  echo "Successfully deployed application '${app_name}'."
+                  return 0 ;;
+                Failed)
+                  echo "::error::${app_name} revision ${latest_revision} failed to start."; exit 1 ;;
+              esac
+              sleep 10
+            done
+            echo "::error::${app_name} revision ${latest_revision} did not become Running."; exit 1
+          }
+
+          deploy_app api "$API_CONTAINER_APP_NAME" "$API_IMAGE"
+          deploy_app llmmagic "$LLMMAGIC_CONTAINER_APP_NAME" "$LLMMAGIC_IMAGE"
+          deploy_app worker "$WORKER_CONTAINER_APP_NAME" "$WORKER_IMAGE"
+          deploy_app web "$WEB_CONTAINER_APP_NAME" "$WEB_IMAGE"

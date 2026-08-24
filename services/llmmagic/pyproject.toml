@@ -1,0 +1,32 @@
+[project]
+name = "docmind-llmmagic"
+version = "0.1.0"
+description = "DocMind.ai AI/OCR orchestration service."
+requires-python = ">=3.14"
+dependencies = [
+    "aiohttp>=3.12.0",
+    "azure-ai-documentintelligence>=1.0.0",
+    "azure-ai-projects>=2.0.0",
+    "azure-identity>=1.25.0",
+    "azure-storage-blob>=12.27.0",
+    "docmind-backend-runtime",
+    "docmind-core",
+    "langgraph>=1.2.9,<2",
+    "langfuse>=4.7.0,<5",
+    "openai>=1.68.0",
+    "opencv-python-headless>=4.12.0.88",
+    "pypdfium2>=5.11.0",
+    "reportlab>=5.0.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[tool.uv.sources]
+docmind-backend-runtime = { workspace = true }
+docmind-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docmind_llmmagic"]

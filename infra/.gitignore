@@ -1,0 +1,14 @@
+terraform/.terraform/
+terraform/.local/
+terraform/**/.terraform/
+terraform/**/.local/
+terraform/terraform.tfstate*
+terraform/**/*.tfstate*
+terraform/backend/*.hcl
+terraform/backend/**/*.hcl
+terraform/**/backend/*.hcl
+terraform/env/*.local.tfvars
+terraform/env/**/*.local.tfvars
+*.tfplan
+crash.log
+crash.*.log

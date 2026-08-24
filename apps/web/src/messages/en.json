@@ -1,0 +1,2331 @@
+{
+  "Metadata": {
+    "title": "DocMind.Ai",
+    "description": "Document intelligence workspace"
+  },
+  "PasswordVisibility": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "Shell": {
+    "toggleNavigation": "Toggle navigation",
+    "searchDocuments": "Search documents",
+    "searchPlaceholder": "Search documents, batches, pipelines...",
+    "notifications": "Notifications",
+    "help": "Help",
+    "settings": "Settings",
+    "administrator": "Administrator",
+    "actorFallback": "User",
+    "actorLoading": "Loading user",
+    "roles": {
+      "admin": "Administrator",
+      "operator": "Operator",
+      "reviewer": "Reviewer",
+      "viewer": "Viewer",
+      "document_deleter": "Permanent document deletion"
+    },
+    "languageSwitcher": {
+      "label": "Language",
+      "options": {
+        "pl": {
+          "selected": "Polish, selected",
+          "switchTo": "Switch to Polish"
+        },
+        "en": {
+          "selected": "English, selected",
+          "switchTo": "Switch to English"
+        }
+      }
+    },
+    "accountMenu": {
+      "open": "Open account menu",
+      "changePassword": "Change password",
+      "logout": "Log out",
+      "loggingOut": "Logging out",
+      "password": {
+        "title": "Change password",
+        "description": "Update your local DocMind password. You will sign in again after a successful change.",
+        "fields": {
+          "currentPassword": "Current password",
+          "newPassword": "New password",
+          "confirmPassword": "Confirm password"
+        },
+        "errors": {
+          "currentPasswordRequired": "Enter your current password.",
+          "newPasswordRequired": "Enter a new password.",
+          "confirmPasswordRequired": "Confirm the new password.",
+          "passwordMismatch": "The passwords do not match.",
+          "saveFailed": "Password could not be changed."
+        },
+        "cancel": "Cancel",
+        "save": "Change password",
+        "saving": "Changing"
+      }
+    }
+  },
+  "CollectionView": {
+    "search": "Search",
+    "allFilter": "All: {label}",
+    "noResults": "No results",
+    "noResultsDescription": "Adjust the search text or clear it to show all items.",
+    "sort": {
+      "asc": "Sort {column} ascending",
+      "desc": "Sort {column} descending"
+    }
+  },
+  "Sidebar": {
+    "dashboardAria": "DocMind.Ai dashboard",
+    "workspace": "Workspace",
+    "navigation": {
+      "dashboard": "Dashboard",
+      "inbox": "Inbox",
+      "archive": "Archive",
+      "admin": "Admin"
+    }
+  },
+  "Archive": {
+    "title": "Archive",
+    "description": "Approved documents are available here for read-only review.",
+    "back": "Back to Archive",
+    "approvalCompleted": {
+      "title": "Document approved",
+      "description": "The document was approved and moved to the Archive."
+    },
+    "sharePoint": {
+      "openFolder": "Open folder in SharePoint",
+      "unavailable": "The document is being archived. The link will be available soon."
+    },
+    "empty": {
+      "title": "No approved documents",
+      "description": "Documents appear here after the final approval."
+    }
+  },
+  "Inbox": {
+    "title": "Inbox",
+    "description": "Documents ready for OCR processing arrive here before downstream extraction, review, and export workflows.",
+    "filters": {
+      "documentTypes": "Document type",
+      "allDocumentTypesLabel": "All document types",
+      "displayMode": "Display mode",
+      "status": "Status",
+      "allStatuses": "All statuses ({count})",
+      "statusValue": "{status} ({count})"
+    },
+    "upload": {
+      "action": "Upload PDF",
+      "drawerTitle": "Upload document",
+      "drawerDescription": "Select the document type, attach the source PDF, and prepare document metadata.",
+      "uploading": "Uploading",
+      "cancel": "Cancel",
+      "submit": "Upload document",
+      "fileInputLabel": "Choose a PDF file",
+      "documentTypeLabel": "Document type",
+      "documentTypePlaceholder": "Select document type",
+      "noActiveDocumentTypes": "Manual upload requires an active document type.",
+      "documentTypeCard": {
+        "title": "Document type",
+        "description": "Choose a system catalog record.",
+        "displayMode": "Display",
+        "displayModePlaceholder": "Choose display mode",
+        "noDisplayModes": "No active display modes"
+      },
+      "file": {
+        "label": "Document file",
+        "emptyTitle": "No file selected",
+        "emptyDescription": "Choose a PDF from your device.",
+        "dropTitle": "Drop the PDF here",
+        "dropDescription": "Drag the file into this area or open the file picker.",
+        "choose": "Choose PDF",
+        "selected": "{size} PDF selected"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "placeholder": "Select value",
+        "groups": {
+          "required": {
+            "title": "Required metadata",
+            "description": "Complete these values before uploading."
+          },
+          "optional": {
+            "title": "Optional metadata",
+            "description": "Add these values when they are available."
+          }
+        },
+        "types": {
+          "boolean": "Yes/No",
+          "date": "Date",
+          "datetime": "Date and time",
+          "integer": "Integer",
+          "number": "Number",
+          "string": "Text"
+        },
+        "boolean": {
+          "true": "Yes",
+          "false": "No"
+        },
+        "errors": {
+          "required": "Enter a value.",
+          "integer": "Enter an integer.",
+          "number": "Enter a number."
+        },
+        "contractNumber": "Contract number",
+        "counterparty": "Counterparty"
+      },
+      "errors": {
+        "documentTypeRequired": "Select a document type before uploading.",
+        "generic": "The PDF could not be uploaded.",
+        "metadataOptions": "Metadata options could not be loaded.",
+        "options": "Document types could not be loaded."
+      }
+    },
+    "table": {
+      "title": "Manual uploads",
+      "returned": "{count, plural, one {# document} other {# documents}}",
+      "unknownSize": "Unknown",
+      "loadMore": "Load more",
+      "loadingMore": "Loading",
+      "columns": {
+        "name": "Name",
+        "type": "Document type",
+        "input": "Input",
+        "status": "Status",
+        "size": "Size",
+        "created": "Uploaded",
+        "actions": "Actions"
+      },
+      "preview": "Open PDF preview: {name}",
+      "previewAction": "Open PDF preview from actions: {name}",
+      "actionsFor": "Actions for {name}",
+      "previewMenu": "Open document",
+      "deleteMenu": "Delete permanently"
+    },
+    "deletion": {
+      "action": "Delete permanently",
+      "title": "Permanently delete document?",
+      "description": "This permanently removes “{name}” and all of its local DocMind data. This action cannot be undone.",
+      "impactLoading": "Checking connector impact…",
+      "impactError": "The deletion impact could not be determined. Deletion remains blocked.",
+      "preservedArtifacts": "External artifacts will be preserved: {artifacts}.",
+      "deletedExternalArtifacts": "The active connector will also permanently delete related external artifacts.",
+      "notReady": "The active connector has not safely prepared permanent deletion. The operation remains blocked.",
+      "confirmLabel": "Type the exact document name to confirm: {name}",
+      "cancel": "Cancel",
+      "confirm": "Delete permanently",
+      "retry": "Try again",
+      "deleting": "Deleting",
+      "deleteError": "Deletion did not finish. Check the current status before trying again.",
+      "checkStatus": "Check status",
+      "state": {
+        "in_progress": "Deletion is in progress.",
+        "retryable": "Deletion stopped safely and can be resumed.",
+        "blocked": "Deletion is blocked by the connector policy.",
+        "ambiguous": "The connector result is ambiguous. Resolve it before retrying.",
+        "completed": "Deletion completed."
+      }
+    },
+    "preview": {
+      "iframeTitle": "PDF preview: {name}",
+      "unknownSize": "Unknown",
+      "metadata": {
+        "type": "Document type",
+        "status": "Status",
+        "size": "Size",
+        "created": "Uploaded"
+      },
+      "status": {
+        "received": "Received"
+      },
+      "unavailable": {
+        "title": "The PDF is not available for preview",
+        "description": "The source file could not be opened for inline preview.",
+        "close": "Close preview"
+      },
+      "errors": {
+        "title": "The PDF could not be loaded",
+        "description": "Close the preview and try again."
+      }
+    },
+    "detail": {
+      "back": "Back to Inbox",
+      "title": "Document preview",
+      "description": "Review the source file, metadata, and document handling state.",
+      "loading": "Loading document",
+      "previous": "Previous",
+      "next": "Next",
+      "notFoundTitle": "Document not found",
+      "notFoundDescription": "This document is not present in the current manual upload list.",
+      "panelTitle": "Document details",
+      "sections": {
+        "metadata": "Metadata",
+        "parameters": "Parameters",
+        "source": "Source",
+        "workflow": "Workflow"
+      },
+      "tabs": {
+        "details": "Document details",
+        "metadata": "Metadata"
+      },
+      "parameters": {
+        "description": "Required parameters are listed first. Optional parameters are marked.",
+        "loading": "Loading document parameters",
+        "empty": "No parameters are defined for this document type.",
+        "loadErrorTitle": "Parameters could not be loaded",
+        "loadErrorDescription": "Refresh the API connection and try again.",
+        "count": "{count, plural, one {# field} other {# fields}}",
+        "groupCount": "{count, plural, one {# field} other {# fields}}",
+        "notProvided": "Not provided",
+        "missingRequired": "Required value is missing.",
+        "missingOptional": "Optional value is not provided.",
+        "unsupportedType": "This parameter type is not supported by the preview UI yet.",
+        "dictionaryLoading": "Loading dictionary options.",
+        "dictionaryError": "Dictionary options could not be loaded.",
+        "groups": {
+          "required": "Required parameters",
+          "optional": "Optional parameters"
+        },
+        "requirements": {
+          "required": "Required",
+          "optional": "Optional"
+        },
+        "sources": {
+          "dictionary": "Dictionary"
+        },
+        "types": {
+          "boolean": "Boolean",
+          "date": "Date",
+          "datetime": "Date and time",
+          "integer": "Integer",
+          "legacy_scalar": "Value",
+          "number": "Number",
+          "string": "Text",
+          "unsupported": "Unsupported",
+          "uuid": "UUID"
+        },
+        "boolean": {
+          "true": "True",
+          "false": "False"
+        }
+      },
+      "fields": {
+        "originalFile": "Original file",
+        "input": "Input",
+        "uploadedBy": "Uploaded by",
+        "documentId": "Document ID"
+      },
+      "workflowPlaceholder": "Extraction and review results will be connected in the next document workflow step.",
+      "ocr": {
+        "title": "OCR result",
+        "loadingRuns": "Loading OCR runs",
+        "loadingResult": "Loading OCR result",
+        "loadFailed": "OCR runs could not be loaded.",
+        "resultLoadFailed": "The OCR result could not be loaded.",
+        "empty": "No OCR run is available for this document yet.",
+        "availableWithoutPayload": "The run is marked as available, but this older result has no display payload.",
+        "unavailable": "OCR result is not available yet ({reason}).",
+        "unknownReason": "unknown reason",
+        "notAvailable": "Not available",
+        "noText": "No text was returned for this page.",
+        "truncated": "The displayed OCR text was shortened for safe preview.",
+        "pagesSummary": "{succeeded}/{total} succeeded, {failed} failed",
+        "pageTitle": "Page {page}",
+        "warningCodes": "Warnings: {codes}",
+        "errorCode": "Error: {code}",
+        "fields": {
+          "provider": "Provider",
+          "model": "Model",
+          "pages": "Pages",
+          "confidence": "Confidence"
+        },
+        "runStatus": {
+          "pending": "Pending",
+          "running": "Running",
+          "succeeded": "Finished",
+          "partialFailed": "Partial",
+          "failed": "Failed"
+        },
+        "pageStatus": {
+          "succeeded": "Finished",
+          "failed": "Failed",
+          "skipped": "Skipped",
+          "parsed": "Parsed"
+        },
+        "pagesTruncated": "Only the first OCR pages are shown in this safe preview."
+      }
+    },
+    "empty": {
+      "title": "No uploaded documents",
+      "description": "Choose a PDF file to add the first document to this inbox.",
+      "readOnlyDescription": "No manual uploads are available for your account yet.",
+      "filteredTitle": "No documents match the filters",
+      "filteredDescription": "Adjust the filters or load more documents."
+    },
+    "errors": {
+      "loadTitle": "Documents could not be loaded.",
+      "loadDescription": "Refresh the list and try again."
+    },
+    "status": {
+      "received": "Received",
+      "waiting_for_review": "Waiting for review",
+      "in_review": "In review",
+      "approved": "Approved",
+      "failed": "OCR failed"
+    },
+    "ocrRun": {
+      "title": "OCR pipeline",
+      "description": "Start the published OCR pipeline and follow safe run progress for this document.",
+      "actions": {
+        "start": "Run OCR",
+        "starting": "Starting"
+      },
+      "disabled": {
+        "permission": "You need document creation permission to start an OCR run.",
+        "unknownSize": "OCR can start after the document size is known.",
+        "runInProgress": "An OCR run is already in progress for this document.",
+        "historyLoading": "Checking recent OCR runs before starting a new one.",
+        "historyUnavailable": "OCR can start after recent run history loads successfully."
+      },
+      "history": {
+        "loading": "Loading OCR runs",
+        "loadErrorTitle": "OCR run history could not be loaded.",
+        "loadErrorDescription": "Refresh the document and try again.",
+        "title": "Recent runs"
+      },
+      "empty": {
+        "title": "No OCR run yet",
+        "description": "Start OCR when the document is ready and a published pipeline is available."
+      },
+      "status": {
+        "pending": "Pending",
+        "running": "Running",
+        "succeeded": "Succeeded",
+        "partial_failed": "Partial failed",
+        "failed": "Failed"
+      },
+      "stepStatus": {
+        "pending": "Pending",
+        "running": "Running",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      },
+      "severity": {
+        "error": "Error",
+        "warning": "Warning"
+      },
+      "pipeline": "{name} v{version}",
+      "pipelineFallback": "Pipeline {id} v{version}",
+      "refreshing": "Refreshing",
+      "fields": {
+        "started": "Started",
+        "updated": "Updated",
+        "completed": "Completed",
+        "notStarted": "Not started yet"
+      },
+      "progress": {
+        "label": "Progress",
+        "steps": "{completed}/{total} steps complete",
+        "noSteps": "No step trace yet"
+      },
+      "steps": {
+        "title": "Pipeline steps",
+        "duration": "Duration: {seconds}s"
+      },
+      "diagnostics": {
+        "title": "Warnings and errors",
+        "step": "Step: {stepId}"
+      },
+      "runErrorTitle": "Run failed safely",
+      "result": {
+        "waiting": "Result status will appear when the run finishes.",
+        "loading": "Checking result availability",
+        "loadErrorTitle": "Result status could not be loaded.",
+        "loadErrorDescription": "The run status is visible, but result availability could not be refreshed.",
+        "availableTitle": "Result available",
+        "availableDescription": "The API marked the safe OCR result as available for downstream workflow.",
+        "unavailableTitle": "Result not available",
+        "reasons": {
+          "runNotFinished": "The run has not finished yet.",
+          "llmMagicUnavailable": "LLM Magic was unavailable, so no result was produced for this run.",
+          "generic": "The API returned reason code {code}."
+        }
+      },
+      "errors": {
+        "genericStartTitle": "OCR run could not be started.",
+        "genericStartDescription": "Try again after refreshing the document.",
+        "apiTitle": "OCR run was rejected.",
+        "noPublishedDefault": {
+          "title": "No published OCR pipeline",
+          "description": "Publish and select a default OCR pipeline before starting a document run."
+        },
+        "pipelineNotRunnable": {
+          "title": "Pipeline cannot run",
+          "description": "The selected published pipeline is missing a safe compiled snapshot or exceeds direct-run limits."
+        },
+        "documentSizeUnknown": {
+          "title": "Document size is unknown",
+          "description": "The API cannot prove the document is within direct OCR limits yet."
+        },
+        "limitExceeded": {
+          "title": "Document exceeds OCR limits",
+          "description": "This direct OCR path is intentionally bounded. Use a smaller document or wait for worker-backed orchestration."
+        },
+        "llmMagicUnavailable": {
+          "title": "LLM Magic unavailable",
+          "description": "The OCR run service is not reachable for the direct run path."
+        },
+        "documentNotFound": {
+          "title": "Document not found",
+          "description": "The API could not find this document for OCR processing."
+        },
+        "alreadyActive": {
+          "title": "OCR run already in progress",
+          "description": "Another OCR run is already active for this document. Refresh the document to follow the current run."
+        }
+      },
+      "statusLoadErrorTitle": "OCR run status could not be loaded.",
+      "statusLoadErrorDescription": "Refresh the document or select another run from history."
+    },
+    "documentTypeChange": {
+      "label": "Change document type",
+      "placeholder": "Select document type",
+      "searchPlaceholder": "Search document types",
+      "empty": "No active document types are available.",
+      "loadError": "Document types could not be loaded.",
+      "saveError": "Document type could not be changed.",
+      "impactTitle": "Confirm document type change",
+      "impactDescription": "This change can affect document fields and validation results. Confirm to save it.",
+      "confirm": "Confirm change",
+      "cancel": "Cancel"
+    }
+  },
+  "ReviewWorkspace": {
+    "description": "Check the source PDF and verification sections in the document view.",
+    "loading": "Loading review data…",
+    "unknownSize": "Unknown",
+    "statusAria": "Review status: {status}",
+    "status": {
+      "received": "Received",
+      "in_review": "In review",
+      "needs_changes": "Needs changes",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "navigation": {
+      "previousAria": "Open previous document in review: {name}",
+      "nextAria": "Open next document in review: {name}"
+    },
+    "workspacePanel": {
+      "label": "Document workspace"
+    },
+    "tabs": {
+      "review": "Review",
+      "details": "Document details"
+    },
+    "panel": {
+      "label": "Review panel",
+      "title": "Review panel",
+      "description": "Review captured values, confidence, and validation results.",
+      "editDescription": "All values are editable until you save the complete list.",
+      "editingBadge": "Editing mode"
+    },
+    "quality": {
+      "title": "Quality result",
+      "description": "Validation signal for the current review pass.",
+      "score": "{score}%",
+      "errors": "Errors: {count}",
+      "unavailable": "Unavailable"
+    },
+    "approval": {
+      "title": "Four-eyes approval",
+      "titleSingle": "Document approval",
+      "expand": "Expand four-eyes approval",
+      "expandSingle": "Expand document approval",
+      "collapse": "Collapse four-eyes approval",
+      "collapseSingle": "Collapse document approval",
+      "statuses": {
+        "pending": "To review · {approved}/{total}",
+        "inReview": "Under review · {approved}/{total}",
+        "approved": "Review passed · {approved}/{total}",
+        "rejected": "Rejected · {approved}/{total}"
+      },
+      "steps": "Approval steps",
+      "step": "Step {number}",
+      "stepStatuses": {
+        "waiting": "Waiting",
+        "approved": "Approved"
+      },
+      "unassigned": "Unassigned reviewer",
+      "samePersonRule": "The second approval must be made by a different reviewer.",
+      "comment": "Decision comment",
+      "commentPlaceholder": "Add a comment (required when rejecting)",
+      "approve": "Approve",
+      "approveFinal": "Approve and move to Archive",
+      "finalizing": "Finalizing approval…",
+      "checkingFinalization": "Checking whether the approval was saved…",
+      "finalizationNotSaved": "The final approval was not confirmed. Review the current status and try again.",
+      "finalizationUnknown": "The result could not be confirmed. Do not approve again until the status has been checked.",
+      "checkStatus": "Check status again",
+      "reject": "Reject",
+      "rejectHint": "A reason is required to reject this document.",
+      "editingBlocked": "Save or cancel field changes before making an approval decision.",
+      "missingRequiredBlocked": "Approval is blocked by {count, plural, one {# missing required field} other {# missing required fields}}. Complete them before approving.",
+      "error": "The decision could not be saved.",
+      "versionConflict": "The review changed before the decision was saved. The latest version has been loaded; verify it before deciding again.",
+      "versionConflictRefreshFailed": "The review changed, but the latest version could not be loaded. Refresh the page before deciding again.",
+      "history": "Decision history",
+      "historyDecisions": {
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "noComment": "No comment",
+      "historyItem": "{timestamp} · Step {step} · {decision} · {comment} · {actor}"
+    },
+    "fields": {
+      "empty": "No captured fields are available yet.",
+      "confidence": "Confidence: {score}%",
+      "confidenceAria": "Confidence: {score}%",
+      "statuses": {
+        "present": "Detected",
+        "missing": "Not found",
+        "unidentified": "Needs review",
+        "uncertain": "Low confidence",
+        "conflicting": "Conflicting values"
+      },
+      "groups": {
+        "required": "Required",
+        "optional": "Optional",
+        "other": "Other"
+      },
+      "sectionFilterLabel": "Sections:",
+      "sectionFilterAria": "Visible sections",
+      "sectionFilterOption": "{name} ({count})",
+      "noSectionsSelected": "No sections are selected.",
+      "showAllSections": "Show all sections",
+      "emptyFiltered": "No fields match this filter.",
+      "searchAria": "Search key-value fields",
+      "searchPlaceholder": "Search key or value",
+      "booleanYes": "Yes",
+      "booleanNo": "No",
+      "notProvided": "Not provided",
+      "edit": "Edit",
+      "add": "Add field",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "filterAria": "Filter review fields",
+      "confidenceOriginal": "Dimmed because this score only applies to the original value.",
+      "noManualConfidence": "Manually entered value — confidence is not available.",
+      "manualAdded": "Added manually",
+      "manualChanged": "Changed manually",
+      "deleteAria": "Delete field {name}",
+      "valueAria": "Value of {name}",
+      "filters": {
+        "all": "All fields",
+        "errors": "Errors only",
+        "unverified": "Unverified"
+      }
+    },
+    "unavailable": {
+      "title": "Extraction results are not available yet",
+      "description": "The backend has not made an attribute list available for this document yet. Try again later."
+    },
+    "notRun": {
+      "title": "The pipeline has not been run yet",
+      "description": "Run the OCR pipeline in the Document details tab to see verification results."
+    },
+    "details": {
+      "title": "Document details",
+      "description": "Metadata, source, and flow groups.",
+      "metadata": "Metadata",
+      "source": "Source",
+      "flow": "Flow",
+      "defaultNextStep": "Review captured fields and request second approval.",
+      "labels": {
+        "nextStep": "Next step",
+        "documentType": "Document type",
+        "status": "Status",
+        "size": "Size",
+        "uploaded": "Uploaded",
+        "filename": "Filename",
+        "source": "Source",
+        "documentId": "Document ID"
+      }
+    },
+    "errors": {
+      "loadTitle": "Document review could not be loaded",
+      "loadDescription": "The document review data is unavailable. Open the details tab or return to Inbox and try again.",
+      "saveDescription": "The changes could not be saved. Try again.",
+      "conflictRefreshDescription": "The review changed on the server, but its newest version could not be loaded. Your local draft is still available. Try saving again later."
+    },
+    "addField": {
+      "title": "Add field",
+      "description": "Create a field entered manually by the verifier.",
+      "name": "Field name",
+      "type": "Value type",
+      "value": "Value",
+      "add": "Add field",
+      "cancel": "Cancel",
+      "types": {
+        "string": "Text",
+        "number": "Number",
+        "integer": "Integer",
+        "date": "Date",
+        "datetime": "Date and time",
+        "boolean": "Yes / no"
+      }
+    },
+    "dialogs": {
+      "cancelTitle": "Discard unsaved changes?",
+      "cancelDescription": "The field list will return to the last version received from the server.",
+      "keepEditing": "Keep editing",
+      "discard": "Discard changes",
+      "deleteTitle": "Delete this field?",
+      "deleteDescription": "The field will be removed after the complete list is saved. Reprocessing may be required to restore it.",
+      "cancel": "Cancel",
+      "delete": "Delete field",
+      "conflictTitle": "The review was changed in another session",
+      "conflictDescription": "Your local draft is still available. The server has a newer review version. You can keep editing the draft or explicitly reload the server version and discard your changes.",
+      "conflictEditor": "Changed by",
+      "conflictUnknownEditor": "Unknown reviewer",
+      "conflictUpdatedAt": "Changed at",
+      "conflictUnknownTime": "Unknown time",
+      "conflictKeepDraft": "Keep my draft",
+      "conflictReload": "Reload server version"
+    }
+  },
+  "AuthGuard": {
+    "loading": "Checking session",
+    "errorTitle": "The dashboard cannot be loaded",
+    "errorDescription": "Refresh the API connection and try again.",
+    "retry": "Retry",
+    "unauthorizedTitle": "Access is restricted",
+    "unauthorizedDescription": "Your DocMind role does not include access to this area.",
+    "returnToDashboard": "Return to dashboard"
+  },
+  "Login": {
+    "title": "Sign in",
+    "description": "Use a local account or start Entra ID sign-in.",
+    "fields": {
+      "login": {
+        "label": "Login",
+        "required": "Enter your login."
+      },
+      "password": {
+        "label": "Password",
+        "required": "Enter your password."
+      }
+    },
+    "actions": {
+      "signIn": "Sign in",
+      "signingIn": "Signing in",
+      "entra": "Sign in with Entra ID"
+    },
+    "errors": {
+      "accountDisabled": "This account has been blocked by an administrator.",
+      "invalidCredentials": "The login or password is incorrect.",
+      "temporarilyLocked": "Sign-in is temporarily locked. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+      "untrustedOrigin": "This application origin is not allowed by the API.",
+      "generic": "Sign-in failed. Try again."
+    }
+  },
+  "Admin": {
+    "title": "Admin",
+    "description": "Product configuration, user access, and operational controls.",
+    "open": "Open",
+    "back": "Back to admin",
+    "entries": {
+      "adminUsers": {
+        "title": "User management",
+        "description": "Users, invitations, and access control."
+      },
+      "adminDictionaries": {
+        "title": "Dictionary management",
+        "description": "Document types, attributes, and requirement matrix."
+      },
+      "adminPipelines": {
+        "title": "OCR pipelines",
+        "description": "Draft, validate, publish, and select the default OCR pipeline."
+      },
+      "adminConnectors": {
+        "title": "Connector configuration",
+        "description": "Configure connectors available in this deployment profile."
+      },
+      "adminApprovals": {
+        "title": "Document approval",
+        "description": "Set how many people must approve a document before archiving."
+      }
+    },
+    "sections": {
+      "adminUsers": {
+        "title": "Access overview",
+        "description": "Current user-management entry point.",
+        "metrics": {
+          "primary": {
+            "label": "Role source",
+            "value": "API"
+          },
+          "secondary": {
+            "label": "Session control",
+            "value": "Enabled"
+          },
+          "tertiary": {
+            "label": "Boundary",
+            "value": "RBAC"
+          }
+        }
+      },
+      "adminDictionaries": {
+        "title": "Dictionary overview",
+        "description": "Current dictionary-management entry point.",
+        "metrics": {
+          "primary": {
+            "label": "Catalog",
+            "value": "Types"
+          },
+          "secondary": {
+            "label": "Schema",
+            "value": "Attributes"
+          },
+          "tertiary": {
+            "label": "Boundary",
+            "value": "RBAC"
+          }
+        }
+      },
+      "adminPipelines": {
+        "title": "OCR pipeline overview",
+        "description": "Current OCR pipeline builder entry point.",
+        "metrics": {
+          "primary": {
+            "label": "Catalog",
+            "value": "Blocks"
+          },
+          "secondary": {
+            "label": "Lifecycle",
+            "value": "Drafts"
+          },
+          "tertiary": {
+            "label": "Boundary",
+            "value": "API"
+          }
+        }
+      }
+    }
+  },
+  "AdminApprovalSettings": {
+    "title": "Document approval",
+    "description": "Configure the global approval rule for documents awaiting approval.",
+    "back": "Back to admin",
+    "sectionTitle": "Required approvals",
+    "sectionDescription": "Choose how many different people must approve a document before it is archived.",
+    "options": {
+      "1": {
+        "title": "One person",
+        "description": "The first approval completes the workflow and archives the document."
+      },
+      "2": {
+        "title": "Two people",
+        "description": "Two different people must approve the document. This is the default."
+      }
+    },
+    "scopeNote": "The change also applies to documents awaiting their first decision. Workflows with an approval or rejection keep their current rule.",
+    "save": "Save settings",
+    "saving": "Saving...",
+    "saved": "Approval settings saved.",
+    "loadError": "Settings could not be loaded.",
+    "loadErrorDescription": "Refresh the page and try again.",
+    "saveError": "Settings could not be saved.",
+    "saveErrorDescription": "The settings may have changed in another session. Refresh the page and try again."
+  },
+  "AdminConnectors": {
+    "title": "Connector configuration",
+    "description": "Configure connectors available in this deployment profile.",
+    "back": "Back to admin",
+    "backToList": "Back to connectors",
+    "loadError": "Connector configuration cannot be loaded.",
+    "loadConfigurationError": "Configuration cannot be loaded.",
+    "noDocumentTypes": "No active document types are available.",
+    "empty": "No connector configuration is available in this deployment.",
+    "emptyTitle": "No connectors",
+    "search": "Search connectors",
+    "view": {
+      "ariaLabel": "Connector list view",
+      "cards": "Cards",
+      "list": "List"
+    },
+    "columns": {
+      "connector": "Connector",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "configure": "Configure"
+    },
+    "status": {
+      "degraded": "Problem",
+      "disabled": "Inactive",
+      "enabled": "Active",
+      "unconfigured": "Unconfigured"
+    },
+    "cancel": "Cancel",
+    "fixFields": "Correct the highlighted fields.",
+    "required": "Required",
+    "searchDocumentTypes": "Search document types",
+    "save": "Save configuration",
+    "saveError": "Configuration could not be saved.",
+    "saving": "Saving",
+    "unsupportedConfiguration": "This connector does not provide a configuration form.",
+    "understood": "Understood"
+  },
+  "AdminOcrPipelines": {
+    "title": "OCR pipelines",
+    "description": "Configure the phase 1 OCR pipeline definitions used before document execution workflows.",
+    "back": "Back to admin",
+    "errorTitle": "OCR pipelines cannot be loaded",
+    "errorDescription": "Refresh the API connection and try again.",
+    "emptyDescription": "No OCR pipelines match the current filter.",
+    "actionFailed": "The OCR pipeline action failed.",
+    "routingStatus": {
+      "noPipelines": {
+        "title": "No OCR pipeline configured",
+        "description": "Create, validate, publish, and mark a pipeline as default before OCR routing has an active configuration."
+      },
+      "noPublished": {
+        "title": "No OCR pipeline published",
+        "description": "Drafts are not used for OCR routing. Publish a validated draft before selecting the default pipeline."
+      },
+      "noDefault": {
+        "title": "No default OCR pipeline selected",
+        "description": "A published pipeline exists, but OCR routing still needs one published version marked as default."
+      }
+    },
+    "filters": {
+      "label": "Pipeline lifecycle",
+      "all": "All ({count})",
+      "draft": "Drafts ({count})",
+      "published": "Published ({count})",
+      "archived": "Archived ({count})"
+    },
+    "columns": {
+      "pipeline": "Pipeline",
+      "lifecycle": "Lifecycle",
+      "validation": "Validation",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "badges": {
+      "default": "Default",
+      "draftChanges": "Unpublished changes"
+    },
+    "lifecycle": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "validationState": {
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "unknown": "Not validated"
+    },
+    "failurePolicy": {
+      "required": "Required",
+      "optional": "Optional"
+    },
+    "actions": {
+      "create": "Create pipeline",
+      "confidenceColors": "Confidence thresholds – colors",
+      "open": "Open {name}",
+      "edit": "Edit {name}",
+      "editDraft": "Edit draft",
+      "validate": "Validate",
+      "validating": "Validating",
+      "publish": "Publish",
+      "publishing": "Publishing",
+      "archive": "Archive {name}",
+      "duplicate": "Duplicate {name}",
+      "delete": "Delete {name}",
+      "makeDefault": "Make {name} default"
+    },
+    "confidenceColors": {
+      "title": "Confidence thresholds – colors",
+      "description": "Configure the colors used for OCR field confidence in the document split view.",
+      "coverageHint": "Define 1 to 5 inclusive integer ranges. Together they must cover every value from 0% through 100% without gaps or overlaps.",
+      "fields": {
+        "start": "From (%)",
+        "end": "To (%)",
+        "color": "Color",
+        "colorAria": "Color for confidence band {number}"
+      },
+      "colors": {
+        "red": "Red",
+        "orange": "Orange",
+        "yellow": "Yellow",
+        "green": "Green",
+        "blue": "Blue"
+      },
+      "add": "Add range",
+      "removeAria": "Remove confidence band {number}",
+      "cancel": "Cancel",
+      "save": "Save configuration",
+      "saving": "Saving",
+      "errors": {
+        "loadFailed": "Confidence color configuration could not be loaded.",
+        "saveFailed": "Confidence color configuration could not be saved.",
+        "bandCount": "Define between 1 and 5 confidence bands.",
+        "boundaryRequired": "Enter both range boundaries.",
+        "boundaryInteger": "Range boundaries must be whole numbers.",
+        "boundaryRange": "Range boundaries must be between 0 and 100.",
+        "invertedRange": "The range start cannot be greater than its end.",
+        "incompleteCoverage": "The ranges must cover the complete 0–100% interval.",
+        "gapOrOverlap": "Ranges cannot overlap or leave gaps.",
+        "unsupportedColor": "Choose a color from the supported palette."
+      }
+    },
+    "tooltips": {
+      "edit": "Edit draft",
+      "duplicate": "Duplicate",
+      "makeDefault": "Make default",
+      "archive": "Archive",
+      "delete": "Delete"
+    },
+    "detail": {
+      "loadingTitle": "Loading pipeline",
+      "loadingDescription": "Fetching OCR pipeline details.",
+      "loadFailed": "OCR pipeline details could not be loaded.",
+      "loadFailedDescription": "Refresh the details and try again.",
+      "emptyTitle": "No pipeline selected",
+      "emptyDescription": "Choose a pipeline from the list or create a draft.",
+      "unnamed": "OCR pipeline",
+      "noDescription": "No description",
+      "definitionViewLabel": "Pipeline version to preview",
+      "draftView": "Draft",
+      "publishedView": "Published v{version}",
+      "draftViewTitle": "You are viewing an unpublished draft",
+      "draftViewDescription": "Validation and publishing apply to this draft. The active OCR routing version is v{version}.",
+      "publishedViewTitle": "You are viewing the active published version v{version}",
+      "publishedViewDescription": "This is the version currently used by OCR routing. Switch back to the draft to validate or publish changes.",
+      "metrics": {
+        "steps": "Steps",
+        "version": "Published version",
+        "versionValue": "v{version}",
+        "noVersion": "Draft only",
+        "catalog": "Catalog",
+        "noCatalog": "Not captured"
+      },
+      "stepsTitle": "Ordered steps",
+      "stepEnabled": "Enabled",
+      "stepDisabled": "Disabled",
+      "validationTitle": "Validation diagnostics",
+      "noDiagnosticsTitle": "No diagnostics",
+      "noDiagnosticsDescription": "Run validation to capture API and LLM Magic diagnostics.",
+      "noValidationDiagnosticsTitle": "No validation issues",
+      "noValidationDiagnosticsDescription": "Validation did not return warnings or blocking issues.",
+      "validationReadyTitle": "Validation completed successfully",
+      "validationReadyDescription": "This draft is ready to publish.",
+      "validateFailed": "OCR pipeline validation failed.",
+      "publishFailed": "OCR pipeline could not be published.",
+      "publishBlockedTitle": "Publish is blocked by validation errors",
+      "publishBlockedDescription": "Resolve error diagnostics and run validation again before publishing this draft.",
+      "diagnosticFields": {
+        "severity": "Severity",
+        "code": "Code",
+        "target": "Target",
+        "stepId": "Step ID",
+        "path": "Path",
+        "control": "Control",
+        "targetPipeline": "Pipeline",
+        "targetStep": "Step {number}: {name}",
+        "severityValues": {
+          "error": "Error",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "diagnostics": {
+        "stepLocation": "Step: {stepId}.",
+        "pathLocation": "Path: {path}.",
+        "duplicateArtifactProducer": {
+          "title": "Too many steps create the same result",
+          "description": "Only one enabled step can produce the final normalization result. Keep one field normalization step or combine the configuration before publishing."
+        },
+        "pipelineStepsRequired": {
+          "title": "Add steps to the pipeline",
+          "description": "Add the required preparation and OCR parsing steps before validating or publishing this pipeline."
+        },
+        "requiredStepTypeMissing": {
+          "title": "A required pipeline step is missing",
+          "description": "Add and enable the required preparation or OCR parsing step. The diagnostic details identify the missing step."
+        },
+        "genericError": {
+          "title": "Pipeline requires configuration changes",
+          "description": "Validation found a blocking issue. Review the step order, required blocks, and selected catalogs before publishing."
+        },
+        "genericWarning": {
+          "title": "Pipeline has a validation note",
+          "description": "Validation completed with a non-blocking note. Review the configuration before publishing if this was unexpected."
+        },
+        "genericInfo": {
+          "title": "Pipeline validation note",
+          "description": "Validation returned additional information about this pipeline configuration."
+        }
+      }
+    },
+    "builder": {
+      "createTitle": "Create OCR pipeline",
+      "createDescription": "Save a draft definition from catalog blocks.",
+      "duplicateTitle": "Duplicate OCR pipeline",
+      "duplicateDescription": "Start a new draft from an existing ordered definition.",
+      "duplicateNameSuffix": "copy",
+      "editTitle": "Edit OCR pipeline draft",
+      "editDescription": "Update metadata and ordered steps.",
+      "emptySteps": "No steps added.",
+      "noEditableConfig": "No editable settings for this step.",
+      "blockStatus": {
+        "available": "Available",
+        "disabled": "Disabled",
+        "planned": "Planned",
+        "deprecated": "Deprecated"
+      },
+      "fields": {
+        "name": "Name",
+        "description": "Description",
+        "descriptionDescription": "Optional description shown to operators and in the pipeline overview.",
+        "requiredField": "Required field",
+        "block": "Block",
+        "blockDescription": "Choose an available catalog block and add it to the execution order.",
+        "blockPlaceholder": "Select block",
+        "displayName": "Display name",
+        "enabled": "Enabled",
+        "failurePolicy": "Failure policy",
+        "failurePolicyDescription": "Choose whether this step failure stops the whole pipeline.",
+        "configuration": "Configuration",
+        "configurationDescription": "Settings for the selected step. The section starts collapsed to keep the step list readable.",
+        "preset": "Preset",
+        "provider": "Provider",
+        "modelId": "Model ID",
+        "documentType": "Document type",
+        "documentTypeDisplayMode": "Display mode",
+        "documentTypePlaceholder": "Select document type",
+        "attributes": "Attributes"
+      },
+      "selectorCatalog": {
+        "loading": "Loading document type and attribute selectors."
+      },
+      "actions": {
+        "addStep": "Add step",
+        "moveUp": "Move step {number} up",
+        "moveDown": "Move step {number} down",
+        "removeStep": "Remove step {number}",
+        "cancel": "Cancel",
+        "save": "Save draft",
+        "saving": "Saving"
+      },
+      "errors": {
+        "nameRequired": "Enter a pipeline name.",
+        "nameTooLong": "Pipeline name must be at most {max} characters.",
+        "stepDisplayNameInvalid": "Fix highlighted step display names.",
+        "stepDisplayNameRequired": "Every step needs a display name.",
+        "stepDisplayNameTooLong": "Step display name must be at most {max} characters.",
+        "fixFields": "Fix highlighted fields.",
+        "saveFailed": "OCR pipeline could not be saved.",
+        "selectorCatalogFailed": "Selector catalogs could not be loaded."
+      }
+    },
+    "confirm": {
+      "archive": {
+        "title": "Archive OCR pipeline",
+        "description": "{name} will no longer be selectable for new OCR routing.",
+        "confirm": "Archive"
+      },
+      "delete": {
+        "title": "Delete draft",
+        "description": "{name} will be permanently removed if it has never been published.",
+        "confirm": "Delete"
+      },
+      "makeDefault": {
+        "title": "Change default OCR pipeline",
+        "description": "{name} will become the default published OCR pipeline.",
+        "confirm": "Make default"
+      }
+    }
+  },
+  "AdminDictionaries": {
+    "title": "Dictionary management",
+    "description": "Choose the dictionary you want to configure.",
+    "back": "Back to admin",
+    "detailBack": "Back to dictionaries",
+    "open": "Open",
+    "search": "Search dictionaries",
+    "filters": {
+      "label": "Dictionary type",
+      "all": "All dictionaries ({count})",
+      "system": "System ({count})",
+      "custom": "Custom ({count})"
+    },
+    "badges": {
+      "system": "System",
+      "custom": "Custom"
+    },
+    "sections": {
+      "custom": {
+        "title": "Custom dictionaries",
+        "description": "{count, plural, one {# customer-managed dictionary} other {# customer-managed dictionaries}}"
+      },
+      "system": {
+        "title": "System configuration",
+        "description": "Document configuration catalogs that control extraction and validation."
+      }
+    },
+    "entries": {
+      "documentTypes": {
+        "title": "Document types",
+        "description": "Dictionary of document types used by classification."
+      },
+      "attributeCategories": {
+        "title": "Attribute categories",
+        "description": "System categories used to group attributes and category-level flags."
+      },
+      "attributes": {
+        "title": "Attributes",
+        "description": "Dictionary of fields extracted and validated during OCR."
+      },
+      "attributeMatrix": {
+        "title": "Attribute matrix",
+        "description": "Required and optional attribute configuration per document type."
+      }
+    }
+  },
+  "AdminUsers": {
+    "title": "User management",
+    "description": "Manage local users, account state, roles, passwords, and pending invitation records.",
+    "back": "Back to admin",
+    "common": {
+      "cancel": "Cancel",
+      "saving": "Saving",
+      "notSet": "Not set"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Active and inactive accounts returned by the API auth boundary.",
+      "create": "Create user",
+      "passwordTitle": "Set user password",
+      "passwordDescription": "Set a new local password for {name}. The password is not shown after saving.",
+      "passwordSuccess": "Password was changed for {name}.",
+      "actionFailed": "The user action failed.",
+      "selfLabel": "This is your account",
+      "filters": {
+        "all": "All ({count})",
+        "active": "Active ({count})",
+        "inactive": "Blocked ({count})",
+        "deleted": "Deleted ({count})",
+        "showDeleted": "Show deleted",
+        "hideDeleted": "Hide deleted"
+      },
+      "metrics": {
+        "total": {
+          "label": "Total"
+        },
+        "active": {
+          "label": "Active"
+        },
+        "inactive": {
+          "label": "Blocked"
+        }
+      },
+      "columns": {
+        "user": "User",
+        "status": "Status",
+        "roles": "Roles",
+        "providers": "Providers",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Blocked",
+        "deleted": "Deleted"
+      },
+      "providers": {
+        "local": "Local",
+        "entra_id": "Entra ID"
+      },
+      "actions": {
+        "edit": "Edit {name}",
+        "block": "Block {name}",
+        "unblock": "Unblock {name}",
+        "setPassword": "Set password for {name}",
+        "delete": "Delete {name}"
+      },
+      "emptyTitle": "No users",
+      "emptyDescription": "Create a local user when someone needs access.",
+      "errorTitle": "Users cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again.",
+      "confirm": {
+        "toggleStatus": {
+          "title": "Change account status",
+          "description": "{name} will be blocked or unblocked according to the current state.",
+          "confirm": "Change status"
+        },
+        "delete": {
+          "title": "Delete user",
+          "description": "{name} will be soft-deleted and hidden from normal user lists.",
+          "confirm": "Delete user"
+        }
+      },
+      "form": {
+        "createTitle": "Create local user",
+        "createDescription": "The password is sent once to create local credentials and is never returned by the API.",
+        "editTitle": "Edit user",
+        "editDescription": "Editing {name}",
+        "fields": {
+          "displayName": "Display name",
+          "login": "Login/email",
+          "password": "Temporary password",
+          "roles": "Roles",
+          "status": "Status"
+        },
+        "statusOptions": {
+          "active": "Active",
+          "inactive": "Blocked"
+        },
+        "errors": {
+          "displayNameRequired": "Enter a display name.",
+          "loginRequired": "Enter a login or email.",
+          "loginInvalid": "Enter a valid login.",
+          "passwordRequired": "Enter a temporary password.",
+          "rolesRequired": "Select at least one role.",
+          "saveFailed": "User could not be saved."
+        },
+        "selfRoleLock": "Role changes are locked for this account.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      }
+    },
+    "passwordForm": {
+      "fields": {
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password"
+      },
+      "errors": {
+        "currentPasswordRequired": "Enter your current password.",
+        "newPasswordRequired": "Enter a new password.",
+        "confirmPasswordRequired": "Confirm the new password.",
+        "passwordMismatch": "The passwords do not match.",
+        "saveFailed": "Password could not be saved."
+      },
+      "cancel": "Cancel",
+      "save": "Save password",
+      "saving": "Saving"
+    },
+    "metrics": {
+      "pending": {
+        "label": "Pending"
+      },
+      "delivery": {
+        "label": "Delivery",
+        "values": {
+          "available": "Available",
+          "unavailable": "Record only"
+        }
+      },
+      "expiringSoon": {
+        "label": "Expiring in 24h"
+      }
+    },
+    "form": {
+      "title": "Create invitation",
+      "description": "The API creates a pending invitation record. It does not return token material or send email.",
+      "fields": {
+        "email": "Email",
+        "roles": "Roles"
+      },
+      "errors": {
+        "emailRequired": "Enter an email address.",
+        "emailInvalid": "Enter a valid email address.",
+        "rolesRequired": "Select at least one role.",
+        "createFailed": "Invitation could not be created."
+      },
+      "reset": "Reset",
+      "create": "Create invitation",
+      "creating": "Creating"
+    },
+    "invitations": {
+      "title": "Pending invitations",
+      "description": "Active pending invitation records returned by the API.",
+      "filters": {
+        "all": "All ({count})",
+        "pending": "Pending ({count})",
+        "cancelled": "Cancelled ({count})",
+        "accepted": "Accepted ({count})"
+      },
+      "columns": {
+        "email": "Email",
+        "roles": "Roles",
+        "status": "Status",
+        "createdAt": "Created",
+        "expiresAt": "Expires",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "Pending",
+        "cancelled": "Cancelled",
+        "accepted": "Accepted"
+      },
+      "actions": {
+        "cancel": "Cancel invitation for {email}"
+      },
+      "emptyTitle": "No pending invitations",
+      "emptyDescription": "Create an invitation record when a new user needs access.",
+      "filteredEmptyTitle": "No invitations match this filter",
+      "filteredEmptyDescription": "Choose another status filter.",
+      "errorTitle": "Invitations cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again."
+    },
+    "confirm": {
+      "cancel": {
+        "title": "Cancel invitation",
+        "description": "{email} will no longer be able to accept this pending invitation.",
+        "keep": "Keep invitation",
+        "confirm": "Cancel invitation",
+        "cancelling": "Cancelling",
+        "failed": "Invitation could not be cancelled."
+      }
+    }
+  },
+  "AdminSettings": {
+    "title": "Document configuration",
+    "description": "Endpoint-backed document type and attribute catalog management.",
+    "back": "Back to admin",
+    "tabs": {
+      "documentTypes": "Document types",
+      "attributes": "Attributes",
+      "attributeMatrix": "Attribute matrix"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "notSet": "Not set",
+      "requiredField": "Required field",
+      "unsavedChanges": {
+        "title": "Discard unsaved changes?",
+        "description": "Your changes have not been saved. Do you want to leave this screen without saving them?",
+        "stay": "Stay on this screen",
+        "discard": "Discard changes"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "documentTypes": {
+      "title": "Document types",
+      "create": "Create type",
+      "configureDefinition": "Configure definition",
+      "metrics": {
+        "total": {
+          "label": "Total"
+        },
+        "active": {
+          "label": "Active"
+        },
+        "inactive": {
+          "label": "Inactive"
+        }
+      },
+      "filters": {
+        "active": "Active ({count})",
+        "inactive": "Inactive ({count})",
+        "all": "All ({count})"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "description": "Description",
+        "status": "Status",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "actions": {
+        "configureMatrix": "Configure attribute matrix for {name}",
+        "edit": "Edit {name}",
+        "deactivate": "Deactivate {name}",
+        "delete": "Delete {name}"
+      },
+      "emptyTitle": "No document types",
+      "emptyDescription": "The selected lifecycle filter has no catalog entries.",
+      "errorTitle": "Document types cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again.",
+      "actionFailed": "The document type action failed.",
+      "confirm": {
+        "deactivate": {
+          "title": "Deactivate document type",
+          "description": "{name} will stay in the catalog with inactive status.",
+          "confirm": "Deactivate"
+        },
+        "delete": {
+          "title": "Delete document type",
+          "description": "{name} will be permanently removed if the API finds no dependencies.",
+          "confirm": "Delete"
+        }
+      },
+      "form": {
+        "createTitle": "Create document type",
+        "createDescription": "New entries are saved as active catalog records.",
+        "editTitle": "Edit document type",
+        "editDescription": "Editing {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Optional stable key used by imports, exports, and integrations. Leave it empty to let the API generate it.",
+          "externalIdPlaceholder": "Generated from name when empty",
+          "name": "Name",
+          "description": "Description",
+          "descriptionDescription": "Optional description shown to operators and configuration screens."
+        },
+        "parameters": {
+          "title": "Document type parameters",
+          "description": "Values for fields defined in the document type catalog configuration.",
+          "loading": "Loading parameter definition",
+          "empty": "No active document type parameters.",
+          "loadErrorDescription": "Refresh the API connection and try again.",
+          "dictionaryPlaceholder": "Select value",
+          "textPlaceholder": "Optional",
+          "none": "None"
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical identifiers used by API payloads, imports, and connectors."
+        },
+        "errors": {
+          "nameRequired": "Enter a name.",
+          "extensionRequired": "Enter a value.",
+          "definitionLoadFailed": "Document type definition cannot be loaded.",
+          "dictionaryEntriesLoadFailed": "Dictionary values cannot be loaded.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Document type could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      },
+      "definition": {
+        "title": "Catalog definition: Document types",
+        "description": "Fields and display modes shared by document types.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving",
+        "fields": {
+          "title": "Extension fields",
+          "description": "Additional dictionary or text fields available for all document types.",
+          "add": "Add field",
+          "empty": "No extension fields.",
+          "newField": "New field",
+          "label": "Name",
+          "code": "Code",
+          "valueType": "Value type",
+          "dictionary": "Dictionary",
+          "mappedAttribute": "Mapped attribute",
+          "required": "Required",
+          "showInOverview": "Show on cards/lists",
+          "active": "Active",
+          "none": "None",
+          "moveUp": "Move field up",
+          "moveDown": "Move field down",
+          "remove": "Remove field",
+          "types": {
+            "dictionary": "Dictionary",
+            "text": "Text"
+          }
+        },
+        "displayModes": {
+          "title": "Display modes",
+          "description": "Define how document types appear in lists and dropdowns.",
+          "add": "Add display mode",
+          "empty": "No display modes.",
+          "newMode": "New display mode",
+          "name": "Name",
+          "default": "Default",
+          "active": "Active",
+          "parts": "Label parts",
+          "addBaseName": "Add type name",
+          "addFieldPart": "Add field",
+          "moveUp": "Move display mode up",
+          "moveDown": "Move display mode down",
+          "remove": "Remove display mode"
+        },
+        "parts": {
+          "sourceType": "Part source",
+          "baseName": "Type name",
+          "extensionField": "Extension field",
+          "field": "Field",
+          "separator": "Separator before",
+          "separatorPlaceholder": "e.g.  - ",
+          "none": "None",
+          "moveUp": "Move part up",
+          "moveDown": "Move part down",
+          "remove": "Remove part"
+        },
+        "errors": {
+          "definitionRequired": "Wait for the definition to load.",
+          "loadFailed": "Catalog definition cannot be loaded.",
+          "loadDescription": "Refresh the API connection and try again.",
+          "saveFailed": "Catalog definition could not be saved.",
+          "fieldIdentityRequired": "Each field needs a name and code.",
+          "duplicateFieldCode": "Field codes must be unique.",
+          "dictionaryRequired": "A dictionary field requires an active dictionary.",
+          "defaultModeRequired": "Select exactly one active default display mode.",
+          "duplicateModeName": "Display mode names must be unique.",
+          "modeNameRequired": "Each active display mode needs a name.",
+          "modePartsRequired": "An active display mode needs at least one part.",
+          "modeFieldRequired": "A field-based part must select an extension field.",
+          "requiredBackfillTitle": "Required field cannot be saved yet.",
+          "requiredBackfillDescription": "Required extension fields must have values on every active document type before the definition can be saved.",
+          "requiredBackfillFooter": "Fill missing required extension values before saving.",
+          "requiredBackfillField": "Missing values for {field}",
+          "requiredBackfillNewFieldHint": "This is a new field. Turn off Required and save it as optional first, fill values on document types, then come back and enable Required.",
+          "editDocumentType": "Edit {name}"
+        }
+      }
+    },
+    "attributes": {
+      "title": "Attributes",
+      "create": "Create attribute",
+      "schemaVersion": "v{version}",
+      "metrics": {
+        "total": {
+          "label": "Total"
+        },
+        "active": {
+          "label": "Active"
+        },
+        "inactive": {
+          "label": "Inactive"
+        }
+      },
+      "categories": {
+        "all": "All categories",
+        "named": "{category} ({count})"
+      },
+      "filters": {
+        "active": "Active ({count})",
+        "inactive": "Inactive ({count})",
+        "all": "All ({count})"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "category": "Category",
+        "schema": "Schema",
+        "status": "Status",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "actions": {
+        "edit": "Edit {name}",
+        "deactivate": "Deactivate {name}",
+        "delete": "Delete {name}"
+      },
+      "dataTypes": {
+        "string": "String",
+        "integer": "Integer",
+        "number": "Number",
+        "boolean": "Boolean",
+        "date": "Date",
+        "datetime": "Date time",
+        "legacy_scalar": "Legacy"
+      },
+      "valueSources": {
+        "free_text": "Free text",
+        "inline_allowed_values": "Inline values",
+        "dictionary": "Dictionary"
+      },
+      "sources": {
+        "ai": "AI",
+        "user": "User"
+      },
+      "emptyTitle": "No attributes",
+      "emptyDescription": "The selected filters have no attribute definitions.",
+      "errorTitle": "Attributes cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again.",
+      "actionFailed": "The attribute action failed.",
+      "confirm": {
+        "deactivate": {
+          "title": "Deactivate attribute",
+          "description": "{name} will stay in the catalog with inactive status.",
+          "confirm": "Deactivate"
+        },
+        "delete": {
+          "title": "Delete attribute",
+          "description": "{name} will be permanently removed if the API finds no dependencies.",
+          "confirm": "Delete"
+        }
+      },
+      "form": {
+        "createTitle": "Create attribute",
+        "createDescription": "New entries are saved as active attribute definitions.",
+        "editTitle": "Edit attribute",
+        "editDescription": "Editing {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Stable key for imports, exports, and integrations. Leave empty to let the API generate it.",
+          "externalIdPlaceholder": "Generated from name when empty",
+          "name": "Name",
+          "category": "Category",
+          "categoryPlaceholder": "Select active category",
+          "source": "Source",
+          "valueSource": "Value source",
+          "dataType": "Data type",
+          "dictionary": "Dictionary",
+          "dictionaryPlaceholder": "Select active dictionary",
+          "minLength": "Min length",
+          "maxLength": "Max length",
+          "pattern": "Pattern",
+          "minValue": "Min value",
+          "maxValue": "Max value",
+          "allowedValues": "Allowed values",
+          "comment": "Comment",
+          "llmContext": "LLM context",
+          "llmContextDescription": "Optional field-specific instructions available to LLM extraction workflows. Formatting and line breaks are preserved. Maximum 1000 characters.",
+          "llmContextPlaceholder": "Describe where and how the model should extract this attribute..."
+        },
+        "valueSource": {
+          "description": "Choose how values can be entered for this attribute.",
+          "freeTextHint": "Free text attributes can use any supported scalar type."
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical identifiers and notes used by API clients and operators.",
+          "sourceDescription": "Choose whether the value normally comes from AI extraction or a user."
+        },
+        "llm": {
+          "title": "LLM extraction",
+          "description": "Optional guidance for extracting this specific attribute.",
+          "configured": "Configured",
+          "optional": "Optional"
+        },
+        "validation": {
+          "title": "Validation",
+          "description": "Optional constraints supported by the selected data type.",
+          "dictionaryOnly": "Dictionary attributes validate against the selected dictionary, so additional constraints are hidden.",
+          "noConstraints": "The backend currently does not support constraints for this data type."
+        },
+        "errors": {
+          "nameRequired": "Enter a name.",
+          "categoryRequired": "Select an active category.",
+          "allowedValuesRequired": "Enter at least one inline value.",
+          "dictionaryRequired": "Select an active dictionary.",
+          "integer": "Enter a non-negative integer.",
+          "number": "Enter a number.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Attribute could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      }
+    },
+    "attributeCategories": {
+      "create": "Create category",
+      "filters": {
+        "active": "Active ({count})",
+        "inactive": "Inactive ({count})",
+        "all": "All ({count})"
+      },
+      "columns": {
+        "name": "Name",
+        "flags": "Flags",
+        "status": "Status",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "actions": {
+        "edit": "Edit {name}",
+        "deactivate": "Deactivate {name}",
+        "delete": "Delete {name}"
+      },
+      "flags": {
+        "isMetadata": "Metadata"
+      },
+      "emptyTitle": "No attribute categories",
+      "emptyDescription": "The API did not return active or inactive categories.",
+      "errorTitle": "Attribute categories cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again.",
+      "actionFailed": "The attribute category action failed.",
+      "confirm": {
+        "deactivate": {
+          "title": "Deactivate category",
+          "description": "{name} will stay in the catalog with inactive status if the API finds no active dependencies.",
+          "confirm": "Deactivate"
+        },
+        "delete": {
+          "title": "Delete category",
+          "description": "{name} will be permanently removed if the API finds no dependencies.",
+          "confirm": "Delete"
+        }
+      },
+      "form": {
+        "createTitle": "Create attribute category",
+        "createDescription": "New categories are saved as active system entries.",
+        "editTitle": "Edit attribute category",
+        "editDescription": "Editing {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Stable key used by imports, exports, and integrations. Leave empty to generate it automatically.",
+          "externalIdPlaceholder": "Generated from name when empty",
+          "label": "Name",
+          "isMetadata": "Metadata",
+          "isMetadataDescription": "Attributes in this category are treated as document metadata in uploads, connectors, and integrations."
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical identifiers used by API clients and operators."
+        },
+        "flags": {
+          "title": "Flags",
+          "description": "Category-level switches used by upload and integration workflows."
+        },
+        "errors": {
+          "labelRequired": "Enter a name.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Attribute category could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      }
+    },
+    "customDictionaries": {
+      "title": "Custom dictionaries",
+      "create": "Create dictionary",
+      "search": "Search dictionaries",
+      "schemaVersion": "Schema v{version}",
+      "entriesVersion": "Entries v{version}",
+      "filters": {
+        "active": "Active ({count})",
+        "inactive": "Inactive ({count})",
+        "all": "All ({count})"
+      },
+      "columns": {
+        "id": "External ID",
+        "name": "Name",
+        "versions": "Versions",
+        "status": "Status",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "actions": {
+        "open": "Open {name}",
+        "more": "More actions for {name}",
+        "edit": "Edit {name}",
+        "deactivate": "Deactivate {name}",
+        "delete": "Delete {name}"
+      },
+      "menu": {
+        "edit": "Edit details",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "metrics": {
+        "schema": "Schema",
+        "entries": "Entries"
+      },
+      "emptyTitle": "No custom dictionaries",
+      "emptyDescription": "Create a customer-managed dictionary for reusable metadata values.",
+      "errorTitle": "Dictionaries cannot be loaded",
+      "errorDescription": "Refresh the API connection and try again.",
+      "actionFailed": "The dictionary action failed.",
+      "confirm": {
+        "deactivate": {
+          "title": "Deactivate dictionary",
+          "description": "{name} will stay available for historical references with inactive status.",
+          "confirm": "Deactivate"
+        },
+        "delete": {
+          "title": "Delete dictionary",
+          "description": "{name} will be permanently removed only if the API finds no usage.",
+          "confirm": "Delete"
+        }
+      },
+      "form": {
+        "createTitle": "Create custom dictionary",
+        "createDescription": "New dictionaries are active immediately after the API saves them.",
+        "editTitle": "Edit custom dictionary",
+        "editDescription": "Editing {id}",
+        "fields": {
+          "externalId": "External ID",
+          "externalIdDescription": "Optional integration key. Leave it empty to generate one from the dictionary name.",
+          "externalIdPlaceholder": "Generated from name when empty",
+          "name": "Name",
+          "description": "Description"
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical identifiers are for API payloads, imports, and connectors. They are not required for day-to-day dictionary management."
+        },
+        "errors": {
+          "externalIdRequired": "Enter a stable external ID.",
+          "nameRequired": "Enter a name.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Dictionary could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      },
+      "fieldsForm": {
+        "title": "Edit field schema",
+        "description": "Replace the typed field schema used to validate entry values.",
+        "add": "Add field",
+        "remove": "Remove field",
+        "rowTitle": "Field {number}",
+        "emptyTitle": "No field definitions",
+        "emptyDescription": "Add a field to rebuild the schema, or save an empty schema after all entries have been deleted.",
+        "deleteWarningTitle": "Field definitions will be permanently removed",
+        "deleteWarningDescription": "Removed fields: {fields}. The API allows this only when this dictionary has no entries.",
+        "advanced": {
+          "title": "Advanced validation JSON",
+          "summary": "{count, plural, =0 {No settings} one {# setting} other {# settings}}",
+          "constraintsDescription": "Validation rules such as max_length, pattern, min_value, or allowed_values.",
+          "normalizationDescription": "Input cleanup such as trim or case conversion before validation.",
+          "formatDescription": "UI hints and semantic presets such as examples, masks, or generated identifier settings."
+        },
+        "fields": {
+          "externalId": "External ID",
+          "label": "Label",
+          "labelDescription": "Visible field name used in entry forms and tables.",
+          "dataType": "Data type",
+          "dataTypeDescription": "Choose the business value type. Identifier presets are stored on top of the API scalar types.",
+          "status": "Status",
+          "statusDescription": "Inactive fields remain visible for existing values but are not used for new active entries.",
+          "flags": "Flags",
+          "flagsDescription": "Required validates every entry. Unique prevents duplicate values inside this dictionary.",
+          "sortOrder": "Sort order",
+          "constraints": "Constraints JSON",
+          "normalization": "Normalization JSON",
+          "format": "Format JSON"
+        },
+        "dataTypes": {
+          "string": "Text",
+          "uuid": "UUID",
+          "uuid_auto": "UUID, generated automatically",
+          "integer_identifier": "Numeric identifier",
+          "integer_identifier_auto": "Numeric identifier, generated automatically",
+          "integer": "Integer",
+          "number": "Number",
+          "boolean": "Boolean",
+          "date": "Date",
+          "datetime": "Date and time"
+        },
+        "flags": {
+          "required": "Required",
+          "unique": "Unique"
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical field identifiers used by imports, exports, and external systems.",
+          "generated": "Generated when empty",
+          "externalIdDescription": "Optional stable key for imports, exports, and external systems. Leave it empty to generate one from the label.",
+          "externalIdPlaceholder": "Generated from label when empty"
+        },
+        "order": {
+          "drag": "Drag field {number}",
+          "position": "Position {number}",
+          "moveUp": "Move field {number} up",
+          "moveDown": "Move field {number} down"
+        },
+        "errors": {
+          "externalIdRequired": "Enter a field external ID.",
+          "externalIdDuplicate": "Field external IDs must be unique.",
+          "labelRequired": "Enter a label.",
+          "jsonObject": "Enter a valid JSON object.",
+          "deleteFieldsCountUnknown": "Wait until the entry count is loaded before removing field definitions.",
+          "deleteFieldsWithEntries": "Delete all entries in this dictionary before removing field definitions. Current total: {count}.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Field schema could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save schema",
+        "saving": "Saving"
+      },
+      "entriesForm": {
+        "createTitle": "Create dictionary entry",
+        "createDescription": "Fill in the values defined by this dictionary schema.",
+        "editTitle": "Edit dictionary entry",
+        "editDescription": "Editing {id}",
+        "fields": {
+          "externalId": "External ID",
+          "label": "Label",
+          "sortOrder": "Sort order"
+        },
+        "integration": {
+          "title": "Integration",
+          "description": "Technical entry identifiers used by imports, exports, and integrations.",
+          "generated": "Generated when empty",
+          "externalIdDescription": "Optional stable value for metadata integrations. Leave it empty to generate one from the entry values.",
+          "externalIdPlaceholder": "Generated from values when empty"
+        },
+        "fieldHints": {
+          "uuid": "Enter a UUID value.",
+          "uuid_auto": "Generated automatically from the schema preset.",
+          "integer_identifier": "Enter a stable numeric identifier.",
+          "integer_identifier_auto": "Generated automatically when the entry is saved."
+        },
+        "boolean": {
+          "true": "True",
+          "false": "False"
+        },
+        "noFieldsTitle": "No active fields",
+        "noFieldsDescription": "Save at least one active field before entries can carry typed values.",
+        "errors": {
+          "externalIdRequired": "Enter an entry external ID.",
+          "labelRequired": "Enter a label.",
+          "requiredValue": "Enter {field}.",
+          "displayValueRequired": "Enter at least one value that can be used as the entry name.",
+          "fixFields": "Fix highlighted fields.",
+          "saveFailed": "Entry could not be saved."
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving"
+      }
+    },
+    "customDictionaryDetail": {
+      "back": "Back to dictionaries",
+      "loadingTitle": "Dictionary",
+      "loadingDescription": "Loading dictionary details.",
+      "description": "Manage schema and entries for {id}.",
+      "schemaVersion": "Schema v{version}",
+      "entriesVersion": "Entries v{version}",
+      "loadDictionaryTitle": "Dictionary cannot be loaded",
+      "loadDictionaryDescription": "Refresh the API connection and try again.",
+      "metrics": {
+        "externalId": "External ID",
+        "status": "Status",
+        "schemaVersion": "Schema version",
+        "entriesVersion": "Entries version"
+      },
+      "fields": {
+        "edit": "Edit schema",
+        "emptyBadge": "No fields",
+        "summaryTitle": "Field schema",
+        "summaryDescription": "Active and inactive fields used by entry values.",
+        "count": "{count, plural, one {# field} other {# fields}}",
+        "errorTitle": "Field schema cannot be loaded",
+        "errorDescription": "Refresh the API connection and try again."
+      },
+      "entries": {
+        "create": "Create entry",
+        "search": "Search entries",
+        "previous": "Previous",
+        "next": "Next",
+        "pageSummary": "{count} of {total} entries",
+        "filters": {
+          "active": "Active ({count})",
+          "inactive": "Inactive ({count})",
+          "all": "All ({count})"
+        },
+        "columns": {
+          "id": "External ID",
+          "entry": "Entry",
+          "label": "Label",
+          "values": "Values",
+          "status": "Status",
+          "updatedAt": "Updated",
+          "actions": "Actions"
+        },
+        "actions": {
+          "edit": "Edit {name}",
+          "deactivate": "Deactivate {name}",
+          "delete": "Delete {name}"
+        },
+        "emptyTitle": "No entries",
+        "emptyDescription": "No entries match the current filters.",
+        "errorTitle": "Entries cannot be loaded",
+        "errorDescription": "Refresh the API connection and try again.",
+        "actionFailed": "The entry action failed.",
+        "confirm": {
+          "deactivate": {
+            "title": "Deactivate entry",
+            "description": "{name} will remain available for historical values but cannot be selected as new.",
+            "confirm": "Deactivate"
+          },
+          "delete": {
+            "title": "Delete entry",
+            "description": "{name} will be permanently removed from this dictionary. Use this only for values that are not needed for history or integrations.",
+            "confirm": "Delete"
+          }
+        }
+      }
+    },
+    "attributeMatrix": {
+      "title": "Attribute matrix",
+      "categorySummary": "{required} required, {optional} optional",
+      "includeMetadataInContextResolver": "Include metadata in Context Resolver",
+      "emptyTitle": "No attributes in the matrix",
+      "emptyDescription": "The selected document type has no visible attribute definitions.",
+      "search": "Search attributes",
+      "filters": {
+        "requirement": "Requirement"
+      },
+      "categories": {
+        "label": "Attribute type",
+        "all": "All attribute types"
+      },
+      "metrics": {
+        "total": {
+          "label": "Total"
+        },
+        "assigned": {
+          "label": "Assigned"
+        },
+        "required": {
+          "label": "Required"
+        },
+        "optional": {
+          "label": "Optional"
+        },
+        "unassigned": {
+          "label": "Unassigned"
+        }
+      },
+      "documentTypes": {
+        "label": "Document type",
+        "displayMode": "Display mode",
+        "loading": "Loading document types",
+        "emptyTitle": "No document types",
+        "emptyDescription": "Create a document type before configuring its attribute matrix.",
+        "errorTitle": "Document types cannot be loaded",
+        "errorDescription": "Refresh the API connection and try again.",
+        "discardChanges": {
+          "title": "Discard unsaved changes?",
+          "description": "Your matrix changes have not been saved. Do you want to discard them and change the document type?",
+          "stay": "Stay on this screen",
+          "discard": "Discard changes"
+        }
+      },
+      "columns": {
+        "attribute": "Attribute",
+        "category": "Category",
+        "status": "Status",
+        "requirement": "Requirement",
+        "missingAction": "Missing value",
+        "updatedAt": "Updated",
+        "validation": "Validation"
+      },
+      "states": {
+        "unassigned": "Unassigned",
+        "optional": "Optional",
+        "required": "Required"
+      },
+      "missingActions": {
+        "block_approval": "Block approval",
+        "require_review": "Require review",
+        "notApplicable": "Not used"
+      },
+      "validation": {
+        "ready": "Ready"
+      },
+      "actions": {
+        "reset": "Reset",
+        "save": "Save matrix",
+        "saving": "Saving"
+      },
+      "errors": {
+        "loadFailed": "Attribute matrix cannot be loaded",
+        "loadDescription": "Refresh the API connection and try again.",
+        "saveFailed": "Attribute matrix could not be saved.",
+        "inlineHint": "Rows that need attention are marked in the validation column.",
+        "unknownBackendIds": "The API also reported unknown attribute IDs: {ids}.",
+        "duplicate": "This attribute appears more than once in the payload.",
+        "inactiveAssigned": "Inactive attributes cannot be assigned to an active document type.",
+        "missing": "The API reported this attribute as missing."
+      }
+    }
+  },
+  "Dashboard": {
+    "title": "DocMind.Ai dashboard",
+    "subtitle": "Here is what is happening with your documents today.",
+    "generatedAt": "Data from {value}",
+    "window": {
+      "aria": "Select dashboard period",
+      "days": "{count} days"
+    },
+    "operational": {
+      "title": "Operational status",
+      "toReview": "to review",
+      "processing": "processing",
+      "requiresAttention": "require attention"
+    },
+    "activity": {
+      "title": "Document activity",
+      "aria": "Daily document activity chart",
+      "date": "Date",
+      "accepted": "Accepted",
+      "successfulOcr": "Successful OCR",
+      "archived": "Archived"
+    },
+    "ocrTiming": {
+      "title": "OCR time",
+      "averageLabel": "Average",
+      "seconds": "{value} s",
+      "minimum": "min. {value} s",
+      "average": "average {value} s",
+      "maximum": "max. {value} s",
+      "samples": "{count} successful runs · last {days} days",
+      "perPage": "{value} s / page",
+      "empty": "No data in the selected period",
+      "rangeAria": "OCR step time: minimum {minimum} seconds, average {average} seconds, maximum {maximum} seconds"
+    },
+    "archiveSummary": {
+      "title": "Archive",
+      "added": "+{count} in the last {days} days",
+      "open": "Open Archive"
+    },
+    "lists": {
+      "toReview": "To review",
+      "requiresAttention": "Requires attention",
+      "viewInbox": "View full Inbox",
+      "toReviewEmpty": "No documents are waiting for review.",
+      "attentionEmpty": "No documents require attention."
+    },
+    "statuses": {
+      "received": "Received",
+      "waiting_for_review": "Waiting",
+      "in_review": "In review",
+      "approved": "Approved",
+      "pending": "Pending",
+      "running": "Running",
+      "succeeded": "Completed",
+      "partial_failed": "Partial",
+      "failed": "Error"
+    },
+    "error": {
+      "title": "Dashboard data could not be loaded",
+      "description": "You can still upload a document or open the other views.",
+      "retry": "Try again"
+    },
+    "welcome": {
+      "heading": "Start processing documents",
+      "description": "Upload a document and start automatic data recognition.",
+      "cta": "Upload document",
+      "greeting": {
+        "morning": "Good morning, {name}",
+        "afternoon": "Good afternoon, {name}",
+        "evening": "Good evening, {name}"
+      },
+      "greetingNeutral": {
+        "morning": "Good morning",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening"
+      }
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "dictionaries": {
+        "title": "Manage dictionaries",
+        "description": "Configure document types, attributes, and requirement matrix"
+      },
+      "users": {
+        "title": "Manage users",
+        "description": "Manage users, invitations, roles, and access"
+      },
+      "pipeline": {
+        "title": "Manage pipeline",
+        "description": "Set up OCR strategy and LLM models"
+      }
+    },
+    "common": {
+      "viewAll": "View all"
+    },
+    "metrics": {
+      "documentsProcessed": {
+        "label": "Documents processed",
+        "detail": "vs last 7 days"
+      },
+      "awaitingReview": {
+        "label": "Awaiting review",
+        "detail": "vs yesterday"
+      },
+      "extractionAccuracy": {
+        "label": "Extraction accuracy",
+        "detail": "vs last 7 days"
+      },
+      "failedJobs": {
+        "label": "Failed jobs",
+        "detail": "vs yesterday"
+      }
+    },
+    "pipeline": {
+      "title": "Processing pipeline",
+      "menu": "Pipeline menu",
+      "range": {
+        "last24h": "24h",
+        "last7d": "7d",
+        "last30d": "30d"
+      },
+      "steps": {
+        "ingestion": "Ingestion",
+        "ocrParsing": "OCR / Parsing",
+        "extraction": "Extraction",
+        "validation": "Validation",
+        "review": "Review",
+        "export": "Export"
+      },
+      "chartLabel": "Pipeline throughput chart",
+      "chartTitle": "Pipeline throughput and bottleneck trend",
+      "throughput": "Throughput",
+      "bottleneck": "Bottleneck"
+    },
+    "reviewQueue": {
+      "title": "Review Queue",
+      "customer": "Customer:",
+      "fields": "{count, plural, one {# field} other {# fields}}",
+      "timeAgo": "{minutes, plural, =0 {now} one {# minute ago} other {# minutes ago}}",
+      "openMenu": "Open {fileName} menu",
+      "priority": {
+        "high": "High priority",
+        "normal": "Normal",
+        "lowConfidence": "Low confidence"
+      },
+      "status": {
+        "inReview": "In review",
+        "pending": "Pending"
+      },
+      "documentType": {
+        "invoice": "Invoice",
+        "contract": "Contract",
+        "purchaseOrder": "Purchase Order",
+        "receipt": "Receipt"
+      }
+    },
+    "batches": {
+      "title": "Recent document batches",
+      "filters": {
+        "all": "All",
+        "success": "Success",
+        "processing": "Processing",
+        "failed": "Failed"
+      },
+      "columns": {
+        "batchId": "Batch ID",
+        "source": "Source",
+        "documents": "Documents",
+        "processed": "Processed",
+        "status": "Status",
+        "started": "Started",
+        "duration": "Duration",
+        "actions": "Actions"
+      },
+      "status": {
+        "done": "Completed",
+        "review": "Completed with warnings",
+        "processing": "Processing",
+        "failed": "Failed"
+      },
+      "open": "Open {batchId}",
+      "openMenu": "Open {batchId} menu",
+      "showing": "Showing {from} to {to} of {total} results",
+      "page": "Page {page}"
+    }
+  }
+}
