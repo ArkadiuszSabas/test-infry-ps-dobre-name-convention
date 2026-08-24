@@ -30,6 +30,14 @@ data "azapi_resource" "container_apps_infrastructure_subnet" {
 }
 
 locals {
+  tenant_token      = lower(replace(var.tenant_prefix, "/[^0-9A-Za-z]/", ""))
+  app_token         = lower(replace(var.app_id, "/[^0-9A-Za-z]/", ""))
+  environment_token = lower(replace(var.environment, "/[^0-9A-Za-z]/", ""))
+  instance_token    = lower(replace(var.instance_number, "/[^0-9A-Za-z]/", ""))
+
+  nat_gateway_public_ip_name = "pip-${local.app_token}-${local.environment_token}-nat-${local.instance_token}"
+  nat_gateway_name           = "ng-${local.app_token}-${local.environment_token}-${local.instance_token}"
+
   private_dns_zone_names = {
     azure_monitor       = "privatelink.monitor.azure.com"
     azure_monitor_agent = "privatelink.agentsvc.azure-automation.net"
@@ -145,7 +153,7 @@ resource "terraform_data" "approved_design_guard" {
 }
 
 resource "azurerm_public_ip" "nat_gateway" {
-  name                = var.nat_gateway_public_ip_name
+  name                = local.nat_gateway_public_ip_name
   location            = var.location
   resource_group_name = data.azurerm_resource_group.network.name
   allocation_method   = "Static"
@@ -156,7 +164,7 @@ resource "azurerm_public_ip" "nat_gateway" {
 }
 
 resource "azurerm_nat_gateway" "this" {
-  name                    = var.nat_gateway_name
+  name                    = local.nat_gateway_name
   location                = var.location
   resource_group_name     = data.azurerm_resource_group.network.name
   sku_name                = "Standard"

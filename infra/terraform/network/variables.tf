@@ -14,6 +14,36 @@ variable "location" {
   default     = "swedencentral"
 }
 
+variable "environment" {
+  description = "Deployment environment identifier used in resource names."
+  type        = string
+}
+
+variable "region_code" {
+  description = "Short Azure region identifier used by the naming convention."
+  type        = string
+}
+
+variable "organization_token" {
+  description = "Organization identifier used by the naming convention."
+  type        = string
+}
+
+variable "tenant_prefix" {
+  description = "Tenant prefix used by the naming convention."
+  type        = string
+}
+
+variable "app_id" {
+  description = "Application identifier used by the naming convention."
+  type        = string
+}
+
+variable "instance_number" {
+  description = "Application instance identifier used by the naming convention."
+  type        = string
+}
+
 variable "network_resource_group_name" {
   description = "Existing ProService resource group containing the VNet and network-owned resources."
   type        = string
@@ -73,16 +103,6 @@ variable "expected_container_apps_infrastructure_subnet_cidr" {
     condition     = can(cidrnetmask(var.expected_container_apps_infrastructure_subnet_cidr)) && try(tonumber(split("/", var.expected_container_apps_infrastructure_subnet_cidr)[1]) <= 27, false)
     error_message = "The expected Container Apps subnet CIDR must be a valid /27 or larger block."
   }
-}
-
-variable "nat_gateway_name" {
-  description = "NAT Gateway created for stable Container Apps egress."
-  type        = string
-}
-
-variable "nat_gateway_public_ip_name" {
-  description = "Static Public IP created for the NAT Gateway."
-  type        = string
 }
 
 variable "additional_container_apps_private_dns_locations" {
