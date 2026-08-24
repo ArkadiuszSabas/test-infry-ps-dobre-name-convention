@@ -1,20 +1,19 @@
-subscription_id                 = "16060ea2-28be-4b09-8e6d-060249d69ddd"
+subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
 location                        = "swedencentral"
 environment                     = "dev"
-application_resource_group_name = "rg-ocr-dev-arksab"
-network_resource_group_name     = "rg-ocr-dev-net-arksab"
-
-cmk = {
-  storage_key_id               = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  service_bus_key_id           = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  document_intelligence_key_id = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  foundry_key_id               = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  postgresql_key_id            = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-}
+application_resource_group_name = "rg-ocr-dev"
+network_resource_group_name     = "rg-ocr-dev-net"
 
 # Existing network objects read directly by Core.
-virtual_network_name                      = "vnet-ocr-dev-arksab"
-container_apps_infrastructure_subnet_name = "snet-ocr-dev-aca-arksab"
+virtual_network_name                      = "vnet-ocr-dev"
+container_apps_infrastructure_subnet_name = "snet-ocr-dev-aca"
+cmk = {
+  storage_key_id               = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+  service_bus_key_id           = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+  document_intelligence_key_id = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+  foundry_key_id               = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+  postgresql_key_id            = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+}
 
 # Set true only after the matching ProService decisions are formally approved.
 security_design_approved        = false
