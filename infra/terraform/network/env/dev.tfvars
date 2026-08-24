@@ -1,4 +1,4 @@
-subscription_id = "fe31d3c8-576f-4c09-913c-0635306834ff0"
+subscription_id = "16060ea2-28be-4b09-8e6d-060249d69ddd"
 location        = "swedencentral"
 
 environment        = "dev"
