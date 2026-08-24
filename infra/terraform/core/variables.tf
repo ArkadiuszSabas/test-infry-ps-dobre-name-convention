@@ -53,9 +53,7 @@ variable "cmk" {
   description = "Versioned Key Vault or Managed HSM key IDs used for customer-managed encryption."
   type = object({
     storage_key_id               = string
-    service_bus_key_id           = string
     document_intelligence_key_id = string
-    foundry_key_id               = string
     postgresql_key_id            = string
   })
 
@@ -89,12 +87,6 @@ variable "foundry_enabled" {
   description = "Whether Core manages Azure AI Foundry, its project, and the GPT deployment."
   type        = bool
   default     = true
-}
-
-variable "foundry_cmk_enabled" {
-  description = "Whether Azure AI Foundry uses the external customer-managed key."
-  type        = bool
-  default     = false
 }
 
 variable "virtual_network_name" {

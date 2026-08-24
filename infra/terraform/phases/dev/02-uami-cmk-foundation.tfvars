@@ -8,9 +8,7 @@ application_resource_group_name = "rg-ocr-dev"
 
 cmk_identity_workloads = [
   "cmk-document-intelligence",
-  "cmk-foundry",
   "cmk-postgresql",
-  "cmk-servicebus",
   "cmk-storage",
 ]
 

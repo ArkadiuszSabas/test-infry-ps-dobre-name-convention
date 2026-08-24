@@ -42,11 +42,9 @@ variable "cmk_identities" {
   validation {
     condition = toset(keys(var.cmk_identities)) == toset([
       "cmk-document-intelligence",
-      "cmk-foundry",
       "cmk-postgresql",
-      "cmk-servicebus",
       "cmk-storage",
     ])
-    error_message = "cmk_identities must define exactly the five CMK identity keys used by Core."
+    error_message = "cmk_identities must define exactly the three CMK identity keys used by Core."
   }
 }

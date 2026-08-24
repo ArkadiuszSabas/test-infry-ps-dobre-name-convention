@@ -46,12 +46,10 @@ variable "cmk_identity_workloads" {
   validation {
     condition = var.cmk_identity_workloads == toset([
       "cmk-document-intelligence",
-      "cmk-foundry",
       "cmk-postgresql",
-      "cmk-servicebus",
       "cmk-storage",
     ])
-    error_message = "cmk_identity_workloads must define exactly the five CMK workloads used by Core."
+    error_message = "cmk_identity_workloads must define exactly the three CMK workloads used by Core."
   }
 }
 

@@ -119,9 +119,7 @@ locals {
 
   cmk_identities = {
     "cmk-document-intelligence" = { name = "id-${local.app_token}-${local.environment_token}-cmk-document-intelligence-${local.instance_token}" }
-    "cmk-foundry"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-foundry-${local.instance_token}" }
     "cmk-postgresql"            = { name = "id-${local.app_token}-${local.environment_token}-cmk-postgresql-${local.instance_token}" }
-    "cmk-servicebus"            = { name = "id-${local.app_token}-${local.environment_token}-cmk-servicebus-${local.instance_token}" }
     "cmk-storage"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-storage-${local.instance_token}" }
   }
 
@@ -297,16 +295,6 @@ resource "azurerm_servicebus_namespace" "this" {
   minimum_tls_version           = "1.2"
   public_network_access_enabled = false
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [data.azurerm_user_assigned_identity.cmk["cmk-servicebus"].id]
-  }
-
-  customer_managed_key {
-    key_vault_key_id = var.cmk.service_bus_key_id
-    identity_id      = data.azurerm_user_assigned_identity.cmk["cmk-servicebus"].id
-  }
-
   tags = var.tags
 }
 
@@ -327,7 +315,6 @@ module "ai_services" {
   source = "../modules/ai-services"
 
   foundry_enabled                                     = var.foundry_enabled
-  foundry_cmk_enabled                                 = var.foundry_cmk_enabled
   document_intelligence_name                          = local.resource_names.document_intelligence
   document_intelligence_sku_name                      = "S0"
   foundry_account_name                                = local.resource_names.foundry_account
@@ -347,11 +334,8 @@ module "ai_services" {
   foundry_user_principal_ids                          = {}
   foundry_openai_user_principal_ids                   = {}
   document_intelligence_cmk_key_vault_key_id          = var.cmk.document_intelligence_key_id
-  foundry_cmk_key_vault_key_id                        = var.cmk.foundry_key_id
   document_intelligence_cmk_identity_id               = data.azurerm_user_assigned_identity.cmk["cmk-document-intelligence"].id
   document_intelligence_cmk_identity_client_id        = data.azurerm_user_assigned_identity.cmk["cmk-document-intelligence"].client_id
-  foundry_cmk_identity_id                             = data.azurerm_user_assigned_identity.cmk["cmk-foundry"].id
-  foundry_cmk_identity_client_id                      = data.azurerm_user_assigned_identity.cmk["cmk-foundry"].client_id
   tags                                                = var.tags
 }
 

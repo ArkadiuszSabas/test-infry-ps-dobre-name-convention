@@ -19,12 +19,6 @@ variable "foundry_enabled" {
   default     = true
 }
 
-variable "foundry_cmk_enabled" {
-  description = "Whether Azure AI Foundry uses a customer-managed key and its dedicated user-assigned identity."
-  type        = bool
-  default     = false
-}
-
 variable "foundry_sku_name" {
   description = "Azure AI Foundry account SKU name."
   type        = string
@@ -133,11 +127,6 @@ variable "document_intelligence_cmk_key_vault_key_id" {
   type        = string
 }
 
-variable "foundry_cmk_key_vault_key_id" {
-  description = "Versioned Key Vault or Managed HSM key ID required to encrypt Foundry."
-  type        = string
-}
-
 variable "document_intelligence_cmk_identity_id" {
   description = "User-assigned identity permitted to use the Document Intelligence CMK."
   type        = string
@@ -145,16 +134,6 @@ variable "document_intelligence_cmk_identity_id" {
 
 variable "document_intelligence_cmk_identity_client_id" {
   description = "Client ID of the identity permitted to use the Document Intelligence CMK."
-  type        = string
-}
-
-variable "foundry_cmk_identity_id" {
-  description = "User-assigned identity permitted to use the Foundry CMK."
-  type        = string
-}
-
-variable "foundry_cmk_identity_client_id" {
-  description = "Client ID of the identity permitted to use the Foundry CMK."
   type        = string
 }
 

@@ -1,4 +1,4 @@
-subscription_id                 = "fe31d3c8-576f-4c09-913c-0635306834ff0"
+subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
 location                        = "swedencentral"
 environment                     = "dev"
 tenant_prefix                   = "ee7c45"
@@ -11,11 +11,9 @@ network_resource_group_name     = "rg-ocr-dev-net"
 virtual_network_name                      = "vnet-ocr-dev"
 container_apps_infrastructure_subnet_name = "snet-ocr-dev-aca"
 cmk = {
-  storage_key_id               = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
-  service_bus_key_id           = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
-  document_intelligence_key_id = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
-  foundry_key_id               = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
-  postgresql_key_id            = "https://kv-ocr-dev-cmk-arksab2.vault.azure.net/keys/cmk2048/79e41043625441fcb504ab3c16b789ff"
+  storage_key_id               = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-storage-01/d9e421f1bc034958aa5989d2137d3402"
+  document_intelligence_key_id = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-docint-01/373716851d784358b4f05336c5833c36"
+  postgresql_key_id            = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-postgres-01/d87d4fbc26ab4918ba531bffc80b29f6"
 }
 
 # Set true only after the matching ProService decisions are formally approved.
@@ -23,7 +21,6 @@ security_design_approved        = false
 resource_provider_list_verified = false
 runtime_dependencies_ready      = false # for core-foundation set it to 'false'
 foundry_enabled                 = true
-foundry_cmk_enabled             = false
 
 workload_identity_workloads = [
   "web",

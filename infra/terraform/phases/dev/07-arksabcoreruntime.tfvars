@@ -6,9 +6,7 @@ network_resource_group_name     = "rg-ocr-dev-net-arksab"
 
 cmk = {
   storage_key_id               = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  service_bus_key_id           = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
   document_intelligence_key_id = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
-  foundry_key_id               = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
   postgresql_key_id            = "https://kv-ocr-dev-cmk-arksab.vault.azure.net/keys/cmk2048/07853f7aa77c47f4a9149a9aab90110a"
 }
 
@@ -19,7 +17,6 @@ security_design_approved        = true
 resource_provider_list_verified = true
 runtime_dependencies_ready      = true
 foundry_enabled                 = true
-foundry_cmk_enabled             = false
 
 resource_names = {
   key_vault                  = "kv-ocr-dev-arksab"

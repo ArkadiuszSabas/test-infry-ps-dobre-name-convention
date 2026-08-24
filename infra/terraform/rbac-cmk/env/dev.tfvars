@@ -6,8 +6,6 @@ key_vault_resource_group_name   = "rg-ocr-dev"
 
 cmk_identities = {
   cmk-document-intelligence = { name = "id-ocr-dev-cmk-document-intelligence-01" }
-  cmk-foundry               = { name = "id-ocr-dev-cmk-foundry-01" }
   cmk-postgresql            = { name = "id-ocr-dev-cmk-postgresql-01" }
-  cmk-servicebus            = { name = "id-ocr-dev-cmk-servicebus-01" }
   cmk-storage               = { name = "id-ocr-dev-cmk-storage-01" }
 }
