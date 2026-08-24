@@ -12,7 +12,8 @@ instance_number                 = "01"
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 # Existing Private DNS Zones are managed in a separate resource group.
-private_dns_resource_group_name = "RG W KTOREJ SA WSZYSTKIE DNS ZONES  PLAAAAAAAACEHOOOOOOLDER"
+# private_dns_resource_group_name = "RG W KTOREJ SA WSZYSTKIE DNS ZONES  PLAAAAAAAACEHOOOOOOLDER"
+private_dns_resource_group_name = "rg-em-dmai-sdc-dev"
 
 
 # Set true only after ProService approves the network design and the ACA subnet delegation.
