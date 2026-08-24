@@ -20,7 +20,7 @@ permissions:
 jobs:
   plan:
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64, REPLACE_SELF_HOSTED_RUNNER_LABEL]
+    runs-on: [self-hosted, linux, x64]
     concurrency:
       group: proservice-terraform-${{ inputs.environment }}
       cancel-in-progress: false
@@ -91,7 +91,7 @@ jobs:
     needs: plan
     if: inputs.apply
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64, REPLACE_SELF_HOSTED_RUNNER_LABEL]
+    runs-on: [self-hosted, linux, x64]
     concurrency:
       group: proservice-terraform-${{ inputs.environment }}
       cancel-in-progress: false
