@@ -8,6 +8,8 @@ tenant_prefix      = "ee7c45"
 app_id             = "ocr"
 instance_number    = "01"
 
+# Set true only after ProService approves the network design and the ACA subnet delegation.
+network_design_approved = false
 
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
@@ -16,8 +18,7 @@ network_resource_group_name     = "rg-ocr-dev-net"
 private_dns_resource_group_name = "rg-em-dmai-sdc-dev"
 
 
-# Set true only after ProService approves the network design and the ACA subnet delegation.
-network_design_approved = false
+
 
 virtual_network_name           = "vnet-ocr-dev"
 expected_network_address_space = ["10.33.24.0/21"]
