@@ -19,7 +19,7 @@ permissions:
 jobs:
   deploy:
     environment: ${{ inputs.environment }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, REPLACE_SELF_HOSTED_RUNNER_LABEL]
     concurrency:
       group: proservice-application-${{ inputs.environment }}
       cancel-in-progress: false
