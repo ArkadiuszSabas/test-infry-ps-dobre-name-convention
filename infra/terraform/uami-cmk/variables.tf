@@ -24,26 +24,34 @@ variable "environment" {
   }
 }
 
+variable "app_id" {
+  description = "Application identifier used in managed identity names."
+  type        = string
+}
+
+variable "instance_number" {
+  description = "Application instance identifier used in managed identity names."
+  type        = string
+}
+
 variable "application_resource_group_name" {
   description = "Existing application resource group where the CMK identities are created."
   type        = string
 }
 
-variable "cmk_identities" {
-  description = "CMK user-assigned managed identities, keyed by the Azure service using the key."
-  type = map(object({
-    name = string
-  }))
+variable "cmk_identity_workloads" {
+  description = "CMK workloads for which user-assigned managed identities are created."
+  type        = set(string)
 
   validation {
-    condition = toset(keys(var.cmk_identities)) == toset([
+    condition = var.cmk_identity_workloads == toset([
       "cmk-document-intelligence",
       "cmk-foundry",
       "cmk-postgresql",
       "cmk-servicebus",
       "cmk-storage",
     ])
-    error_message = "cmk_identities must define exactly the five CMK identity keys used by Core."
+    error_message = "cmk_identity_workloads must define exactly the five CMK workloads used by Core."
   }
 }
 
