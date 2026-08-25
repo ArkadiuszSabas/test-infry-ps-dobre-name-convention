@@ -72,36 +72,6 @@ resource "azurerm_subnet" "container_apps_infrastructure" {
   }
 }
 
-resource "azurerm_public_ip" "nat_gateway" {
-  name                = var.nat_gateway_public_ip_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-
-  tags = var.tags
-}
-
-resource "azurerm_nat_gateway" "this" {
-  name                    = var.nat_gateway_name
-  location                = var.location
-  resource_group_name     = var.resource_group_name
-  sku_name                = "Standard"
-  idle_timeout_in_minutes = 10
-
-  tags = var.tags
-}
-
-resource "azurerm_nat_gateway_public_ip_association" "this" {
-  nat_gateway_id       = azurerm_nat_gateway.this.id
-  public_ip_address_id = azurerm_public_ip.nat_gateway.id
-}
-
-resource "azurerm_subnet_nat_gateway_association" "container_apps_infrastructure" {
-  subnet_id      = azurerm_subnet.container_apps_infrastructure.id
-  nat_gateway_id = azurerm_nat_gateway.this.id
-}
-
 resource "azurerm_subnet" "openvpn_server" {
   name                              = var.openvpn_server_subnet_name
   resource_group_name               = var.resource_group_name

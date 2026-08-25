@@ -57,8 +57,7 @@ Replace no output tokens. Set `network_design_approved=true` only after approval
 Record these outputs:
 
 - `container_apps_infrastructure_subnet_id`;
-- `private_dns_zone_ids`;
-- `nat_gateway_public_ip_address`.
+- `private_dns_zone_ids`.
 
 ### 2. Core foundation
 

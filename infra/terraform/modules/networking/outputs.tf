@@ -15,22 +15,7 @@ output "private_endpoint_subnet_id" {
 
 output "container_apps_infrastructure_subnet_id" {
   description = "Subnet ID delegated to Azure Container Apps environments."
-  value       = azurerm_subnet_nat_gateway_association.container_apps_infrastructure.subnet_id
-}
-
-output "nat_gateway_id" {
-  description = "NAT Gateway ID used for Container Apps stable outbound traffic."
-  value       = azurerm_nat_gateway.this.id
-}
-
-output "nat_gateway_public_ip_id" {
-  description = "Public IP resource ID attached to the NAT Gateway."
-  value       = azurerm_public_ip.nat_gateway.id
-}
-
-output "nat_gateway_public_ip_address" {
-  description = "Public IP address used by the NAT Gateway."
-  value       = azurerm_public_ip.nat_gateway.ip_address
+  value       = azurerm_subnet.container_apps_infrastructure.id
 }
 
 output "openvpn_server_subnet_id" {

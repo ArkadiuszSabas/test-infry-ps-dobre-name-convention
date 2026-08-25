@@ -73,16 +73,6 @@ variable "container_apps_infrastructure_subnet_cidr" {
   }
 }
 
-variable "nat_gateway_name" {
-  description = "NAT Gateway name used for stable Container Apps egress."
-  type        = string
-}
-
-variable "nat_gateway_public_ip_name" {
-  description = "Public IP name attached to the NAT Gateway."
-  type        = string
-}
-
 variable "openvpn_server_subnet_name" {
   description = "Subnet name for the optional OpenVPN server VM."
   type        = string

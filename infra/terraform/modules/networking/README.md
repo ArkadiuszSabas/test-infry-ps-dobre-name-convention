@@ -1,8 +1,7 @@
 # Networking Module
 
 Creates the environment VNet, subnets reserved for Private Endpoints, Container Apps, and the
-optional OpenVPN server, Private DNS zones linked to the VNet, and NAT Gateway egress for the
-Container Apps infrastructure subnet.
+optional OpenVPN server and Private DNS zones linked to the VNet.
 
 This module intentionally does not deploy the OpenVPN VM or ACR
 private-build networking. The OpenVPN server subnet is created here so the optional OpenVPN
@@ -27,8 +26,6 @@ renumbering the VNet.
 - Application Private Endpoint subnet.
 - Container Apps infrastructure subnet delegated to `Microsoft.App/environments`; the module
   requires at least the Azure workload-profile minimum address range.
-- NAT Gateway with a Standard static public IP associated only with the Container Apps
-  infrastructure subnet.
 - OpenVPN server subnet used by the optional OpenVPN module.
 - Private DNS zones required by the current Private Endpoint rollout.
 
