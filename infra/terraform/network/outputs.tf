@@ -13,11 +13,6 @@ output "private_endpoint_subnet_id" {
   description = "Existing Private Endpoint subnet ID."
 }
 
-output "nat_gateway_public_ip_address" {
-  value       = azurerm_public_ip.nat_gateway.ip_address
-  description = "Stable outbound IP address used by Container Apps."
-}
-
 output "private_dns_zone_ids" {
   value       = { for key, zone in data.azurerm_private_dns_zone.this : key => zone.id }
   description = "Private DNS zone IDs used by the network completion phase."

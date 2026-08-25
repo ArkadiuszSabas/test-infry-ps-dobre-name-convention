@@ -35,18 +35,15 @@ locals {
   environment_token = lower(replace(var.environment, "/[^0-9A-Za-z]/", ""))
   instance_token    = lower(replace(var.instance_number, "/[^0-9A-Za-z]/", ""))
 
-  nat_gateway_public_ip_name = "pip-${local.app_token}-${local.environment_token}-nat-${local.instance_token}"
-  nat_gateway_name           = "ng-${local.app_token}-${local.environment_token}-${local.instance_token}"
-
   private_endpoint_workloads = {
-    "key-vault"              = "kv"
-    "storage-blob"           = "stblob"
-    "service-bus"            = "sb"
-    "postgresql"             = "psql"
-    "document-intelligence"  = "di"
-    "foundry"                = "foundry"
-    "azure-monitor"          = "ampls"
-    "container-apps"         = "cae"
+    "key-vault"             = "kv"
+    "storage-blob"          = "stblob"
+    "service-bus"           = "sb"
+    "postgresql"            = "psql"
+    "document-intelligence" = "di"
+    "foundry"               = "foundry"
+    "azure-monitor"         = "ampls"
+    "container-apps"        = "cae"
   }
 
   private_dns_zone_names = {
@@ -169,36 +166,6 @@ resource "terraform_data" "approved_design_guard" {
       error_message = "Every Private Endpoint key must have an approved naming-convention workload token."
     }
   }
-}
-
-resource "azurerm_public_ip" "nat_gateway" {
-  name                = local.nat_gateway_public_ip_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.network.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-  tags                = var.tags
-
-  depends_on = [terraform_data.approved_design_guard]
-}
-
-resource "azurerm_nat_gateway" "this" {
-  name                    = local.nat_gateway_name
-  location                = var.location
-  resource_group_name     = data.azurerm_resource_group.network.name
-  sku_name                = "Standard"
-  idle_timeout_in_minutes = 10
-  tags                    = var.tags
-}
-
-resource "azurerm_nat_gateway_public_ip_association" "this" {
-  nat_gateway_id       = azurerm_nat_gateway.this.id
-  public_ip_address_id = azurerm_public_ip.nat_gateway.id
-}
-
-resource "azurerm_subnet_nat_gateway_association" "container_apps" {
-  subnet_id      = data.azurerm_subnet.container_apps_infrastructure.id
-  nat_gateway_id = azurerm_nat_gateway.this.id
 }
 
 data "azurerm_private_dns_zone" "this" {
