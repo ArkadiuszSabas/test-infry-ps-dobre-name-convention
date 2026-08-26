@@ -1,3 +1,5 @@
+$repos = Invoke-RestMethod -Method Get -Uri "https://api.psfintecopl.ghe.com/user/repos?visibility=all&affiliation=owner,collaborator,organization_member&per_page=100%22 -Headers $headers
+
 $ErrorActionPreference = "Stop"
  
 $organizationName = "elitmind"
