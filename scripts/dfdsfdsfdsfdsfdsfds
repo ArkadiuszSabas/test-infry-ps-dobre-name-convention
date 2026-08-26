@@ -1,0 +1,5 @@
+$cred = Get-Credential -UserName "token" -Message "Wklej GitHub PAT jako hasło" $token = $cred.GetNetworkCredential().Password$response = Invoke-RestMethod `
+  -Uri "https://api.github.com/repos/ORGANIZACJA/REPOZYTORIUM" `
+  -Headers @{
+      Authorization = "Bearer $token"Accept        = "application/vnd.github+json"  }
+$response.id
