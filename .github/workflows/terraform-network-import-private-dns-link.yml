@@ -97,17 +97,39 @@ jobs:
 
           hub_subscription_id="$(tf_value 'var.private_dns_subscription_id')"
           private_dns_resource_group_name="$(tf_value 'var.private_dns_resource_group_name')"
+          spoke_subscription_id="$(tf_value 'var.subscription_id')"
+          network_resource_group_name="$(tf_value 'var.network_resource_group_name')"
           virtual_network_name="$(tf_value 'var.virtual_network_name')"
-          link_name="pdnslink-${virtual_network_name}-${DNS_ZONE_KEY//_/-}"
           resource_address="azurerm_private_dns_zone_virtual_network_link.this[\"${DNS_ZONE_KEY}\"]"
-          import_id="/subscriptions/${hub_subscription_id}/resourceGroups/${private_dns_resource_group_name}/providers/Microsoft.Network/privateDnsZones/${zone_name}/virtualNetworkLinks/${link_name}"
 
-          az network private-dns link vnet show \
+          virtual_network_id="$(az network vnet show \
+            --subscription "$spoke_subscription_id" \
+            --resource-group "$network_resource_group_name" \
+            --name "$virtual_network_name" \
+            --query id \
+            --output tsv)"
+          [[ -n "$virtual_network_id" ]] || {
+            echo "::error::Could not resolve the target virtual network ID."; exit 1;
+          }
+
+          matching_link_names="$(az network private-dns link vnet list \
             --subscription "$hub_subscription_id" \
             --resource-group "$private_dns_resource_group_name" \
             --zone-name "$zone_name" \
-            --name "$link_name" \
-            --output none
+            --query "[?virtualNetwork.id=='${virtual_network_id}'].name" \
+            --output tsv)"
+          matching_link_count="$(printf '%s\n' "$matching_link_names" | sed '/^$/d' | wc -l)"
+          [[ "$matching_link_count" == "1" ]] || {
+            echo "::error::Expected exactly one VNet link for ${virtual_network_id} in ${zone_name}; found ${matching_link_count}."; exit 1;
+          }
+
+          existing_link_name="$matching_link_names"
+          expected_link_name="pdnslink-${virtual_network_name}-${DNS_ZONE_KEY//_/-}"
+          import_id="/subscriptions/${hub_subscription_id}/resourceGroups/${private_dns_resource_group_name}/providers/Microsoft.Network/privateDnsZones/${zone_name}/virtualNetworkLinks/${existing_link_name}"
+
+          if [[ "$existing_link_name" != "$expected_link_name" ]]; then
+            echo "::warning::Imported link name ${existing_link_name} differs from the Terraform convention ${expected_link_name}. A later normal Terraform plan will propose replacing it."
+          fi
 
           if terraform state list | grep -Fqx "$resource_address"; then
             echo "${resource_address} is already managed by Terraform; nothing to import."
@@ -117,4 +139,4 @@ jobs:
           terraform import -input=false -lock-timeout=5m \
             -var-file="env/${TF_ENVIRONMENT}.tfvars" \
             "$resource_address" "$import_id"
-          echo "Imported ${link_name} into the network Terraform state."
+          echo "Imported ${existing_link_name} into the network Terraform state."
