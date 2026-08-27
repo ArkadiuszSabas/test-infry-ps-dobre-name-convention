@@ -164,6 +164,7 @@ resource "terraform_data" "approved_design_guard" {
 }
 
 data "azurerm_private_dns_zone" "this" {
+  provider = azurerm.hub
   for_each = local.configured_private_dns_zone_names
 
   name                = each.value
@@ -171,6 +172,7 @@ data "azurerm_private_dns_zone" "this" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
+  provider = azurerm.hub
   for_each = data.azurerm_private_dns_zone.this
 
   name                  = "pdnslink-${var.virtual_network_name}-${replace(each.key, "_", "-")}"
@@ -201,6 +203,7 @@ module "private_endpoints" {
 }
 
 resource "azurerm_private_dns_a_record" "container_apps_environment" {
+  provider = azurerm.hub
   for_each = local.container_apps_environment_private_dns
 
   name                = each.value.default_domain_prefix
@@ -212,6 +215,7 @@ resource "azurerm_private_dns_a_record" "container_apps_environment" {
 }
 
 resource "azurerm_private_dns_a_record" "container_apps_environment_wildcard" {
+  provider = azurerm.hub
   for_each = local.container_apps_environment_private_dns
 
   name                = "*.${each.value.default_domain_prefix}"

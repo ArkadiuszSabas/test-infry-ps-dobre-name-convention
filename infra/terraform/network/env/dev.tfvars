@@ -15,6 +15,7 @@ application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 # Existing Private DNS Zones are managed in a separate resource group.
 private_dns_resource_group_name = "rg-private-dns-zone"
+private_dns_subscription_id     = "0ef4ac67-4582-47b0-a6a4-c4a354246268"
 
 
 virtual_network_name           = "vnet-ocr-dev"

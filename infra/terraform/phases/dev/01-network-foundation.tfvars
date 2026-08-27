@@ -1,4 +1,5 @@
 subscription_id = "fe31d3c8-576f-4c09-913c-635306834ff0"
+private_dns_subscription_id     = "0ef4ac67-4582-47b0-a6a4-c4a354246268"
 location        = "swedencentral"
 
 environment        = "dev"
@@ -14,7 +15,8 @@ network_design_approved = false
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 # Existing Private DNS Zones are managed in a separate resource group.
-private_dns_resource_group_name = "RG W KTOREJ SA WSZYSTKIE DNS ZONES  PLAAAAAAAACEHOOOOOOLDER"
+private_dns_resource_group_name = "rg-private-dns-zone"
+
 
 
 
