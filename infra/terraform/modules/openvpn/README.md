@@ -49,11 +49,6 @@ namespaces backed by the routed Private Endpoints. They use `ignore-unknown-opti
 clients can ignore unsupported native DNS directives and retain the server-pushed DNS fallback;
 OpenVPN 2.6+ recognizes the syntax, but split-DNS behavior requires a client and platform that
 also implement `resolve-domains`.
-Azure Monitor coverage includes the Application Insights query API under
-`applicationinsights.io`, both the legacy `loganalytics.io` and current
-`loganalytics.azure.com` Log Analytics query APIs, and the ingestion and shared endpoint
-namespaces represented by the AMPLS Private DNS zones.
-
 The VM enforces active client common names through an OpenVPN `client-connect` hook. With the
 default empty client registry, no user profile can connect until an SSH operator creates
 client certificates and updates the registry. A separate `tls-verify` hook validates the

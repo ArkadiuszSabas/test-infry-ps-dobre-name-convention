@@ -58,17 +58,6 @@ private_endpoints = {
       "REPLACE_PHASE_01_DNS_ZONE_FOUNDRY_SERVICES_AI",
     ]
   }
-  azure-monitor = {
-    private_connection_resource_id = "REPLACE_PHASE_04_TARGET_AZURE_MONITOR"
-    subresource_names              = ["azuremonitor"]
-    private_dns_zone_ids = [
-      "REPLACE_PHASE_01_DNS_ZONE_AZURE_MONITOR",
-      "REPLACE_PHASE_01_DNS_ZONE_AZURE_MONITOR_AGENT",
-      "REPLACE_PHASE_01_DNS_ZONE_AZURE_MONITOR_ODS",
-      "REPLACE_PHASE_01_DNS_ZONE_AZURE_MONITOR_OMS",
-      "REPLACE_PHASE_01_DNS_ZONE_STORAGE_BLOB",
-    ]
-  }
   container-apps = {
     private_connection_resource_id = "REPLACE_PHASE_04_TARGET_CONTAINER_APPS"
     subresource_names              = ["managedEnvironments"]
@@ -83,8 +72,8 @@ container_apps_environment_private_dns = {
 }
 
 tags = {
-  application = "ocr"
-  environment = "dev"
-  managed_by  = "terraform"
+  application  = "ocr"
+  environment  = "dev"
+  managed_by   = "terraform"
   organization = "psf"
 }

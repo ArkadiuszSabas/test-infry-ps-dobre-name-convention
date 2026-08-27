@@ -74,7 +74,6 @@ locals {
     container_registry         = "${local.tenant_token}cr${local.app_token}${local.environment_token}${local.instance_token}"
     log_analytics              = "log-${local.app_token}-${local.environment_token}-${local.instance_token}"
     application_insights       = "appi-${local.app_token}-${local.environment_token}-${local.instance_token}"
-    monitor_private_link       = "ampls-${local.app_token}-${local.environment_token}-${local.instance_token}"
     service_bus                = "${local.tenant_token}sbns${local.app_token}${local.environment_token}${local.instance_token}"
     document_intelligence      = "${local.tenant_token}di${local.app_token}${local.environment_token}${local.instance_token}"
     foundry_account            = "ais-${local.app_token}-${local.environment_token}-${local.instance_token}"
@@ -279,13 +278,12 @@ module "container_registry" {
 module "observability" {
   source = "../modules/observability"
 
-  log_analytics_workspace_name    = local.resource_names.log_analytics
-  application_insights_name       = local.resource_names.application_insights
-  monitor_private_link_scope_name = local.resource_names.monitor_private_link
-  location                        = var.location
-  resource_group_name             = data.azurerm_resource_group.environment.name
-  retention_in_days               = var.environment == "prd" ? 90 : 30
-  tags                            = var.tags
+  log_analytics_workspace_name = local.resource_names.log_analytics
+  application_insights_name    = local.resource_names.application_insights
+  location                     = var.location
+  resource_group_name          = data.azurerm_resource_group.environment.name
+  retention_in_days            = var.environment == "prd" ? 90 : 30
+  tags                         = var.tags
 }
 
 resource "azurerm_servicebus_namespace" "this" {

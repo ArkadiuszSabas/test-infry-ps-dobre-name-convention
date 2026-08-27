@@ -8,30 +8,6 @@ variable "application_insights_name" {
   type        = string
 }
 
-variable "monitor_private_link_scope_name" {
-  description = "Azure Monitor Private Link Scope name created locally or shared from a hub environment."
-  type        = string
-}
-
-variable "shared_monitor_private_link_scope_resource_group_name" {
-  description = "Optional resource group of an existing shared Azure Monitor Private Link Scope. When set, this module attaches its monitoring resources without creating another scope."
-  type        = string
-  default     = null
-  nullable    = true
-}
-
-variable "scoped_service_name_suffix" {
-  description = "Optional suffix that keeps scoped-service names unique when multiple environments share one Azure Monitor Private Link Scope."
-  type        = string
-  default     = null
-  nullable    = true
-
-  validation {
-    condition     = var.scoped_service_name_suffix == null ? true : can(regex("^[a-z0-9][a-z0-9-]*$", var.scoped_service_name_suffix))
-    error_message = "Azure Monitor scoped-service suffix must use lowercase letters, digits, and hyphens."
-  }
-}
-
 variable "location" {
   description = "Azure region for Log Analytics Workspace."
   type        = string

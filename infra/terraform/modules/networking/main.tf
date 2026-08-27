@@ -1,9 +1,5 @@
 locals {
   private_dns_zones = {
-    azure_monitor       = "privatelink.monitor.azure.com"
-    azure_monitor_agent = "privatelink.agentsvc.azure-automation.net"
-    azure_monitor_ods   = "privatelink.ods.opinsights.azure.com"
-    azure_monitor_oms   = "privatelink.oms.opinsights.azure.com"
     cognitive_services  = "privatelink.cognitiveservices.azure.com"
     container_apps      = "privatelink.${var.location}.azurecontainerapps.io"
     foundry_openai      = "privatelink.openai.azure.com"

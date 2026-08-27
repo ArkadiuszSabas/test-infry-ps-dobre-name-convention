@@ -1,11 +1,11 @@
 # Observability Module
 
-Creates the environment Log Analytics Workspace, workspace-based Application Insights
-component, and Azure Monitor Private Link Scope used by backend runtime observability.
+Creates the environment Log Analytics Workspace and workspace-based Application Insights
+component used by backend runtime observability.
 
 The workspace is environment-local. Retention is selected by the root module:
-shorter for `dev`, longer for `prd`. Application Insights is linked to that workspace,
-uses private-only ingestion/query, and is added to the same AMPLS as Log Analytics.
+shorter for `dev`, longer for `prd`. Application Insights is linked to that workspace and
+uses Azure Monitor public ingestion and query endpoints.
 
 The module outputs the Application Insights resource ID, name, and connection string.
 The connection string is non-secret runtime configuration consumed by the API, LLM Magic,

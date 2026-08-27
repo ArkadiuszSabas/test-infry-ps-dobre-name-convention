@@ -24,7 +24,6 @@ output "private_endpoint_targets" {
     postgresql            = module.postgresql.id
     document_intelligence = module.ai_services.document_intelligence_id
     foundry               = module.ai_services.foundry_account_id
-    azure_monitor         = module.observability.monitor_private_link_scope_id
     container_apps        = module.container_apps.environment_id
   }
 }
