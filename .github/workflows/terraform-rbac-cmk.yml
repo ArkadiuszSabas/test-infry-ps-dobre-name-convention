@@ -65,10 +65,10 @@ jobs:
           client-id: ${{ vars.AZURE_RBAC_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_version: 1.15.0
-          terraform_wrapper: false
+      # - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      #   with:
+      #     terraform_version: 1.15.0
+      #     terraform_wrapper: false
       - run: terraform fmt -check -recursive
       - name: Initialize isolated RBAC CMK state
         run: >-
@@ -121,10 +121,10 @@ jobs:
           client-id: ${{ vars.AZURE_RBAC_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_version: 1.15.0
-          terraform_wrapper: false
+      # - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+      #   with:
+      #     terraform_version: 1.15.0
+      #     terraform_wrapper: false
       - name: Initialize isolated RBAC CMK state
         run: >-
           terraform init -input=false

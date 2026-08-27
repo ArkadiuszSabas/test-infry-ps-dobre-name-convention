@@ -14,8 +14,8 @@ network_design_approved = false
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 # Existing Private DNS Zones are managed in a separate resource group.
-# private_dns_resource_group_name = "RG W KTOREJ SA WSZYSTKIE DNS ZONES  PLAAAAAAAACEHOOOOOOLDER"
-private_dns_resource_group_name = "rg-em-dmai-sdc-dev"
+private_dns_resource_group_name = "RG W KTOREJ SA WSZYSTKIE DNS ZONES  PLAAAAAAAACEHOOOOOOLDER"
+
 
 
 
