@@ -1,0 +1,120 @@
+name: Import existing Private DNS VNet link
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Protected GitHub Environment containing the network backend configuration
+        required: true
+        type: environment
+      dns_zone_key:
+        description: Existing Private DNS VNet link to import into the network Terraform state
+        required: true
+        type: choice
+        options:
+          - key_vault
+          - storage_blob
+          - service_bus
+          - postgresql
+          - cognitive_services
+          - container_apps
+          - foundry_openai
+          - foundry_services_ai
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  import:
+    environment: ${{ inputs.environment }}
+    runs-on: [self-hosted, linux, x64]
+    concurrency:
+      group: proservice-terraform-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      DNS_ZONE_KEY: ${{ inputs.dns_zone_key }}
+      TF_BACKEND_CONTAINER: ${{ vars.TF_NETWORK_CONTAINER }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
+      TF_IN_AUTOMATION: "true"
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/terraform/network
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Validate protected import source
+        env:
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" && "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::Terraform state imports are allowed only from the protected main branch."; exit 1;
+          }
+          test -f "env/${TF_ENVIRONMENT}.tfvars" || {
+            echo "::error::Missing env/${TF_ENVIRONMENT}.tfvars"; exit 1;
+          }
+          for variable_name in TF_BACKEND_RESOURCE_GROUP TF_BACKEND_STORAGE_ACCOUNT TF_BACKEND_CONTAINER; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_NETWORK_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Initialize network state
+        run: >-
+          terraform init -input=false
+          -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
+          -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
+          -backend-config="container_name=${TF_BACKEND_CONTAINER}"
+          -backend-config="key=${TF_ENVIRONMENT}.network.tfstate"
+          -backend-config="use_azuread_auth=true"
+      - name: Import existing Private DNS VNet link
+        run: |
+          set -euo pipefail
+          case "$DNS_ZONE_KEY" in
+            key_vault) zone_name="privatelink.vaultcore.azure.net" ;;
+            storage_blob) zone_name="privatelink.blob.core.windows.net" ;;
+            service_bus) zone_name="privatelink.servicebus.windows.net" ;;
+            postgresql) zone_name="privatelink.postgres.database.azure.com" ;;
+            cognitive_services) zone_name="privatelink.cognitiveservices.azure.com" ;;
+            container_apps) zone_name="privatelink.swedencentral.azurecontainerapps.io" ;;
+            foundry_openai) zone_name="privatelink.openai.azure.com" ;;
+            foundry_services_ai) zone_name="privatelink.services.ai.azure.com" ;;
+            *) echo "::error::Unsupported Private DNS zone key: $DNS_ZONE_KEY"; exit 1 ;;
+          esac
+
+          tf_value() {
+            terraform console -var-file="env/${TF_ENVIRONMENT}.tfvars" <<< "$1" | tr -d '"\r\n'
+          }
+
+          hub_subscription_id="$(tf_value 'var.private_dns_subscription_id')"
+          private_dns_resource_group_name="$(tf_value 'var.private_dns_resource_group_name')"
+          virtual_network_name="$(tf_value 'var.virtual_network_name')"
+          link_name="pdnslink-${virtual_network_name}-${DNS_ZONE_KEY//_/-}"
+          resource_address="azurerm_private_dns_zone_virtual_network_link.this[\"${DNS_ZONE_KEY}\"]"
+          import_id="/subscriptions/${hub_subscription_id}/resourceGroups/${private_dns_resource_group_name}/providers/Microsoft.Network/privateDnsZones/${zone_name}/virtualNetworkLinks/${link_name}"
+
+          az network private-dns link vnet show \
+            --subscription "$hub_subscription_id" \
+            --resource-group "$private_dns_resource_group_name" \
+            --zone-name "$zone_name" \
+            --name "$link_name" \
+            --output none
+
+          if terraform state list | grep -Fqx "$resource_address"; then
+            echo "${resource_address} is already managed by Terraform; nothing to import."
+            exit 0
+          fi
+
+          terraform import -input=false -lock-timeout=5m \
+            -var-file="env/${TF_ENVIRONMENT}.tfvars" \
+            "$resource_address" "$import_id"
+          echo "Imported ${link_name} into the network Terraform state."
