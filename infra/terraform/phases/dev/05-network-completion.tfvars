@@ -1,4 +1,4 @@
-subscription_id                 = "fe31d3c8-576f-4c09-913c-0635306834ff0"
+subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
 private_dns_subscription_id     = "0ef4ac67-4582-47b0-a6a4-c4a354246268"  # hub subscription
 location                        = "swedencentral"
 environment                     = "dev"

@@ -1,4 +1,4 @@
-subscription_id = "fe31d3c8-576f-4c09-913c-0635306834ff0"
+subscription_id = "fe31d3c8-576f-4c09-913c-635306834ff0"
 app_id          = "ocr"
 environment     = "dev"
 instance_number = "01"
