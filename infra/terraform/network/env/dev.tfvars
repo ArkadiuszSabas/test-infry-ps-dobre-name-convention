@@ -9,7 +9,7 @@ app_id             = "ocr"
 instance_number    = "01"
 
 # Set true only after ProService approves the network design and the ACA subnet delegation.
-network_design_approved = false
+network_design_approved = true
 
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
