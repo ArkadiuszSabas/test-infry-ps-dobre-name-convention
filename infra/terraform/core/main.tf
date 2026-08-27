@@ -70,7 +70,7 @@ locals {
 
   resource_names = {
     key_vault                  = "${local.tenant_token}kv${local.app_token}app${local.environment_token}${local.instance_token}"
-    storage_account            = "${local.tenant_token}st${local.app_token}${local.environment_token}doc${local.instance_token}"
+    storage_account            = "${local.tenant_token}st${local.app_token}doc${local.environment_token}${local.instance_token}"
     container_registry         = "${local.tenant_token}cr${local.app_token}${local.environment_token}${local.instance_token}"
     log_analytics              = "log-${local.app_token}-${local.environment_token}-${local.instance_token}"
     application_insights       = "appi-${local.app_token}-${local.environment_token}-${local.instance_token}"
