@@ -1,4 +1,16 @@
-{
+Outputs:
+
+container_apps_environment_default_domain = "yellowflower-e97bfee7.swedencentral.azurecontainerapps.io"
+managed_identity_principal_ids = {
+  "api" = "a442a4d2-52ac-44a4-bd61-5a177acb8fa1"
+  "api-migrator" = "e51ed777-4226-4e3f-a54d-2dadcce67913"
+  "dapr-servicebus-api" = "41df6052-c2aa-4d38-ba26-7fbdfa2ca01d"
+  "dapr-servicebus-worker" = "e9660f71-726f-4405-95f9-447fb03a0f8c"
+  "llmmagic" = "c44f5a91-7a97-4a51-a3a5-23c9633fa8b5"
+  "web" = "949681ce-7ac3-491c-ab43-87601ad4ee02"
+  "worker" = "9be9002f-5985-44b1-a571-4d62a873a315"
+}
+private_endpoint_targets = {
   "container_apps" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.App/managedEnvironments/cae-ocr-dev-01"
   "document_intelligence" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.CognitiveServices/accounts/ee7c45diocrdev01"
   "foundry" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.CognitiveServices/accounts/ais-ocr-dev-01"
@@ -7,4 +19,39 @@
   "service_bus" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01"
   "storage_blob" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01"
 }
-"yellowflower-e97bfee7.swedencentral.azurecontainerapps.io"
+rbac_scopes = {
+  "container_registry" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrdev01"
+  "document_intelligence" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.CognitiveServices/accounts/ee7c45diocrdev01"
+  "foundry" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.CognitiveServices/accounts/ais-ocr-dev-01"
+  "key_vault" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.KeyVault/vaults/ee7c45kvocrappdev01"
+  "resource_group" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev"
+  "service_bus" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01"
+  "service_bus_queues" = {
+    "sbq-ocr-dev-docproc-01" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-docproc-01"
+    "sbq-ocr-dev-procres-01" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-procres-01"
+  }
+  "storage" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01"
+  "storage_containers" = {
+    "archive" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/archive"
+    "inbox" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/inbox"
+    "ocr-artifacts" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/ocr-artifacts"
+    "preprocessed" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/preprocessed"
+    "previews" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/previews"
+    "quarantine" = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/quarantine"
+  }
+}
+runtime_configuration = {
+  "application_insights_connection_string" = "InstrumentationKey=77f41fd2-26a5-483b-8331-91bb792c1fca;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://swedencentral.livediagnostics.monitor.azure.com/;ApplicationId=bfa7c938-b6cf-43e7-bd61-8df921c67996"
+  "container_registry_login_server" = "ee7c45crocrdev01.azurecr.io"
+  "document_intelligence_endpoint" = "https://ee7c45diocrdev01.cognitiveservices.azure.com/"
+  "foundry_endpoint" = "https://ais-ocr-dev-01.cognitiveservices.azure.com/"
+  "foundry_project_name" = "proj-ocr-dev-01"
+  "gpt_deployment_name" = "dep-ocr-dev-gpt55-01"
+  "gpt_model_name" = "gpt-5.5"
+  "postgresql_fqdn" = "psql-ocr-dev-01.postgres.database.azure.com"
+  "service_bus_fully_qualified_namespace" = "ee7c45sbnsocrdev01.servicebus.windows.net"
+  "storage_blob_endpoint" = "https://ee7c45stocrdocdev01.blob.core.windows.net/"
+}
+service_principal_ids = {
+  "document_intelligence" = "c1954d28-deae-4d5e-b79a-012469238d68"
+}
