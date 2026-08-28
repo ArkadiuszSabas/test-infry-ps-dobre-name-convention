@@ -237,11 +237,11 @@ role_assignments = {
   }
 
   # Replace both values from the reviewed ProService operator access matrix.
-  proservice-operator = {
-    scope                            = "REPLACE_PHASE_04_SCOPE_RESOURCE_GROUP"
-    role_definition_name             = "REPLACE_APPROVED_PROSERVICE_OPERATOR_ROLE"
-    principal_id                     = "REPLACE_PROSERVICE_OPERATOR_GROUP_OBJECT_ID"
-    principal_type                   = "Group"
-    skip_service_principal_aad_check = false
-  }
+  # proservice-operator = {
+  #   scope                            = "REPLACE_PHASE_04_SCOPE_RESOURCE_GROUP"
+  #   role_definition_name             = "REPLACE_APPROVED_PROSERVICE_OPERATOR_ROLE"
+  #   principal_id                     = "REPLACE_PROSERVICE_OPERATOR_GROUP_OBJECT_ID"
+  #   principal_type                   = "Group"
+  #   skip_service_principal_aad_check = false
+  # }
 }

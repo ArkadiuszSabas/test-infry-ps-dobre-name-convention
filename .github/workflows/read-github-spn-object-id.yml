@@ -1,0 +1,71 @@
+name: Read GitHub SPN Object ID
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment containing the selected workload identity
+        required: true
+        type: environment
+      identity:
+        description: GitHub workload identity whose Object ID should be printed
+        required: true
+        type: choice
+        options:
+          - build
+          - deploy
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  read-object-id:
+    environment: ${{ inputs.environment }}
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Validate selected identity
+        env:
+          SELECTED_IDENTITY: ${{ inputs.identity }}
+          AZURE_BUILD_CLIENT_ID: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+          AZURE_DEPLOY_CLIENT_ID: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          set -euo pipefail
+          case "$SELECTED_IDENTITY" in
+            build)
+              [[ -n "$AZURE_BUILD_CLIENT_ID" ]] || { echo "::error::Missing AZURE_BUILD_CLIENT_ID"; exit 1; }
+              ;;
+            deploy)
+              [[ -n "$AZURE_DEPLOY_CLIENT_ID" ]] || { echo "::error::Missing AZURE_DEPLOY_CLIENT_ID"; exit 1; }
+              ;;
+            *) echo "::error::Unsupported identity: $SELECTED_IDENTITY"; exit 1 ;;
+          esac
+          [[ -n "$AZURE_TENANT_ID" && -n "$AZURE_SUBSCRIPTION_ID" ]] || {
+            echo "::error::Missing AZURE_TENANT_ID or AZURE_SUBSCRIPTION_ID"; exit 1;
+          }
+
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ inputs.identity == 'build' && vars.AZURE_BUILD_CLIENT_ID || vars.AZURE_DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Print service principal Object ID
+        run: |
+          set -euo pipefail
+          token="$(az account get-access-token --resource https://management.azure.com/ --query accessToken --output tsv)"
+          payload="$(printf '%s' "$token" | cut -d. -f2 | tr '_-' '/+')"
+          case $(( ${#payload} % 4 )) in
+            2) payload="${payload}==" ;;
+            3) payload="${payload}=" ;;
+          esac
+          object_id="$(printf '%s' "$payload" | base64 --decode | jq -er '.oid')"
+          client_id="$(az account show --query user.name --output tsv)"
+          echo "Selected identity client ID: ${client_id}"
+          echo "Service principal Object ID: ${object_id}"
