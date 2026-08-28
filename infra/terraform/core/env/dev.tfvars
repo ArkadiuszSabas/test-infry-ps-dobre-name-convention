@@ -45,8 +45,8 @@ gpt_deployment = {
   model_format               = "OpenAI"
   model_name                 = "gpt-5.5"
   model_version              = "2026-04-24"
-  sku_name                   = "GlobalStandard"
-  capacity                   = 27000
+  sku_name                   = "DataZoneStandard"
+  capacity                   = 3000
   dynamic_throttling_enabled = false
   version_upgrade_option     = "NoAutoUpgrade"
 }
