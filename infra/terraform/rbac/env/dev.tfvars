@@ -72,13 +72,13 @@ role_assignments = {
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
-  github-deploy-acr-read = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrdev01"
-    role_definition_name             = "Reader"
-    principal_id                     = "9349a76e-8e56-49ad-9150-bfeda4d8e95b"
-    principal_type                   = "ServicePrincipal"
-    skip_service_principal_aad_check = true
-  }
+  # github-deploy-acr-read = {
+  #   scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrdev01"
+  #   role_definition_name             = "Reader"
+  #   principal_id                     = "9349a76e-8e56-49ad-9150-bfeda4d8e95b"
+  #   principal_type                   = "ServicePrincipal"
+  #   skip_service_principal_aad_check = true
+  # }
   github-deploy-container-apps = {
     scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev"
     role_definition_name             = "Container Apps Contributor"
