@@ -87,6 +87,13 @@ role_assignments = {
     skip_service_principal_aad_check = true
   }
 
+  langfuse-secrets-operator = {
+    scope                = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.KeyVault/vaults/ee7c45kvocrappdev01"
+    role_definition_name = "Key Vault Secrets Officer"
+    principal_id         = "c549ce05-71ca-4df3-b0e2-2863117e41fd"
+    principal_type       = "User"
+  }
+
   api-inbox = {
     scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocdev01/blobServices/default/containers/inbox"
     role_definition_name             = "Storage Blob Data Contributor"
