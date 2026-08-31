@@ -1,0 +1,83 @@
+name: Import Langfuse images to ACR
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Re-import and replace an already existing target tag
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  import:
+    environment: dev
+    runs-on: [self-hosted, linux, x64]
+    concurrency:
+      group: proservice-langfuse-images-dev
+      cancel-in-progress: false
+    env:
+      ACR_NAME: ${{ vars.ACR_NAME }}
+      AZURE_BUILD_CLIENT_ID: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      FORCE_IMPORT: ${{ inputs.force }}
+      TF_REF_PROTECTED: ${{ github.ref_protected }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Validate import configuration
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" && "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::Langfuse images may be imported only from the protected main branch."; exit 1;
+          }
+          for variable_name in ACR_NAME AZURE_BUILD_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_BUILD_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Import approved Langfuse images
+        run: |
+          set -euo pipefail
+
+          import_image() {
+            local source_image="$1"
+            local target_image="$2"
+            local digest=""
+
+            if az acr repository show --name "$ACR_NAME" --image "$target_image" --query digest --output tsv >/dev/null 2>&1; then
+              if [[ "$FORCE_IMPORT" != "true" ]]; then
+                echo "Target image already exists; skipping: ${target_image}"
+                return
+              fi
+              az acr import --name "$ACR_NAME" --source "$source_image" --image "$target_image" --force
+            else
+              az acr import --name "$ACR_NAME" --source "$source_image" --image "$target_image"
+            fi
+
+            digest="$(az acr repository show --name "$ACR_NAME" --image "$target_image" --query digest --output tsv)"
+            [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+              echo "::error::ACR returned an invalid digest for ${target_image}."; exit 1;
+            }
+            echo "${target_image}@${digest}" | tee -a "$GITHUB_STEP_SUMMARY"
+          }
+
+          import_image "docker.io/langfuse/langfuse:3.185.0" "langfuse/langfuse:3.185.0"
+          import_image "docker.io/langfuse/langfuse-worker:3.185.0" "langfuse/worker:3.185.0"
+          import_image "docker.io/clickhouse/clickhouse-server:25.11" "langfuse/clickhouse:25.11"
+          import_image "docker.io/library/postgres:16.14-alpine" "langfuse/postgres:16.14-alpine"
+          import_image "docker.io/valkey/valkey:8.1.8-alpine" "langfuse/valkey:8.1.8-alpine"

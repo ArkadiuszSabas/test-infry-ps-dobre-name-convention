@@ -14,6 +14,12 @@ resource_names = {
   key_vault                  = "ee7c45kvocrappdev01"
 }
 
+# Tags approved in the Langfuse ACR repositories.
+langfuse_version   = "3.185.0"
+clickhouse_version = "25.11"
+postgres_version   = "16.14-alpine"
+valkey_version     = "8.1.8-alpine"
+
 # Foundation phase. Change both values to true only after the Langfuse RBAC
 # and Network Completion workflows have succeeded.
 runtime_enabled            = false

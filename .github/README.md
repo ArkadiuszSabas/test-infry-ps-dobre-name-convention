@@ -67,26 +67,32 @@ configuration and required execution order.
 
 ## Langfuse
 
-Langfuse uses three manual, DEV-only workflows in the protected `dev` GitHub Environment:
-`terraform-langfuse-core.yml`, `terraform-langfuse-rbac.yml`, and
-`terraform-langfuse-network.yml`. Each accepts an `apply` boolean and requires protected `main`.
-Core is run first for the foundation and again for runtime after RBAC and Network Completion.
-The three workflows keep independent Terraform states and remove their local plan after execution.
+Langfuse uses four manual, DEV-only workflows in the protected `dev` GitHub Environment:
+`terraform-langfuse-core.yml`, `terraform-langfuse-rbac.yml`,
+`terraform-langfuse-network.yml`, and `langfuse-image-import.yml`. The Terraform workflows
+accept an `apply` boolean and require protected `main`. Core is run first for the foundation and
+again for runtime after RBAC and Network Completion. The image-import workflow imports the five
+approved public source images directly into ACR and defaults to preserving existing target tags.
+The three Terraform workflows keep independent Terraform states and remove their local plan
+after execution.
 
 In addition to the shared environment variables listed above, configure these variables in the
 `dev` GitHub Environment:
 
 | Variable | Purpose |
 |---|---|
-| `AZURE_LANGFUSE_CLIENT_ID` | OIDC client id allowed to mirror images and manage the dedicated Langfuse state and resources. |
 | `TF_BACKEND_RESOURCE_GROUP` | Resource group containing the private Terraform backend. |
 | `TF_BACKEND_STORAGE_ACCOUNT` | Storage account containing the private Terraform backend. |
-| `TF_LANGFUSE_CONTAINER` | Backend Blob container for the Langfuse state. |
+| `TF_CORE_CONTAINER` | Backend Blob container for the Langfuse Core state. |
+| `TF_RBAC_CONTAINER` | Backend Blob container for the Langfuse RBAC state. |
+| `TF_NETWORK_CONTAINER` | Backend Blob container for the Langfuse Network state. |
 
-The Langfuse OIDC identity needs ACR image push, access to the isolated backend key, read access
-to the shared platform resources, and rights to manage only the identities, RBAC assignments,
-storage, Private Endpoints, Container Apps, and Container Apps Environment storage binding owned
-by the Langfuse root. Keep the existing `ACR_NAME`, `AZURE_SUBSCRIPTION_ID`, and
-`AZURE_TENANT_ID` values aligned with `infra/terraform/langfuse-core/env/dev.tfvars`.
+`langfuse-image-import.yml` uses `AZURE_BUILD_CLIENT_ID` and requires the built-in
+`Container Registry Data Importer and Data Reader` role on `ACR_NAME`. This is separate from
+`AcrPush`, which does not grant the `importImage` control-plane operation. The Terraform OIDC
+identities need access to their corresponding backend keys, read access to the shared platform
+resources, and rights limited to the resources owned by their respective roots. Keep the existing
+`ACR_NAME`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` values aligned with
+`infra/terraform/langfuse-core/env/dev.tfvars`.
 The private DEV runner must provide Azure CLI, Docker, and `jq`; the workflow installs the pinned
 Terraform CLI through the checked-in action.
