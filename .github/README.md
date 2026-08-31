@@ -67,14 +67,11 @@ configuration and required execution order.
 
 ## Langfuse
 
-`langfuse.yml` is a manual, DEV-only workflow and uses the protected `dev` GitHub Environment.
-It accepts an `apply` boolean, but both plan and apply must run from protected `main`. The job
-plans the isolated `dev.langfuse.tfstate`, verifies that the planned registry matches `ACR_NAME`,
-and blocks storage deletion or replacement. Only `apply=true` mirrors the reviewed Langfuse,
-Worker, ClickHouse, PostgreSQL, and Valkey images into ProService ACR and applies the plan with a
-controlled stop/start sequence for stateful Container Apps. The Terraform plan and its JSON
-representation are removed from the private runner on every outcome and are never published as
-artifacts.
+Langfuse uses three manual, DEV-only workflows in the protected `dev` GitHub Environment:
+`terraform-langfuse-core.yml`, `terraform-langfuse-rbac.yml`, and
+`terraform-langfuse-network.yml`. Each accepts an `apply` boolean and requires protected `main`.
+Core is run first for the foundation and again for runtime after RBAC and Network Completion.
+The three workflows keep independent Terraform states and remove their local plan after execution.
 
 In addition to the shared environment variables listed above, configure these variables in the
 `dev` GitHub Environment:
@@ -90,6 +87,6 @@ The Langfuse OIDC identity needs ACR image push, access to the isolated backend 
 to the shared platform resources, and rights to manage only the identities, RBAC assignments,
 storage, Private Endpoints, Container Apps, and Container Apps Environment storage binding owned
 by the Langfuse root. Keep the existing `ACR_NAME`, `AZURE_SUBSCRIPTION_ID`, and
-`AZURE_TENANT_ID` values aligned with `infra/terraform/langfuse/env/dev.tfvars`.
+`AZURE_TENANT_ID` values aligned with `infra/terraform/langfuse-core/env/dev.tfvars`.
 The private DEV runner must provide Azure CLI, Docker, and `jq`; the workflow installs the pinned
 Terraform CLI through the checked-in action.

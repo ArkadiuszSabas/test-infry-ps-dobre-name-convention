@@ -1,0 +1,63 @@
+name: Terraform Langfuse Core
+on:
+  workflow_dispatch:
+    inputs:
+      apply: { description: Apply approved plan, required: true, default: false, type: boolean }
+permissions: { contents: read, id-token: write }
+jobs:
+  plan:
+    environment: dev
+    runs-on: [self-hosted, linux, x64]
+    concurrency: { group: proservice-langfuse-core-dev, cancel-in-progress: false }
+    env:
+      TF_BACKEND_CONTAINER: ${{ vars.TF_CORE_CONTAINER }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+    defaults: { run: { shell: bash, working-directory: infra/terraform/langfuse-core } }
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with: { persist-credentials: false }
+      - run: '[[ "$GITHUB_REF_NAME" == main && "${{ github.ref_protected }}" == true && -f env/dev.tfvars ]]'
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474
+        with: { client-id: ${{ vars.AZURE_CORE_CLIENT_ID }}, tenant-id: ${{ vars.AZURE_TENANT_ID }}, subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }} }
+      - run: terraform fmt -check -recursive
+      - run: >-
+          terraform init -input=false
+          -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
+          -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
+          -backend-config="container_name=${TF_BACKEND_CONTAINER}"
+          -backend-config="key=dev.langfuse.core.tfstate"
+          -backend-config="use_azuread_auth=true"
+      - run: terraform validate
+      - run: terraform plan -input=false -lock-timeout=5m -var-file=env/dev.tfvars -out=tfplan
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: { name: terraform-langfuse-core-plan, path: infra/terraform/langfuse-core/tfplan, if-no-files-found: error }
+  apply:
+    needs: plan
+    if: inputs.apply
+    environment: dev
+    runs-on: [self-hosted, linux, x64]
+    concurrency: { group: proservice-langfuse-core-dev, cancel-in-progress: false }
+    env:
+      TF_BACKEND_CONTAINER: ${{ vars.TF_CORE_CONTAINER }}
+      TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
+      TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+    defaults: { run: { shell: bash, working-directory: infra/terraform/langfuse-core } }
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with: { persist-credentials: false }
+      - run: '[[ "$GITHUB_REF_NAME" == main && "${{ github.ref_protected }}" == true ]]'
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474
+        with: { client-id: ${{ vars.AZURE_CORE_CLIENT_ID }}, tenant-id: ${{ vars.AZURE_TENANT_ID }}, subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }} }
+      - run: >-
+          terraform init -input=false
+          -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
+          -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
+          -backend-config="container_name=${TF_BACKEND_CONTAINER}"
+          -backend-config="key=dev.langfuse.core.tfstate"
+          -backend-config="use_azuread_auth=true"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with: { name: terraform-langfuse-core-plan, path: infra/terraform/langfuse-core }
+      - run: terraform apply -input=false -lock-timeout=5m tfplan
+      - if: always()
+        run: rm -f tfplan

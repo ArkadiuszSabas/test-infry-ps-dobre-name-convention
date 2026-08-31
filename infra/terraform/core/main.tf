@@ -379,8 +379,15 @@ module "container_apps" {
   public_network_access      = "Disabled"
   app_environment            = var.environment
   registry_server            = module.container_registry.login_server
-  apps                       = local.container_apps
-  dapr_components            = local.dapr_components
-  jobs                       = local.container_app_jobs
-  tags                       = var.tags
+  workload_profiles = {
+    langfuse-e4 = {
+      workload_profile_type = "E4"
+      minimum_count         = 0
+      maximum_count         = 1
+    }
+  }
+  apps            = local.container_apps
+  dapr_components = local.dapr_components
+  jobs            = local.container_app_jobs
+  tags            = var.tags
 }

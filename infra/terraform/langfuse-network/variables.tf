@@ -1,0 +1,13 @@
+variable "subscription_id" { type = string }
+variable "private_dns_subscription_id" { type = string }
+variable "location" { type = string }
+variable "environment" { type = string }
+variable "app_id" { type = string }
+variable "tenant_prefix" { type = string }
+variable "instance_number" { type = string }
+variable "network_resource_group_name" { type = string }
+variable "application_resource_group_name" { type = string }
+variable "private_dns_resource_group_name" { type = string }
+variable "virtual_network_name" { type = string }
+variable "private_endpoint_subnet_name" { type = string }
+variable "tags" { type = map(string) }

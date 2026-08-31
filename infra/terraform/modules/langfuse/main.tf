@@ -62,7 +62,7 @@ locals {
 }
 
 resource "azurerm_container_app" "web" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   name                         = var.workloads.web.name
   container_app_environment_id = var.container_app_environment_id
@@ -209,7 +209,7 @@ resource "azurerm_container_app" "web" {
 }
 
 resource "azurerm_container_app" "worker" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   name                         = var.workloads.worker.name
   container_app_environment_id = var.container_app_environment_id
@@ -334,7 +334,7 @@ resource "azurerm_container_app" "worker" {
 }
 
 resource "azapi_resource" "clickhouse" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   type      = "Microsoft.App/containerApps@2025-01-01"
   name      = var.workloads.clickhouse.name

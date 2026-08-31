@@ -22,17 +22,17 @@ values before backend initialization, serialize all three roots for one environm
 binary plan from the self-hosted runner even after a failed run.
 
 Langfuse is the exception to the three-environment application roots: the approved ACA topology
-is DEV-only and uses the isolated `dev.langfuse.tfstate` key. Deploy the network and core
-foundation, network completion, RBAC, and core runtime before Langfuse. Create
-`langfuse/env/dev.tfvars` with reviewed ProService resource and identity names. The application
+is DEV-only and uses isolated Core, RBAC, and Network state keys. Deploy `01-network`, Langfuse
+Core Foundation, Langfuse RBAC, Langfuse Network Completion, and Langfuse Core Runtime in that
+order. Create `langfuse-core/env/dev.tfvars` with reviewed ProService resource and identity names. The application
 resource group contains Container Apps, ACR, Key Vault, and identities; the network resource
 group contains the existing VNet, Private Endpoint subnet, and Blob/File Private DNS zones. Seed
-all eight versionless `langfuse-*` secrets declared in `langfuse/variables.tf` in the existing
-DEV Key Vault. The Langfuse root grants its five workload identities only the required ACR pull
-and secret-scoped Key Vault access, and grants the existing LLM Magic identity access only to
-the project public and secret keys.
+all eight versionless `langfuse-*` secrets declared in `langfuse-core/variables.tf` in the existing
+DEV Key Vault. The Langfuse RBAC root grants its five workload identities only the required ACR
+pull and secret-scoped Key Vault access, and grants the existing LLM Magic identity access only
+to the project public and secret keys.
 
-Run `.github/workflows/langfuse.yml` with `apply=false` first. That mode plans without mirroring
+Run `.github/workflows/terraform-langfuse-core.yml` with `apply=false` first. That mode plans without mirroring
 images or changing Langfuse resources. The protected `dev` GitHub Environment gates both plan
 and apply; `apply=true` creates a fresh plan, mirrors the reviewed images, and applies it. Image
 versions are pinned in the workflow and passed to Terraform, so version changes require review

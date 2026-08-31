@@ -10,7 +10,7 @@ output "web_id" {
 
 output "container_app_names" {
   description = "Langfuse Container App names keyed by workload."
-  value = var.enabled ? {
+  value = var.enabled && var.runtime_enabled ? {
     web        = var.workloads.web.name
     worker     = var.workloads.worker.name
     clickhouse = var.workloads.clickhouse.name

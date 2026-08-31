@@ -150,7 +150,7 @@ resource "azapi_resource" "valkey_share" {
 }
 
 resource "azurerm_private_endpoint" "blob" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.create_private_endpoints ? 1 : 0
 
   name                = "pep-${var.workloads.web.name}-blob"
   location            = var.location
@@ -173,7 +173,7 @@ resource "azurerm_private_endpoint" "blob" {
 }
 
 resource "azurerm_private_endpoint" "clickhouse_file" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.create_private_endpoints ? 1 : 0
 
   name                = "pep-${var.workloads.clickhouse.name}-file"
   location            = var.location
@@ -196,7 +196,7 @@ resource "azurerm_private_endpoint" "clickhouse_file" {
 }
 
 resource "azapi_resource" "clickhouse_environment_storage" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   type      = "Microsoft.App/managedEnvironments/storages@2025-01-01"
   name      = local.clickhouse_storage_name
@@ -218,7 +218,7 @@ resource "azapi_resource" "clickhouse_environment_storage" {
 }
 
 resource "azapi_resource" "postgres_environment_storage" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   type      = "Microsoft.App/managedEnvironments/storages@2025-01-01"
   name      = local.postgres_storage_name
@@ -240,7 +240,7 @@ resource "azapi_resource" "postgres_environment_storage" {
 }
 
 resource "azapi_resource" "valkey_environment_storage" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   type      = "Microsoft.App/managedEnvironments/storages@2025-01-01"
   name      = local.valkey_storage_name

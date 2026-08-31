@@ -19,6 +19,22 @@ variable "environment" {
   }
 }
 
+variable "tenant_prefix" { type = string }
+variable "app_id" { type = string }
+variable "instance_number" { type = string }
+
+variable "runtime_enabled" {
+  description = "False for Langfuse Core Foundation; true only after RBAC and Network Completion succeed."
+  type        = bool
+  default     = false
+}
+
+variable "runtime_dependencies_ready" {
+  description = "Explicit confirmation that Langfuse RBAC and Private Endpoints are deployed before enabling runtime."
+  type        = bool
+  default     = false
+}
+
 variable "location" {
   description = "Azure region containing the ProService DEV platform."
   type        = string
@@ -30,60 +46,13 @@ variable "application_resource_group_name" {
   type        = string
 }
 
-variable "network_resource_group_name" {
-  description = "Existing ProService DEV resource group containing the VNet and Private Endpoint subnet."
-  type        = string
-}
-
-variable "private_dns_resource_group_name" {
-  description = "Existing hub resource group containing the shared Private DNS Zones."
-  type        = string
-}
-
-variable "private_dns_subscription_id" {
-  description = "Hub subscription ID containing the shared Private DNS Zones."
-  type        = string
-
-  validation {
-    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.private_dns_subscription_id))
-    error_message = "private_dns_subscription_id must be an Azure subscription GUID."
-  }
-}
-
 variable "resource_names" {
   description = "Approved names for shared platform resources and Langfuse-owned resources."
   type = object({
-    container_apps_environment     = string
-    container_registry             = string
-    key_vault                      = string
-    virtual_network                = string
-    private_endpoint_subnet        = string
-    storage_blob_private_dns_zone  = string
-    storage_file_private_dns_zone  = string
-    langfuse_storage_account       = string
-    langfuse_files_storage_account = string
-    langfuse_web                   = string
-    langfuse_worker                = string
-    langfuse_clickhouse            = string
-    langfuse_postgres              = string
-    langfuse_valkey                = string
+    container_apps_environment = string
+    container_registry         = string
+    key_vault                  = string
   })
-}
-
-variable "workload_identity_names" {
-  description = "Approved managed identity names for the five Langfuse workloads."
-  type = object({
-    web        = string
-    worker     = string
-    clickhouse = string
-    postgres   = string
-    valkey     = string
-  })
-}
-
-variable "llmmagic_identity_name" {
-  description = "Existing LLM Magic identity receiving access to the Langfuse project API keys."
-  type        = string
 }
 
 variable "langfuse_version" {
@@ -125,8 +94,8 @@ variable "secret_names" {
   default = {
     clickhouse_password     = "langfuse-clickhouse-password"
     encryption_key          = "langfuse-encryption-key"
-    init_project_public_key = "langfuse-public-key"
-    init_project_secret_key = "langfuse-secret-key"
+    init_project_public_key = "langfuse-init-public-key"
+    init_project_secret_key = "langfuse-init-secret-key"
     nextauth_secret         = "langfuse-nextauth-secret"
     postgres_password       = "langfuse-postgres-password"
     salt                    = "langfuse-salt"

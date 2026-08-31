@@ -3,6 +3,18 @@ variable "enabled" {
   type        = bool
 }
 
+variable "runtime_enabled" {
+  description = "Whether Langfuse Container Apps and ACA storage bindings are provisioned after network completion."
+  type        = bool
+  default     = false
+}
+
+variable "create_private_endpoints" {
+  description = "Whether this module owns Langfuse storage Private Endpoints. Network roots must be the sole owner."
+  type        = bool
+  default     = false
+}
+
 variable "location" {
   description = "Azure region for Langfuse resources."
   type        = string
@@ -51,16 +63,19 @@ variable "clickhouse_storage_account_name" {
 variable "private_endpoint_subnet_id" {
   description = "Subnet used for the Langfuse Blob and ClickHouse File private endpoints."
   type        = string
+  default     = null
 }
 
 variable "storage_blob_private_dns_zone_id" {
   description = "Private DNS zone ID for Azure Blob Storage."
   type        = string
+  default     = null
 }
 
 variable "storage_file_private_dns_zone_id" {
   description = "Private DNS zone ID for Azure Files."
   type        = string
+  default     = null
 }
 
 variable "key_vault_uri" {

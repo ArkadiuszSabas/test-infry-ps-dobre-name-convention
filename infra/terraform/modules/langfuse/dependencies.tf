@@ -1,5 +1,5 @@
 resource "azurerm_container_app" "postgres" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   name                         = var.workloads.postgres.name
   container_app_environment_id = var.container_app_environment_id
@@ -107,7 +107,7 @@ resource "azurerm_container_app" "postgres" {
 }
 
 resource "azurerm_container_app" "valkey" {
-  count = var.enabled ? 1 : 0
+  count = var.enabled && var.runtime_enabled ? 1 : 0
 
   name                         = var.workloads.valkey.name
   container_app_environment_id = var.container_app_environment_id
