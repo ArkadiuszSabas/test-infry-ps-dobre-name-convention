@@ -31,8 +31,23 @@ variable "application_resource_group_name" {
 }
 
 variable "network_resource_group_name" {
-  description = "Existing ProService DEV resource group containing the VNet and Private DNS zones."
+  description = "Existing ProService DEV resource group containing the VNet and Private Endpoint subnet."
   type        = string
+}
+
+variable "private_dns_resource_group_name" {
+  description = "Existing hub resource group containing the shared Private DNS Zones."
+  type        = string
+}
+
+variable "private_dns_subscription_id" {
+  description = "Hub subscription ID containing the shared Private DNS Zones."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.private_dns_subscription_id))
+    error_message = "private_dns_subscription_id must be an Azure subscription GUID."
+  }
 }
 
 variable "resource_names" {

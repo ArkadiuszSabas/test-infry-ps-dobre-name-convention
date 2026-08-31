@@ -99,13 +99,17 @@ data "azurerm_subnet" "private_endpoints" {
 }
 
 data "azurerm_private_dns_zone" "storage_blob" {
+  provider = azurerm.hub
+
   name                = var.resource_names.storage_blob_private_dns_zone
-  resource_group_name = data.azurerm_resource_group.network.name
+  resource_group_name = var.private_dns_resource_group_name
 }
 
 data "azurerm_private_dns_zone" "storage_file" {
+  provider = azurerm.hub
+
   name                = var.resource_names.storage_file_private_dns_zone
-  resource_group_name = data.azurerm_resource_group.network.name
+  resource_group_name = var.private_dns_resource_group_name
 }
 
 module "managed_identities" {

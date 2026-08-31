@@ -54,6 +54,7 @@ locals {
     postgresql          = "privatelink.postgres.database.azure.com"
     service_bus         = "privatelink.servicebus.windows.net"
     storage_blob        = "privatelink.blob.core.windows.net"
+    storage_file        = "privatelink.file.core.windows.net"
   }
 
   additional_container_apps_private_dns_zone_names = {
