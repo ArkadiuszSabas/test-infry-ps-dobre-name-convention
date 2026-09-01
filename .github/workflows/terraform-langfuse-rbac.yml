@@ -3,8 +3,12 @@ name: Terraform Langfuse RBAC
 "on":
   workflow_dispatch:
     inputs:
+      environment:
+        description: Protected GitHub Environment
+        required: true
+        type: environment
       apply:
-        description: Apply approved plan
+        description: Apply the generated plan from a protected ref
         required: true
         default: false
         type: boolean
@@ -15,15 +19,17 @@ permissions:
 
 jobs:
   plan:
-    environment: dev
+    environment: ${{ inputs.environment }}
     runs-on: [self-hosted, linux, x64]
     concurrency:
-      group: proservice-langfuse-rbac-dev
+      group: proservice-langfuse-rbac-${{ inputs.environment }}
       cancel-in-progress: false
     env:
       TF_BACKEND_CONTAINER: ${{ vars.TF_RBAC_CONTAINER }}
       TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
       TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
+      TF_IN_AUTOMATION: "true"
     defaults:
       run:
         shell: bash
@@ -32,7 +38,26 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
-      - run: '[[ "$GITHUB_REF_NAME" == main && "${{ github.ref_protected }}" == true && -f env/dev.tfvars ]]'
+      - name: Validate environment and apply source
+        env:
+          TF_APPLY_REQUESTED: ${{ inputs.apply }}
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          case "$TF_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
+          esac
+          test -f "env/${TF_ENVIRONMENT}.tfvars" || {
+            echo "::error::Missing env/${TF_ENVIRONMENT}.tfvars"; exit 1;
+          }
+          for variable_name in TF_BACKEND_RESOURCE_GROUP TF_BACKEND_STORAGE_ACCOUNT TF_BACKEND_CONTAINER; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+          if [[ "$TF_APPLY_REQUESTED" == "true" && "$TF_REF_PROTECTED" != "true" ]]; then
+            echo "::error::Terraform apply is allowed only from a protected ref."; exit 1;
+          fi
       - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474
         with:
           client-id: ${{ vars.AZURE_RBAC_CLIENT_ID }}
@@ -44,10 +69,10 @@ jobs:
           -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
           -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
           -backend-config="container_name=${TF_BACKEND_CONTAINER}"
-          -backend-config="key=dev.langfuse.rbac.tfstate"
+          -backend-config="key=${TF_ENVIRONMENT}.langfuse.rbac.tfstate"
           -backend-config="use_azuread_auth=true"
       - run: terraform validate
-      - run: terraform plan -input=false -lock-timeout=5m -var-file=env/dev.tfvars -out=tfplan
+      - run: terraform plan -input=false -lock-timeout=5m -var-file="env/${TF_ENVIRONMENT}.tfvars" -out=tfplan
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: terraform-langfuse-rbac-plan
@@ -56,15 +81,17 @@ jobs:
   apply:
     needs: plan
     if: inputs.apply
-    environment: dev
+    environment: ${{ inputs.environment }}
     runs-on: [self-hosted, linux, x64]
     concurrency:
-      group: proservice-langfuse-rbac-dev
+      group: proservice-langfuse-rbac-${{ inputs.environment }}
       cancel-in-progress: false
     env:
       TF_BACKEND_CONTAINER: ${{ vars.TF_RBAC_CONTAINER }}
       TF_BACKEND_RESOURCE_GROUP: ${{ vars.TF_BACKEND_RESOURCE_GROUP }}
       TF_BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_BACKEND_STORAGE_ACCOUNT }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
+      TF_IN_AUTOMATION: "true"
     defaults:
       run:
         shell: bash
@@ -73,7 +100,13 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
-      - run: '[[ "$GITHUB_REF_NAME" == main && "${{ github.ref_protected }}" == true ]]'
+      - name: Validate approved apply source
+        env:
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          [[ "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::Terraform apply is allowed only from a protected ref."; exit 1;
+          }
       - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474
         with:
           client-id: ${{ vars.AZURE_RBAC_CLIENT_ID }}
@@ -84,7 +117,7 @@ jobs:
           -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP}"
           -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT}"
           -backend-config="container_name=${TF_BACKEND_CONTAINER}"
-          -backend-config="key=dev.langfuse.rbac.tfstate"
+          -backend-config="key=${TF_ENVIRONMENT}.langfuse.rbac.tfstate"
           -backend-config="use_azuread_auth=true"
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
