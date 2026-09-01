@@ -1,6 +1,6 @@
 name: Import Langfuse images to ACR
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       force:
