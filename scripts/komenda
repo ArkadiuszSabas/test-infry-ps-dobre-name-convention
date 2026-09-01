@@ -1,0 +1,4 @@
+az keyvault secret set \
+  --vault-name ee7c45kvocrappdev01 \
+  --name langfuse-clickhouse-password \
+  --value 'TWOJA_WARTOSC'
