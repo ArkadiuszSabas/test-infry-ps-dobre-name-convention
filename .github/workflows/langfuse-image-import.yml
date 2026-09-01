@@ -3,6 +3,10 @@ name: Import Langfuse images to ACR
 "on":
   workflow_dispatch:
     inputs:
+      environment:
+        description: Protected GitHub Environment
+        required: true
+        type: environment
       force:
         description: Re-import and replace an already existing target tag
         required: true
@@ -15,10 +19,10 @@ permissions:
 
 jobs:
   import:
-    environment: dev
+    environment: ${{ inputs.environment }}
     runs-on: [self-hosted, linux, x64]
     concurrency:
-      group: proservice-langfuse-images-dev
+      group: proservice-langfuse-images-${{ inputs.environment }}
       cancel-in-progress: false
     env:
       ACR_NAME: ${{ vars.ACR_NAME }}
@@ -26,6 +30,7 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       FORCE_IMPORT: ${{ inputs.force }}
+      TF_ENVIRONMENT: ${{ inputs.environment }}
       TF_REF_PROTECTED: ${{ github.ref_protected }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -38,6 +43,10 @@ jobs:
           [[ "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" && "$TF_REF_PROTECTED" == "true" ]] || {
             echo "::error::Langfuse images may be imported only from the protected main branch."; exit 1;
           }
+          case "$TF_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
+          esac
           for variable_name in ACR_NAME AZURE_BUILD_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID; do
             [[ -n "${!variable_name}" ]] || {
               echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
