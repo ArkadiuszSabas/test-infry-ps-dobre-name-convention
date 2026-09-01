@@ -6,9 +6,11 @@ locals {
   langfuse_storage_account_name       = "${local.tenant_token}st${local.app_token}lfblob${local.environment_token}${local.instance_token}"
   langfuse_files_storage_account_name = "${local.tenant_token}st${local.app_token}lffile${local.environment_token}${local.instance_token}"
   langfuse_container_app_names = {
-    web        = "ca-${local.app_token}-${local.environment_token}-langfuse-web-${local.instance_token}"
-    worker     = "ca-${local.app_token}-${local.environment_token}-langfuse-worker-${local.instance_token}"
-    clickhouse = "ca-${local.app_token}-${local.environment_token}-langfuse-clickhouse-${local.instance_token}"
+    web    = "ca-${local.app_token}-${local.environment_token}-langfuse-web-${local.instance_token}"
+    worker = "ca-${local.app_token}-${local.environment_token}-langfuse-worker-${local.instance_token}"
+    # ACA resource names have a 32-character maximum; "ch" keeps the same
+    # workload meaning while fitting that Azure limit.
+    clickhouse = "ca-${local.app_token}-${local.environment_token}-langfuse-ch-${local.instance_token}"
     postgres   = "ca-${local.app_token}-${local.environment_token}-langfuse-postgres-${local.instance_token}"
     valkey     = "ca-${local.app_token}-${local.environment_token}-langfuse-valkey-${local.instance_token}"
   }
