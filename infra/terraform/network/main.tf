@@ -43,10 +43,12 @@ locals {
     "document-intelligence" = "di"
     "foundry"               = "foundry"
     "container-apps"        = "cae"
+    "container-registry"    = "acr"
   }
 
   private_dns_zone_names = {
     cognitive_services  = "privatelink.cognitiveservices.azure.com"
+    container_registry  = "privatelink.azurecr.io"
     container_apps      = "privatelink.${var.location}.azurecontainerapps.io"
     foundry_openai      = "privatelink.openai.azure.com"
     foundry_services_ai = "privatelink.services.ai.azure.com"

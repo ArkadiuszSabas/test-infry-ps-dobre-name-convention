@@ -26,6 +26,11 @@ expected_private_endpoint_subnet_cidr              = "10.33.28.0/24"
 additional_container_apps_private_dns_locations = []
 
 private_endpoints = {
+  container-registry = {
+    private_connection_resource_id = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrdev01"
+    subresource_names              = ["registry"]
+    private_dns_zone_ids           = ["/subscriptions/0ef4ac67-4582-47b0-a6a4-c4a354246268/resourceGroups/rg-private-dns-zone/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io"]
+  }
   key-vault = {
     private_connection_resource_id = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.KeyVault/vaults/ee7c45kvocrappdev01"
     subresource_names              = ["vault"]
