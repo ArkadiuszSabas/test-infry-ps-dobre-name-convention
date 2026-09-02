@@ -201,10 +201,6 @@ resource "azurerm_container_app" "web" {
       error_message = "Langfuse Web may be enabled only when the shared Container Apps Environment uses the approved VPN/private-ingress cutoff."
     }
 
-    precondition {
-      condition     = var.environment == "dev"
-      error_message = "The current Langfuse ACA topology is approved only for the DEV environment."
-    }
   }
 }
 

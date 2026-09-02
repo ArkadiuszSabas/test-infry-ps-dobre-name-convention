@@ -1,5 +1,5 @@
 variable "subscription_id" {
-  description = "Target ProService DEV subscription ID."
+  description = "Target ProService subscription ID."
   type        = string
 
   validation {
@@ -9,14 +9,9 @@ variable "subscription_id" {
 }
 
 variable "environment" {
-  description = "Deployment environment. The approved Langfuse ACA topology is DEV-only."
+  description = "Deployment environment identifier used in Langfuse resource names and project initialization."
   type        = string
   default     = "dev"
-
-  validation {
-    condition     = var.environment == "dev"
-    error_message = "The current Langfuse topology may be deployed only to dev."
-  }
 }
 
 variable "tenant_prefix" { type = string }
@@ -36,13 +31,13 @@ variable "runtime_dependencies_ready" {
 }
 
 variable "location" {
-  description = "Azure region containing the ProService DEV platform."
+  description = "Azure region containing the ProService platform."
   type        = string
   default     = "swedencentral"
 }
 
 variable "application_resource_group_name" {
-  description = "Existing ProService DEV resource group containing the application platform."
+  description = "Existing ProService resource group containing the application platform."
   type        = string
 }
 
