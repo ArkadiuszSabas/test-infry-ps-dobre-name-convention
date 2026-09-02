@@ -6,7 +6,7 @@ resource "azurerm_container_registry" "this" {
   sku           = var.sku
   admin_enabled = false
 
-  public_network_access_enabled = true
+  public_network_access_enabled = false
   tags                          = var.tags
 }
 
