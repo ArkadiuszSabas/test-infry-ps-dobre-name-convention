@@ -7,6 +7,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from docmind_api.api.attribute_requirements.schemas import (
+    AttributeAssignmentEnvelope,
+    AttributeAssignmentMetaSchema,
+    AttributeAssignmentPayloadSchema,
+    AttributeAssignmentSchema,
     AttributeRequirementAttributeSchema,
     AttributeRequirementDocumentTypeSchema,
     AttributeRequirementMatrixEnvelope,
@@ -18,6 +22,7 @@ from docmind_api.api.attribute_requirements.schemas import (
     MetadataSchemaFieldSchema,
     MetadataSchemaMetaSchema,
     MetadataSchemaPayloadSchema,
+    SaveAttributeAssignmentsRequest,
     SaveAttributeRequirementsRequest,
 )
 from docmind_api.api.auth.dependencies import (
@@ -28,6 +33,8 @@ from docmind_api.application.attribute_requirements.models import (
     AttributeRequirementEntry,
     DocumentTypeAttributeRequirementMatrix,
     DocumentTypeMetadataSchema,
+    SaveAttributeDocumentTypeAssignmentItem,
+    SaveAttributeDocumentTypeAssignmentsCommand,
     SaveAttributeRequirementItem,
     SaveDocumentTypeAttributeRequirementsCommand,
 )
@@ -51,7 +58,9 @@ def create_attribute_requirements_router(
 ) -> APIRouter:
     """Create the document type attribute requirement router."""
 
-    router = APIRouter(prefix="/document-types/{document_type_id}")
+    # Keep both matrix directions on the same public router.  The explicit prefix on
+    # document-type routes avoids coupling the attribute-oriented API to that path.
+    router = APIRouter()
     require_admin_settings_manage = require_permissions(Permission.ADMIN_SETTINGS_MANAGE)
     require_documents_read = require_permissions(Permission.DOCUMENTS_READ)
     cookie_csrf_protection = require_cookie_csrf_protection(
@@ -70,6 +79,60 @@ def create_attribute_requirements_router(
         matrix = await matrix_service.get_matrix(document_type_id=document_type_id)
         return _to_matrix_envelope(matrix)
 
+    async def get_attribute_assignments(
+        attribute_id: UUID,
+        _admin_actor: Annotated[AuthenticatedActor, Depends(require_admin_settings_manage)],
+        matrix_service: Annotated[
+            AttributeRequirementMatrixService, Depends(attribute_requirement_matrix_dependency)
+        ],
+    ) -> AttributeAssignmentEnvelope:
+        (
+            attribute,
+            document_types,
+            requirements,
+            version,
+            is_metadata,
+        ) = await matrix_service.get_attribute_assignments(attribute_id=attribute_id)
+        by_type = {UUID(str(r.document_type_id)): r for r in requirements}
+        assignments: list[AttributeAssignmentSchema] = []
+        for document_type in document_types:
+            requirement = by_type.get(UUID(str(document_type.id)))
+            assignments.append(
+                AttributeAssignmentSchema(
+                    document_type=_to_document_type_schema(document_type),
+                    state=(
+                        "required"
+                        if requirement and requirement.required
+                        else "optional"
+                        if requirement
+                        else "unassigned"
+                    ),
+                    requirement_id=UUID(str(requirement.id)) if requirement else None,
+                    include_metadata_in_context_resolver=requirement.include_metadata_in_context_resolver
+                    if requirement
+                    else False,
+                    missing_required_action=requirement.missing_required_action
+                    if requirement
+                    else None,
+                    created_at=requirement.created_at if requirement else None,
+                    updated_at=requirement.updated_at if requirement else None,
+                )
+            )
+        return AttributeAssignmentEnvelope(
+            data=AttributeAssignmentPayloadSchema(
+                attribute=_to_attribute_schema(attribute, is_metadata=is_metadata),
+                assignments=assignments,
+            ),
+            meta=AttributeAssignmentMetaSchema(
+                total_count=len(assignments),
+                assigned_count=len(requirements),
+                unassigned_count=len(assignments) - len(requirements),
+                required_count=sum(1 for r in requirements if r.required),
+                optional_count=sum(1 for r in requirements if not r.required),
+                version=version,
+            ),
+        )
+
     async def get_metadata_schema(
         document_type_id: UUID,
         _actor: Annotated[AuthenticatedActor, Depends(require_documents_read)],
@@ -80,6 +143,33 @@ def create_attribute_requirements_router(
     ) -> MetadataSchemaEnvelope:
         schema = await matrix_service.get_metadata_schema(document_type_id=document_type_id)
         return _to_metadata_schema_envelope(schema)
+
+    async def save_attribute_assignments(
+        attribute_id: UUID,
+        request: SaveAttributeAssignmentsRequest,
+        _admin_actor: Annotated[AuthenticatedActor, Depends(require_admin_settings_manage)],
+        matrix_service: Annotated[
+            AttributeRequirementMatrixService,
+            Depends(attribute_requirement_matrix_dependency),
+        ],
+    ) -> AttributeAssignmentEnvelope:
+        await matrix_service.save_attribute_assignments(
+            attribute_id=attribute_id,
+            command=SaveAttributeDocumentTypeAssignmentsCommand(
+                attribute_id=attribute_id,
+                base_version=request.base_version,
+                assignments=tuple(
+                    SaveAttributeDocumentTypeAssignmentItem(
+                        document_type_id=item.document_type_id,
+                        required=item.required,
+                        include_metadata_in_context_resolver=item.include_metadata_in_context_resolver,
+                        missing_required_action=item.missing_required_action,
+                    )
+                    for item in request.assignments
+                ),
+            ),
+        )
+        return await get_attribute_assignments(attribute_id, _admin_actor, matrix_service)
 
     async def save_attribute_requirements(
         document_type_id: UUID,
@@ -107,14 +197,29 @@ def create_attribute_requirements_router(
         return _to_matrix_envelope(matrix)
 
     router.add_api_route(
-        "/attribute-requirements",
+        "/document-types/{document_type_id}/attribute-requirements",
         get_attribute_requirements,
         methods=["GET"],
         response_model=AttributeRequirementMatrixEnvelope,
         tags=["attribute-requirements"],
     )
     router.add_api_route(
-        "/attribute-requirements",
+        "/attributes/{attribute_id}/document-type-assignments",
+        get_attribute_assignments,
+        methods=["GET"],
+        response_model=AttributeAssignmentEnvelope,
+        tags=["attribute-requirements"],
+    )
+    router.add_api_route(
+        "/attributes/{attribute_id}/document-type-assignments",
+        save_attribute_assignments,
+        methods=["PATCH"],
+        response_model=AttributeAssignmentEnvelope,
+        dependencies=[Depends(cookie_csrf_protection)],
+        tags=["attribute-requirements"],
+    )
+    router.add_api_route(
+        "/document-types/{document_type_id}/attribute-requirements",
         save_attribute_requirements,
         methods=["PATCH"],
         response_model=AttributeRequirementMatrixEnvelope,
@@ -122,7 +227,7 @@ def create_attribute_requirements_router(
         tags=["attribute-requirements"],
     )
     router.add_api_route(
-        "/metadata-schema",
+        "/document-types/{document_type_id}/metadata-schema",
         get_metadata_schema,
         methods=["GET"],
         response_model=MetadataSchemaEnvelope,

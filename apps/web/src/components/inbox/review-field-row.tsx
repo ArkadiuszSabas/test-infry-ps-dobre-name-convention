@@ -2,11 +2,14 @@
 
 import {
   CircleAlertIcon,
+  LocateFixedIcon,
   PencilLineIcon,
   PlusCircleIcon,
+  Settings2Icon,
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Popover as PopoverPrimitive } from "radix-ui";
 import { useLayoutEffect, useRef } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +32,14 @@ import {
   getConfidenceColor,
 } from "@/lib/confidence-colors/presentation";
 import type { ConfidenceColorBand } from "@/lib/confidence-colors/types";
-import { getDisplayedConfidencePercent } from "@/lib/review/field-presentation";
+import type { ReviewSourceSelection } from "@/lib/review/types";
+import { getReviewFieldLocatableSources } from "@/lib/review/source-location";
+import {
+  getDisplayedConfidencePercent,
+  getReviewFieldDisplayValues,
+  getReviewReasonCodePresentations,
+  REVIEW_REASON_BADGE_VARIANTS,
+} from "@/lib/review/field-presentation";
 import { cn } from "@/lib/utils";
 
 const EMPTY_BOOLEAN = "__empty__";
@@ -42,6 +52,7 @@ export interface ReviewFieldRowProps {
   onChange: (value: string) => void;
   onEdit: () => void;
   onRemove: () => void;
+  onSelectSource: (selection: ReviewSourceSelection) => void;
 }
 
 export function ReviewFieldRow({
@@ -52,6 +63,7 @@ export function ReviewFieldRow({
   onChange,
   onEdit,
   onRemove,
+  onSelectSource,
 }: ReviewFieldRowProps) {
   const t = useTranslations("ReviewWorkspace.fields");
   const manual = hasManualChange(field);
@@ -59,6 +71,12 @@ export function ReviewFieldRow({
     field.validations.some((validation) => validation.severity === "error") ||
     ["conflicting", "missing"].includes(field.status);
   const confidencePercent = getDisplayedConfidencePercent(field);
+  const displayValues = getReviewFieldDisplayValues(field);
+  const sources = getReviewFieldLocatableSources(field);
+  const reviewReasonCodePresentations = getReviewReasonCodePresentations(
+    field.reviewReasonCodes,
+    (code) => t(`reasonCodes.${code}`),
+  );
 
   return (
     <li
@@ -100,18 +118,38 @@ export function ReviewFieldRow({
             ) : null}
           </div>
         </div>
-        {editing ? (
-          <IconTooltipButton
-            aria-label={t("deleteAria", { name: field.label })}
-            onClick={onRemove}
-            size="icon-sm"
-            tooltip={t("deleteAria", { name: field.label })}
-            type="button"
-            variant="ghost"
-          >
-            <Trash2Icon />
-          </IconTooltipButton>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-1">
+          {!editing && sources.length > 0 ? (
+            <IconTooltipButton
+              aria-label={t("showSourceAria", { name: field.label })}
+              onClick={() =>
+                onSelectSource({
+                  fieldId: field.id || field.clientId,
+                  sources,
+                  targetPageNumber: sources[0]!.pageNumber,
+                })
+              }
+              size="icon-sm"
+              tooltip={t("showSourceAria", { name: field.label })}
+              type="button"
+              variant="ghost"
+            >
+              <LocateFixedIcon />
+            </IconTooltipButton>
+          ) : null}
+          {editing ? (
+            <IconTooltipButton
+              aria-label={t("deleteAria", { name: field.label })}
+              onClick={onRemove}
+              size="icon-sm"
+              tooltip={t("deleteAria", { name: field.label })}
+              type="button"
+              variant="ghost"
+            >
+              <Trash2Icon />
+            </IconTooltipButton>
+          ) : null}
+        </div>
       </div>
 
       {editing ? (
@@ -122,13 +160,86 @@ export function ReviewFieldRow({
           onClick={onEdit}
           type="button"
         >
-          {field.displayValue ?? field.value ?? t("notProvided")}
+          <ReviewFieldDisplayValues
+            values={displayValues}
+            fallback={t("notProvided")}
+          />
         </button>
       ) : (
         <div className="block w-full rounded-md border bg-background px-3 py-2 text-left text-sm">
-          {field.displayValue ?? field.value ?? t("notProvided")}
+          <ReviewFieldDisplayValues
+            values={displayValues}
+            fallback={t("notProvided")}
+          />
         </div>
       )}
+
+      {reviewReasonCodePresentations.length > 0 ? (
+        <div
+          aria-label={t("reviewReasonsAria")}
+          className="flex flex-wrap gap-1.5"
+          role="list"
+        >
+          {reviewReasonCodePresentations.map((presentation, index) => (
+            <span key={`${presentation.code}-${index}`} role="listitem">
+              <PopoverPrimitive.Root>
+                <PopoverPrimitive.Trigger asChild>
+                  <Badge
+                    asChild
+                    className={cn(
+                      "h-auto cursor-pointer whitespace-normal px-2 py-0.5 text-left text-[11px] font-normal",
+                      presentation.tone === "configuration" &&
+                        "border-muted-foreground/30 text-muted-foreground hover:bg-muted/50 hover:text-muted-foreground",
+                    )}
+                    data-review-reason-tone={presentation.tone}
+                    variant={REVIEW_REASON_BADGE_VARIANTS[presentation.tone]}
+                  >
+                    <button type="button">
+                      {presentation.tone === "configuration" ? (
+                        <Settings2Icon
+                          aria-hidden="true"
+                          data-icon="inline-start"
+                        />
+                      ) : null}
+                      {presentation.label}
+                    </button>
+                  </Badge>
+                </PopoverPrimitive.Trigger>
+                <PopoverPrimitive.Portal>
+                  <PopoverPrimitive.Content
+                    align="start"
+                    aria-label={t("reasonPopup.detailsAria", {
+                      reason: presentation.label,
+                    })}
+                    className="z-50 w-[min(24rem,calc(100vw-2rem))] space-y-3 rounded-lg border bg-popover p-4 text-sm text-popover-foreground shadow-md outline-none duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95"
+                    role="dialog"
+                    sideOffset={6}
+                  >
+                    <ReviewReasonPopupSection
+                      body={t(
+                        `reasonPopup.codes.${presentation.popupKey}.happened`,
+                      )}
+                      heading={t("reasonPopup.whatHappened")}
+                    />
+                    <ReviewReasonPopupSection
+                      body={t(
+                        `reasonPopup.codes.${presentation.popupKey}.meaning`,
+                      )}
+                      heading={t("reasonPopup.whatItMeans")}
+                    />
+                    <ReviewReasonPopupSection
+                      body={t(
+                        `reasonPopup.codes.${presentation.popupKey}.action`,
+                      )}
+                      heading={t("reasonPopup.whatToDo")}
+                    />
+                  </PopoverPrimitive.Content>
+                </PopoverPrimitive.Portal>
+              </PopoverPrimitive.Root>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {manual ? (
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -158,6 +269,38 @@ export function ReviewFieldRow({
         </p>
       ))}
     </li>
+  );
+}
+
+function ReviewFieldDisplayValues({
+  fallback,
+  values,
+}: {
+  fallback: string;
+  values: readonly string[];
+}) {
+  if (values.length === 0) return fallback;
+  return (
+    <span className="flex flex-col">
+      {values.map((value, index) => (
+        <span key={`${value}-${index}`}>{value}</span>
+      ))}
+    </span>
+  );
+}
+
+function ReviewReasonPopupSection({
+  body,
+  heading,
+}: {
+  body: string;
+  heading: string;
+}) {
+  return (
+    <section className="space-y-1">
+      <h4 className="font-medium">{heading}</h4>
+      <p className="leading-relaxed text-muted-foreground">{body}</p>
+    </section>
   );
 }
 

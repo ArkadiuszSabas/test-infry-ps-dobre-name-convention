@@ -219,6 +219,10 @@ def _map_result(
         key_value_pairs=key_value_pairs,
         selection_marks=selection_marks,
         tables=tables,
+        coordinate_width=_float_attr(provider_page, "width")
+        or _positive_float(source_page.width_px),
+        coordinate_height=_float_attr(provider_page, "height")
+        or _positive_float(source_page.height_px),
     )
 
 
@@ -279,6 +283,8 @@ def _map_document_result(
                     if config.include_selection_marks
                     else ()
                 ),
+                coordinate_width=_float_attr(provider_page, "width"),
+                coordinate_height=_float_attr(provider_page, "height"),
             )
         )
 
@@ -446,6 +452,18 @@ def _confidence(value: object) -> float | None:
 def _int_attr(value: object | None, name: str) -> int | None:
     raw_value = getattr(value, name, None)
     return _positive_int(raw_value)
+
+
+def _float_attr(value: object | None, name: str) -> float | None:
+    raw_value = getattr(value, name, None)
+    return _positive_float(raw_value)
+
+
+def _positive_float(raw_value: object) -> float | None:
+    if isinstance(raw_value, bool) or not isinstance(raw_value, int | float):
+        return None
+    result = float(raw_value)
+    return result if result > 0 else None
 
 
 def _positive_int(raw_value: object) -> int | None:

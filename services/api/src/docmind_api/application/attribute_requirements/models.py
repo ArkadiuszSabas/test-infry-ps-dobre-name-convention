@@ -10,7 +10,11 @@ from docmind_api.domain.attribute_requirements.models import (
 )
 from docmind_api.domain.attributes.models import AttributeDefinition
 from docmind_api.domain.document_types.models import DocumentType
-from docmind_backend_runtime.errors import ApplicationError, ValidationApplicationError
+from docmind_backend_runtime.errors import (
+    ApplicationError,
+    ConflictError,
+    ValidationApplicationError,
+)
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -48,6 +52,21 @@ class SaveAttributeRequirementItem:
 class SaveDocumentTypeAttributeRequirementsCommand:
     document_type_id: UUID | str
     requirements: tuple[SaveAttributeRequirementItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class SaveAttributeDocumentTypeAssignmentItem:
+    document_type_id: UUID
+    required: bool
+    include_metadata_in_context_resolver: bool
+    missing_required_action: MissingRequiredAttributeAction | None
+
+
+@dataclass(frozen=True, slots=True)
+class SaveAttributeDocumentTypeAssignmentsCommand:
+    attribute_id: UUID
+    base_version: str
+    assignments: tuple[SaveAttributeDocumentTypeAssignmentItem, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,4 +145,21 @@ class AttributeRequirementConfigurationError(ApplicationError):
             message="Attribute requirement configuration is inconsistent.",
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             details={"missing_attribute_ids": missing_attribute_ids},
+        )
+
+
+class AttributeAssignmentVersionConflictError(ConflictError):
+    def __init__(
+        self,
+        *,
+        current_version: str,
+        current_assignments: tuple[dict[str, object], ...],
+    ) -> None:
+        super().__init__(
+            code="ATTRIBUTE_ASSIGNMENT_VERSION_CONFLICT",
+            message="Attribute assignments changed while they were being edited.",
+            details={
+                "current_version": current_version,
+                "current_assignments": current_assignments,
+            },
         )

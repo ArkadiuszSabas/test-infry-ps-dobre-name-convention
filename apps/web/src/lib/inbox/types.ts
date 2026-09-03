@@ -30,6 +30,10 @@ export type {
   OcrPipelineRunStep,
   OcrPipelineRunStepDto,
   OcrPipelineRunStepStatus,
+  PublishedOcrPipelineOption,
+  PublishedOcrPipelineOptionDto,
+  PublishedOcrPipelineOptionListEnvelope,
+  PublishedOcrPipelineOptionListEnvelopeDto,
 } from "./ocr-pipeline-runs-types";
 
 export type DocumentStatus = "received" | (string & {});

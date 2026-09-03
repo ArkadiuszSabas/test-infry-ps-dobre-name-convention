@@ -8,10 +8,6 @@ from docmind_api.application.documents.ports import DocumentContentStorage
 from docmind_api.application.documents.service import DocumentRegistryService
 from docmind_api.application.documents.storage_workflow import cleanup_stored_content
 from docmind_api.application.ocr_pipeline_runs.commands import StartOcrPipelineRunCommand
-from docmind_api.application.ocr_pipeline_runs.ports import (
-    OcrPipelineRunDispatcher,
-    OcrPipelineRunScheduler,
-)
 from docmind_api.application.ocr_pipeline_runs.service import OcrPipelineRunService
 from docmind_api.domain.documents.models import DocumentRecord
 from docmind_api.domain.ocr_pipeline_runs.models import OcrPipelineRunActorType
@@ -37,8 +33,8 @@ class ConnectorDocumentOcrStarter(Protocol):
     async def start(self, document: DocumentRecord, *, actor_id: str) -> None: ...
 
 
-class DirectConnectorDocumentOcrStarter:
-    """Persist and schedule one direct OCR run for a connector document."""
+class ConnectorDocumentOcrStarterService:
+    """Persist one event-driven OCR run for a connector document."""
 
     def __init__(
         self,
@@ -46,20 +42,16 @@ class DirectConnectorDocumentOcrStarter:
         run_service: OcrPipelineRunService,
         unit_of_work: ConnectorDocumentIntakeUnitOfWork,
         storage: DocumentContentStorage,
-        dispatcher: OcrPipelineRunDispatcher,
-        scheduler: OcrPipelineRunScheduler,
     ) -> None:
         self._run_service = run_service
         self._unit_of_work = unit_of_work
         self._storage = storage
-        self._dispatcher = dispatcher
-        self._scheduler = scheduler
 
     async def start(self, document: DocumentRecord, *, actor_id: str) -> None:
         """Atomically commit the document and pending run before background execution."""
 
         try:
-            record = await self._run_service.start_run(
+            await self._run_service.start_run(
                 StartOcrPipelineRunCommand(
                     document_id=document.id,
                     actor_id=actor_id,
@@ -81,7 +73,6 @@ class DirectConnectorDocumentOcrStarter:
         except BaseException:
             await self._unit_of_work.rollback()
             raise
-        self._scheduler.schedule(self._dispatcher.dispatch, record.id)
 
 
 class DocumentRegistryConnectorDocumentIntakePort:

@@ -6,9 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from docmind_backend_runtime.dapr_pubsub_smoke_contracts import (
-    DAPR_PUBSUB_SMOKE_PUBSUB_NAME,
     DAPR_PUBSUB_SMOKE_ROUTE,
-    DAPR_PUBSUB_SMOKE_TOPIC,
     dapr_pubsub_smoke_event_from_mapping,
 )
 from docmind_backend_runtime.errors import ValidationApplicationError
@@ -17,7 +15,6 @@ from docmind_worker.api.dapr_smoke.schemas import (
     ConsumedDaprSmokeEventSchema,
     DaprPubSubAckSchema,
     DaprPubSubCloudEventSchema,
-    DaprPubSubSubscriptionSchema,
 )
 from docmind_worker.application.dapr_smoke.service import DaprSmokeEventConsumer
 
@@ -31,15 +28,6 @@ def create_dapr_smoke_router(
     """Create local-only Dapr smoke routes for the worker service."""
 
     router = APIRouter(tags=["dapr-smoke"])
-
-    async def get_subscriptions() -> list[DaprPubSubSubscriptionSchema]:
-        return [
-            DaprPubSubSubscriptionSchema(
-                pubsubname=DAPR_PUBSUB_SMOKE_PUBSUB_NAME,
-                topic=DAPR_PUBSUB_SMOKE_TOPIC,
-                route=DAPR_PUBSUB_SMOKE_ROUTE.lstrip("/"),
-            ),
-        ]
 
     async def consume_smoke_event(
         cloud_event: DaprPubSubCloudEventSchema,
@@ -71,12 +59,6 @@ def create_dapr_smoke_router(
             ),
         )
 
-    router.add_api_route(
-        "/dapr/subscribe",
-        get_subscriptions,
-        methods=["GET"],
-        response_model=list[DaprPubSubSubscriptionSchema],
-    )
     router.add_api_route(
         DAPR_PUBSUB_SMOKE_ROUTE,
         consume_smoke_event,

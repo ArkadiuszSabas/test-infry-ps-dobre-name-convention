@@ -56,6 +56,31 @@ test("searches review field labels and values without case sensitivity", () => {
   );
 });
 
+test("keeps ordered OCR fields sorted when highlight geometry is missing", () => {
+  const fields = [
+    fieldFixture("page-one", [sourceFixture(1, 0, "ocr_line", null)]),
+    fieldFixture("page-two", [sourceFixture(2, 0, "ocr_line")]),
+  ];
+
+  assert.deepEqual(
+    sortReviewFieldsByDocumentLocation(fields).map((field) => field.id),
+    ["page-one", "page-two"],
+  );
+});
+
+test("does not use highlight-only OCR kinds to reorder review fields", () => {
+  const fields = [
+    fieldFixture("selection-mark", [sourceFixture(1, 0, "ocr_selection_mark")]),
+    fieldFixture("table-cell", [sourceFixture(1, 1, "ocr_table_cell")]),
+    fieldFixture("ordered-line", [sourceFixture(2, 0, "ocr_line")]),
+  ];
+
+  assert.deepEqual(
+    sortReviewFieldsByDocumentLocation(fields).map((field) => field.id),
+    ["ordered-line", "selection-mark", "table-cell"],
+  );
+});
+
 function fieldFixture(
   id: string,
   sources: ReviewFieldItem["sources"],
@@ -87,10 +112,15 @@ function fieldFixture(
 function sourceFixture(
   pageNumber: number,
   orderIndex: number,
-  kind: "ocr_key_value_pair" | "ocr_line" = "ocr_key_value_pair",
+  kind:
+    | "ocr_key_value_pair"
+    | "ocr_line"
+    | "ocr_selection_mark"
+    | "ocr_table_cell" = "ocr_key_value_pair",
+  boundingPolygon: number[] | null = [0.1, 0.1, 0.2, 0.1, 0.2, 0.2, 0.1, 0.2],
 ) {
   return {
-    boundingPolygon: [],
+    boundingPolygon,
     confidence: null,
     coordinateSystem: "normalized_0_1" as const,
     kind,

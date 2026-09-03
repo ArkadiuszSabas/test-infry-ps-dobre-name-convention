@@ -2,11 +2,12 @@
 
 from collections.abc import Callable
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
+from pydantic import BaseModel, ConfigDict, Field
 
-from docmind_backend_runtime import get_correlation_id
+from docmind_backend_runtime import ApplicationError, get_correlation_id
 from docmind_llmmagic.api.internal_ocr.schemas import (
     CompiledPipelineDefinitionSchema,
     CompiledPipelineStepSchema,
@@ -17,105 +18,53 @@ from docmind_llmmagic.api.internal_ocr.schemas import (
     PipelineDefinitionCompileData,
     PipelineDefinitionCompileEnvelope,
     PipelineDefinitionCompileRequest,
-    PipelineRunContextResolutionAttributeSchema,
-    PipelineRunContextResolutionQualitySchema,
-    PipelineRunContextResolutionResultSchema,
-    PipelineRunContextResolutionSourceSchema,
-    PipelineRunData,
-    PipelineRunEnvelope,
-    PipelineRunErrorSchema,
-    PipelineRunOcrKeyValuePairSchema,
-    PipelineRunOcrPageResultSchema,
-    PipelineRunOcrResultSchema,
+    PipelineRunAcceptedData,
+    PipelineRunAcceptedEnvelope,
     PipelineRunRequest,
-    PipelineRunStatusSchema,
-    PipelineRunTraceStepSchema,
 )
 from docmind_llmmagic.application.pipeline.compiler import PipelineDefinitionCompiler
-from docmind_llmmagic.application.pipeline.invocation.context_resolution_result import (
-    PipelineInvocationContextResolutionAttribute,
-    PipelineInvocationContextResolutionQuality,
-    PipelineInvocationContextResolutionResult,
-    PipelineInvocationContextResolutionSource,
+from docmind_llmmagic.application.pipeline.invocation.async_execution import (
+    AdmissionError,
+    AsyncOcrExecutionService,
+    RunKey,
 )
 from docmind_llmmagic.application.pipeline.invocation.contracts import PipelineTraceContext
-from docmind_llmmagic.application.pipeline.invocation.ocr_result import (
-    PipelineInvocationOcrKeyValuePair,
-    PipelineInvocationOcrPageResult,
-    PipelineInvocationOcrResult,
-)
-from docmind_llmmagic.application.pipeline.invocation.service import (
-    PipelineInvocationCommand,
-    PipelineInvocationResult,
-    PipelineInvocationService,
-)
+from docmind_llmmagic.application.pipeline.invocation.service import PipelineInvocationCommand
 from docmind_llmmagic.domain.pipeline.catalog import (
     PipelineBlockMetadata,
     PipelineCompileCommand,
     PipelineCompileDiagnostic,
     PipelineCompileResult,
-    PipelineDiagnosticSeverity,
     PipelineStepCompileInput,
 )
 from docmind_llmmagic.domain.pipeline.models import (
     FailurePolicy,
     PipelineDefinition,
     PipelineStepDefinition,
-    StepError,
-    StepResult,
 )
 
 PipelineCompilerDependency = Callable[[], PipelineDefinitionCompiler]
-PipelineInvocationDependency = Callable[..., PipelineInvocationService]
-InternalOcrAccessDependency = Callable[[], None]
+AsyncOcrExecutionDependency = Callable[..., AsyncOcrExecutionService]
 
 
-def create_denied_internal_ocr_router(
-    *,
-    access_dependency: InternalOcrAccessDependency,
-) -> APIRouter:
-    """Create fail-closed internal OCR routes without parsing request bodies."""
+class _CancelRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-    router = APIRouter(
-        prefix="/internal/ocr",
-        tags=["internal-ocr"],
-        dependencies=[Depends(access_dependency)],
-    )
-
-    async def deny_internal_ocr_access() -> None:
-        return None
-
-    router.add_api_route(
-        "/pipeline-blocks",
-        deny_internal_ocr_access,
-        methods=["GET"],
-    )
-    router.add_api_route(
-        "/pipeline-definitions/compile",
-        deny_internal_ocr_access,
-        methods=["POST"],
-    )
-    router.add_api_route(
-        "/pipeline-runs",
-        deny_internal_ocr_access,
-        methods=["POST"],
-    )
-    return router
+    fencing_token: int = Field(ge=1)
+    next_event_sequence: int = Field(ge=2)
+    document_id: UUID
+    pipeline_id: UUID
+    correlation_id: str
 
 
 def create_internal_ocr_router(
     *,
     compiler_dependency: PipelineCompilerDependency,
-    invocation_dependency: PipelineInvocationDependency,
-    access_dependency: InternalOcrAccessDependency,
+    execution_dependency: AsyncOcrExecutionDependency,
 ) -> APIRouter:
     """Create the internal OCR router with bootstrap-provided dependencies."""
 
-    router = APIRouter(
-        prefix="/internal/ocr",
-        tags=["internal-ocr"],
-        dependencies=[Depends(access_dependency)],
-    )
+    router = APIRouter(prefix="/internal/ocr", tags=["internal-ocr"])
 
     async def get_pipeline_blocks(
         compiler: Annotated[PipelineDefinitionCompiler, Depends(compiler_dependency)],
@@ -138,56 +87,85 @@ def create_internal_ocr_router(
     async def run_pipeline_definition(
         request: PipelineRunRequest,
         compiler: Annotated[PipelineDefinitionCompiler, Depends(compiler_dependency)],
-        invocation_service: Annotated[PipelineInvocationService, Depends(invocation_dependency)],
-    ) -> PipelineRunEnvelope:
+        execution_service: Annotated[AsyncOcrExecutionService, Depends(execution_dependency)],
+        response: Response,
+    ) -> PipelineRunAcceptedEnvelope:
+        if request.run_id is None or request.trace_context is None:
+            raise ApplicationError(
+                code="OCR_PIPELINE_RUN_CONTEXT_REQUIRED",
+                message="OCR pipeline execution context is required.",
+                status_code=422,
+            )
         compile_result = compiler.compile(
             _compile_command_from_definition(request.compiled_definition)
         )
         compiled_definition = compile_result.compiled_definition
         if not compile_result.valid or compiled_definition is None:
-            return PipelineRunEnvelope(
-                data=_invalid_run_data(
-                    request=request,
-                    diagnostics=compile_result.diagnostics,
-                )
+            raise ApplicationError(
+                code="PIPELINE_DEFINITION_INVALID",
+                message="Compiled pipeline definition is invalid.",
+                status_code=422,
             )
 
         if not _compiled_definition_matches_request(
             request.compiled_definition,
             compiled_definition,
         ):
-            return PipelineRunEnvelope(
-                data=_invalid_run_data(
-                    request=request,
-                    diagnostics=(
-                        *compile_result.diagnostics,
-                        _compiled_definition_mismatch_diagnostic(),
-                    ),
-                )
+            raise ApplicationError(
+                code="COMPILED_DEFINITION_MISMATCH",
+                message="Compiled pipeline definition is stale.",
+                status_code=409,
             )
 
-        result = await invocation_service.invoke_compiled_definition(
-            PipelineInvocationCommand(
-                document_reference=request.document_reference,
-                pipeline_id=compiled_definition.pipeline_id,
-                run_id=request.run_id,
-                user_id=request.user_id,
-                session_id=get_correlation_id(),
-                metadata=dict(request.metadata),
-                trace_context=(
-                    PipelineTraceContext(**request.trace_context.model_dump())
-                    if request.trace_context is not None
-                    else None
+        run_id = request.run_id
+        attempt_id = request.trace_context.attempt_id
+        command = PipelineInvocationCommand(
+            document_reference=request.document_reference,
+            pipeline_id=compiled_definition.pipeline_id,
+            run_id=run_id,
+            user_id=request.user_id,
+            session_id=get_correlation_id(),
+            metadata=dict(request.metadata),
+            trace_context=PipelineTraceContext(**request.trace_context.model_dump()),
+        )
+        try:
+            execution_service.admit(
+                RunKey(
+                    run_id=run_id,
+                    attempt_id=attempt_id,
+                    fencing_token=request.trace_context.fencing_token,
                 ),
-            ),
-            definition=compiled_definition,
-        )
-        return PipelineRunEnvelope(
-            data=_run_data(
-                result,
-                diagnostics=compile_result.diagnostics,
+                command,
+                definition=compiled_definition,
             )
+        except AdmissionError as error:
+            raise ApplicationError(
+                code=error.code,
+                message=error.message,
+                status_code=error.status_code,
+            ) from error
+        return PipelineRunAcceptedEnvelope(
+            data=PipelineRunAcceptedData(run_id=run_id, attempt_id=attempt_id, status="accepted")
         )
+
+    async def cancel_pipeline_run(
+        run_id: str,
+        attempt_id: str,
+        request: _CancelRequest,
+        execution_service: Annotated[AsyncOcrExecutionService, Depends(execution_dependency)],
+    ) -> Response:
+        execution_service.cancel(
+            RunKey(
+                run_id=run_id,
+                attempt_id=attempt_id,
+                fencing_token=request.fencing_token,
+            ),
+            document_id=str(request.document_id),
+            pipeline_id=str(request.pipeline_id),
+            next_event_sequence=request.next_event_sequence,
+            correlation_id=request.correlation_id,
+        )
+        return Response(status_code=status.HTTP_202_ACCEPTED)
 
     router.add_api_route(
         "/pipeline-blocks",
@@ -205,7 +183,14 @@ def create_internal_ocr_router(
         "/pipeline-runs",
         run_pipeline_definition,
         methods=["POST"],
-        response_model=PipelineRunEnvelope,
+        status_code=status.HTTP_202_ACCEPTED,
+        response_model=PipelineRunAcceptedEnvelope,
+    )
+    router.add_api_route(
+        "/pipeline-runs/{run_id}/attempts/{attempt_id}/cancel",
+        cancel_pipeline_run,
+        methods=["POST"],
+        status_code=status.HTTP_202_ACCEPTED,
     )
     return router
 
@@ -268,15 +253,6 @@ def _compiled_definition_matches_request(
     )
 
 
-def _compiled_definition_mismatch_diagnostic() -> PipelineCompileDiagnostic:
-    return PipelineCompileDiagnostic(
-        severity=PipelineDiagnosticSeverity.ERROR,
-        code="COMPILED_DEFINITION_MISMATCH",
-        message="Compiled pipeline definition does not match the current catalog output.",
-        path="compiled_definition",
-    )
-
-
 def _block_schema(metadata: PipelineBlockMetadata) -> PipelineBlockSchema:
     return PipelineBlockSchema(
         implementation_id=metadata.implementation_id,
@@ -328,199 +304,4 @@ def _compiled_step_schema(step: PipelineStepDefinition) -> CompiledPipelineStepS
         config=dict(step.config),
         failure_policy=step.failure_policy.value,
         enabled=step.enabled,
-    )
-
-
-def _run_data(
-    result: PipelineInvocationResult,
-    *,
-    diagnostics: tuple[PipelineCompileDiagnostic, ...] = (),
-) -> PipelineRunData:
-    return PipelineRunData(
-        pipeline_id=result.pipeline_id,
-        run_id=result.run_id,
-        status=result.status.value,
-        trace=[_trace_step_schema(step) for step in result.trace],
-        metrics=dict(result.metrics),
-        diagnostics=[_diagnostic_schema(diagnostic) for diagnostic in diagnostics],
-        error=_run_error_schema(result.error),
-        ocr_result=_ocr_result_schema(result.ocr_result),
-        context_resolution_result=_context_resolution_result_schema(
-            result.context_resolution_result
-        ),
-    )
-
-
-def _invalid_run_data(
-    *,
-    request: PipelineRunRequest,
-    diagnostics: tuple[PipelineCompileDiagnostic, ...],
-) -> PipelineRunData:
-    return PipelineRunData(
-        pipeline_id=request.compiled_definition.pipeline_id,
-        run_id=request.run_id or uuid4().hex,
-        status="failed",
-        trace=[],
-        metrics={
-            "step_count": 0,
-            "succeeded_step_count": 0,
-            "failed_step_count": 0,
-            "skipped_step_count": 0,
-        },
-        diagnostics=[_diagnostic_schema(diagnostic) for diagnostic in diagnostics],
-        error=PipelineRunErrorSchema(
-            code="PIPELINE_DEFINITION_INVALID",
-            message="Compiled pipeline definition is invalid.",
-        ),
-    )
-
-
-def _trace_step_schema(step: StepResult) -> PipelineRunTraceStepSchema:
-    return PipelineRunTraceStepSchema(
-        step_id=step.step_id,
-        step_type=step.step_type,
-        implementation_id=step.implementation_id,
-        status=step.status.value,
-        duration_seconds=step.duration_seconds,
-        metrics=dict(step.metrics),
-        error=_run_error_schema(step.error),
-    )
-
-
-def _run_error_schema(error: StepError | None) -> PipelineRunErrorSchema | None:
-    if error is None:
-        return None
-
-    return PipelineRunErrorSchema(code=error.code, message=error.message)
-
-
-def _context_resolution_result_schema(
-    result: PipelineInvocationContextResolutionResult | None,
-) -> PipelineRunContextResolutionResultSchema | None:
-    if result is None:
-        return None
-    return PipelineRunContextResolutionResultSchema(
-        schema_version=result.schema_version,
-        status=_context_resolution_status(result.status),
-        document_type_id=result.document_type_id,
-        total_attribute_count=result.total_attribute_count,
-        quality=_context_resolution_quality_schema(result.quality),
-        attributes=[
-            _context_resolution_attribute_schema(attribute) for attribute in result.attributes
-        ],
-    )
-
-
-def _context_resolution_status(value: str) -> PipelineRunStatusSchema:
-    if value == "partial_failed":
-        return "partial_failed"
-    if value == "failed":
-        return "failed"
-    return "succeeded"
-
-
-def _context_resolution_quality_schema(
-    quality: PipelineInvocationContextResolutionQuality,
-) -> PipelineRunContextResolutionQualitySchema:
-    return PipelineRunContextResolutionQualitySchema(
-        resolved_attribute_count=quality.resolved_attribute_count,
-        review_required_attribute_count=quality.review_required_attribute_count,
-        missing_required_attribute_count=quality.missing_required_attribute_count,
-        missing_attribute_count=quality.missing_attribute_count,
-        low_confidence_attribute_count=quality.low_confidence_attribute_count,
-        conflicting_attribute_count=quality.conflicting_attribute_count,
-    )
-
-
-def _context_resolution_attribute_schema(
-    attribute: PipelineInvocationContextResolutionAttribute,
-) -> PipelineRunContextResolutionAttributeSchema:
-    return PipelineRunContextResolutionAttributeSchema(
-        document_type_id=attribute.document_type_id,
-        attribute_external_id=attribute.attribute_external_id,
-        attribute_id=attribute.attribute_id,
-        display_name=attribute.display_name,
-        value_type=attribute.value_type,
-        required=attribute.required,
-        value=attribute.value,
-        confidence_score=attribute.confidence_score,
-        status=attribute.status,
-        requires_review=attribute.requires_review,
-        sources=[_context_resolution_source_schema(source) for source in attribute.sources],
-        reason_codes=list(attribute.reason_codes),
-        consistency_status=attribute.consistency_status,
-        compared_values=list(attribute.compared_values),
-        compared_key_value_pages=list(attribute.compared_key_value_pages),
-        compared_key_value_indexes=list(attribute.compared_key_value_indexes),
-        confidence_before=attribute.confidence_before,
-        confidence_after=attribute.confidence_after,
-    )
-
-
-def _context_resolution_source_schema(
-    source: PipelineInvocationContextResolutionSource,
-) -> PipelineRunContextResolutionSourceSchema:
-    return PipelineRunContextResolutionSourceSchema(
-        kind=source.kind,
-        page_number=source.page_number,
-        line_number=source.line_number,
-        key_value_index=source.key_value_index,
-        confidence=source.confidence,
-    )
-
-
-def _ocr_result_schema(
-    result: PipelineInvocationOcrResult | None,
-) -> PipelineRunOcrResultSchema | None:
-    if result is None:
-        return None
-    return PipelineRunOcrResultSchema(
-        status=result.status,
-        provider_id=result.provider_id,
-        model_id=result.model_id,
-        total_page_count=result.total_page_count,
-        succeeded_page_count=result.succeeded_page_count,
-        failed_page_count=result.failed_page_count,
-        average_confidence=result.average_confidence,
-        low_confidence_page_count=result.low_confidence_page_count,
-        warning_count=result.warning_count,
-        pages_truncated=result.pages_truncated,
-        pages=[_ocr_page_result_schema(page) for page in result.pages],
-        key_value_pairs_truncated=result.key_value_pairs_truncated,
-        key_value_pairs=[_ocr_key_value_pair_schema(pair) for pair in result.key_value_pairs],
-    )
-
-
-def _ocr_page_result_schema(
-    page: PipelineInvocationOcrPageResult,
-) -> PipelineRunOcrPageResultSchema:
-    return PipelineRunOcrPageResultSchema(
-        page_number=page.page_number,
-        status=page.status,
-        text=page.text,
-        text_truncated=page.text_truncated,
-        lines=list(page.lines),
-        lines_truncated=page.lines_truncated,
-        confidence=page.confidence,
-        warning_codes=list(page.warning_codes),
-        error_code=page.error_code,
-        fallback_used=page.fallback_used,
-        fallback_reason_codes=list(page.fallback_reason_codes),
-        primary_error_code=page.primary_error_code,
-    )
-
-
-def _ocr_key_value_pair_schema(
-    pair: PipelineInvocationOcrKeyValuePair,
-) -> PipelineRunOcrKeyValuePairSchema:
-    return PipelineRunOcrKeyValuePairSchema(
-        key=pair.key,
-        value=pair.value,
-        key_truncated=pair.key_truncated,
-        value_truncated=pair.value_truncated,
-        confidence=pair.confidence,
-        page_number=pair.page_number,
-        bounding_polygon=list(pair.bounding_polygon),
-        order_index=pair.order_index,
-        source=pair.source,
     )

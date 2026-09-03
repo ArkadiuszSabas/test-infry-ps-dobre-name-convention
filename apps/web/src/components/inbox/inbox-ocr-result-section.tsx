@@ -229,12 +229,16 @@ function ocrRunStatusLabel(
       return t("detail.ocr.runStatus.pending");
     case "running":
       return t("detail.ocr.runStatus.running");
+    case "cancelling":
+      return t("detail.ocr.runStatus.cancelling");
     case "succeeded":
       return t("detail.ocr.runStatus.succeeded");
     case "partial_failed":
       return t("detail.ocr.runStatus.partialFailed");
     case "failed":
       return t("detail.ocr.runStatus.failed");
+    case "cancelled":
+      return t("detail.ocr.runStatus.cancelled");
     default:
       return status;
   }

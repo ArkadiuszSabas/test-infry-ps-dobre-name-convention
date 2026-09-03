@@ -54,6 +54,9 @@ def record_to_values(record: OcrPipelineRunRecord) -> dict[str, object]:
         "connector_instance_id": record.connector_instance_id,
         "connector_display_name": record.connector_display_name,
         "connector_correlation_id": record.connector_correlation_id,
+        "cancellation_requested_at": record.cancellation_requested_at,
+        "cancellation_requested_by_actor_id": record.cancellation_requested_by_actor_id,
+        "cancellation_requested_by_actor_login": record.cancellation_requested_by_actor_login,
     }
 
 
@@ -96,6 +99,13 @@ def record_from_row(row: Mapping[Any, Any]) -> OcrPipelineRunRecord:
         connector_instance_id=optional_string(row["connector_instance_id"]),
         connector_display_name=optional_string(row["connector_display_name"]),
         connector_correlation_id=optional_string(row["connector_correlation_id"]),
+        cancellation_requested_at=cast(datetime | None, row["cancellation_requested_at"]),
+        cancellation_requested_by_actor_id=optional_string(
+            row["cancellation_requested_by_actor_id"]
+        ),
+        cancellation_requested_by_actor_login=optional_string(
+            row["cancellation_requested_by_actor_login"]
+        ),
     )
 
 

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
+from time import perf_counter
 from typing import Literal, Never
 
 from docmind_llmmagic.application.pipeline.observability import (
@@ -49,6 +51,10 @@ from docmind_llmmagic.application.pipeline.steps.document_context_resolver.ports
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.retrieval import (
     plan_batches,
     retrieve_candidates,
+)
+from docmind_llmmagic.application.pipeline.steps.document_context_resolver.summary import (
+    observe_completed_summary,
+    observe_failed_summary,
 )
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.workflow import (
     ContextResolverBatchOutcome,
@@ -148,9 +154,11 @@ class ContextResolverGraph:
         step_id: str | None = None,
         user_id: str | None = None,
         session_id: str | None = None,
+        document_id: str | None = None,
     ) -> ContextResolverWorkflowResult:
         """Run the graph with bounded native concurrency and redacted state."""
 
+        started_at = perf_counter()
         context = ContextResolverGraphContext(
             settings=self._settings,
             config=config,
@@ -161,6 +169,7 @@ class ContextResolverGraph:
             step_id=step_id,
             user_id=user_id,
             session_id=session_id,
+            document_id=document_id,
         )
         try:
             async with asyncio.timeout(self._settings.workflow_timeout_seconds):
@@ -198,12 +207,54 @@ class ContextResolverGraph:
                     result = with_coverage_fallback(result=result, coverage=coverage)
                     coverage_used = True
                 self._observe_final_result(context, result, coverage_used=coverage_used)
+                primary_result = context.workspace.model_result
+                if primary_result is None:
+                    _raise_invalid_output()
+                observe_completed_summary(
+                    observer=self._observer,
+                    config=config,
+                    result=result,
+                    primary_result=primary_result.attributes,
+                    batches=context.workspace.batches,
+                    outcomes=ordered_outcomes(context),
+                    duration_seconds=perf_counter() - started_at,
+                    pipeline_id=pipeline_id,
+                    run_id=run_id,
+                    step_id=step_id,
+                    user_id=user_id,
+                    document_id=document_id,
+                    capture_mode=self._trace_capture_mode,
+                )
         except TimeoutError as exc:
-            raise safe_context_resolver_error(
+            error = safe_context_resolver_error(
                 code="CONTEXT_RESOLVER_WORKFLOW_TIMEOUT",
                 message="Context Resolver workflow timed out.",
-            ) from exc
+            )
+            self._observe_failed_summary(context, error)
+            raise error from exc
+        except Exception as exc:
+            self._observe_failed_summary(context, exc)
+            raise
         return result
+
+    def _observe_failed_summary(
+        self,
+        context: ContextResolverGraphContext,
+        error: Exception,
+    ) -> None:
+        observe_failed_summary(
+            observer=self._observer,
+            config=context.config,
+            batches=context.workspace.batches,
+            outcomes=tuple(context.workspace.outcomes_by_id.values()),
+            error=error,
+            pipeline_id=context.pipeline_id,
+            run_id=context.run_id,
+            step_id=context.step_id,
+            user_id=context.user_id,
+            document_id=context.document_id,
+            capture_mode=self._trace_capture_mode,
+        )
 
     async def _prepare_evidence(
         self,
@@ -547,6 +598,14 @@ async def _resolve_task(
         user_id=context.user_id,
         session_id=context.session_id,
     )
+    previous = context.workspace.outcomes_by_id.get(batch_id)
+    if previous is not None:
+        outcome = replace(
+            outcome,
+            provider_request_count=(
+                previous.provider_request_count + outcome.provider_request_count
+            ),
+        )
     context.workspace.outcomes_by_id[batch_id] = outcome
     return outcome
 

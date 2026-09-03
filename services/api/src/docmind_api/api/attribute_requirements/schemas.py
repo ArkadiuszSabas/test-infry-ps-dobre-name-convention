@@ -1,6 +1,7 @@
 """HTTP schemas for document type attribute requirement endpoints."""
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -90,6 +91,51 @@ class AttributeRequirementMatrixEnvelope(BaseModel):
 
     data: AttributeRequirementMatrixSchema
     meta: AttributeRequirementMatrixMetaSchema
+
+
+class AttributeAssignmentSchema(BaseModel):
+    """One document type's assignment state for an attribute."""
+
+    document_type: AttributeRequirementDocumentTypeSchema
+    state: Literal["required", "optional", "unassigned"]
+    requirement_id: UUID | None = None
+    include_metadata_in_context_resolver: bool = False
+    missing_required_action: MissingRequiredAttributeAction | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class AttributeAssignmentMetaSchema(BaseModel):
+    total_count: int
+    assigned_count: int
+    unassigned_count: int
+    required_count: int
+    optional_count: int
+    version: str
+
+
+class AttributeAssignmentPayloadSchema(BaseModel):
+    attribute: AttributeRequirementAttributeSchema
+    assignments: list[AttributeAssignmentSchema]
+
+
+class AttributeAssignmentEnvelope(BaseModel):
+    data: AttributeAssignmentPayloadSchema
+    meta: AttributeAssignmentMetaSchema
+
+
+class SaveAttributeAssignmentItemRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_type_id: UUID
+    required: bool
+    include_metadata_in_context_resolver: bool = False
+    missing_required_action: MissingRequiredAttributeAction | None = None
+
+
+class SaveAttributeAssignmentsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    base_version: str
+    assignments: list[SaveAttributeAssignmentItemRequest] = Field()
 
 
 class MetadataSchemaFieldSchema(BaseModel):

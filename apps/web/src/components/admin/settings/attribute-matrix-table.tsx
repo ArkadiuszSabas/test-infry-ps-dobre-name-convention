@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { PencilIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +23,7 @@ import {
 } from "@/lib/admin-settings/view-model";
 
 import { fieldErrorClassName } from "@/components/admin/catalog/catalog-shared";
+import { IconTooltipButton } from "@/components/ui/icon-tooltip-button";
 import { RequirementButtons } from "./attribute-matrix-controls";
 
 interface AttributeMatrixTableProps {
@@ -34,6 +36,7 @@ interface AttributeMatrixTableProps {
   isPending: boolean;
   isSaving: boolean;
   matrixDocumentType: AttributeRequirementDocumentType | null;
+  onEdit: (attributeId: string) => void;
   onStateChange: (
     attributeId: string,
     state: AttributeRequirementState,
@@ -52,6 +55,7 @@ export function AttributeMatrixTable({
   isPending,
   isSaving,
   matrixDocumentType,
+  onEdit,
   onStateChange,
   onMetadataInclusionChange,
   rows,
@@ -138,14 +142,24 @@ export function AttributeMatrixTable({
                             ) : null}
                           </div>
                         </div>
-                        <RequirementButtons
-                          disabled={isSaving}
-                          disableAssign={disableAssign}
-                          onChange={(state) =>
-                            onStateChange(row.attribute.id, state)
-                          }
-                          row={row}
-                        />
+                        <div className="flex items-center gap-2">
+                          <IconTooltipButton
+                            onClick={() => onEdit(row.attribute.id)}
+                            tooltip={t("actions.editDetails", {
+                              name: row.attribute.name,
+                            })}
+                          >
+                            <PencilIcon />
+                          </IconTooltipButton>
+                          <RequirementButtons
+                            disabled={isSaving}
+                            disableAssign={disableAssign}
+                            onChange={(state) =>
+                              onStateChange(row.attribute.id, state)
+                            }
+                            row={row}
+                          />
+                        </div>
                       </div>
                       {row.state !== "unassigned" &&
                       row.attribute.isMetadata ? (

@@ -128,6 +128,12 @@ export interface ReviewAttributeSource {
   sourceKey: string | null;
 }
 
+export interface ReviewSourceSelection {
+  fieldId: string;
+  sources: readonly ReviewAttributeSource[];
+  targetPageNumber: number;
+}
+
 export interface ReviewFieldItem {
   attributeExternalId: string | null;
   attributeId: string | null;

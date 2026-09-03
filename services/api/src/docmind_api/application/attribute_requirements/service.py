@@ -1,14 +1,17 @@
 """Application use cases for document type attribute requirement configuration."""
 
+import hashlib
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from docmind_api.application.attribute_requirements.models import (
+    AttributeAssignmentVersionConflictError,
     AttributeRequirementConfigurationError,
     AttributeRequirementEntry,
     AttributeRequirementReferenceError,
     AttributeRequirementValidationError,
     DocumentTypeAttributeRequirementMatrix,
     DocumentTypeMetadataSchema,
+    SaveAttributeDocumentTypeAssignmentsCommand,
     SaveAttributeRequirementItem,
     SaveDocumentTypeAttributeRequirementsCommand,
 )
@@ -17,6 +20,7 @@ from docmind_api.application.attribute_requirements.ports import (
     AttributeRequirementRepository,
     Clock,
 )
+from docmind_api.application.attributes.errors import AttributeDefinitionNotFoundError
 from docmind_api.application.attributes.ports import (
     AttributeCategoryRepository,
     AttributeDefinitionRepository,
@@ -82,6 +86,123 @@ class AttributeRequirementMatrixService:
             requirements=requirements,
         )
 
+    async def get_attribute_assignments(
+        self, *, attribute_id: UUID
+    ) -> tuple[
+        AttributeDefinition,
+        tuple[DocumentType, ...],
+        tuple[DocumentTypeAttributeRequirement, ...],
+        str,
+        bool,
+    ]:
+        attribute = await self._attribute_repository.get_by_id(attribute_id)
+        if attribute is None:
+            raise AttributeDefinitionNotFoundError(attribute_id=attribute_id)
+        document_types = await self._document_type_repository.list_all()
+        requirements = await self._repository.list_for_attribute(attribute_id)
+        version = _attribute_assignments_version(requirements)
+        return (
+            attribute,
+            document_types,
+            requirements,
+            version,
+            _attribute_is_active_metadata(
+                attribute,
+                metadata_category_ids=await self._active_metadata_category_ids(),
+            ),
+        )
+
+    async def save_attribute_assignments(
+        self,
+        *,
+        attribute_id: UUID,
+        command: SaveAttributeDocumentTypeAssignmentsCommand,
+    ) -> str:
+        await self._repository.lock_matrix_writes()
+        attribute = await self._attribute_repository.get_by_id(attribute_id)
+        if attribute is None:
+            raise AttributeDefinitionNotFoundError(attribute_id=attribute_id)
+        document_types = await self._document_type_repository.list_all()
+        current_requirements = await self._repository.list_for_attribute(
+            attribute_id, for_update=True
+        )
+        current_version = _attribute_assignments_version(current_requirements)
+        if command.base_version != current_version:
+            raise AttributeAssignmentVersionConflictError(
+                current_version=current_version,
+                current_assignments=tuple(
+                    {
+                        "document_type_id": str(requirement.document_type_id),
+                        "state": "required" if requirement.required else "optional",
+                        "requirement_id": str(requirement.id),
+                        "include_metadata_in_context_resolver": (
+                            requirement.include_metadata_in_context_resolver
+                        ),
+                        "missing_required_action": (
+                            requirement.missing_required_action.value
+                            if requirement.missing_required_action is not None
+                            else None
+                        ),
+                        "created_at": requirement.created_at.isoformat(),
+                        "updated_at": requirement.updated_at.isoformat(),
+                    }
+                    for requirement in current_requirements
+                ),
+            )
+        by_id = {UUID(str(item.id)): item for item in document_types}
+        seen: set[UUID] = set()
+        timestamp = self._clock.now()
+        saved: list[DocumentTypeAttributeRequirement] = []
+        existing_by_type = {
+            UUID(str(requirement.document_type_id)): requirement
+            for requirement in current_requirements
+        }
+        metadata_category_ids = await self._active_metadata_category_ids()
+        for item in command.assignments:
+            document_type_id = item.document_type_id
+            if document_type_id in seen or document_type_id not in by_id:
+                raise AttributeRequirementValidationError(
+                    message="Assignments contain an unknown or duplicate document type."
+                )
+            seen.add(document_type_id)
+            document_type = by_id[document_type_id]
+            if document_type.is_active and not attribute.is_active:
+                raise AttributeRequirementValidationError(
+                    message="Active document types cannot use inactive attributes."
+                )
+            is_metadata = _attribute_is_active_metadata(
+                attribute, metadata_category_ids=metadata_category_ids
+            )
+            if item.include_metadata_in_context_resolver and not is_metadata:
+                raise AttributeRequirementValidationError(
+                    message="Only metadata attributes can be included in the Context Resolver."
+                )
+            existing = existing_by_type.get(document_type_id)
+            try:
+                saved.append(
+                    DocumentTypeAttributeRequirement(
+                        id=existing.id
+                        if existing
+                        else (self._id_factory.new_id() if self._id_factory else None),
+                        external_id=existing.external_id
+                        if existing
+                        else _requirement_external_id(
+                            document_type=document_type, attribute=attribute
+                        ),
+                        document_type_id=document_type_id,
+                        attribute_definition_id=attribute.id,
+                        required=item.required,
+                        include_metadata_in_context_resolver=item.include_metadata_in_context_resolver,
+                        missing_required_action=item.missing_required_action,
+                        created_at=existing.created_at if existing else timestamp,
+                        updated_at=timestamp,
+                    )
+                )
+            except ValueError as error:
+                raise AttributeRequirementValidationError(message=str(error)) from error
+        await self._repository.replace_for_attribute(attribute_id, tuple(saved))
+        return (await self.get_attribute_assignments(attribute_id=attribute_id))[3]
+
     async def get_metadata_schema(
         self,
         *,
@@ -102,6 +223,7 @@ class AttributeRequirementMatrixService:
     ) -> DocumentTypeAttributeRequirementMatrix:
         """Replace one document type's attribute requirement matrix."""
 
+        await self._repository.lock_matrix_writes()
         document_type_reference = _validated_document_type_id(command.document_type_id)
         document_type = await self._get_document_type(document_type_reference)
         document_type_id = UUID(str(document_type.id))
@@ -395,3 +517,13 @@ def _requirement_external_id(
             ),
         ).hex
     )
+
+
+def _attribute_assignments_version(
+    requirements: tuple[DocumentTypeAttributeRequirement, ...],
+) -> str:
+    payload = "|".join(
+        f"{item.document_type_id}:{item.id}:{item.required}:{item.include_metadata_in_context_resolver}:{item.missing_required_action}:{item.updated_at.isoformat()}"
+        for item in sorted(requirements, key=lambda item: str(item.document_type_id))
+    )
+    return hashlib.sha256(payload.encode()).hexdigest()

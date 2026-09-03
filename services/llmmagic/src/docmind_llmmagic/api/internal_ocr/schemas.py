@@ -22,6 +22,7 @@ BlockStatusSchema = Literal["available", "disabled", "planned", "deprecated"]
 DiagnosticSeveritySchema = Literal["error", "warning"]
 FailurePolicySchema = Literal["required", "optional"]
 PipelineRunStatusSchema = Literal["succeeded", "partial_failed", "failed"]
+PipelineRunAcceptanceStatusSchema = Literal["accepted"]
 PipelineRunStepStatusSchema = Literal["pending", "running", "succeeded", "failed", "skipped"]
 PipelineRunMetricValueSchema = StrictBool | StrictInt | StrictFloat
 PipelineRunActorTypeSchema = Literal["human", "connector", "system"]
@@ -245,6 +246,23 @@ class PipelineRunRequest(BaseModel):
         return value
 
 
+class PipelineRunAcceptedData(BaseModel):
+    """Safe response returned after an OCR run is admitted for execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str
+    attempt_id: str
+    status: PipelineRunAcceptanceStatusSchema
+
+
+class PipelineRunAcceptedEnvelope(BaseModel):
+    """Envelope for the asynchronous pipeline-run admission response."""
+
+    data: PipelineRunAcceptedData
+    meta: dict[str, str] = Field(default_factory=dict)
+
+
 class PipelineRunErrorSchema(BaseModel):
     """HTTP schema for safe run error details."""
 
@@ -335,10 +353,26 @@ class PipelineRunContextResolutionSourceSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     kind: str = Field(max_length=64)
+    order_index: int | None = Field(default=None, ge=0)
     page_number: int | None = Field(default=None, ge=1)
     line_number: int | None = Field(default=None, ge=1)
     key_value_index: int | None = Field(default=None, ge=1)
     confidence: float | None = Field(default=None, ge=0, le=1)
+    bounding_polygon: list[Annotated[float, Field(ge=0, le=1)]] | None = Field(
+        default=None,
+        min_length=8,
+        max_length=16,
+    )
+
+    @field_validator("bounding_polygon")
+    @classmethod
+    def require_complete_coordinate_pairs(
+        cls,
+        value: list[float] | None,
+    ) -> list[float] | None:
+        if value is not None and len(value) % 2 != 0:
+            raise ValueError("bounding_polygon must contain complete x/y coordinate pairs")
+        return value
 
 
 class PipelineRunContextResolutionAttributeSchema(BaseModel):

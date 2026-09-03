@@ -1,33 +1,46 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PlayIcon } from "lucide-react";
+import { PlayIcon, XCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { InboxNotice } from "@/components/inbox/inbox-notice";
 import { OcrResultSection } from "@/components/inbox/inbox-ocr-result-section";
 import { RunHistoryList } from "@/components/inbox/ocr-pipeline-run-history-list";
+import {
+  getOcrPipelineRunStartDisabledReason,
+  getOcrPipelineRunStartErrorMessage,
+} from "@/components/inbox/ocr-pipeline-run-start-guards";
 import { OcrRunSummary } from "@/components/inbox/ocr-pipeline-run-summary";
+import { OcrPipelineSelector } from "@/components/inbox/ocr-pipeline-selector";
 import { Button } from "@/components/ui/button";
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useCurrentActor } from "@/hooks/auth/use-current-actor";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
-import { isApiError } from "@/lib/api/errors";
 import { inboxClient } from "@/lib/inbox/api";
 import {
   documentOcrPipelineRunsQueryOptions,
   inboxQueryKeys,
   ocrPipelineRunResultQueryOptions,
+  publishedOcrPipelinesQueryOptions,
 } from "@/lib/inbox/query-options";
-import type { InboxDocument, OcrPipelineRun } from "@/lib/inbox/types";
+import type {
+  InboxDocument,
+  OcrPipelineRun,
+  OcrPipelineRunListEnvelope,
+  PublishedOcrPipelineOption,
+} from "@/lib/inbox/types";
 import {
   hasActiveOcrPipelineRun,
   isTerminalOcrPipelineRunStatus,
+  replaceOcrPipelineRunInHistory,
   selectActiveOcrPipelineRun,
   selectLatestOcrPipelineRun,
 } from "@/lib/inbox/ocr-run-view-model";
 const EMPTY_OCR_PIPELINE_RUNS: readonly OcrPipelineRun[] = [];
+const EMPTY_PUBLISHED_PIPELINES: readonly PublishedOcrPipelineOption[] = [];
 
 export interface OcrPipelineRunPanelProps {
   document: InboxDocument;
@@ -53,6 +66,14 @@ export function OcrPipelineRunPanel({
     documentId: string;
     runId: string;
   } | null>(null);
+  const [cancelDialogTarget, setCancelDialogTarget] = useState<{
+    documentId: string;
+    runId: string;
+  } | null>(null);
+  const [selectedPipeline, setSelectedPipeline] = useState<{
+    documentId: string;
+    pipelineId: string;
+  } | null>(null);
   const canCreateRuns = Boolean(
     actor?.permissions.includes("documents.create"),
   );
@@ -62,6 +83,22 @@ export function OcrPipelineRunPanel({
   const historyQuery = useQuery(
     documentOcrPipelineRunsQueryOptions(document.id, false),
   );
+  const pipelinesQuery = useQuery(
+    publishedOcrPipelinesQueryOptions(canCreateRuns && !readOnly),
+  );
+  const publishedPipelines =
+    pipelinesQuery.data?.data.pipelines ?? EMPTY_PUBLISHED_PIPELINES;
+  const defaultPipeline =
+    publishedPipelines.find((pipeline) => pipeline.isDefault) ??
+    publishedPipelines[0] ??
+    null;
+  const selectedPipelineId =
+    selectedPipeline?.documentId === document.id &&
+    publishedPipelines.some(
+      (pipeline) => pipeline.id === selectedPipeline.pipelineId,
+    )
+      ? selectedPipeline.pipelineId
+      : (defaultPipeline?.id ?? null);
   const historyRuns = historyQuery.data?.data.runs ?? EMPTY_OCR_PIPELINE_RUNS;
   const selectedHistoryRun = useMemo(
     () =>
@@ -96,9 +133,12 @@ export function OcrPipelineRunPanel({
   const currentRunResult = resultQuery.data?.data ?? null;
 
   const startMutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (pipelineId: string) =>
       runCsrfProtectedAction((csrfToken) =>
-        inboxClient.startDocumentOcrPipelineRun(document.id, { csrfToken }),
+        inboxClient.startDocumentOcrPipelineRun(document.id, {
+          csrfToken,
+          pipelineId,
+        }),
       ),
     onSuccess: async (run) => {
       setSelectedRun({ documentId: document.id, runId: run.id });
@@ -108,6 +148,31 @@ export function OcrPipelineRunPanel({
     },
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: (runId: string) =>
+      runCsrfProtectedAction((csrfToken) =>
+        inboxClient.cancelOcrPipelineRun(runId, { csrfToken }),
+      ),
+    onSuccess: (run) => {
+      setCancelDialogTarget(null);
+      setSelectedRun({ documentId: document.id, runId: run.id });
+      queryClient.setQueryData<OcrPipelineRunListEnvelope>(
+        inboxQueryKeys.documentOcrPipelineRuns(document.id),
+        (current) => replaceOcrPipelineRunInHistory(current, run),
+      );
+      void queryClient.invalidateQueries({
+        queryKey: inboxQueryKeys.documentOcrPipelineRuns(document.id),
+      });
+    },
+  });
+  const resetStartMutation = startMutation.reset;
+  const resetCancelMutation = cancelMutation.reset;
+
+  useEffect(() => {
+    resetStartMutation();
+    resetCancelMutation();
+  }, [document.id, currentRun?.id, resetCancelMutation, resetStartMutation]);
+
   const knownRuns = useMemo(
     () =>
       currentRun && !historyRuns.some((run) => run.id === currentRun.id)
@@ -116,18 +181,33 @@ export function OcrPipelineRunPanel({
     [currentRun, historyRuns],
   );
   const activeRunInProgress = hasActiveOcrPipelineRun(knownRuns);
-  const startDisabledReason = getStartDisabledReason({
+  const startDisabledReason = getOcrPipelineRunStartDisabledReason({
     activeRunInProgress,
     canCreateRuns,
     document,
     historyUnavailable: historyQuery.isError,
     historyLoading: historyQuery.isPending,
+    noPublishedPipelines:
+      !pipelinesQuery.isPending &&
+      !pipelinesQuery.isError &&
+      publishedPipelines.length === 0,
+    pipelinesLoading: pipelinesQuery.isPending,
+    pipelinesUnavailable: pipelinesQuery.isError,
+    selectedPipelineMissing: selectedPipelineId === null,
     t,
   });
   const startDisabled = Boolean(startDisabledReason) || startMutation.isPending;
   const startError = startMutation.isError
-    ? getStartErrorMessage(startMutation.error, t)
+    ? getOcrPipelineRunStartErrorMessage(startMutation.error, t)
     : null;
+  const canCancelRun =
+    canCreateRuns &&
+    (currentRun?.status === "pending" || currentRun?.status === "running");
+  const cancellationInProgress = currentRun?.status === "cancelling";
+  const retryRun =
+    !activeRunInProgress &&
+    (latestHistoryRun?.status === "failed" ||
+      latestHistoryRun?.status === "cancelled");
 
   return (
     <section className="flex flex-col gap-3">
@@ -141,21 +221,72 @@ export function OcrPipelineRunPanel({
           </p>
         </div>
         {!readOnly ? (
-          <Button
-            disabled={startDisabled}
-            onClick={() => startMutation.mutate()}
-            size="sm"
-            type="button"
-          >
-            {startMutation.isPending ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <PlayIcon data-icon="inline-start" />
-            )}
-            {startMutation.isPending
-              ? t("actions.starting")
-              : t("actions.start")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {canCancelRun || cancellationInProgress ? (
+              <Button
+                disabled={cancellationInProgress || cancelMutation.isPending}
+                onClick={() => {
+                  resetCancelMutation();
+                  if (currentRun) {
+                    setCancelDialogTarget({
+                      documentId: document.id,
+                      runId: currentRun.id,
+                    });
+                  }
+                }}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                {cancelMutation.isPending || cancellationInProgress ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <XCircleIcon data-icon="inline-start" />
+                )}
+                {cancellationInProgress
+                  ? t("actions.cancelling")
+                  : t("actions.cancel")}
+              </Button>
+            ) : null}
+            <Button
+              disabled={startDisabled}
+              onClick={() => {
+                resetCancelMutation();
+                if (selectedPipelineId) {
+                  startMutation.mutate(selectedPipelineId);
+                }
+              }}
+              size="sm"
+              type="button"
+            >
+              {startMutation.isPending ? (
+                <Spinner data-icon="inline-start" />
+              ) : (
+                <PlayIcon data-icon="inline-start" />
+              )}
+              {startMutation.isPending
+                ? t("actions.starting")
+                : retryRun
+                  ? t("actions.retry")
+                  : t("actions.start")}
+            </Button>
+            <OcrPipelineSelector
+              disabled={
+                startMutation.isPending ||
+                activeRunInProgress ||
+                !canCreateRuns ||
+                pipelinesQuery.isPending ||
+                pipelinesQuery.isError ||
+                publishedPipelines.length === 0
+              }
+              loading={pipelinesQuery.isPending}
+              onValueChange={(pipelineId) =>
+                setSelectedPipeline({ documentId: document.id, pipelineId })
+              }
+              pipelines={publishedPipelines}
+              value={selectedPipelineId}
+            />
+          </div>
         ) : null}
       </div>
 
@@ -229,88 +360,44 @@ export function OcrPipelineRunPanel({
           runs={historyRuns}
         />
       ) : null}
+
+      <ConfirmActionDialog
+        cancelLabel={t("actions.keepRun")}
+        confirmLabel={t("actions.cancel")}
+        description={t("actions.cancelConfirm")}
+        error={
+          cancelMutation.isError ? (
+            <InboxNotice
+              description={t("actions.cancelErrorDescription")}
+              title={t("actions.cancelErrorTitle")}
+              tone="danger"
+            />
+          ) : undefined
+        }
+        isPending={cancelMutation.isPending}
+        onConfirm={() => {
+          if (!cancelDialogTarget) {
+            return;
+          }
+          resetStartMutation();
+          cancelMutation.mutate(cancelDialogTarget.runId);
+        }}
+        onOpenChange={(open) => {
+          if (cancelMutation.isPending) {
+            return;
+          }
+          if (!open) {
+            setCancelDialogTarget(null);
+            resetCancelMutation();
+          }
+        }}
+        open={
+          cancelDialogTarget?.documentId === document.id &&
+          cancelDialogTarget.runId === currentRun?.id &&
+          canCancelRun
+        }
+        title={t("actions.cancelTitle")}
+      />
     </section>
   );
-}
-
-function getStartDisabledReason({
-  activeRunInProgress,
-  canCreateRuns,
-  document,
-  historyUnavailable,
-  historyLoading,
-  t,
-}: {
-  activeRunInProgress: boolean;
-  canCreateRuns: boolean;
-  document: InboxDocument;
-  historyUnavailable: boolean;
-  historyLoading: boolean;
-  t: ReturnType<typeof useTranslations>;
-}): string | null {
-  if (!canCreateRuns) {
-    return t("disabled.permission");
-  }
-
-  if (document.contentSizeBytes === null) {
-    return t("disabled.unknownSize");
-  }
-
-  if (historyLoading) {
-    return t("disabled.historyLoading");
-  }
-
-  if (historyUnavailable) {
-    return t("disabled.historyUnavailable");
-  }
-
-  if (activeRunInProgress) {
-    return t("disabled.runInProgress");
-  }
-
-  return null;
-}
-
-function getStartErrorMessage(
-  error: unknown,
-  t: ReturnType<typeof useTranslations>,
-): { description: string; title: string } {
-  if (!isApiError(error)) {
-    return {
-      description: t("errors.genericStartDescription"),
-      title: t("errors.genericStartTitle"),
-    };
-  }
-
-  const translationKey = startErrorTranslationKey(error.code);
-
-  return {
-    description: translationKey
-      ? t(`errors.${translationKey}.description`)
-      : error.message,
-    title: translationKey
-      ? t(`errors.${translationKey}.title`)
-      : t("errors.apiTitle"),
-  };
-}
-
-function startErrorTranslationKey(code: string): string | null {
-  switch (code) {
-    case "OCR_PIPELINE_RUN_NO_PUBLISHED_DEFAULT":
-      return "noPublishedDefault";
-    case "OCR_PIPELINE_RUN_PIPELINE_NOT_RUNNABLE":
-      return "pipelineNotRunnable";
-    case "OCR_PIPELINE_RUN_DOCUMENT_SIZE_UNKNOWN":
-      return "documentSizeUnknown";
-    case "OCR_PIPELINE_RUN_LIMIT_EXCEEDED":
-      return "limitExceeded";
-    case "OCR_PIPELINE_RUN_ALREADY_ACTIVE":
-      return "alreadyActive";
-    case "OCR_PIPELINE_RUN_LLMMAGIC_UNAVAILABLE":
-      return "llmMagicUnavailable";
-    case "OCR_PIPELINE_RUN_DOCUMENT_NOT_FOUND":
-      return "documentNotFound";
-    default:
-      return null;
-  }
 }

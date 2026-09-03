@@ -26,6 +26,8 @@ class ResolvedAttributeSourceKind(StrEnum):
 
     OCR_LINE = "ocr_line"
     OCR_KEY_VALUE = "ocr_key_value"
+    OCR_SELECTION_MARK = "ocr_selection_mark"
+    OCR_TABLE_CELL = "ocr_table_cell"
     OCR_DOCUMENT = "ocr_document"
     DOCUMENT_METADATA = "document_metadata"
     MISSING = "missing"
@@ -37,10 +39,24 @@ class ContextResolutionReasonCode(StrEnum):
     CONFLICTING_VALUES = "CONFLICTING_VALUES"
     LOW_CONFIDENCE = "LOW_CONFIDENCE"
     MISSING_REQUIRED_VALUE = "MISSING_REQUIRED_VALUE"
+    MISSING_REQUIRED_BLOCK_APPROVAL = "MISSING_REQUIRED_BLOCK_APPROVAL"
+    MISSING_REQUIRED_REVIEW = "MISSING_REQUIRED_REVIEW"
+    MANUAL_INPUT_REQUIRED = "MANUAL_INPUT_REQUIRED"
     MISSING_VALUE = "MISSING_VALUE"
     MODEL_OUTPUT_INVALID = "MODEL_OUTPUT_INVALID"
+    EVIDENCE_QUOTE_NOT_FOUND = "EVIDENCE_QUOTE_NOT_FOUND"
+    VALUE_NOT_DERIVABLE = "VALUE_NOT_DERIVABLE"
+    VALUE_TYPE_MISMATCH = "VALUE_TYPE_MISMATCH"
+    VALUE_OUTSIDE_DICTIONARY = "VALUE_OUTSIDE_DICTIONARY"
+    EVIDENCE_TOO_SCATTERED = "EVIDENCE_TOO_SCATTERED"
+    FIELD_NOT_PROCESSED = "FIELD_NOT_PROCESSED"
     ATTRIBUTE_MAPPING_MISSING = "ATTRIBUTE_MAPPING_MISSING"
+    ATTRIBUTE_CONSTRAINT_REJECTED = "ATTRIBUTE_CONSTRAINT_REJECTED"
+    ATTRIBUTE_CONSTRAINT_UNSATISFIABLE = "ATTRIBUTE_CONSTRAINT_UNSATISFIABLE"
     KV_CONSISTENCY_CONFLICT = "KV_CONSISTENCY_CONFLICT"
+    VALUE_FROM_SOURCE_SYSTEM = "VALUE_FROM_SOURCE_SYSTEM"
+    METADATA_NOT_CONFIRMED = "METADATA_NOT_CONFIRMED"
+    METADATA_CONTRADICTED = "METADATA_CONTRADICTED"
 
 
 class AttributeConsistencyStatus(StrEnum):
@@ -70,10 +86,12 @@ class ResolvedAttributeSource:
     """Byte-free source reference for one resolved attribute."""
 
     kind: ResolvedAttributeSourceKind
+    order_index: int | None = None
     page_number: int | None = None
     line_number: int | None = None
     key_value_index: int | None = None
     confidence: float | None = None
+    bounding_polygon: tuple[float, ...] | None = None
 
 
 @dataclass(frozen=True, slots=True)

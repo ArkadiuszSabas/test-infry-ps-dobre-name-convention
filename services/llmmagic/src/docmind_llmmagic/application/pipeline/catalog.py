@@ -8,6 +8,7 @@ from enum import StrEnum
 from typing import Any, Protocol, cast
 
 from docmind_llmmagic.application.pipeline.catalog_schemas import (
+    agentic_context_resolver_config_schema,
     context_resolver_config_schema,
     normalization_config_schema,
     ocr_config_schema,
@@ -16,6 +17,10 @@ from docmind_llmmagic.application.pipeline.catalog_schemas import (
 )
 from docmind_llmmagic.application.pipeline.definitions.default_document import (
     DEFAULT_AZURE_DI_MODEL_ID,
+)
+from docmind_llmmagic.application.pipeline.steps.document_agentic_context_resolver import (
+    DOCUMENT_AGENTIC_CONTEXT_RESOLVER_IMPLEMENTATION_ID,
+    validate_agentic_definition_config,
 )
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.config import (
     validate_context_resolver_definition_config,
@@ -143,6 +148,7 @@ def build_default_ocr_pipeline_block_catalog(
             _azure_document_intelligence_kv_block(),
             _local_parser_block(ocr_provider_settings=ocr_provider_settings),
             _context_resolver_block(context_resolver_settings=context_resolver_settings),
+            _agentic_context_resolver_block(context_resolver_settings=context_resolver_settings),
             _kv_consistency_block(),
             _normalization_block(),
         )
@@ -343,6 +349,39 @@ def _context_resolver_status(
         return PipelineBlockStatus.AVAILABLE
 
     return PipelineBlockStatus.DISABLED
+
+
+def _agentic_context_resolver_block(
+    *,
+    context_resolver_settings: ContextResolverProviderSettings | None,
+) -> PipelineBlockDefinition:
+    return PipelineBlockDefinition(
+        metadata=PipelineBlockMetadata(
+            implementation_id=DOCUMENT_AGENTIC_CONTEXT_RESOLVER_IMPLEMENTATION_ID,
+            step_type="extraction",
+            display_name="Agentic Context Resolver",
+            description=(
+                "Uses a complete deterministic OCR document view, literal quote grounding, "
+                "and strict type-validated output."
+            ),
+            status=_context_resolver_status(context_resolver_settings),
+            category="extraction",
+            version="1",
+            requires=(OCR_RESULT_ARTIFACT_KEY,),
+            produces=(CONTEXT_RESOLUTION_RESULT_ARTIFACT_KEY,),
+            default_config={},
+            config_schema=agentic_context_resolver_config_schema(),
+            ui_hints={
+                "summary": "Alternative DEV MVP; runtime targets come from the attribute matrix.",
+                "selector_sources": ("document_attribute_matrix",),
+                "disabled_reason": (
+                    "Agentic Context Resolver requires explicit DocMind OpenAI settings."
+                ),
+            },
+            allowed_failure_policies=(FailurePolicy.REQUIRED,),
+        ),
+        validate_config=validate_agentic_definition_config,
+    )
 
 
 def _kv_consistency_block() -> PipelineBlockDefinition:

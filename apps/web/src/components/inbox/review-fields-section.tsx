@@ -11,6 +11,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { ConfidenceColorBand } from "@/lib/confidence-colors/types";
 import type { ReviewFieldDraft } from "@/lib/review/editor-state";
 import { matchesReviewFieldSearch } from "@/lib/review/field-list";
+import type { ReviewSourceSelection } from "@/lib/review/types";
 import { cn } from "@/lib/utils";
 
 type ReviewFieldGroup = "optional" | "other" | "required";
@@ -30,6 +31,7 @@ export interface FieldsSectionProps {
   onChange: (clientId: string, value: string) => void;
   onEdit: () => void;
   onRemove: (clientId: string) => void;
+  onSelectSource: (selection: ReviewSourceSelection) => void;
 }
 
 export function FieldsSection({
@@ -41,6 +43,7 @@ export function FieldsSection({
   onChange,
   onEdit,
   onRemove,
+  onSelectSource,
 }: FieldsSectionProps) {
   const t = useTranslations("ReviewWorkspace.fields");
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,6 +131,7 @@ export function FieldsSection({
                         onChange={(value) => onChange(field.clientId, value)}
                         onEdit={onEdit}
                         onRemove={() => onRemove(field.clientId)}
+                        onSelectSource={onSelectSource}
                       />
                     ))}
                   </ul>

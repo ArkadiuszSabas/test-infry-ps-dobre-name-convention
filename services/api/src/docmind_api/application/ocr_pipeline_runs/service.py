@@ -25,10 +25,9 @@ from docmind_api.application.ocr_pipeline_runs.errors import (
 )
 from docmind_api.application.ocr_pipeline_runs.ports import (
     Clock,
-    DirectOcrPipelineRunLimits,
     OcrPipelineRunDocumentReader,
     OcrPipelineRunIdFactory,
-    OcrPipelineRunInvoker,
+    OcrPipelineRunLimits,
     OcrPipelineRunRepository,
     PublishedOcrPipelineSnapshotReader,
 )
@@ -38,12 +37,13 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
     OcrPipelineRunList,
     OcrPipelineRunRecord,
     OcrPipelineRunStatus,
+    RunnableOcrPipelineSnapshot,
     pending_steps_from_compiled_snapshot,
 )
 
 
 class OcrPipelineRunService:
-    """Application service for direct OCR pipeline run contracts."""
+    """Application service for creating and reading OCR pipeline runs."""
 
     def __init__(
         self,
@@ -51,17 +51,15 @@ class OcrPipelineRunService:
         repository: OcrPipelineRunRepository,
         document_reader: OcrPipelineRunDocumentReader,
         pipeline_reader: PublishedOcrPipelineSnapshotReader,
-        invoker: OcrPipelineRunInvoker,
         id_factory: OcrPipelineRunIdFactory,
         clock: Clock,
-        limits: DirectOcrPipelineRunLimits,
+        limits: OcrPipelineRunLimits,
         context_attribute_source: OcrPipelineContextAttributeSource | None = None,
         connector_display_names: Mapping[str, str] | None = None,
     ) -> None:
         self._repository = repository
         self._document_reader = document_reader
         self._pipeline_reader = pipeline_reader
-        self._invoker = invoker
         self._id_factory = id_factory
         self._clock = clock
         self._limits = limits
@@ -69,7 +67,7 @@ class OcrPipelineRunService:
         self._connector_display_names = dict(connector_display_names or {})
 
     async def start_run(self, command: StartOcrPipelineRunCommand) -> OcrPipelineRunRecord:
-        """Create a pending run against the default published pipeline snapshot."""
+        """Create a pending run against the selected or default published snapshot."""
 
         document = await self._document_reader.get_run_document(command.document_id)
         if document is None:
@@ -90,8 +88,17 @@ class OcrPipelineRunService:
                 max_content_bytes=self._limits.max_content_bytes,
             )
 
-        pipeline = await self._pipeline_reader.get_default_published()
+        pipeline = (
+            await self._pipeline_reader.get_published(command.pipeline_id)
+            if command.pipeline_id is not None
+            else await self._pipeline_reader.get_default_published()
+        )
         if pipeline is None:
+            if command.pipeline_id is not None:
+                raise OcrPipelineRunPipelineNotRunnableError(
+                    pipeline_id=command.pipeline_id,
+                    reason="Selected OCR pipeline is not published.",
+                )
             raise OcrPipelineRunNoPublishedPipelineError()
 
         try:
@@ -145,7 +152,15 @@ class OcrPipelineRunService:
                     run_id=active_run.id,
                 )
             raise OcrPipelineRunValidationError(message="OCR pipeline run could not be created.")
+        add_request_outbox = getattr(self._repository, "add_request_outbox", None)
+        if add_request_outbox is not None:
+            await add_request_outbox(record)
         return record
+
+    async def list_published_pipelines(self) -> tuple[RunnableOcrPipelineSnapshot, ...]:
+        """Return active published pipelines available for new runs."""
+
+        return await self._pipeline_reader.list_published()
 
     def _connector_display_name(self, document: OcrPipelineRunDocument) -> str | None:
         if document.connector_instance_id is not None:

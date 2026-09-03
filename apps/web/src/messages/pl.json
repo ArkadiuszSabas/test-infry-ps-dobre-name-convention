@@ -225,6 +225,17 @@
     },
     "preview": {
       "iframeTitle": "Podgląd PDF: {name}",
+      "openOriginal": "Otwórz oryginalny PDF: {name}",
+      "openOriginalAction": "Otwórz PDF",
+      "controls": {
+        "label": "Sterowanie PDF",
+        "zoomIn": "Powiększ",
+        "zoomOut": "Pomniejsz",
+        "resetZoom": "Resetuj skalę",
+        "previousPage": "Poprzednia strona",
+        "nextPage": "Następna strona",
+        "page": "Strona {current} z {total}"
+      },
       "unknownSize": "Nieznany",
       "metadata": {
         "type": "Typ dokumentu",
@@ -340,9 +351,11 @@
         "runStatus": {
           "pending": "Oczekuje",
           "running": "W toku",
+          "cancelling": "Anulowanie…",
           "succeeded": "Zakończony",
           "partialFailed": "Częściowy",
-          "failed": "Błąd"
+          "failed": "Błąd",
+          "cancelled": "Anulowany"
         },
         "pageStatus": {
           "parsed": "Odczytana",
@@ -375,14 +388,31 @@
       "description": "Uruchom opublikowany pipeline OCR i śledź bezpieczny postęp runu dla tego dokumentu.",
       "actions": {
         "start": "Uruchom OCR",
-        "starting": "Uruchamianie"
+        "starting": "Uruchamianie",
+        "retry": "Uruchom OCR ponownie",
+        "cancel": "Anuluj run",
+        "cancelling": "Anulowanie…",
+        "cancelTitle": "Anulować run OCR?",
+        "cancelConfirm": "Nowy run będzie można uruchomić po zakończeniu anulowania.",
+        "keepRun": "Nie anuluj",
+        "cancelErrorTitle": "Nie można anulować runu OCR.",
+        "cancelErrorDescription": "Spróbuj anulować run ponownie."
       },
       "disabled": {
         "permission": "Do uruchomienia OCR potrzebujesz uprawnienia tworzenia dokumentów.",
         "unknownSize": "OCR można uruchomić, gdy rozmiar dokumentu jest znany.",
+        "pipelinesLoading": "Ładowanie opublikowanych pipeline’ów OCR.",
+        "pipelinesUnavailable": "OCR można uruchomić po poprawnym załadowaniu opublikowanych pipeline’ów.",
+        "noPublishedPipelines": "Brak opublikowanego pipeline’u OCR dostępnego do uruchomienia.",
         "historyLoading": "Sprawdzanie ostatnich runów OCR przed uruchomieniem nowego.",
         "historyUnavailable": "OCR można uruchomić po poprawnym załadowaniu historii ostatnich runów.",
         "runInProgress": "Dla tego dokumentu trwa już run OCR."
+      },
+      "pipelineSelector": {
+        "label": "Pipeline OCR",
+        "loading": "Ładowanie pipeline’ów",
+        "placeholder": "Wybierz pipeline",
+        "default": "Domyślny"
       },
       "history": {
         "loading": "Ładowanie runów OCR",
@@ -397,9 +427,11 @@
       "status": {
         "pending": "Oczekuje",
         "running": "W toku",
+        "cancelling": "Anulowanie…",
         "succeeded": "Zakończony",
         "partial_failed": "Częściowy błąd",
-        "failed": "Błąd"
+        "failed": "Błąd",
+        "cancelled": "Anulowany"
       },
       "stepStatus": {
         "pending": "Oczekuje",
@@ -461,19 +493,15 @@
         },
         "pipelineNotRunnable": {
           "title": "Pipeline nie może zostać uruchomiony",
-          "description": "Wybrany opublikowany pipeline nie ma bezpiecznego skompilowanego snapshotu albo przekracza limity bezpośredniego uruchomienia."
+          "description": "Wybrany opublikowany pipeline nie ma bezpiecznego skompilowanego snapshotu albo przekracza skonfigurowane limity OCR."
         },
         "documentSizeUnknown": {
           "title": "Rozmiar dokumentu jest nieznany",
-          "description": "API nie może jeszcze potwierdzić, że dokument mieści się w limitach bezpośredniego OCR."
+          "description": "API nie może jeszcze potwierdzić, że dokument mieści się w skonfigurowanych limitach OCR."
         },
         "limitExceeded": {
           "title": "Dokument przekracza limity OCR",
-          "description": "Bezpośrednie OCR jest celowo ograniczone. Użyj mniejszego dokumentu albo poczekaj na orkiestrację przez workera."
-        },
-        "llmMagicUnavailable": {
-          "title": "LLM Magic niedostępny",
-          "description": "Usługa OCR runu nie jest osiągalna dla bezpośredniej ścieżki uruchamiania OCR."
+          "description": "Użyj mniejszego dokumentu albo zmień skonfigurowane limity OCR."
         },
         "documentNotFound": {
           "title": "Nie znaleziono dokumentu",
@@ -555,8 +583,10 @@
         "approved": "Zatwierdzony"
       },
       "unassigned": "Nieprzypisany weryfikator",
+      "unassignedDifferentReviewer": "Nieprzypisany weryfikator — wymagana inna osoba",
       "samePersonRule": "Drugą akceptację musi wykonać inny weryfikator.",
       "comment": "Komentarz do decyzji",
+      "commentLabel": "Komentarz",
       "commentPlaceholder": "Dodaj komentarz (wymagany przy odrzuceniu)",
       "approve": "Zatwierdź",
       "approveFinal": "Zatwierdź i przenieś do Archiwum",
@@ -573,6 +603,7 @@
       "versionConflict": "Weryfikacja zmieniła się przed zapisaniem decyzji. Wczytano najnowszą wersję; sprawdź ją przed ponowną decyzją.",
       "versionConflictRefreshFailed": "Weryfikacja zmieniła się, ale nie udało się wczytać najnowszej wersji. Odśwież stronę przed ponowną decyzją.",
       "history": "Historia decyzji",
+      "historyCount": "{count}",
       "historyDecisions": {
         "approved": "Zatwierdzono",
         "rejected": "Odrzucono"
@@ -618,7 +649,100 @@
       "manualAdded": "Dodane ręcznie",
       "manualChanged": "Zmienione ręcznie",
       "deleteAria": "Usuń pole {name}",
+      "showSourceAria": "Pokaż źródło w PDF dla pola {name}",
       "valueAria": "Wartość pola {name}",
+      "reviewReasonsAria": "Powody wymagające uwagi recenzenta",
+      "reasonCodes": {
+        "CONFLICTING_VALUES": "Umowa podaje dwie różne wartości",
+        "LOW_CONFIDENCE": "Sprawdź wartość o niskiej pewności",
+        "MISSING_REQUIRED_VALUE": "Uzupełnij wymagane pole",
+        "MISSING_REQUIRED_BLOCK_APPROVAL": "Uzupełnij przed zatwierdzeniem",
+        "MISSING_REQUIRED_REVIEW": "Sprawdź brak wymaganego pola",
+        "MANUAL_INPUT_REQUIRED": "Wprowadź wartość ręcznie",
+        "MISSING_VALUE": "Sprawdź, czy wartość występuje",
+        "MODEL_OUTPUT_INVALID": "Nie udało się potwierdzić wartości",
+        "EVIDENCE_QUOTE_NOT_FOUND": "Cytat nie zgadza się z dokumentem",
+        "VALUE_NOT_DERIVABLE": "Wartość nie wynika ze wskazanego fragmentu",
+        "VALUE_TYPE_MISMATCH": "Wartość nie pasuje do typu pola",
+        "VALUE_OUTSIDE_DICTIONARY": "Wartość spoza listy dopuszczalnych",
+        "EVIDENCE_TOO_SCATTERED": "Treść rozsypana po zbyt wielu miejscach",
+        "FIELD_NOT_PROCESSED": "Pole nie zostało sprawdzone",
+        "ATTRIBUTE_MAPPING_MISSING": "Błąd konfiguracji pola",
+        "KV_CONSISTENCY_CONFLICT": "Porównaj wartość z OCR",
+        "METADATA_NOT_CONFIRMED": "Wartość z systemu źródłowego",
+        "METADATA_CONTRADICTED": "Umowa podaje inną wartość",
+        "VALUE_FROM_SOURCE_SYSTEM": "Wartość z systemu źródłowego",
+        "ATTRIBUTE_CONSTRAINT_REJECTED": "Błąd konfiguracji pola",
+        "ATTRIBUTE_CONSTRAINT_UNSATISFIABLE": "Błąd konfiguracji pola"
+      },
+      "reasonPopup": {
+        "detailsAria": "Wyjaśnienie powodu: {reason}",
+        "whatHappened": "Co się stało",
+        "whatItMeans": "Co to znaczy",
+        "whatToDo": "Co zrobić",
+        "codes": {
+          "EVIDENCE_QUOTE_NOT_FOUND": {
+            "happened": "System wskazał fragment umowy, ale jego treść nie zgadza się z tym, co odczytano ze skanu.",
+            "meaning": "Najczęstsza przyczyna to jakość skanu — OCR przeczytał tekst inaczej, niż jest na papierze.",
+            "action": "Ta informacja prawdopodobnie w umowie JEST: znajdź to miejsce i wpisz wartość ręcznie."
+          },
+          "VALUE_NOT_DERIVABLE": {
+            "happened": "System znalazł właściwe miejsce w umowie, ale nie potrafił wyprowadzić z niego wartości w wymaganej postaci.",
+            "meaning": "Zwykle znaczy to, że treść jest rozproszona po kilku miejscach albo sformułowana opisowo.",
+            "action": "Przeczytaj dokument i wpisz wartość ręcznie."
+          },
+          "VALUE_TYPE_MISMATCH": {
+            "happened": "Pole oczekuje określonego typu (np. liczby), a w umowie znaleziono treść w innej postaci.",
+            "meaning": "Albo w dokumencie faktycznie nie ma wartości w tej postaci, albo pole ma źle ustawiony typ w konfiguracji.",
+            "action": "Jeśli w umowie jest konkretna wartość — wpisz ją; jeśli wyłącznie opisowa — zgłoś, że pole ma zły typ."
+          },
+          "VALUE_OUTSIDE_DICTIONARY": {
+            "happened": "Znaleziona wartość nie występuje na liście dopuszczalnych wartości tego pola.",
+            "meaning": "Albo w umowie jest inna wartość, albo lista wymaga uzupełnienia.",
+            "action": "Wybierz właściwą pozycję lub zgłoś brak."
+          },
+          "EVIDENCE_TOO_SCATTERED": {
+            "happened": "Treść tego pola składa się z większej liczby fragmentów.",
+            "meaning": "System nie potrafi obsłużyć ich wszystkich naraz.",
+            "action": "Uzupełnij ręcznie albo zgłoś zawężenie opisu tego pola w konfiguracji."
+          },
+          "FIELD_NOT_PROCESSED": {
+            "happened": "Przetwarzanie nie zakończyło się: przekroczony czas albo błąd usługi AI.",
+            "meaning": "To NIE jest informacja o dokumencie — tego pola nikt nie sprawdził.",
+            "action": "Uruchom przetwarzanie ponownie; jeśli się powtarza, zgłoś."
+          },
+          "MODEL_OUTPUT_INVALID": {
+            "happened": "Odpowiedź modelu nie spełniła wymaganego formatu, więc wartość nie została zapisana.",
+            "meaning": "To nie jest informacja o treści dokumentu.",
+            "action": "Sprawdź umowę ręcznie i zgłoś, jeśli powtarza się na tym samym polu."
+          },
+          "VALUE_FROM_SOURCE_SYSTEM": {
+            "happened": "Ta wartość pochodzi z systemu źródłowego, przez integrację. Nie została wyciągnięta z treści umowy.",
+            "meaning": "System źródłowy jest tu rozstrzygający. Umowa może tę wartość potwierdzać, milczeć o niej albo podawać ją w formie, której nie odczytaliśmy — na przykład odręcznie. W każdym przypadku obowiązuje wartość z systemu.",
+            "action": "Nic. Wartość nadaje się do zatwierdzenia. Gdyby umowa podawała wartość inną, zobaczysz osobny znacznik „Umowa podaje inną wartość”."
+          },
+          "METADATA_CONTRADICTED": {
+            "happened": "Wartość pochodzi z systemu źródłowego, ale w umowie znaleźliśmy inną.",
+            "meaning": "Pokazujemy tę z systemu, bo on jest źródłem prawdy.",
+            "action": "Zweryfikuj, która jest właściwa."
+          },
+          "CONFLICTING_VALUES": {
+            "happened": "W dokumencie są co najmniej dwie wykluczające się wartości dla tego pola — np. umowa i aneks mówią co innego.",
+            "meaning": "Wybrana została jedna.",
+            "action": "Sprawdź, która obowiązuje."
+          },
+          "ATTRIBUTE_CONSTRAINT": {
+            "happened": "Wartość została odrzucona przez reguły walidacji ustawione dla tego atrybutu (wzorzec, długość, zakres).",
+            "meaning": "To NIE jest problem z dokumentem i nie da się tego naprawić w Review.",
+            "action": "Zgłoś administratorowi konfiguracji."
+          },
+          "ATTRIBUTE_MAPPING_MISSING": {
+            "happened": "Atrybut nie ma poprawnego mapowania w konfiguracji, więc wartość nie mogła zostać przypisana.",
+            "meaning": "Tego problemu nie da się naprawić w Review.",
+            "action": "Zgłoś problem administratorowi konfiguracji."
+          }
+        }
+      },
       "filters": {
         "all": "Wszystkie pola",
         "errors": "Tylko błędne",
@@ -746,6 +870,10 @@
         "title": "Pipeline'y OCR",
         "description": "Szkice, walidacja, publikacja i domyślny pipeline OCR."
       },
+      "adminOcrRuns": {
+        "title": "Runy OCR",
+        "description": "Aktywne i historyczne wykonania OCR, diagnostyka oraz anulowanie."
+      },
       "adminConnectors": {
         "title": "Konfiguracja konektorów",
         "description": "Skonfiguruj konektory dostępne w tym profilu wdrożenia."
@@ -810,6 +938,158 @@
           }
         }
       }
+    }
+  },
+  "AdminOcrRuns": {
+    "title": "Runy OCR",
+    "description": "Zbiorczy podgląd aktywnych i historycznych wykonań OCR wszystkich dokumentów.",
+    "back": "Wróć do administracji",
+    "refresh": "Odśwież",
+    "loading": "Ładowanie runu OCR…",
+    "loadError": "Nie udało się załadować runów OCR",
+    "loadErrorDescription": "Spróbuj odświeżyć widok. Jeśli problem się powtarza, sprawdź stan API.",
+    "supportingDataError": "Nie udało się załadować typów dokumentów lub pipeline’ów",
+    "supportingDataErrorDescription": "Lista runów nadal jest dostępna, ale część filtrów i akcji ponownego uruchomienia może być niedostępna.",
+    "empty": "Brak runów OCR",
+    "emptyDescription": "Runy pojawią się tutaj po przekazaniu dokumentów do OCR.",
+    "emptyFiltered": "Brak runów dla tych filtrów",
+    "emptyFilteredDescription": "Zmień lub wyczyść filtry, aby zobaczyć więcej runów OCR.",
+    "pageSummary": "Rekordy na stronie: {count}",
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "tabs": {
+      "label": "Zakres runów OCR",
+      "active": "Aktywne",
+      "history": "Historia"
+    },
+    "filters": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Nazwa, document ID, run ID lub correlation ID",
+      "pipeline": "Pipeline",
+      "pipelineShort": "Pipeline",
+      "allPipelines": "Wszystkie pipeline’y",
+      "documentType": "Typ dokumentu",
+      "documentTypeShort": "Typ dok.",
+      "allDocumentTypes": "Wszystkie typy dokumentu",
+      "source": "Źródło",
+      "sourceShort": "Źródło",
+      "allSources": "Wszystkie źródła",
+      "connector": "Connector / instancja",
+      "connectorShort": "Connector",
+      "allConnectors": "Wszystkie connectory",
+      "status": "Status",
+      "allStatuses": "Wszystkie",
+      "stale": "Bez aktualizacji od",
+      "staleShort": "Bez akt.",
+      "anyAge": "Dowolny czas",
+      "staleValues": {
+        "15m": "15 minut",
+        "1h": "1 godzina",
+        "6h": "6 godzin",
+        "24h": "24 godzin"
+      },
+      "dateRange": "Data utworzenia",
+      "datePlaceholder": "RRRR-MM-DD",
+      "datePresets": {
+        "24h": "Ostatnie 24 godziny",
+        "7d": "Ostatnie 7 dni",
+        "30d": "Ostatnie 30 dni",
+        "custom": "Zakres niestandardowy…"
+      },
+      "from": "Utworzone od",
+      "to": "Utworzone do",
+      "clear": "Wyczyść filtry",
+      "noOptions": "Brak opcji",
+      "searchOptions": "Szukaj opcji"
+    },
+    "columns": {
+      "document": "Dokument",
+      "status": "Status",
+      "pipeline": "Pipeline",
+      "progress": "Krok / postęp",
+      "sourceAndInitiator": "Źródło / inicjator",
+      "updated": "Aktualizacja",
+      "actions": "Akcje"
+    },
+    "actions": {
+      "details": "Szczegóły",
+      "detailsFor": "Pokaż szczegóły runu dla {name}",
+      "openDocumentShort": "Otwórz dokument",
+      "openDocument": "Otwórz dokument {name}",
+      "openLangfuseShort": "Otwórz sesję w Langfuse",
+      "openLangfuse": "Otwórz sesję Langfuse dla {name}",
+      "langfuseUnavailable": "Langfuse niedostępny: brak konfiguracji projektu dla tego środowiska",
+      "rerunLastShort": "Uruchom ponownie ostatnim pipeline’em",
+      "rerunLast": "Uruchom ponownie {name} ostatnim pipeline’em",
+      "rerunWithPipelineShort": "Uruchom ponownie wybranym pipeline’em",
+      "rerunWithPipeline": "Wybierz pipeline do ponownego uruchomienia {name}",
+      "noPipelines": "Brak opublikowanych pipeline’ów",
+      "cancelShort": "Anuluj run",
+      "cancelFor": "Anuluj run dla {name}",
+      "more": "Więcej akcji",
+      "moreFor": "Więcej akcji dla {name}"
+    },
+    "bulk": {
+      "selected": "Zaznaczono: {count}",
+      "selectAll": "Zaznacz wszystkie możliwe dokumenty na stronie",
+      "selectFor": "Zaznacz dokument {name}",
+      "pipeline": "Pipeline dla zaznaczonych",
+      "loadingPipelines": "Ładowanie pipeline’ów…",
+      "defaultPipeline": "domyślny",
+      "queue": "Skolejkuj zaznaczone",
+      "queueing": "Kolejkowanie…",
+      "clearSelection": "Wyczyść zaznaczenie"
+    },
+    "queueFeedback": {
+      "success": "Skolejkowano runy: {queued}.",
+      "partial": "Skolejkowano: {queued}. Nie udało się: {failed}.",
+      "error": "Nie udało się skolejkować runów: {failed}. Sprawdź, czy dokument nie ma już aktywnego runu i czy pipeline jest nadal opublikowany."
+    },
+    "statuses": {
+      "pending": "Oczekuje",
+      "running": "W toku",
+      "cancelling": "Anulowanie",
+      "succeeded": "Zakończony",
+      "partial_failed": "Częściowy błąd",
+      "failed": "Błąd",
+      "cancelled": "Anulowany"
+    },
+    "stepStatuses": {
+      "pending": "Oczekuje",
+      "running": "W toku",
+      "succeeded": "Zakończony",
+      "failed": "Błąd",
+      "skipped": "Pominięty"
+    },
+    "detail": {
+      "title": "Szczegóły runu OCR",
+      "description": "Bezpieczne dane operacyjne runu.",
+      "status": "Status",
+      "pipeline": "Pipeline",
+      "created": "Utworzono",
+      "started": "Rozpoczęto",
+      "updated": "Zaktualizowano",
+      "completed": "Zakończono",
+      "correlation": "Correlation ID",
+      "runId": "Run ID",
+      "steps": "Kroki",
+      "noSteps": "Brak kroków.",
+      "diagnostics": "Diagnostyki i błędy",
+      "noDiagnostics": "Brak diagnostyk.",
+      "metrics": "Metryki",
+      "noMetrics": "Brak metryk.",
+      "attempts": "Próby wykonania",
+      "noAttempts": "Brak prób wykonania.",
+      "cancellation": "Audyt anulowania",
+      "noCancellation": "Anulowanie nie było żądane."
+    },
+    "cancelDialog": {
+      "title": "Anulować run OCR?",
+      "description": "Run dla dokumentu „{name}” otrzyma żądanie anulowania. Operacja jest idempotentna.",
+      "back": "Wróć",
+      "confirm": "Anuluj run",
+      "error": "Nie udało się anulować runu",
+      "errorDescription": "Sprawdź aktualny status przed ponowieniem."
     }
   },
   "AdminApprovalSettings": {
@@ -1622,8 +1902,35 @@
       },
       "actions": {
         "edit": "Edytuj {name}",
+        "assignments": "Przypisania do typów dokumentów dla {name}",
         "deactivate": "Dezaktywuj {name}",
         "delete": "Usuń {name}"
+      },
+      "assignments": {
+        "title": "Przypisania do typów dokumentów: {name}",
+        "search": "Szukaj typów dokumentów",
+        "all": "Wszystkie",
+        "assigned": "Przypisane",
+        "unassigned": "Nieprzypisane",
+        "required": "Wymagane",
+        "optional": "Opcjonalne",
+        "missingAction": "Akcja dla braku wymaganej wartości",
+        "blockApproval": "Zablokuj akceptację",
+        "requireReview": "Wymagaj weryfikacji",
+        "contextResolver": "Uwzględnij w Context Resolver",
+        "conflict": "Przypisania zmieniły się na serwerze. Wczytaj aktualny stan przed ponownym zapisem.",
+        "reload": "Wczytaj aktualny stan",
+        "saveError": "Nie udało się zapisać zmian.",
+        "validation": "Część przypisań jest nieprawidłowa. Sprawdź wybrane typy dokumentów i akcje wymaganych wartości.",
+        "cancel": "Anuluj",
+        "save": "Zapisz zmiany",
+        "loading": "Ładowanie…",
+        "error": "Nie udało się załadować przypisań.",
+        "forbidden": "Nie masz uprawnień do zarządzania tymi przypisaniami.",
+        "notFound": "Ten atrybut już nie istnieje.",
+        "unsaved": "{count} niezapisanych zmian",
+        "summary": "Przypisane: {assigned} z {total}; nieprzypisane: {unassigned}",
+        "empty": "Żaden typ dokumentu nie pasuje do bieżących filtrów."
       },
       "dataTypes": {
         "string": "Tekst",
@@ -1665,6 +1972,10 @@
         "createDescription": "Nowe wpisy są zapisywane jako aktywne definicje atrybutów.",
         "editTitle": "Edytuj atrybut",
         "editDescription": "Edycja {id}",
+        "loadingDetails": "Ładowanie szczegółów atrybutu",
+        "loadDescription": "Odśwież połączenie z API i spróbuj ponownie.",
+        "notFoundTitle": "Nie znaleziono atrybutu",
+        "notFoundDescription": "Ten atrybut nie jest już dostępny w katalogu.",
         "fields": {
           "externalId": "External ID",
           "externalIdDescription": "Stabilny klucz dla importów, eksportów i integracji. Zostaw puste, aby API wygenerowało go automatycznie.",
@@ -1710,6 +2021,7 @@
           "noConstraints": "Backend obecnie nie obsługuje ograniczeń dla tego typu danych."
         },
         "errors": {
+          "loadFailed": "Nie udało się załadować szczegółów atrybutu.",
           "nameRequired": "Podaj nazwę.",
           "categoryRequired": "Wybierz aktywną kategorię.",
           "allowedValuesRequired": "Podaj co najmniej jedną wartość inline.",
@@ -2126,6 +2438,7 @@
         "ready": "Gotowe"
       },
       "actions": {
+        "editDetails": "Edytuj szczegóły atrybutu {name}",
         "reset": "Resetuj",
         "save": "Zapisz macierz",
         "saving": "Zapisywanie"
@@ -2195,9 +2508,11 @@
       "approved": "Zatwierdzony",
       "pending": "Oczekuje",
       "running": "W toku",
+      "cancelling": "Anulowanie…",
       "succeeded": "Zakończony",
       "partial_failed": "Częściowy",
-      "failed": "Błąd"
+      "failed": "Błąd",
+      "cancelled": "Anulowany"
     },
     "error": {
       "title": "Nie udało się pobrać danych dashboardu",

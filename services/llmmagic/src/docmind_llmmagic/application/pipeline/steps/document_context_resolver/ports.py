@@ -44,6 +44,7 @@ class ContextResolverModelResult:
     """Structured output returned by a Context Resolver model provider."""
 
     attributes: tuple[ContextResolverModelAttribute, ...]
+    provider_request_count: int = 1
 
 
 @dataclass(frozen=True, slots=True)

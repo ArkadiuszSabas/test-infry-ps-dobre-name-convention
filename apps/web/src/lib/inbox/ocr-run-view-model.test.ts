@@ -1,16 +1,42 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { OcrPipelineRun } from "./types";
+import type { OcrPipelineRun, OcrPipelineRunListEnvelope } from "./types";
 import {
   getOcrPipelineRunHistoryRefetchInterval,
   getOcrPipelineRunProgress,
   hasActiveOcrPipelineRun,
   isTerminalOcrPipelineRunStatus,
   OCR_PIPELINE_RUN_REFETCH_INTERVAL_MS,
+  replaceOcrPipelineRunInHistory,
   selectActiveOcrPipelineRun,
   selectLatestOcrPipelineRun,
 } from "./ocr-run-view-model";
+
+test("OCR cancellation response replaces the cached history run immediately", () => {
+  const running = ocrRunFixture({ id: "run-1", status: "running" });
+  const other = ocrRunFixture({ id: "run-2", status: "succeeded" });
+  const history: OcrPipelineRunListEnvelope = {
+    data: { runs: [running, other] },
+    meta: {
+      documentId: running.documentId,
+      hasMore: false,
+      limit: 20,
+      offset: 0,
+      returnedCount: 2,
+    },
+  };
+  const cancelling = ocrRunFixture({ id: "run-1", status: "cancelling" });
+
+  const updated = replaceOcrPipelineRunInHistory(history, cancelling);
+
+  assert.equal(updated?.data.runs[0], cancelling);
+  assert.equal(updated?.data.runs[1], other);
+  assert.equal(
+    replaceOcrPipelineRunInHistory(undefined, cancelling),
+    undefined,
+  );
+});
 
 test("OCR pipeline run progress counts terminal step states", () => {
   const run = ocrRunFixture({
@@ -44,9 +70,11 @@ test("OCR pipeline run progress handles terminal runs without step trace", () =>
 test("OCR pipeline terminal status helper matches product statuses", () => {
   assert.equal(isTerminalOcrPipelineRunStatus("pending"), false);
   assert.equal(isTerminalOcrPipelineRunStatus("running"), false);
+  assert.equal(isTerminalOcrPipelineRunStatus("cancelling"), false);
   assert.equal(isTerminalOcrPipelineRunStatus("succeeded"), true);
   assert.equal(isTerminalOcrPipelineRunStatus("partial_failed"), true);
   assert.equal(isTerminalOcrPipelineRunStatus("failed"), true);
+  assert.equal(isTerminalOcrPipelineRunStatus("cancelled"), true);
 });
 
 test("OCR pipeline history polling runs only while the latest run is active", () => {
@@ -58,12 +86,17 @@ test("OCR pipeline history polling runs only while the latest run is active", ()
     getOcrPipelineRunHistoryRefetchInterval("running"),
     OCR_PIPELINE_RUN_REFETCH_INTERVAL_MS,
   );
+  assert.equal(
+    getOcrPipelineRunHistoryRefetchInterval("cancelling"),
+    OCR_PIPELINE_RUN_REFETCH_INTERVAL_MS,
+  );
   assert.equal(getOcrPipelineRunHistoryRefetchInterval("succeeded"), false);
   assert.equal(
     getOcrPipelineRunHistoryRefetchInterval("partial_failed"),
     false,
   );
   assert.equal(getOcrPipelineRunHistoryRefetchInterval("failed"), false);
+  assert.equal(getOcrPipelineRunHistoryRefetchInterval("cancelled"), false);
   assert.equal(getOcrPipelineRunHistoryRefetchInterval(null), false);
 });
 

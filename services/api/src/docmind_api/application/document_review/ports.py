@@ -59,6 +59,13 @@ class DocumentReviewRepository(Protocol):
 
     async def get_version(self, document_id: UUID, version: int) -> DocumentReviewResult | None: ...
 
+    async def get_latest_source_pipeline_run_id(
+        self,
+        document_id: UUID,
+        *,
+        before_version: int,
+    ) -> UUID | None: ...
+
     async def list_history(
         self,
         document_id: UUID,
@@ -75,6 +82,8 @@ class DocumentReviewRepository(Protocol):
         result: DocumentReviewResult,
         expected_version: int,
     ) -> bool: ...
+
+    async def save_pipeline_source_hydration(self, result: DocumentReviewResult) -> bool: ...
 
 
 class DocumentApprovalWorkflowRepository(Protocol):

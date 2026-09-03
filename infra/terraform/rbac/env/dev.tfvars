@@ -11,6 +11,7 @@ workload_identity_workloads = [
   "api-migrator",
   "dapr-servicebus-api",
   "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
   "llmmagic",
   "worker",
 ]
@@ -202,30 +203,37 @@ role_assignments = {
   }
 
   dapr-api-send-document-processing = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-docproc-01"
+    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/document-processing"
     role_definition_name             = "Azure Service Bus Data Sender"
     workload_identity_key            = "dapr-servicebus-api"
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
   dapr-api-receive-processing-results = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-procres-01"
+    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/processing-results"
     role_definition_name             = "Azure Service Bus Data Receiver"
     workload_identity_key            = "dapr-servicebus-api"
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
   dapr-worker-receive-document-processing = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-docproc-01"
+    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/document-processing"
     role_definition_name             = "Azure Service Bus Data Receiver"
     workload_identity_key            = "dapr-servicebus-worker"
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
   dapr-worker-send-processing-results = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/sbq-ocr-dev-procres-01"
+    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/processing-results"
     role_definition_name             = "Azure Service Bus Data Sender"
     workload_identity_key            = "dapr-servicebus-worker"
+    principal_type                   = "ServicePrincipal"
+    skip_service_principal_aad_check = true
+  }
+  dapr-llmmagic-send-processing-results = {
+    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/processing-results"
+    role_definition_name             = "Azure Service Bus Data Sender"
+    workload_identity_key            = "dapr-servicebus-llmmagic"
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }

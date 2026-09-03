@@ -29,6 +29,7 @@ from docmind_api.application.document_review.read_models import (
     DocumentReviewApprovalStep,
     DocumentReviewAttribute,
     DocumentReviewAttributeKind,
+    DocumentReviewAttributeSource,
     DocumentReviewAttributeStatus,
     DocumentReviewDataSource,
     DocumentReviewHistoryPage,
@@ -116,16 +117,21 @@ class DocumentReviewService:
         current: DocumentReviewResult,
     ) -> DocumentReviewResult:
         pipeline_source = self._pipeline_source
+        if pipeline_source is None or current.pipeline_sources_hydrated:
+            return current
+        if not any(_requires_pipeline_source_hydration(field) for field in current.attributes):
+            return current
+
         run_id = current.source_pipeline_run_id
-        if pipeline_source is None or run_id is None:
-            return current
-        if not any(
-            not field.sources
-            and field.value_source is DocumentReviewValueSource.PIPELINE
-            and not field.manually_edited
-            for field in current.attributes
-        ):
-            return current
+        if run_id is None:
+            if self._repository is None or current.version is None:
+                return current
+            run_id = await self._repository.get_latest_source_pipeline_run_id(
+                current.document_id,
+                before_version=current.version,
+            )
+            if run_id is None:
+                return current
 
         pipeline_result = await pipeline_source.get_for_run(current.document_id, run_id)
         if pipeline_result is None:
@@ -133,22 +139,27 @@ class DocumentReviewService:
         sources_by_id = {
             field.id: field.sources for field in pipeline_result.attributes if field.sources
         }
-        if not sources_by_id:
-            return current
-        return replace(
+        hydrated = replace(
             current,
+            source_pipeline_run_id=run_id,
+            pipeline_sources_hydrated=True,
             attributes=tuple(
                 replace(field, sources=sources_by_id[field.id])
                 if (
-                    not field.sources
-                    and field.value_source is DocumentReviewValueSource.PIPELINE
-                    and not field.manually_edited
+                    _requires_pipeline_source_hydration(field)
                     and field.id in sources_by_id
+                    and _can_hydrate_sources(
+                        field.sources,
+                        sources_by_id[field.id],
+                    )
                 )
                 else field
                 for field in current.attributes
             ),
         )
+        if self._repository is not None:
+            await self._repository.save_pipeline_source_hydration(hydrated)
+        return hydrated
 
     async def decide_approval(
         self,
@@ -195,7 +206,9 @@ class DocumentReviewService:
         blocking_field_ids = [
             str(field.id)
             for field in current.attributes
-            if field.required and _normalize_value(field.value) is None
+            if field.required
+            and _normalize_value(field.value) is None
+            and _missing_field_blocks_approval(field)
         ]
         if blocking_field_ids:
             raise DocumentApprovalDecisionRejectedError(
@@ -344,6 +357,7 @@ class DocumentReviewService:
             updated_at=datetime.now(tz=UTC),
             updated_by_actor_id=None,
             is_reprocessing=True,
+            pipeline_sources_hydrated=False,
         )
         if replacement.version is None:
             raise RuntimeError("Replacement Review version must be initialized.")
@@ -369,6 +383,12 @@ class DocumentReviewService:
         if await self._document_is_archived_for_update(document_id):
             return False
         current = await self._repository.get_current(document_id)
+        if (
+            current is not None
+            and not current.is_reprocessing
+            and current.source_pipeline_run_id == pipeline_run_id
+        ):
+            return True
         if (
             current is None
             or (current.is_reprocessing and current.source_pipeline_run_id != pipeline_run_id)
@@ -474,9 +494,13 @@ def _initial_version(result: DocumentReviewResult, *, timestamp: datetime) -> Do
         replace(
             field,
             value_source=(
-                DocumentReviewValueSource.MOCK
-                if result.data_source is DocumentReviewDataSource.MOCK
-                else DocumentReviewValueSource.PIPELINE
+                field.value_source
+                if field.value_source is DocumentReviewValueSource.MANUAL
+                else (
+                    DocumentReviewValueSource.MOCK
+                    if result.data_source is DocumentReviewDataSource.MOCK
+                    else DocumentReviewValueSource.PIPELINE
+                )
             ),
         )
         for field in result.attributes
@@ -555,8 +579,18 @@ def _build_next_version(
 
         manually_changed = value != previous.value or (
             previous.kind is DocumentReviewAttributeKind.MANUAL
-            and submitted.label.strip() != previous.label
+            and (
+                submitted.label.strip() != previous.label
+                or submitted.data_type != previous.data_type
+            )
         )
+        if not manually_changed:
+            # A full-list save is not an instruction to re-evaluate untouched
+            # pipeline fields. Preserve their complete Review projection so one
+            # edit cannot clear reasons or downgrade another field's state.
+            updated_fields.append(previous)
+            continue
+
         is_manual = previous.manually_edited or manually_changed
         updated_fields.append(
             replace(
@@ -580,8 +614,9 @@ def _build_next_version(
                     DocumentReviewValueSource.MANUAL if is_manual else previous.value_source
                 ),
                 manually_edited=is_manual,
-                review_reason_codes=(
-                    ("MISSING_REQUIRED_VALUE",) if previous.required and value is None else ()
+                review_reason_codes=_review_reason_codes_after_manual_change(
+                    previous,
+                    value=value,
                 ),
                 requires_review=previous.required and value is None,
             ),
@@ -594,12 +629,39 @@ def _build_next_version(
         current,
         version=current.version + 1,
         data_source=DocumentReviewDataSource.MANUAL,
-        source_pipeline_run_id=None,
+        source_pipeline_run_id=current.source_pipeline_run_id,
         attributes=attributes,
         quality_score=score,
         validations=validations,
         updated_at=timestamp,
         updated_by_actor_id=command.actor_id,
+    )
+
+
+def _requires_pipeline_source_hydration(field: DocumentReviewAttribute) -> bool:
+    return (
+        field.value_source is DocumentReviewValueSource.PIPELINE
+        and not field.manually_edited
+        and (not field.sources or not _has_renderable_source_polygon(field.sources))
+    )
+
+
+def _can_hydrate_sources(
+    persisted_sources: tuple[DocumentReviewAttributeSource, ...],
+    pipeline_sources: tuple[DocumentReviewAttributeSource, ...],
+) -> bool:
+    return not persisted_sources or _has_renderable_source_polygon(pipeline_sources)
+
+
+def _has_renderable_source_polygon(
+    sources: tuple[DocumentReviewAttributeSource, ...],
+) -> bool:
+    return any(
+        polygon is not None
+        and 8 <= len(polygon) <= 16
+        and len(polygon) % 2 == 0
+        and all(0 <= coordinate <= 1 for coordinate in polygon)
+        for polygon in (source.bounding_polygon for source in sources)
     )
 
 
@@ -614,8 +676,8 @@ def _calculate_review_state(
     )
     validations = tuple(
         DocumentReviewValidation(
-            code="MISSING_REQUIRED_VALUE",
-            severity="error",
+            code=_missing_required_validation_code(field),
+            severity="error" if _missing_field_blocks_approval(field) else "warning",
             field_id=field.id,
             message=f"Required field '{field.label}' has no value.",
         )
@@ -625,6 +687,24 @@ def _calculate_review_state(
         return validations, 1.0
     present_count = sum(field.value is not None for field in configured)
     return validations, round(present_count / len(configured), 4)
+
+
+def _missing_field_blocks_approval(field: DocumentReviewAttribute) -> bool:
+    reasons = set(field.review_reason_codes)
+    if reasons.intersection({"MISSING_REQUIRED_BLOCK_APPROVAL", "MISSING_REQUIRED_VALUE"}):
+        return True
+    if "MISSING_REQUIRED_REVIEW" in reasons:
+        return False
+    return True
+
+
+def _missing_required_validation_code(field: DocumentReviewAttribute) -> str:
+    reasons = set(field.review_reason_codes)
+    if "MISSING_REQUIRED_BLOCK_APPROVAL" in reasons:
+        return "MISSING_REQUIRED_BLOCK_APPROVAL"
+    if "MISSING_REQUIRED_REVIEW" in reasons:
+        return "MISSING_REQUIRED_REVIEW"
+    return "MISSING_REQUIRED_VALUE"
 
 
 def _changed_field_ids(
@@ -689,6 +769,46 @@ def _status_for_value(value: str | None) -> DocumentReviewAttributeStatus:
         if value is None
         else DocumentReviewAttributeStatus.PRESENT
     )
+
+
+_CONFIGURATION_REVIEW_REASON_CODES = frozenset(
+    {
+        "ATTRIBUTE_CONSTRAINT_REJECTED",
+        "ATTRIBUTE_CONSTRAINT_UNSATISFIABLE",
+        "ATTRIBUTE_MAPPING_MISSING",
+    }
+)
+_MISSING_REQUIRED_REVIEW_REASON_CODES = frozenset(
+    {
+        "MISSING_REQUIRED_BLOCK_APPROVAL",
+        "MISSING_REQUIRED_REVIEW",
+        "MISSING_REQUIRED_VALUE",
+    }
+)
+
+
+def _review_reason_codes_after_manual_change(
+    previous: DocumentReviewAttribute,
+    *,
+    value: str | None,
+) -> tuple[str, ...]:
+    """Keep unresolved configuration reasons while dropping stale value evidence."""
+
+    preserved = tuple(
+        code for code in previous.review_reason_codes if code in _CONFIGURATION_REVIEW_REASON_CODES
+    )
+    if value is not None or not previous.required:
+        return preserved
+
+    missing_policy = next(
+        (
+            code
+            for code in previous.review_reason_codes
+            if code in _MISSING_REQUIRED_REVIEW_REASON_CODES
+        ),
+        "MISSING_REQUIRED_VALUE",
+    )
+    return (missing_policy, *preserved)
 
 
 def _approval_projection(

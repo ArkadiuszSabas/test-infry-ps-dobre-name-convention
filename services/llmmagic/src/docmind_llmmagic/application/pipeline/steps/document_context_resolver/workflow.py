@@ -9,6 +9,9 @@ from docmind_llmmagic.application.pipeline.steps.document_context_resolver.confi
     ContextResolverConfig,
 )
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.errors import (
+    ContextResolverModelCallError,
+    model_call_error,
+    provider_request_count_from_error,
     safe_context_resolver_error,
 )
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.ports import (
@@ -107,6 +110,7 @@ class ContextResolverBatchOutcome:
     result: ContextResolverModelResult | None
     attempts: int
     error: Exception | None = None
+    provider_request_count: int = 0
 
 
 async def resolve_batch_attempt(
@@ -126,6 +130,7 @@ async def resolve_batch_attempt(
 ) -> ContextResolverBatchOutcome:
     """Resolve one async model request and return a caught technical outcome."""
 
+    provider_request_count = 1
     try:
         result = await model_client.resolve_attributes(
             ContextResolverModelRequest(
@@ -147,6 +152,7 @@ async def resolve_batch_attempt(
                 ocr_page_count=ocr_page_count,
             )
         )
+        provider_request_count = result.provider_request_count
         _validate_batch_result(batch, result)
     except Exception as exc:
         return ContextResolverBatchOutcome(
@@ -154,11 +160,16 @@ async def resolve_batch_attempt(
             result=None,
             attempts=attempt,
             error=exc,
+            provider_request_count=provider_request_count_from_error(
+                exc,
+                default=provider_request_count,
+            ),
         )
     return ContextResolverBatchOutcome(
         batch_id=batch.batch_id,
         result=result,
         attempts=attempt,
+        provider_request_count=result.provider_request_count,
     )
 
 
@@ -187,6 +198,11 @@ def raise_for_failed_outcomes(
     if failed is None:
         return
     error = failed.error
+    if isinstance(error, ContextResolverModelCallError):
+        raise model_call_error(
+            error,
+            provider_request_count=failed.provider_request_count,
+        ) from error
     if isinstance(error, PipelineStepError):
         raise error
     raise safe_context_resolver_error(
@@ -238,7 +254,7 @@ def build_workflow_result(
         evidence_catalog=evidence_catalog,
         metrics=ContextResolverWorkflowMetrics(
             batch_count=len(batches),
-            model_request_count=sum(outcome.attempts for outcome in outcomes),
+            model_request_count=sum(outcome.provider_request_count for outcome in outcomes),
             retried_batch_count=sum(outcome.attempts > 1 for outcome in outcomes),
             evidence_unit_count=len(evidence_catalog),
             selected_evidence_unit_count=len(selected_evidence),

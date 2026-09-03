@@ -120,7 +120,7 @@ def configure_azure_monitor(settings: RuntimeSettings) -> AzureMonitorStatus:
             "disable_tracing": False,
             "disable_offline_storage": not settings.azure_monitor_offline_storage_enabled,
             "enable_live_metrics": settings.azure_monitor_live_metrics_enabled,
-            "disable_metrics": True,
+            "disable_metrics": False,
             "enable_performance_counters": False,
             "sampling_ratio": 1.0,
             "browser_sdk_loader_config": {"enabled": False},

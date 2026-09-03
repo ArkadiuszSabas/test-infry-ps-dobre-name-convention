@@ -166,6 +166,7 @@ variable "container_apps" {
 variable "dapr_components" {
   description = "Dapr components attached to the Container Apps Environment. Runtime configuration must include servicebus-pubsub-api and servicebus-pubsub-worker."
   type = map(object({
+    name                         = string
     component_type               = string
     version                      = string
     ignore_errors                = bool

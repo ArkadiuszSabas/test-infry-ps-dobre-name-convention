@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import insert, select, update
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from docmind_api.application.document_review.errors import DocumentApprovalDecisionRejectedError
@@ -45,7 +46,12 @@ from docmind_api.infrastructure.persistence.document_review.tables import (
     document_review_versions_table,
     document_reviews_table,
 )
+from docmind_api.infrastructure.persistence.documents.deletion_tables import (
+    document_is_not_deleting,
+)
 from docmind_api.infrastructure.persistence.documents.tables import documents_table
+
+_DOCUMENT_DELETE_IN_PROGRESS = "DOCUMENT_DELETE_IN_PROGRESS"
 
 
 class SqlAlchemyDocumentReviewRepository:
@@ -84,6 +90,28 @@ class SqlAlchemyDocumentReviewRepository:
         )
         row = (await self._session.execute(statement)).mappings().one_or_none()
         return _result_from_row(cast(Mapping[str, Any], row)) if row is not None else None
+
+    async def get_latest_source_pipeline_run_id(
+        self,
+        document_id: UUID,
+        *,
+        before_version: int,
+    ) -> UUID | None:
+        statement = (
+            select(document_review_versions_table.c.source_pipeline_run_id)
+            .join(
+                document_reviews_table,
+                document_reviews_table.c.id == document_review_versions_table.c.review_id,
+            )
+            .where(
+                document_reviews_table.c.document_id == document_id,
+                document_review_versions_table.c.version < before_version,
+                document_review_versions_table.c.source_pipeline_run_id.is_not(None),
+            )
+            .order_by(document_review_versions_table.c.version.desc())
+            .limit(1)
+        )
+        return cast(UUID | None, (await self._session.execute(statement)).scalar_one_or_none())
 
     async def list_history(
         self,
@@ -163,6 +191,31 @@ class SqlAlchemyDocumentReviewRepository:
         await self._insert_version(result)
         return True
 
+    async def save_pipeline_source_hydration(self, result: DocumentReviewResult) -> bool:
+        if result.review_id is None or result.version is None:
+            raise ValueError("Source hydration requires a persisted Review version.")
+        statement = (
+            update(document_review_versions_table)
+            .where(
+                document_review_versions_table.c.review_id == result.review_id,
+                document_review_versions_table.c.version == result.version,
+                document_is_not_deleting(result.document_id),
+            )
+            .values(
+                source_pipeline_run_id=result.source_pipeline_run_id,
+                pipeline_sources_hydrated=result.pipeline_sources_hydrated,
+                attributes=[_attribute_to_json(field) for field in result.attributes],
+            )
+            .returning(document_review_versions_table.c.version)
+        )
+        try:
+            async with self._session.begin_nested():
+                return (await self._session.execute(statement)).scalar_one_or_none() is not None
+        except IntegrityError as error:
+            if _is_document_deletion_fence_error(error):
+                return False
+            raise
+
     async def _insert_version(self, result: DocumentReviewResult) -> None:
         if result.review_id is None or result.version is None or result.updated_at is None:
             raise ValueError("Persisted Review version is incomplete.")
@@ -172,6 +225,7 @@ class SqlAlchemyDocumentReviewRepository:
                 version=result.version,
                 data_source=result.data_source.value,
                 is_reprocessing=result.is_reprocessing,
+                pipeline_sources_hydrated=result.pipeline_sources_hydrated,
                 source_pipeline_run_id=result.source_pipeline_run_id,
                 attributes=[_attribute_to_json(field) for field in result.attributes],
                 validations=[_validation_to_json(item) for item in result.validations],
@@ -180,6 +234,14 @@ class SqlAlchemyDocumentReviewRepository:
                 created_at=result.updated_at,
             ),
         )
+
+
+def _is_document_deletion_fence_error(error: IntegrityError) -> bool:
+    """Identify the expected write fence without hiding unrelated database failures."""
+
+    return getattr(error.orig, "sqlstate", None) == "23514" and _DOCUMENT_DELETE_IN_PROGRESS in str(
+        error.orig
+    )
 
 
 class SqlAlchemyDocumentApprovalWorkflowRepository:
@@ -482,6 +544,7 @@ def _result_from_row(row: Mapping[str, Any]) -> DocumentReviewResult:
         updated_at=row["created_at_1"],
         updated_by_actor_id=row["created_by_actor_id"],
         is_reprocessing=bool(row["is_reprocessing"]),
+        pipeline_sources_hydrated=bool(row["pipeline_sources_hydrated"]),
     )
 
 

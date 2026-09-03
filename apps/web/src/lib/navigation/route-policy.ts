@@ -9,6 +9,7 @@ export type AppRouteId =
   | "adminDictionaries"
   | "adminApprovals"
   | "adminPipelines"
+  | "adminOcrRuns"
   | "adminConnectors";
 
 export type SidebarRouteId = Extract<
@@ -22,6 +23,7 @@ export type AdminEntryRouteId = Extract<
   | "adminConnectors"
   | "adminDictionaries"
   | "adminPipelines"
+  | "adminOcrRuns"
   | "adminUsers"
 >;
 
@@ -76,6 +78,14 @@ const routePolicies: readonly RoutePolicy[] = [
   },
   {
     access: {
+      anyPermissions: ["admin.settings.manage"],
+    },
+    href: "/admin/ocr-runs",
+    id: "adminOcrRuns",
+    section: "admin",
+  },
+  {
+    access: {
       anyPermissions: ["admin.users.manage", "admin.settings.manage"],
     },
     href: "/admin",
@@ -127,6 +137,7 @@ export const adminEntryRouteIds = [
   "adminUsers",
   "adminDictionaries",
   "adminPipelines",
+  "adminOcrRuns",
   "adminConnectors",
   "adminApprovals",
 ] as const satisfies readonly AdminEntryRouteId[];

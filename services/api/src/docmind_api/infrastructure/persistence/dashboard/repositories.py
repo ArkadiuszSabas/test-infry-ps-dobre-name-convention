@@ -171,7 +171,9 @@ _SUMMARY_SQL = text(
             select count(distinct runs.document_id)
             from ocr_pipeline_runs as runs
             join visible_documents on visible_documents.id = runs.document_id
-            where runs.status in (:pending_run_status, :running_run_status)
+            where runs.status in (
+                :pending_run_status, :running_run_status, :cancelling_run_status
+            )
         )::integer as processing,
         (
             select count(*)
@@ -281,6 +283,7 @@ class SqlAlchemyDashboardOverviewReader:
             "in_review_document_status": DocumentStatus.IN_REVIEW.value,
             "ocr_step_type": "ocr_parsing",
             "partial_failed_run_status": OcrPipelineRunStatus.PARTIAL_FAILED.value,
+            "cancelling_run_status": OcrPipelineRunStatus.CANCELLING.value,
             "pending_run_status": ACTIVE_OCR_PIPELINE_RUN_STATUSES[0].value,
             "running_run_status": ACTIVE_OCR_PIPELINE_RUN_STATUSES[1].value,
             "succeeded_step_status": OcrPipelineRunStepStatus.SUCCEEDED.value,

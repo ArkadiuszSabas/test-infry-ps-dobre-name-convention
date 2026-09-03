@@ -49,21 +49,15 @@ import {
 } from "@/lib/admin-settings/view-model";
 import { AttributeForm } from "./attribute-form";
 import { AttributeCatalogTable } from "./attribute-catalog-table";
+import { AttributeEditDrawer } from "./attribute-edit-drawer";
+import type { AttributeFormMode } from "./attribute-form-model";
+import { AttributeDocumentTypeAssignmentsDrawer } from "./attribute-document-type-assignments-drawer";
 
-type AttributeFormState =
-  | { kind: "create" }
-  | { item: AttributeDefinition; kind: "edit" };
+type AttributeFormState = { kind: "create" };
 
-type AttributeSaveVariables =
-  | {
-      input: UpsertAttributeInput;
-      kind: "create";
-    }
-  | {
-      attributeId: string;
-      input: UpdateAttributeInput;
-      kind: "edit";
-    };
+interface AttributeSaveVariables {
+  input: UpsertAttributeInput;
+}
 
 interface AttributeAction {
   item: AttributeDefinition;
@@ -84,11 +78,26 @@ export function AttributeCatalog() {
   const [formState, setFormState] = useState<AttributeFormState | null>(null);
   const [formDirty, setFormDirty] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [editAttributeId, setEditAttributeId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<AttributeAction | null>(
     null,
   );
   const [search, setSearch] = useState("");
+  const [assignmentAttribute, setAssignmentAttribute] =
+    useState<AttributeDefinition | null>(null);
+  const [assignmentDirty, setAssignmentDirty] = useState(false);
+  const [assignmentDiscardOpen, setAssignmentDiscardOpen] = useState(false);
   const dismissGuard = useSheetDismissGuard();
+
+  function requestAssignmentClose() {
+    if (assignmentDirty) setAssignmentDiscardOpen(true);
+    else setAssignmentAttribute(null);
+  }
+
+  function closeAssignmentAfterSave() {
+    setAssignmentDirty(false);
+    setAssignmentAttribute(null);
+  }
   const query = useQuery(attributesQueryOptions(category));
   const dictionariesQuery = useQuery(dictionariesQueryOptions("active", null));
   const attributeCategoriesQuery = useQuery(attributeCategoriesQueryOptions());
@@ -106,19 +115,9 @@ export function AttributeCatalog() {
 
   const saveMutation = useMutation({
     mutationFn: (variables: AttributeSaveVariables) =>
-      runCsrfProtectedAction((csrfToken) => {
-        if (variables.kind === "create") {
-          return adminCatalogClient.createAttribute(variables.input, {
-            csrfToken,
-          });
-        }
-
-        return adminCatalogClient.updateAttribute(
-          variables.attributeId,
-          variables.input,
-          { csrfToken },
-        );
-      }),
+      runCsrfProtectedAction((csrfToken) =>
+        adminCatalogClient.createAttribute(variables.input, { csrfToken }),
+      ),
     onSuccess: async () => {
       setFormState(null);
       await invalidateAttributes();
@@ -147,34 +146,25 @@ export function AttributeCatalog() {
   });
 
   function handleSubmit(
-    mode: AttributeFormState,
+    mode: AttributeFormMode,
     input: UpsertAttributeInput | UpdateAttributeInput,
   ) {
     if (
-      mode.kind === "create" &&
-      input.dataType &&
-      input.llmContext !== undefined &&
-      "externalId" in input
+      mode.kind !== "create" ||
+      !input.dataType ||
+      input.llmContext === undefined
     ) {
-      saveMutation.mutate({
-        input: {
-          ...input,
-          dataType: input.dataType,
-          externalId: input.externalId,
-          llmContext: input.llmContext,
-        },
-        kind: "create",
-      });
       return;
     }
 
-    if (mode.kind === "edit") {
-      saveMutation.mutate({
-        attributeId: mode.item.id,
-        input,
-        kind: "edit",
-      });
-    }
+    saveMutation.mutate({
+      input: {
+        ...input,
+        dataType: input.dataType,
+        externalId: input.externalId,
+        llmContext: input.llmContext,
+      },
+    });
   }
 
   function handleStatusChange(value: string) {
@@ -303,10 +293,10 @@ export function AttributeCatalog() {
               setPendingAction({ item: attribute, kind: "delete" });
             }}
             onEdit={(attribute) => {
-              saveMutation.reset();
               setPendingAction(null);
-              setFormState({ item: attribute, kind: "edit" });
+              setEditAttributeId(attribute.id);
             }}
+            onAssignments={setAssignmentAttribute}
             search={search}
             status={status}
           />
@@ -325,11 +315,7 @@ export function AttributeCatalog() {
               }
               error={saveMutation.error}
               isPending={saveMutation.isPending}
-              key={
-                formState.kind === "create"
-                  ? "create"
-                  : `edit-${formState.item.id}`
-              }
+              key={"create"}
               mode={formState}
               onCancel={() => handleFormOpenChange(false)}
               onDirtyChange={setFormDirty}
@@ -339,10 +325,40 @@ export function AttributeCatalog() {
         </CatalogFormSheetContent>
       </Sheet>
 
+      <AttributeEditDrawer
+        attributeId={editAttributeId}
+        onClose={() => setEditAttributeId(null)}
+      />
+
+      <Sheet
+        open={Boolean(assignmentAttribute)}
+        onOpenChange={(open) => {
+          if (!open) requestAssignmentClose();
+        }}
+      >
+        {assignmentAttribute ? (
+          <AttributeDocumentTypeAssignmentsDrawer
+            attribute={assignmentAttribute}
+            onRequestClose={requestAssignmentClose}
+            onSaved={closeAssignmentAfterSave}
+            onDirtyChange={setAssignmentDirty}
+          />
+        ) : null}
+      </Sheet>
+
       <UnsavedChangesDialog
         onDiscard={discardChanges}
         onOpenChange={setDiscardOpen}
         open={discardOpen}
+      />
+      <UnsavedChangesDialog
+        onDiscard={() => {
+          setAssignmentDiscardOpen(false);
+          setAssignmentDirty(false);
+          setAssignmentAttribute(null);
+        }}
+        onOpenChange={setAssignmentDiscardOpen}
+        open={assignmentDiscardOpen}
       />
 
       {pendingAction ? (

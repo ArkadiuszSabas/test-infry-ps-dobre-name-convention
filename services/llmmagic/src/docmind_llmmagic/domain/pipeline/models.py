@@ -138,6 +138,7 @@ class StepResult:
     duration_seconds: float
     metrics: Mapping[str, MetricValue]
     error: StepError | None = None
+    display_name: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,6 +149,10 @@ class PipelineStepProgress:
     step_type: str
     implementation_id: str
     status: PipelineStepStatus
+    display_name: str | None = None
+    duration_seconds: float | None = None
+    metrics: Mapping[str, MetricValue] = field(default_factory=_empty_metrics)
+    error: StepError | None = None
 
 
 @dataclass(frozen=True, slots=True)

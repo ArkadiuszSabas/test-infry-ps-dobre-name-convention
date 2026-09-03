@@ -1,8 +1,22 @@
-import type { ReviewDataType, ReviewFieldItem, SaveReviewField } from "./types";
+import type {
+  ReviewAttributeStatus,
+  ReviewDataType,
+  ReviewFieldItem,
+  SaveReviewField,
+} from "./types";
 
 export interface ReviewFieldDraft extends ReviewFieldItem {
   clientId: string;
   originalValue: string | null;
+  originalReviewState: Pick<
+    ReviewFieldItem,
+    | "displayValue"
+    | "manuallyEdited"
+    | "requiresReview"
+    | "reviewReasonCodes"
+    | "status"
+    | "valueSource"
+  >;
 }
 
 export interface ReviewEditSession {
@@ -33,6 +47,7 @@ export function createReviewDraft(
     ...field,
     clientId: field.id,
     originalValue: field.value,
+    originalReviewState: reviewStateFrom(field),
   }));
 }
 
@@ -41,15 +56,23 @@ export function updateDraftValue(
   clientId: string,
   value: string,
 ): ReviewFieldDraft[] {
+  const normalizedValue = normalizeValue(value);
   return fields.map((field) =>
     field.clientId === clientId
-      ? {
-          ...field,
-          displayValue: null,
-          manuallyEdited: true,
-          value: normalizeValue(value),
-          valueSource: "manual",
-        }
+      ? field.id !== "" && normalizedValue === field.originalValue
+        ? {
+            ...field,
+            value: field.originalValue,
+            ...field.originalReviewState,
+          }
+        : {
+            ...field,
+            displayValue: null,
+            manuallyEdited: true,
+            value: normalizedValue,
+            valueSource: "manual",
+            ...manualDraftReviewState(field, normalizedValue),
+          }
       : field,
   );
 }
@@ -74,6 +97,14 @@ export function addManualDraftField(
       label: input.label.trim(),
       manuallyEdited: true,
       originalValue: null,
+      originalReviewState: {
+        displayValue: null,
+        manuallyEdited: true,
+        requiresReview: false,
+        reviewReasonCodes: [],
+        status: input.value ? "present" : "missing",
+        valueSource: "manual",
+      },
       required: false,
       requiresReview: false,
       reviewReasonCodes: [],
@@ -129,4 +160,40 @@ export function hasManualChange(field: ReviewFieldDraft): boolean {
 function normalizeValue(value: string): string | null {
   const normalized = value.trim();
   return normalized ? value : null;
+}
+
+const CONFIGURATION_REVIEW_REASON_CODES = new Set([
+  "ATTRIBUTE_CONSTRAINT_REJECTED",
+  "ATTRIBUTE_CONSTRAINT_UNSATISFIABLE",
+  "ATTRIBUTE_MAPPING_MISSING",
+]);
+
+function manualDraftReviewState(
+  field: ReviewFieldDraft,
+  value: string | null,
+): Pick<ReviewFieldDraft, "requiresReview" | "reviewReasonCodes" | "status"> {
+  return {
+    reviewReasonCodes: field.reviewReasonCodes.filter((code) =>
+      CONFIGURATION_REVIEW_REASON_CODES.has(code),
+    ),
+    requiresReview: field.required && value === null,
+    status: manualStatusForValue(value),
+  };
+}
+
+function manualStatusForValue(value: string | null): ReviewAttributeStatus {
+  return value === null ? "missing" : "present";
+}
+
+function reviewStateFrom(
+  field: ReviewFieldItem,
+): ReviewFieldDraft["originalReviewState"] {
+  return {
+    displayValue: field.displayValue,
+    manuallyEdited: field.manuallyEdited,
+    requiresReview: field.requiresReview,
+    reviewReasonCodes: [...field.reviewReasonCodes],
+    status: field.status,
+    valueSource: field.valueSource,
+  };
 }

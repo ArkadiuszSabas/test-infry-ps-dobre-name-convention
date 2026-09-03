@@ -191,6 +191,30 @@ def context_resolver_config_schema() -> dict[str, object]:
     )
 
 
+def agentic_context_resolver_config_schema() -> dict[str, object]:
+    """Return builder schema for the alternative Agentic Context Resolver."""
+
+    return _object_schema(
+        properties={
+            "model_id": _safe_identifier_schema(),
+            "group_max_attributes": _integer_schema(minimum=1, maximum=24),
+            "group_max_request_bytes": _integer_schema(minimum=1_000, maximum=120_000),
+            "step_timeout_seconds": _positive_number_schema(maximum=600.0),
+            "overrides": _object_schema(
+                properties={
+                    "model_id": _safe_identifier_schema(),
+                    "group_max_attributes": _integer_schema(minimum=1, maximum=24),
+                    "group_max_request_bytes": _integer_schema(
+                        minimum=1_000,
+                        maximum=120_000,
+                    ),
+                    "step_timeout_seconds": _positive_number_schema(maximum=600.0),
+                }
+            ),
+        }
+    )
+
+
 def normalization_config_schema() -> dict[str, object]:
     """Return config schema metadata for the field normalization block."""
 

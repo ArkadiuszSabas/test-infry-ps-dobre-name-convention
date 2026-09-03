@@ -29,6 +29,7 @@ export interface SearchableSelectProps {
   searchPlaceholder: string;
   sortOptions?: boolean;
   triggerClassName?: string;
+  triggerLabel?: string;
   value?: string;
 }
 
@@ -45,6 +46,7 @@ export function SearchableSelect({
   searchPlaceholder,
   sortOptions = true,
   triggerClassName,
+  triggerLabel,
   value,
 }: SearchableSelectProps) {
   const listboxId = useId();
@@ -211,8 +213,15 @@ export function SearchableSelect({
           type="button"
           variant="outline"
         >
-          <span className="truncate">
-            {selectedOption?.label ?? placeholder}
+          <span className="flex min-w-0 items-center gap-1">
+            {triggerLabel ? (
+              <span className="shrink-0 text-muted-foreground">
+                {triggerLabel}:
+              </span>
+            ) : null}
+            <span className="truncate">
+              {selectedOption?.label ?? placeholder}
+            </span>
           </span>
           <ChevronDownIcon className="size-4 text-muted-foreground" />
         </Button>

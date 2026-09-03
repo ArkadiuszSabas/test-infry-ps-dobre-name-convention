@@ -134,9 +134,11 @@ function statusMessageKey(
   | "statuses.approved"
   | "statuses.pending"
   | "statuses.running"
+  | "statuses.cancelling"
   | "statuses.succeeded"
   | "statuses.partial_failed"
-  | "statuses.failed" {
+  | "statuses.failed"
+  | "statuses.cancelled" {
   switch (status) {
     case "waiting_for_review":
       return "statuses.waiting_for_review";
@@ -148,12 +150,16 @@ function statusMessageKey(
       return "statuses.pending";
     case "running":
       return "statuses.running";
+    case "cancelling":
+      return "statuses.cancelling";
     case "succeeded":
       return "statuses.succeeded";
     case "partial_failed":
       return "statuses.partial_failed";
     case "failed":
       return "statuses.failed";
+    case "cancelled":
+      return "statuses.cancelled";
     default:
       return "statuses.received";
   }

@@ -13,8 +13,8 @@ from docmind_api.bootstrap.dependencies.migrations import (
     apply_local_startup_migrations,
 )
 from docmind_api.bootstrap.dependencies.ocr_pipeline_runs import (
-    dispose_ocr_pipeline_run_scheduler,
-    install_ocr_pipeline_run_scheduler,
+    dispose_ocr_pipeline_run_maintenance,
+    install_ocr_pipeline_run_maintenance,
 )
 from docmind_backend_runtime import RuntimeSettings
 
@@ -23,9 +23,8 @@ def create_lifespan(
     *,
     settings: RuntimeSettings,
     startup_migration_runner: StartupMigrationRunner,
-    direct_ocr_run_max_concurrency: int = 1,
-    direct_ocr_stale_run_timeout_seconds: float = 1800.0,
-    direct_ocr_watchdog_interval_seconds: float = 60.0,
+    ocr_maintenance_interval_seconds: float = 60.0,
+    ocr_outbox_relay_interval_seconds: float = 1.0,
 ) -> Lifespan[FastAPI]:
     """Create the API lifespan context."""
 
@@ -35,16 +34,15 @@ def create_lifespan(
             runtime_settings=settings,
             migration_runner=startup_migration_runner,
         )
-        install_ocr_pipeline_run_scheduler(
+        install_ocr_pipeline_run_maintenance(
             _app,
-            max_concurrency=direct_ocr_run_max_concurrency,
-            stale_run_timeout_seconds=direct_ocr_stale_run_timeout_seconds,
-            watchdog_interval_seconds=direct_ocr_watchdog_interval_seconds,
+            interval_seconds=ocr_maintenance_interval_seconds,
+            outbox_relay_interval_seconds=ocr_outbox_relay_interval_seconds,
         )
         try:
             yield
         finally:
-            await dispose_ocr_pipeline_run_scheduler(_app)
+            await dispose_ocr_pipeline_run_maintenance(_app)
             await dispose_document_content_storage(_app)
             await dispose_database_engine(_app)
 

@@ -1,9 +1,10 @@
 """HTTP schemas for OCR pipeline run endpoints."""
 
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from docmind_api.domain.ocr_pipeline_runs.models import (
     MetricValue,
@@ -19,6 +20,42 @@ class OcrPipelineRunErrorSchema(BaseModel):
 
     code: str
     message: str
+
+
+class StartOcrPipelineRunRequest(BaseModel):
+    """Optional published pipeline selection for a new OCR run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    pipeline_id: UUID | None = None
+
+
+class PublishedOcrPipelineOptionSchema(BaseModel):
+    """Published pipeline available for starting a new OCR run."""
+
+    id: UUID
+    name: str
+    published_version: int
+    is_default: bool
+
+
+class PublishedOcrPipelineOptionListSchema(BaseModel):
+    """Published pipeline options available to OCR operators."""
+
+    pipelines: list[PublishedOcrPipelineOptionSchema]
+
+
+class PublishedOcrPipelineOptionListMeta(BaseModel):
+    """Metadata for published OCR pipeline options."""
+
+    total_count: int
+
+
+class PublishedOcrPipelineOptionListEnvelope(BaseModel):
+    """Standard API envelope for published OCR pipeline options."""
+
+    data: PublishedOcrPipelineOptionListSchema
+    meta: PublishedOcrPipelineOptionListMeta
 
 
 class OcrPipelineRunDiagnosticSchema(BaseModel):
@@ -90,10 +127,26 @@ class OcrPipelineRunContextResolutionSourceSchema(BaseModel):
     """HTTP schema for one safe Context Resolver source reference."""
 
     kind: str
+    order_index: int | None = Field(default=None, ge=0)
     page_number: int | None = None
     line_number: int | None = None
     key_value_index: int | None = None
     confidence: float | None = None
+    bounding_polygon: list[Annotated[float, Field(ge=0, le=1)]] | None = Field(
+        default=None,
+        min_length=8,
+        max_length=16,
+    )
+
+    @field_validator("bounding_polygon")
+    @classmethod
+    def require_complete_coordinate_pairs(
+        cls,
+        value: list[float] | None,
+    ) -> list[float] | None:
+        if value is not None and len(value) % 2 != 0:
+            raise ValueError("bounding_polygon must contain complete x/y coordinate pairs")
+        return value
 
 
 class OcrPipelineRunContextResolutionAttributeSchema(BaseModel):
@@ -218,3 +271,44 @@ class OcrPipelineRunResultEnvelope(BaseModel):
 
     data: OcrPipelineRunResultSchema
     meta: dict[str, str] = Field(default_factory=dict)
+
+
+class OcrPipelineRunCompletionSchema(BaseModel):
+    """Bounded terminal result submitted by LLM Magic for a fenced attempt."""
+
+    document_id: UUID
+    fencing_token: int = Field(ge=1)
+    status: OcrPipelineRunStatus
+    steps: list[OcrPipelineRunStepSchema] = Field(default_factory=list[OcrPipelineRunStepSchema])
+    metrics: dict[str, MetricValue] = Field(default_factory=dict)
+    diagnostics: list[OcrPipelineRunDiagnosticSchema] = Field(
+        default_factory=list[OcrPipelineRunDiagnosticSchema],
+    )
+    error: OcrPipelineRunErrorSchema | None = None
+    result: OcrPipelineRunOcrResultSchema | None = None
+
+    @model_validator(mode="after")
+    def validate_terminal_result(self) -> OcrPipelineRunCompletionSchema:
+        if self.status not in {
+            OcrPipelineRunStatus.SUCCEEDED,
+            OcrPipelineRunStatus.PARTIAL_FAILED,
+            OcrPipelineRunStatus.FAILED,
+        }:
+            raise ValueError("Completion status must be terminal.")
+        if any(
+            step.status in {OcrPipelineRunStepStatus.PENDING, OcrPipelineRunStepStatus.RUNNING}
+            for step in self.steps
+        ):
+            raise ValueError("Completion requires terminal step statuses.")
+        if self.status is not OcrPipelineRunStatus.FAILED and not self.steps:
+            raise ValueError("A non-failed completion requires at least one step.")
+        if self.status is OcrPipelineRunStatus.FAILED:
+            if self.error is None:
+                raise ValueError("A failed completion requires a safe error.")
+            if self.result is not None:
+                raise ValueError("A failed completion cannot include a result.")
+        elif self.result is None:
+            raise ValueError("A successful completion requires a bounded result.")
+        elif self.error is not None:
+            raise ValueError("A successful completion cannot include a run error.")
+        return self

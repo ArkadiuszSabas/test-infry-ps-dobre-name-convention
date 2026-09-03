@@ -2,6 +2,7 @@
 
 import {
   ArrowRightIcon,
+  ActivityIcon,
   CableIcon,
   GitBranchIcon,
   UserCheckIcon,
@@ -35,6 +36,7 @@ const adminEntryIcons: Record<AdminEntryRouteId, typeof UsersRoundIcon> = {
   adminDictionaries: Settings2Icon,
   adminConnectors: CableIcon,
   adminPipelines: GitBranchIcon,
+  adminOcrRuns: ActivityIcon,
   adminUsers: UsersRoundIcon,
 };
 

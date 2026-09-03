@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from docmind_backend_runtime import RuntimeSettings
 from docmind_worker.bootstrap.routes.dapr_smoke import get_dapr_smoke_router
 from docmind_worker.bootstrap.routes.health import get_health_router
+from docmind_worker.bootstrap.routes.ocr_pipeline_runs import get_ocr_pipeline_run_router
 from docmind_worker.bootstrap.routes.system import get_system_router
 
 
@@ -13,6 +14,9 @@ def get_worker_routers(*, settings: RuntimeSettings) -> tuple[APIRouter, ...]:
     routers = [
         get_system_router(settings=settings),
         get_health_router(),
+        get_ocr_pipeline_run_router(
+            include_smoke_subscription=settings.environment in {"local", "test"}
+        ),
     ]
     if settings.environment in {"local", "test"}:
         routers.append(get_dapr_smoke_router())

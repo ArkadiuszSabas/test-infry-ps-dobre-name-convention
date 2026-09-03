@@ -5,6 +5,13 @@ import re
 from collections.abc import Mapping
 
 from docmind_llmmagic.application.pipeline.catalog import ConfigValidator, PipelineBlockCatalog
+from docmind_llmmagic.application.pipeline.steps.document_agentic_context_resolver import (
+    DOCUMENT_AGENTIC_CONTEXT_RESOLVER_IMPLEMENTATION_ID,
+)
+from docmind_llmmagic.application.pipeline.steps.document_ocr.constants import (
+    DOCUMENT_OCR_AZURE_DI_IMPLEMENTATION_ID,
+    DOCUMENT_OCR_AZURE_DI_KV_IMPLEMENTATION_ID,
+)
 from docmind_llmmagic.domain.pipeline.catalog import (
     SAFE_PIPELINE_IDENTIFIER_MAX_LENGTH,
     SAFE_PIPELINE_IDENTIFIER_PATTERN,
@@ -120,6 +127,12 @@ class PipelineDefinitionCompiler:
                 path=path,
                 produced_artifacts=produced_artifacts,
                 guaranteed_artifacts=guaranteed_artifacts,
+                diagnostics=diagnostics,
+            )
+            _validate_agentic_upstream(
+                step=step,
+                path=path,
+                compiled_steps=compiled_steps,
                 diagnostics=diagnostics,
             )
 
@@ -342,6 +355,51 @@ def _validate_produced_artifacts(
         produced_artifacts[artifact_key] = step.step_id
         if step.failure_policy == FailurePolicy.REQUIRED:
             guaranteed_artifacts[artifact_key] = step.step_id
+
+
+def _validate_agentic_upstream(
+    *,
+    step: PipelineStepCompileInput,
+    path: str,
+    compiled_steps: list[PipelineStepDefinition],
+    diagnostics: list[PipelineCompileDiagnostic],
+) -> None:
+    if (
+        not step.enabled
+        or step.implementation_id != DOCUMENT_AGENTIC_CONTEXT_RESOLVER_IMPLEMENTATION_ID
+    ):
+        return
+    upstream = next(
+        (
+            candidate
+            for candidate in reversed(compiled_steps)
+            if candidate.enabled
+            and candidate.implementation_id
+            in {
+                DOCUMENT_OCR_AZURE_DI_IMPLEMENTATION_ID,
+                DOCUMENT_OCR_AZURE_DI_KV_IMPLEMENTATION_ID,
+            }
+        ),
+        None,
+    )
+    required_features = (
+        "include_key_value_pairs",
+        "include_tables",
+        "include_selection_marks",
+    )
+    if upstream is not None and all(upstream.config.get(key) is True for key in required_features):
+        return
+    diagnostics.append(
+        _error(
+            code="AGENTIC_CONTEXT_RESOLVER_OCR_FEATURES_REQUIRED",
+            message=(
+                "Agentic Context Resolver requires upstream Azure Document Intelligence with "
+                "key-value pairs, tables, and selection marks enabled."
+            ),
+            step_id=_safe_step_id_for_diagnostic(step.step_id),
+            path=f"{path}.implementation_id",
+        )
+    )
 
 
 def _effective_config(

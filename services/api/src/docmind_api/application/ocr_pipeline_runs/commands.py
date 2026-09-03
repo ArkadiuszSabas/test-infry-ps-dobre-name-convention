@@ -11,9 +11,10 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
 
 @dataclass(frozen=True, slots=True)
 class StartOcrPipelineRunCommand:
-    """Input for starting a direct OCR pipeline run for one document."""
+    """Input for starting an event-driven OCR pipeline run for one document."""
 
     document_id: UUID
+    pipeline_id: UUID | None = None
     actor_id: str | None = None
     actor_type: OcrPipelineRunActorType = OcrPipelineRunActorType.SYSTEM
     actor_login: str | None = None
@@ -33,13 +34,6 @@ class ListDocumentOcrPipelineRunsQuery:
     document_id: UUID
     limit: int
     offset: int
-
-
-@dataclass(frozen=True, slots=True)
-class InvokeOcrPipelineRunCommand:
-    """Input for invoking a pending direct OCR pipeline run."""
-
-    run_id: UUID | str
 
 
 @dataclass(frozen=True, slots=True)

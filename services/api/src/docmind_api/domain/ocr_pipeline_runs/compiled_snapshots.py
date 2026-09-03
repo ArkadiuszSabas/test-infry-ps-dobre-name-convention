@@ -1,16 +1,16 @@
-"""Compiled OCR pipeline snapshot helpers for direct run initialization."""
+"""Compiled OCR pipeline snapshot helpers for run initialization."""
 
 from collections.abc import Mapping, Sequence
 from typing import Any, cast
 
-from docmind_api.domain.ocr_pipeline_runs.constants import OCR_PIPELINE_RUN_DIRECT_MAX_STEP_COUNT
+from docmind_api.domain.ocr_pipeline_runs.constants import OCR_PIPELINE_RUN_MAX_STEP_COUNT
 from docmind_api.domain.ocr_pipeline_runs.value_objects import OcrPipelineRunStep
 
 
 def pending_steps_from_compiled_snapshot(
     compiled_snapshot: Mapping[str, Any],
     *,
-    max_step_count: int = OCR_PIPELINE_RUN_DIRECT_MAX_STEP_COUNT,
+    max_step_count: int = OCR_PIPELINE_RUN_MAX_STEP_COUNT,
 ) -> tuple[OcrPipelineRunStep, ...]:
     """Create pending step records from an LLM Magic compiled definition snapshot."""
 
@@ -21,7 +21,7 @@ def pending_steps_from_compiled_snapshot(
     if len(steps) < 1:
         raise ValueError("Compiled OCR pipeline snapshot must contain at least one step.")
     if len(steps) > max_step_count:
-        raise ValueError("Compiled OCR pipeline snapshot exceeds the direct run step limit.")
+        raise ValueError("Compiled OCR pipeline snapshot exceeds the run step limit.")
 
     return tuple(_step_from_compiled_snapshot(step) for step in steps)
 

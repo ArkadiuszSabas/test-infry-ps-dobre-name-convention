@@ -35,14 +35,15 @@ _DEFAULT_DOCUMENT_MAX_REQUEST_OVERHEAD_BYTES = 1024 * 1024
 _DEFAULT_DOCUMENT_STORAGE_PROVIDER = "filesystem"
 _DEFAULT_DOCUMENT_STORAGE_BLOB_PREFIX = "raw"
 _DEFAULT_DOCUMENT_STORAGE_OPERATION_TIMEOUT_SECONDS = 30.0
-_DEFAULT_DIRECT_OCR_MAX_STEP_COUNT = 16
-_DEFAULT_DIRECT_OCR_MAX_CONCURRENCY = 1
-_DEFAULT_DIRECT_OCR_INVOCATION_TIMEOUT_SECONDS = 1200.0
-_DEFAULT_DIRECT_OCR_MAX_ATTEMPTS = 3
-_DEFAULT_DIRECT_OCR_LEASE_DURATION_SECONDS = 90.0
-_DEFAULT_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS = 30.0
-_DEFAULT_DIRECT_OCR_STALE_RUN_TIMEOUT_SECONDS = 1800.0
-_DEFAULT_DIRECT_OCR_WATCHDOG_INTERVAL_SECONDS = 60.0
+_DEFAULT_OCR_MAX_STEP_COUNT = 16
+_DEFAULT_OCR_MAX_CONCURRENCY = 1
+_DEFAULT_OCR_RESERVATION_TIMEOUT_SECONDS = 120.0
+_DEFAULT_OCR_EXECUTION_TIMEOUT_SECONDS = 1800.0
+_DEFAULT_OCR_DEFER_SECONDS = 15.0
+_DEFAULT_OCR_MAINTENANCE_INTERVAL_SECONDS = 60.0
+_DEFAULT_OCR_OUTBOX_RELAY_INTERVAL_SECONDS = 1.0
+_DEFAULT_OCR_CANCELLATION_TIMEOUT_SECONDS = 120.0
+_DEFAULT_OCR_EVENT_PUBSUB_NAME = "docmind-redis-pubsub"
 _DEFAULT_CONNECTOR_PROFILE_ID = "product"
 _DEFAULT_CONNECTOR_PROFILE_PATH = (
     Path(__file__).resolve().parents[4] / "deployments" / "product" / "profile.yml"
@@ -243,48 +244,40 @@ class DocumentIngestSettings:
 
 
 @dataclass(frozen=True, slots=True)
-class DirectOcrPipelineRunSettings:
-    """Settings protecting the temporary direct OCR pipeline run path."""
+class OcrPipelineRunSettings:
+    """Settings for the durable event-driven OCR control plane."""
 
     max_content_bytes: int
-    max_step_count: int = _DEFAULT_DIRECT_OCR_MAX_STEP_COUNT
-    max_concurrency: int = _DEFAULT_DIRECT_OCR_MAX_CONCURRENCY
-    invocation_timeout_seconds: float = _DEFAULT_DIRECT_OCR_INVOCATION_TIMEOUT_SECONDS
-    max_attempts: int = _DEFAULT_DIRECT_OCR_MAX_ATTEMPTS
-    lease_duration_seconds: float = _DEFAULT_DIRECT_OCR_LEASE_DURATION_SECONDS
-    lease_renewal_interval_seconds: float = _DEFAULT_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS
-    stale_run_timeout_seconds: float = _DEFAULT_DIRECT_OCR_STALE_RUN_TIMEOUT_SECONDS
-    watchdog_interval_seconds: float = _DEFAULT_DIRECT_OCR_WATCHDOG_INTERVAL_SECONDS
+    max_step_count: int = _DEFAULT_OCR_MAX_STEP_COUNT
+    max_concurrency: int = _DEFAULT_OCR_MAX_CONCURRENCY
+    reservation_timeout_seconds: float = _DEFAULT_OCR_RESERVATION_TIMEOUT_SECONDS
+    execution_timeout_seconds: float = _DEFAULT_OCR_EXECUTION_TIMEOUT_SECONDS
+    defer_seconds: float = _DEFAULT_OCR_DEFER_SECONDS
+    maintenance_interval_seconds: float = _DEFAULT_OCR_MAINTENANCE_INTERVAL_SECONDS
+    outbox_relay_interval_seconds: float = _DEFAULT_OCR_OUTBOX_RELAY_INTERVAL_SECONDS
+    cancellation_timeout_seconds: float = _DEFAULT_OCR_CANCELLATION_TIMEOUT_SECONDS
+    event_pubsub_name: str = _DEFAULT_OCR_EVENT_PUBSUB_NAME
 
     def __post_init__(self) -> None:
         if self.max_content_bytes < 1:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_MAX_CONTENT_BYTES must be positive")
+            raise ValueError("DOCMIND_API_OCR_MAX_CONTENT_BYTES must be positive")
         if self.max_step_count < 1:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_MAX_STEP_COUNT must be positive")
+            raise ValueError("DOCMIND_API_OCR_MAX_STEP_COUNT must be positive")
         if self.max_concurrency < 1:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_MAX_CONCURRENCY must be positive")
-        if not isfinite(self.invocation_timeout_seconds) or self.invocation_timeout_seconds <= 0:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_INVOCATION_TIMEOUT_SECONDS must be positive")
-        if self.max_attempts < 1:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_MAX_ATTEMPTS must be positive")
-        if not isfinite(self.lease_duration_seconds) or self.lease_duration_seconds <= 0:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_LEASE_DURATION_SECONDS must be positive")
-        if (
-            not isfinite(self.lease_renewal_interval_seconds)
-            or self.lease_renewal_interval_seconds <= 0
+            raise ValueError("DOCMIND_API_OCR_MAX_CONCURRENCY must be positive")
+        for field_name, value in (
+            ("DOCMIND_API_OCR_RESERVATION_TIMEOUT_SECONDS", self.reservation_timeout_seconds),
+            ("DOCMIND_API_OCR_EXECUTION_TIMEOUT_SECONDS", self.execution_timeout_seconds),
+            ("DOCMIND_API_OCR_DEFER_SECONDS", self.defer_seconds),
+            ("DOCMIND_API_OCR_MAINTENANCE_INTERVAL_SECONDS", self.maintenance_interval_seconds),
+            (
+                "DOCMIND_API_OCR_OUTBOX_RELAY_INTERVAL_SECONDS",
+                self.outbox_relay_interval_seconds,
+            ),
+            ("DOCMIND_API_OCR_CANCELLATION_TIMEOUT_SECONDS", self.cancellation_timeout_seconds),
         ):
-            raise ValueError(
-                "DOCMIND_API_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS must be positive"
-            )
-        if self.lease_renewal_interval_seconds >= self.lease_duration_seconds:
-            raise ValueError(
-                "DOCMIND_API_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS must be shorter than "
-                "DOCMIND_API_DIRECT_OCR_LEASE_DURATION_SECONDS"
-            )
-        if not isfinite(self.stale_run_timeout_seconds) or self.stale_run_timeout_seconds <= 0:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_STALE_RUN_TIMEOUT_SECONDS must be positive")
-        if not isfinite(self.watchdog_interval_seconds) or self.watchdog_interval_seconds <= 0:
-            raise ValueError("DOCMIND_API_DIRECT_OCR_WATCHDOG_INTERVAL_SECONDS must be positive")
+            if not isfinite(value) or value <= 0:
+                raise ValueError(f"{field_name} must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -325,7 +318,7 @@ class ApiSettings:
     document_storage: DocumentStorageSettings
     document_ingest: DocumentIngestSettings
     connector_profile: ConnectorProfileSettings
-    direct_ocr_runs: DirectOcrPipelineRunSettings
+    ocr_pipeline_runs: OcrPipelineRunSettings
     local_auth_hardening: LocalAuthHardeningSettings
 
 
@@ -416,46 +409,50 @@ def load_browser_security_settings(*, environment: str | None = None) -> Browser
     )
 
 
-def load_direct_ocr_pipeline_run_settings() -> DirectOcrPipelineRunSettings:
-    """Return direct OCR pipeline run limits from environment variables."""
+def load_ocr_pipeline_run_settings() -> OcrPipelineRunSettings:
+    """Return event-driven OCR pipeline control-plane settings."""
 
     document_ingest_settings = load_document_ingest_settings()
-    return DirectOcrPipelineRunSettings(
+    return OcrPipelineRunSettings(
         max_content_bytes=_get_int_env(
-            "DOCMIND_API_DIRECT_OCR_MAX_CONTENT_BYTES",
+            "DOCMIND_API_OCR_MAX_CONTENT_BYTES",
             default=document_ingest_settings.max_content_bytes,
         ),
         max_step_count=_get_int_env(
-            "DOCMIND_API_DIRECT_OCR_MAX_STEP_COUNT",
-            default=_DEFAULT_DIRECT_OCR_MAX_STEP_COUNT,
+            "DOCMIND_API_OCR_MAX_STEP_COUNT",
+            default=_DEFAULT_OCR_MAX_STEP_COUNT,
         ),
         max_concurrency=_get_int_env(
-            "DOCMIND_API_DIRECT_OCR_MAX_CONCURRENCY",
-            default=_DEFAULT_DIRECT_OCR_MAX_CONCURRENCY,
+            "DOCMIND_API_OCR_MAX_CONCURRENCY",
+            default=_DEFAULT_OCR_MAX_CONCURRENCY,
         ),
-        invocation_timeout_seconds=_get_float_env(
-            "DOCMIND_API_DIRECT_OCR_INVOCATION_TIMEOUT_SECONDS",
-            default=_DEFAULT_DIRECT_OCR_INVOCATION_TIMEOUT_SECONDS,
+        reservation_timeout_seconds=_get_float_env(
+            "DOCMIND_API_OCR_RESERVATION_TIMEOUT_SECONDS",
+            default=_DEFAULT_OCR_RESERVATION_TIMEOUT_SECONDS,
         ),
-        max_attempts=_get_int_env(
-            "DOCMIND_API_DIRECT_OCR_MAX_ATTEMPTS",
-            default=_DEFAULT_DIRECT_OCR_MAX_ATTEMPTS,
+        execution_timeout_seconds=_get_float_env(
+            "DOCMIND_API_OCR_EXECUTION_TIMEOUT_SECONDS",
+            default=_DEFAULT_OCR_EXECUTION_TIMEOUT_SECONDS,
         ),
-        lease_duration_seconds=_get_float_env(
-            "DOCMIND_API_DIRECT_OCR_LEASE_DURATION_SECONDS",
-            default=_DEFAULT_DIRECT_OCR_LEASE_DURATION_SECONDS,
+        defer_seconds=_get_float_env(
+            "DOCMIND_API_OCR_DEFER_SECONDS",
+            default=_DEFAULT_OCR_DEFER_SECONDS,
         ),
-        lease_renewal_interval_seconds=_get_float_env(
-            "DOCMIND_API_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS",
-            default=_DEFAULT_DIRECT_OCR_LEASE_RENEWAL_INTERVAL_SECONDS,
+        maintenance_interval_seconds=_get_float_env(
+            "DOCMIND_API_OCR_MAINTENANCE_INTERVAL_SECONDS",
+            default=_DEFAULT_OCR_MAINTENANCE_INTERVAL_SECONDS,
         ),
-        stale_run_timeout_seconds=_get_float_env(
-            "DOCMIND_API_DIRECT_OCR_STALE_RUN_TIMEOUT_SECONDS",
-            default=_DEFAULT_DIRECT_OCR_STALE_RUN_TIMEOUT_SECONDS,
+        outbox_relay_interval_seconds=_get_float_env(
+            "DOCMIND_API_OCR_OUTBOX_RELAY_INTERVAL_SECONDS",
+            default=_DEFAULT_OCR_OUTBOX_RELAY_INTERVAL_SECONDS,
         ),
-        watchdog_interval_seconds=_get_float_env(
-            "DOCMIND_API_DIRECT_OCR_WATCHDOG_INTERVAL_SECONDS",
-            default=_DEFAULT_DIRECT_OCR_WATCHDOG_INTERVAL_SECONDS,
+        cancellation_timeout_seconds=_get_float_env(
+            "DOCMIND_API_OCR_CANCELLATION_TIMEOUT_SECONDS",
+            default=_DEFAULT_OCR_CANCELLATION_TIMEOUT_SECONDS,
+        ),
+        event_pubsub_name=(
+            _get_optional_non_empty_env("DOCMIND_API_OCR_EVENT_PUBSUB_NAME")
+            or _DEFAULT_OCR_EVENT_PUBSUB_NAME
         ),
     )
 
@@ -883,7 +880,7 @@ def get_api_settings() -> ApiSettings:
         document_storage=load_document_storage_settings(),
         document_ingest=load_document_ingest_settings(),
         connector_profile=load_connector_profile_settings(),
-        direct_ocr_runs=load_direct_ocr_pipeline_run_settings(),
+        ocr_pipeline_runs=load_ocr_pipeline_run_settings(),
         local_auth_hardening=load_local_auth_hardening_settings(),
     )
 

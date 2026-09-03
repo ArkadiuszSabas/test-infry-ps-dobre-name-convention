@@ -2,6 +2,10 @@
 
 from collections.abc import Mapping, Sequence
 
+from docmind_llmmagic.application.pipeline.steps.document_context_resolver import (
+    model_contract_limits,
+)
+
 
 def context_resolver_response_format(
     *,
@@ -30,7 +34,7 @@ def context_resolver_response_format(
     definitions: dict[str, object] = {
         "resolution": {
             "type": "string",
-            "enum": ["present", "missing", "uncertain", "conflicting"],
+            "enum": list(model_contract_limits.CONTEXT_RESOLVER_RESOLUTION_VALUES),
         }
     }
     if evidence_ids:

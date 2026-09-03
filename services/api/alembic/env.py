@@ -80,6 +80,8 @@ if ocr_pipeline_tables.ocr_pipeline_definition_audit_events_table.metadata is no
     raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
 if ocr_pipeline_run_tables.ocr_pipeline_runs_table.metadata is not target_metadata:
     raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
+if ocr_pipeline_run_tables.ocr_pipeline_run_outbox_table.metadata is not target_metadata:
+    raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
 if system_catalog_tables.system_catalog_extension_fields_table.metadata is not target_metadata:
     raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
 if system_catalog_tables.document_type_extension_values_table.metadata is not target_metadata:

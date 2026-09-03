@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, text
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +26,18 @@ class SqlAlchemyAttributeRequirementRepository(AttributeRequirementRepository):
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def lock_matrix_writes(self) -> None:
+        """Serialize all attribute-requirement matrix writes in this transaction.
+
+        Both public writers can replace rows that the other writer owns. A single
+        transaction-scoped advisory lock therefore prevents a document-type save
+        from deleting an assignment that an attribute-centric save just created.
+        """
+        await self._session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtext(:key))"),
+            {"key": "docmind:attribute-requirements:matrix-write"},
+        )
 
     async def list_for_document_type(
         self,
@@ -110,6 +122,52 @@ class SqlAlchemyAttributeRequirementRepository(AttributeRequirementRepository):
                         "updated_at": requirement.updated_at,
                     },
                 ),
+            )
+
+    async def list_for_attribute(
+        self, attribute_definition_id: UUID | str, *, for_update: bool = False
+    ) -> tuple[DocumentTypeAttributeRequirement, ...]:
+        """Return assignments for one attribute without loading document matrices."""
+        statement = (
+            select(attribute_requirements_table)
+            .where(
+                attribute_requirements_table.c.attribute_definition_id
+                == UUID(str(attribute_definition_id))
+            )
+            .order_by(attribute_requirements_table.c.document_type_id.asc())
+        )
+        result = await self._session.execute(
+            statement.with_for_update() if for_update else statement
+        )
+        return tuple(_requirement_from_row(row) for row in result.mappings())
+
+    async def replace_for_attribute(
+        self,
+        attribute_definition_id: UUID,
+        requirements: tuple[DocumentTypeAttributeRequirement, ...],
+    ) -> None:
+        await self._session.execute(
+            delete(attribute_requirements_table).where(
+                attribute_requirements_table.c.attribute_definition_id == attribute_definition_id,
+            )
+        )
+        for requirement in requirements:
+            await self._session.execute(
+                postgresql_insert(attribute_requirements_table).values(
+                    id=requirement.id,
+                    external_id=requirement.external_id,
+                    document_type_id=requirement.document_type_id,
+                    attribute_definition_id=requirement.attribute_definition_id,
+                    required=requirement.required,
+                    include_metadata_in_context_resolver=requirement.include_metadata_in_context_resolver,
+                    missing_required_action=(
+                        requirement.missing_required_action.value
+                        if requirement.missing_required_action
+                        else None
+                    ),
+                    created_at=requirement.created_at,
+                    updated_at=requirement.updated_at,
+                )
             )
 
     async def _resolve_document_type_id(self, document_type_id: UUID | str) -> UUID | None:

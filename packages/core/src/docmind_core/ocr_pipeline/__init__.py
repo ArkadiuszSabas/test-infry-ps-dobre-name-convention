@@ -5,6 +5,8 @@ from docmind_core.ocr_pipeline.contracts import (
     OCR_DOCUMENT_PROCESSING_TOPIC,
     OCR_PIPELINE_EVENT_ROUTE,
     OCR_PROCESSING_RESULTS_TOPIC,
+    OCR_RUN_CANCELLATION_REQUESTED_EVENT_TYPE,
+    OCR_RUN_REQUESTED_EVENT_TYPE,
     OCR_RUN_REQUESTED_ROUTE,
     DispatchFailedV1,
     OcrDispatchDispositionV1,
@@ -17,6 +19,7 @@ from docmind_core.ocr_pipeline.contracts import (
     OcrPipelineStatusV1,
     OcrPipelineStepSnapshotV1,
     OcrPipelineStepStatusV1,
+    OcrRunCancellationRequestedV1,
     OcrRunRequestedV1,
 )
 
@@ -25,6 +28,8 @@ __all__ = [
     "OCR_DOCUMENT_PROCESSING_TOPIC",
     "OCR_PIPELINE_EVENT_ROUTE",
     "OCR_PROCESSING_RESULTS_TOPIC",
+    "OCR_RUN_CANCELLATION_REQUESTED_EVENT_TYPE",
+    "OCR_RUN_REQUESTED_EVENT_TYPE",
     "OCR_RUN_REQUESTED_ROUTE",
     "DispatchFailedV1",
     "OcrDispatchDispositionV1",
@@ -37,5 +42,6 @@ __all__ = [
     "OcrPipelineStatusV1",
     "OcrPipelineStepSnapshotV1",
     "OcrPipelineStepStatusV1",
+    "OcrRunCancellationRequestedV1",
     "OcrRunRequestedV1",
 ]

@@ -1,58 +1,35 @@
 """Application ports for OCR pipeline run workflows."""
 
-from collections.abc import Awaitable, Callable
+from __future__ import annotations
+
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
+from typing import Any, Protocol
 from uuid import UUID
 
 from docmind_api.domain.ocr_pipeline_runs.models import (
-    OcrPipelineRunAcquireReason,
-    OcrPipelineRunAcquireResult,
+    JsonObject,
+    MetricValue,
     OcrPipelineRunDocument,
-    OcrPipelineRunExecutionAttempt,
-    OcrPipelineRunExecutionLease,
     OcrPipelineRunList,
     OcrPipelineRunRecord,
+    OcrPipelineRunStatus,
     RunnableOcrPipelineSnapshot,
+)
+from docmind_api.domain.ocr_pipeline_runs.value_objects import (
+    OcrPipelineRunDiagnostic,
+    OcrPipelineRunError,
+    OcrPipelineRunStep,
 )
 
 
 @dataclass(frozen=True, slots=True)
-class DirectOcrPipelineRunLimits:
-    """Limits protecting the temporary direct API-to-LLM Magic run path."""
+class OcrPipelineRunLimits:
+    """Limits protecting event-driven OCR pipeline run creation."""
 
     max_content_bytes: int
     max_step_count: int
-
-
-@dataclass(frozen=True, slots=True)
-class OcrPipelineRunExecutionPolicy:
-    """Retry and lease policy for physical pipeline executions."""
-
-    max_attempts: int
-    lease_duration_seconds: float
-    lease_renewal_interval_seconds: float
-
-    def __post_init__(self) -> None:
-        if self.max_attempts < 1:
-            raise ValueError("OCR pipeline run max attempts must be positive.")
-        if self.lease_duration_seconds <= 0:
-            raise ValueError("OCR pipeline run lease duration must be positive.")
-        if self.lease_renewal_interval_seconds <= 0:
-            raise ValueError("OCR pipeline run lease renewal interval must be positive.")
-        if self.lease_renewal_interval_seconds >= self.lease_duration_seconds:
-            raise ValueError("OCR pipeline run renewal interval must be shorter than its lease.")
-
-
-@dataclass(frozen=True, slots=True)
-class OcrPipelineRunInvocationContext:
-    """Physical execution identity forwarded to the OCR observability boundary."""
-
-    attempt_id: UUID
-    attempt_number: int
-    fencing_token: int
-    acquisition_reason: OcrPipelineRunAcquireReason
 
 
 class Clock(Protocol):
@@ -67,16 +44,8 @@ class OcrPipelineRunIdFactory(Protocol):
     def new_id(self) -> UUID: ...
 
 
-class OcrPipelineRunExecutionIdentityFactory(Protocol):
-    """Port for distinct attempt and ownership identifiers."""
-
-    def new_attempt_id(self) -> UUID: ...
-
-    def new_owner_token(self) -> UUID: ...
-
-
 class OcrPipelineRunDocumentReader(Protocol):
-    """Port for reading document data required by direct OCR runs."""
+    """Port for reading document data required by OCR runs."""
 
     async def get_run_document(self, document_id: UUID) -> OcrPipelineRunDocument | None: ...
 
@@ -86,58 +55,18 @@ class PublishedOcrPipelineSnapshotReader(Protocol):
 
     async def get_default_published(self) -> RunnableOcrPipelineSnapshot | None: ...
 
+    async def get_published(
+        self,
+        pipeline_id: UUID,
+    ) -> RunnableOcrPipelineSnapshot | None: ...
+
+    async def list_published(self) -> tuple[RunnableOcrPipelineSnapshot, ...]: ...
+
 
 class OcrPipelineRunRepository(Protocol):
     """Port implemented by OCR pipeline run persistence adapters."""
 
     async def add(self, record: OcrPipelineRunRecord) -> bool: ...
-
-    async def acquire_execution(
-        self,
-        run_id: UUID | str,
-        *,
-        attempt_id: UUID,
-        owner_token: UUID,
-        acquired_at: datetime,
-        lease_expires_at: datetime,
-        max_attempts: int,
-    ) -> OcrPipelineRunAcquireResult | None: ...
-
-    async def renew_execution(
-        self,
-        lease: OcrPipelineRunExecutionLease,
-        *,
-        renewed_at: datetime,
-        lease_expires_at: datetime,
-    ) -> OcrPipelineRunExecutionLease | None: ...
-
-    async def mark_execution_invocation_started(
-        self,
-        lease: OcrPipelineRunExecutionLease,
-    ) -> bool: ...
-
-    async def save_execution_result(
-        self,
-        lease: OcrPipelineRunExecutionLease,
-        record: OcrPipelineRunRecord,
-        *,
-        completed_at: datetime,
-    ) -> bool: ...
-
-    async def record_execution_error(
-        self,
-        lease: OcrPipelineRunExecutionLease,
-        *,
-        error_code: str,
-        updated_at: datetime,
-    ) -> bool: ...
-
-    async def fail_stale_executions(self, *, stale_after_seconds: float) -> int: ...
-
-    async def get_execution_attempt(
-        self,
-        attempt_id: UUID,
-    ) -> OcrPipelineRunExecutionAttempt | None: ...
 
     async def get_by_id(self, run_id: UUID | str) -> OcrPipelineRunRecord | None: ...
 
@@ -155,26 +84,135 @@ class OcrPipelineRunRepository(Protocol):
     ) -> OcrPipelineRunList: ...
 
 
-class OcrPipelineRunInvoker(Protocol):
-    """Port implemented by the LLM Magic direct run adapter."""
+class OcrRunOutboxRepository(Protocol):
+    """Persistence port for the durable OCR request outbox."""
 
-    async def invoke_run(
+    async def claim_request_outbox(self, *, limit: int) -> tuple[OcrRunOutboxRecord, ...]: ...
+
+    async def mark_request_outbox_published(
         self,
-        record: OcrPipelineRunRecord,
-        context: OcrPipelineRunInvocationContext,
-    ) -> OcrPipelineRunRecord: ...
+        outbox_id: UUID,
+        *,
+        published_at: datetime,
+    ) -> bool: ...
 
 
-OcrPipelineRunDispatch = Callable[[UUID], Awaitable[None]]
+class OcrEventControlRepository(Protocol):
+    """Persistence port for event-mode dispatch and progress fencing."""
+
+    async def dispatch_event_run(
+        self,
+        run_id: UUID,
+        *,
+        attempt_id: UUID,
+        owner_token: UUID,
+        max_concurrency: int,
+        reservation_timeout_seconds: float,
+        execution_timeout_seconds: float,
+        defer_seconds: float,
+    ) -> OcrEventDispatchResult | None: ...
+
+    async def fail_event_dispatch(
+        self,
+        run_id: UUID,
+        attempt_id: UUID,
+        *,
+        fencing_token: int,
+        error_code: str,
+    ) -> bool: ...
+
+    async def defer_event_dispatch(
+        self,
+        run_id: UUID,
+        attempt_id: UUID,
+        *,
+        fencing_token: int,
+        defer_seconds: float,
+    ) -> bool: ...
+
+    async def reconcile_event_executions(self, *, defer_seconds: float) -> int: ...
+
+    async def request_cancellation(
+        self,
+        run_id: UUID,
+        *,
+        actor_id: str,
+        actor_login: str | None,
+        cancellation_timeout_seconds: float,
+    ) -> OcrCancellationResult | None: ...
+
+    async def complete_cancellation(
+        self, run_id: UUID, attempt_id: UUID, *, fencing_token: int, error_code: str | None = None
+    ) -> str: ...
+
+    async def record_cancellation_dispatch_failure(
+        self,
+        run_id: UUID,
+        attempt_id: UUID,
+        *,
+        fencing_token: int,
+        error_code: str,
+    ) -> str: ...
+
+    async def reconcile_cancellations(self) -> int: ...
+
+    async def apply_pipeline_event(self, event: Any) -> str: ...
+
+    async def complete_event_run(
+        self,
+        run_id: UUID,
+        attempt_id: UUID,
+        completion: OcrEventCompletion,
+    ) -> str: ...
 
 
-class OcrPipelineRunDispatcher(Protocol):
-    """Dispatches one persisted OCR pipeline run."""
+class OcrEventRunCompleter(Protocol):
+    """Completes an event-mode run and performs post-commit follow-up work."""
 
-    async def dispatch(self, run_id: UUID) -> None: ...
+    async def complete(
+        self,
+        run_id: UUID,
+        attempt_id: UUID,
+        completion: OcrEventCompletion,
+    ) -> str: ...
 
 
-class OcrPipelineRunScheduler(Protocol):
-    """Schedules persisted OCR runs outside an HTTP request lifecycle."""
+@dataclass(frozen=True, slots=True)
+class OcrRunOutboxRecord:
+    """One claimed, stable-id OCR run request awaiting publication."""
 
-    def schedule(self, dispatch: OcrPipelineRunDispatch, run_id: UUID) -> None: ...
+    id: UUID
+    topic: str
+    event_type: str
+    payload: dict[str, object]
+    publish_attempts: int
+
+
+@dataclass(frozen=True, slots=True)
+class OcrEventDispatchResult:
+    disposition: str
+    attempt_id: UUID | None = None
+    attempt_number: int | None = None
+    fencing_token: int | None = None
+    execution_deadline_at: datetime | None = None
+    run_request: dict[str, object] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class OcrEventCompletion:
+    """Terminal data submitted by LLM Magic for one fenced event-mode attempt."""
+
+    document_id: UUID
+    fencing_token: int
+    status: OcrPipelineRunStatus
+    steps: tuple[OcrPipelineRunStep, ...]
+    metrics: Mapping[str, MetricValue]
+    diagnostics: tuple[OcrPipelineRunDiagnostic, ...]
+    error: OcrPipelineRunError | None
+    result_payload: JsonObject | None
+
+
+@dataclass(frozen=True, slots=True)
+class OcrCancellationResult:
+    disposition: str
+    record: OcrPipelineRunRecord

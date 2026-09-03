@@ -34,3 +34,15 @@ class AttributeRequirementRepository(Protocol):
         document_type_id: UUID | str,
         requirements: tuple[DocumentTypeAttributeRequirement, ...],
     ) -> None: ...
+
+    async def lock_matrix_writes(self) -> None: ...
+
+    async def list_for_attribute(
+        self, attribute_definition_id: UUID | str, *, for_update: bool = False
+    ) -> tuple[DocumentTypeAttributeRequirement, ...]: ...
+
+    async def replace_for_attribute(
+        self,
+        attribute_definition_id: UUID,
+        requirements: tuple[DocumentTypeAttributeRequirement, ...],
+    ) -> None: ...

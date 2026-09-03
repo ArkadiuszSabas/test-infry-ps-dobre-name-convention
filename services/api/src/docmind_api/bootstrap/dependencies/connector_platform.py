@@ -8,15 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from docmind_api.application.connectors.configuration import ConnectorConfigurationService
 from docmind_api.application.connectors.document_intake import (
-    DirectConnectorDocumentOcrStarter,
+    ConnectorDocumentOcrStarterService,
     DocumentRegistryConnectorDocumentIntakePort,
 )
 from docmind_api.application.documents.ports import DocumentContentStorage
 from docmind_api.application.documents.service import DocumentRegistryService
-from docmind_api.application.ocr_pipeline_runs.ports import (
-    OcrPipelineRunDispatcher,
-    OcrPipelineRunScheduler,
-)
 from docmind_api.application.ocr_pipeline_runs.service import OcrPipelineRunService
 from docmind_api.bootstrap.dependencies.connector_configurations import (
     get_connector_configuration_service,
@@ -28,11 +24,7 @@ from docmind_api.bootstrap.dependencies.documents import (
     get_document_ingest_settings_dependency,
     get_document_registry_service,
 )
-from docmind_api.bootstrap.dependencies.ocr_pipeline_runs import (
-    get_ocr_pipeline_run_dispatcher,
-    get_ocr_pipeline_run_scheduler,
-    get_ocr_pipeline_run_service,
-)
+from docmind_api.bootstrap.dependencies.ocr_pipeline_runs import get_ocr_pipeline_run_service
 from docmind_api.settings import DocumentIngestSettings
 from docmind_core.connectors import (
     ConnectorApiPlatformContext,
@@ -77,14 +69,6 @@ def get_connector_document_intake_port(
         OcrPipelineRunService,
         Depends(get_ocr_pipeline_run_service),
     ],
-    ocr_pipeline_run_dispatcher: Annotated[
-        OcrPipelineRunDispatcher,
-        Depends(get_ocr_pipeline_run_dispatcher),
-    ],
-    ocr_pipeline_run_scheduler: Annotated[
-        OcrPipelineRunScheduler,
-        Depends(get_ocr_pipeline_run_scheduler),
-    ],
     session: Annotated[AsyncSession, Depends(get_database_session)],
     storage: Annotated[
         DocumentContentStorage,
@@ -96,12 +80,10 @@ def get_connector_document_intake_port(
     return DocumentRegistryConnectorDocumentIntakePort(
         document_registry_service,
         max_content_bytes=document_ingest_settings.max_content_bytes,
-        ocr_starter=DirectConnectorDocumentOcrStarter(
+        ocr_starter=ConnectorDocumentOcrStarterService(
             run_service=ocr_pipeline_run_service,
             unit_of_work=_ConnectorDocumentIntakeUnitOfWork(session),
             storage=storage,
-            dispatcher=ocr_pipeline_run_dispatcher,
-            scheduler=ocr_pipeline_run_scheduler,
         ),
     )
 

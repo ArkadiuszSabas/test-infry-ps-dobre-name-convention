@@ -92,6 +92,7 @@ class ContextResolverGraphContext:
     step_id: str | None = None
     user_id: str | None = None
     session_id: str | None = None
+    document_id: str | None = None
     workspace: ContextResolverWorkspace = field(default_factory=ContextResolverWorkspace)
 
 

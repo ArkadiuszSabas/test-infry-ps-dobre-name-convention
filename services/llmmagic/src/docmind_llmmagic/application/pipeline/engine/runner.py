@@ -223,11 +223,11 @@ class PipelineRunner:
             trace.append(step_result)
 
             if step_result.status == PipelineStepStatus.SUCCEEDED:
-                progress.set_status(step_definition.step_id, PipelineStepStatus.SUCCEEDED)
+                progress.set_result(step_result)
                 await self._emit_progress(progress_callback, progress.snapshot())
                 continue
 
-            progress.set_status(step_definition.step_id, PipelineStepStatus.FAILED)
+            progress.set_result(step_result)
             if step_definition.failure_policy == FailurePolicy.OPTIONAL:
                 has_optional_failure = True
                 await self._emit_progress(progress_callback, progress.snapshot())
@@ -326,6 +326,7 @@ class PipelineRunner:
                     duration_seconds=perf_counter() - started_at,
                     metrics={},
                     error=self._safe_error(exc),
+                    display_name=definition.display_name,
                 )
                 self._finish_step_observation(
                     observation,
@@ -350,6 +351,7 @@ class PipelineRunner:
                 status=PipelineStepStatus.SUCCEEDED,
                 duration_seconds=perf_counter() - started_at,
                 metrics=self._safe_metrics(cast(Mapping[object, object], output.metrics)),
+                display_name=definition.display_name,
             )
             self._finish_step_observation(
                 observation,
@@ -575,6 +577,7 @@ class PipelineRunner:
             status=PipelineStepStatus.SKIPPED,
             duration_seconds=0.0,
             metrics={},
+            display_name=definition.display_name,
         )
 
     def _skip_remaining(
@@ -585,8 +588,8 @@ class PipelineRunner:
         skipped_results: list[StepResult] = []
 
         for step_definition in remaining_steps:
-            progress.set_status(step_definition.step_id, PipelineStepStatus.SKIPPED)
             skipped_result = self._skipped_result(step_definition)
+            progress.set_result(skipped_result)
             skipped_results.append(skipped_result)
             self._observe_skipped_step(step_definition, progress.context, skipped_result)
 
@@ -615,11 +618,30 @@ class _ProgressState:
             step.step_id: PipelineStepStatus.PENDING if step.enabled else PipelineStepStatus.SKIPPED
             for step in definition.steps
         }
+        self._results = {
+            step.step_id: StepResult(
+                step_id=step.step_id,
+                step_type=step.step_type,
+                implementation_id=step.implementation_id,
+                status=PipelineStepStatus.SKIPPED,
+                duration_seconds=0.0,
+                metrics={},
+                display_name=step.display_name,
+            )
+            for step in definition.steps
+            if not step.enabled
+        }
 
     def set_status(self, step_id: str, status: PipelineStepStatus) -> None:
         """Set progress status for one configured step."""
 
         self._statuses[step_id] = status
+
+    def set_result(self, result: StepResult) -> None:
+        """Store authoritative terminal metadata for one configured step."""
+
+        self._statuses[result.step_id] = result.status
+        self._results[result.step_id] = result
 
     @property
     def context(self) -> PipelineContext:
@@ -633,13 +655,18 @@ class _ProgressState:
         return PipelineProgress(
             pipeline_id=self._definition.pipeline_id,
             run_id=self._context.run_id,
-            steps=tuple(
-                PipelineStepProgress(
-                    step_id=step.step_id,
-                    step_type=step.step_type,
-                    implementation_id=step.implementation_id,
-                    status=self._statuses[step.step_id],
-                )
-                for step in self._definition.steps
-            ),
+            steps=tuple(self._step_progress(step) for step in self._definition.steps),
+        )
+
+    def _step_progress(self, step: PipelineStepDefinition) -> PipelineStepProgress:
+        result = self._results.get(step.step_id)
+        return PipelineStepProgress(
+            step_id=step.step_id,
+            step_type=step.step_type,
+            implementation_id=step.implementation_id,
+            status=self._statuses[step.step_id],
+            display_name=step.display_name,
+            duration_seconds=result.duration_seconds if result is not None else None,
+            metrics=result.metrics if result is not None else {},
+            error=result.error if result is not None else None,
         )

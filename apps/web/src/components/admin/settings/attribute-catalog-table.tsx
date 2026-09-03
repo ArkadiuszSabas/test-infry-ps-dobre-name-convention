@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Edit3Icon, PowerIcon, Trash2Icon } from "lucide-react";
+import { Edit3Icon, Link2Icon, PowerIcon, Trash2Icon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import {
@@ -59,6 +59,7 @@ interface AttributeCatalogTableProps {
   onDeactivate: (attribute: AttributeDefinition) => void;
   onDelete: (attribute: AttributeDefinition) => void;
   onEdit: (attribute: AttributeDefinition) => void;
+  onAssignments: (attribute: AttributeDefinition) => void;
   search: string;
   status: AttributeStatusFilter;
 }
@@ -70,6 +71,7 @@ export function AttributeCatalogTable({
   onDeactivate,
   onDelete,
   onEdit,
+  onAssignments,
   search,
   status,
 }: AttributeCatalogTableProps) {
@@ -229,6 +231,17 @@ export function AttributeCatalogTable({
             </TableCell>
             <TableCell className="w-28">
               <div className="flex shrink-0 justify-end gap-1">
+                <IconTooltipButton
+                  aria-label={t("actions.assignments", {
+                    name: attribute.name,
+                  })}
+                  onClick={() => onAssignments(attribute)}
+                  tooltip={t("actions.assignments", { name: attribute.name })}
+                  type="button"
+                  variant="secondary"
+                >
+                  <Link2Icon />
+                </IconTooltipButton>
                 <IconTooltipButton
                   aria-label={t("actions.edit", { name: attribute.name })}
                   onClick={() => onEdit(attribute)}

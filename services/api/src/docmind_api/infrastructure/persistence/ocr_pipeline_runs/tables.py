@@ -25,6 +25,43 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
 )
 from docmind_api.infrastructure.persistence.metadata import metadata
 
+ocr_pipeline_run_outbox_table = Table(
+    "ocr_pipeline_run_outbox",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, nullable=False),
+    Column(
+        "run_id",
+        UUID(as_uuid=True),
+        ForeignKey("ocr_pipeline_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("topic", String(length=120), nullable=False),
+    Column("event_type", String(length=120), nullable=False),
+    Column("payload", JSONB, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("available_at", DateTime(timezone=True), nullable=False),
+    Column("dedupe_key", String(length=160), nullable=True),
+    Column("published_at", DateTime(timezone=True), nullable=True),
+    Column("publish_attempts", Integer, nullable=False, server_default="0"),
+    CheckConstraint("length(trim(topic)) > 0", name="topic_not_empty"),
+    CheckConstraint("length(trim(event_type)) > 0", name="event_type_not_empty"),
+    CheckConstraint("jsonb_typeof(payload) = 'object'", name="payload_object"),
+    CheckConstraint("publish_attempts >= 0", name="publish_attempts_non_negative"),
+    Index(
+        "ix_ocr_pipeline_run_outbox_available",
+        "available_at",
+        "created_at",
+        postgresql_where=text("published_at is null"),
+    ),
+    Index(
+        "uq_ocr_pipeline_run_outbox_pending_dedupe_key",
+        "dedupe_key",
+        unique=True,
+        postgresql_where=text("published_at is null and dedupe_key is not null"),
+    ),
+    Index("ix_ocr_pipeline_run_outbox_run_id", "run_id"),
+)
+
 ocr_pipeline_runs_table = Table(
     "ocr_pipeline_runs",
     metadata,
@@ -58,6 +95,9 @@ ocr_pipeline_runs_table = Table(
     Column("diagnostics", JSONB, nullable=False),
     Column("error", JSONB(none_as_null=True), nullable=True),
     Column("result_payload", JSONB(none_as_null=True), nullable=True),
+    Column("comparison_id", UUID(as_uuid=True), nullable=True),
+    Column("comparison_role", String(length=16), nullable=True),
+    Column("comparison_baseline_snapshot", JSONB(none_as_null=True), nullable=True),
     # Kept solely for compatibility with the already-applied 0041 migration.
     # Context Resolver metadata is intentionally not persisted as an OCR result.
     Column("metadata_snapshot", JSONB, nullable=False),
@@ -65,6 +105,9 @@ ocr_pipeline_runs_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
     Column("started_at", DateTime(timezone=True), nullable=True),
     Column("completed_at", DateTime(timezone=True), nullable=True),
+    Column("cancellation_requested_at", DateTime(timezone=True), nullable=True),
+    Column("cancellation_requested_by_actor_id", String(length=128), nullable=True),
+    Column("cancellation_requested_by_actor_login", String(length=320), nullable=True),
     Column(
         "started_by_actor_id", String(length=OCR_PIPELINE_RUN_ACTOR_ID_MAX_LENGTH), nullable=True
     ),
@@ -102,7 +145,8 @@ ocr_pipeline_runs_table = Table(
     CheckConstraint("pipeline_version > 0", name="pipeline_version_positive"),
     CheckConstraint("length(trim(document_reference)) > 0", name="document_reference_not_empty"),
     CheckConstraint(
-        "status in ('pending', 'running', 'succeeded', 'partial_failed', 'failed')",
+        "status in ('pending', 'running', 'cancelling', 'succeeded', "
+        "'partial_failed', 'failed', 'cancelled')",
         name="status_supported",
     ),
     CheckConstraint("jsonb_typeof(compiled_snapshot) = 'object'", name="compiled_snapshot_object"),
@@ -114,6 +158,17 @@ ocr_pipeline_runs_table = Table(
     CheckConstraint(
         "result_payload is null or jsonb_typeof(result_payload) = 'object'",
         name="result_payload_object",
+    ),
+    CheckConstraint(
+        "(comparison_id is null and comparison_role is null) or "
+        "(comparison_id is not null and comparison_role in ('vision', 'baseline'))",
+        name="comparison_identity_valid",
+    ),
+    CheckConstraint(
+        "(comparison_role = 'vision' and comparison_baseline_snapshot is not null "
+        "and jsonb_typeof(comparison_baseline_snapshot) = 'object') or "
+        "(comparison_role is distinct from 'vision' and comparison_baseline_snapshot is null)",
+        name="comparison_baseline_snapshot_valid",
     ),
     CheckConstraint(
         "catalog_version is null or length(trim(catalog_version)) > 0",
@@ -168,18 +223,37 @@ ocr_pipeline_runs_table = Table(
         name="fk_ocr_pipeline_runs_pipeline_version",
         ondelete="RESTRICT",
     ),
+    Index(
+        "uq_ocr_pipeline_runs_comparison_role",
+        "comparison_id",
+        "comparison_role",
+        unique=True,
+        postgresql_where=text("comparison_id is not null"),
+    ),
     Index("ix_ocr_pipeline_runs_document_id", "document_id"),
     Index(
         "uq_ocr_pipeline_runs_active_document_id",
         "document_id",
         unique=True,
-        postgresql_where=text("status in ('pending', 'running')"),
+        postgresql_where=text("status in ('pending', 'running', 'cancelling')"),
     ),
     Index("ix_ocr_pipeline_runs_pipeline_id", "pipeline_id"),
     Index("ix_ocr_pipeline_runs_status", "status"),
     Index("ix_ocr_pipeline_runs_created_at", "created_at"),
     Index("ix_ocr_pipeline_runs_completed_at", "completed_at"),
     Index("ix_ocr_pipeline_runs_document_created_at", "document_id", "created_at"),
+    Index(
+        "ix_ocr_pipeline_runs_admin_active_updated",
+        "updated_at",
+        "id",
+        postgresql_where=text("status in ('pending', 'running', 'cancelling')"),
+    ),
+    Index(
+        "ix_ocr_pipeline_runs_admin_history_completed",
+        text("completed_at desc"),
+        text("id desc"),
+        postgresql_where=text("status in ('succeeded', 'partial_failed', 'failed', 'cancelled')"),
+    ),
 )
 
 ocr_pipeline_run_attempts_table = Table(
@@ -202,10 +276,14 @@ ocr_pipeline_run_attempts_table = Table(
     Column("lease_expires_at", DateTime(timezone=True), nullable=False),
     Column("completed_at", DateTime(timezone=True), nullable=True),
     Column("error_code", String(length=OCR_PIPELINE_RUN_ERROR_CODE_MAX_LENGTH), nullable=True),
+    Column("execution_deadline_at", DateTime(timezone=True), nullable=True),
+    Column("cancellation_deadline_at", DateTime(timezone=True), nullable=True),
+    Column("last_event_sequence", Integer, nullable=False, server_default="0"),
     CheckConstraint("attempt_number > 0", name="attempt_number_positive"),
     CheckConstraint("fencing_token > 0", name="fencing_token_positive"),
     CheckConstraint(
-        "status in ('running', 'succeeded', 'partial_failed', 'failed', 'indeterminate', 'lost')",
+        "status in ('reserved', 'running', 'succeeded', 'partial_failed', 'failed', "
+        "'cancelled', 'indeterminate', 'lost')",
         name="status_supported",
     ),
     CheckConstraint("started_at <= last_renewed_at", name="renewed_at_not_before_started_at"),
@@ -222,14 +300,15 @@ ocr_pipeline_run_attempts_table = Table(
         name="completed_at_not_before_started_at",
     ),
     CheckConstraint(
-        "(status = 'running' and completed_at is null) "
-        "or (status <> 'running' and completed_at is not null)",
+        "(status in ('reserved', 'running') and completed_at is null) "
+        "or (status not in ('reserved', 'running') and completed_at is not null)",
         name="completion_matches_status",
     ),
     CheckConstraint(
         "error_code is null or length(trim(error_code)) > 0",
         name="error_code_not_empty",
     ),
+    CheckConstraint("last_event_sequence >= 0", name="last_event_sequence_non_negative"),
     Index("ix_ocr_pipeline_run_attempts_run_id", "run_id"),
     Index(
         "uq_ocr_pipeline_run_attempts_run_attempt_number",
@@ -247,7 +326,14 @@ ocr_pipeline_run_attempts_table = Table(
         "uq_ocr_pipeline_run_attempts_active_run_id",
         "run_id",
         unique=True,
-        postgresql_where=text("status = 'running'"),
+        postgresql_where=text("status in ('reserved', 'running')"),
     ),
     Index("ix_ocr_pipeline_run_attempts_lease_expires_at", "lease_expires_at"),
+)
+
+ocr_pipeline_run_capacity_lock_table = Table(
+    "ocr_pipeline_run_capacity_lock",
+    metadata,
+    Column("id", Integer, primary_key=True, nullable=False),
+    CheckConstraint("id = 1", name="singleton"),
 )

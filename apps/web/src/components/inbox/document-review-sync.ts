@@ -43,7 +43,11 @@ export function getDocumentReviewPresentationKind({
     return "not_run";
   }
 
-  if (latestRunStatus === "pending" || latestRunStatus === "running") {
+  if (
+    latestRunStatus === "pending" ||
+    latestRunStatus === "running" ||
+    latestRunStatus === "cancelling"
+  ) {
     return "loading";
   }
 

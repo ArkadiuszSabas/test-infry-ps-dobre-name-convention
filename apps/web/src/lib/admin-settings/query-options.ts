@@ -59,8 +59,10 @@ export const adminCatalogQueryKeys = {
 export function dictionariesQueryOptions(
   status: DictionaryStatusFilter,
   search: string | null,
+  enabled = true,
 ) {
   return queryOptions({
+    enabled,
     queryKey: adminCatalogQueryKeys.dictionariesList(status, search),
     queryFn: ({ signal }) =>
       adminCatalogClient.listDictionaries({ search, signal, status }),
@@ -157,8 +159,10 @@ async function listActiveDictionaryEntryLookup(
 
 export function attributeCategoriesQueryOptions(
   status: CatalogStatusFilter = "active",
+  enabled = true,
 ) {
   return queryOptions({
+    enabled,
     queryKey: adminCatalogQueryKeys.attributeCategoriesList(status),
     queryFn: ({ signal }) =>
       adminCatalogClient.listAttributeCategories({ signal, status }),
@@ -179,8 +183,12 @@ export function documentTypesQueryOptions(
   });
 }
 
-export function attributesQueryOptions(category: string | null) {
+export function attributesQueryOptions(
+  category: string | null,
+  enabled = true,
+) {
   return queryOptions({
+    enabled,
     queryKey: adminCatalogQueryKeys.attributesList(category),
     queryFn: ({ signal }) =>
       adminCatalogClient.listAttributes({ category, signal }),

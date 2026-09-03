@@ -28,14 +28,21 @@ _DEFAULT_OCR_FALLBACK_MAX_PAGES = 10
 _DEFAULT_OCR_FALLBACK_MAX_ESTIMATED_COST_UNITS = 10
 _DEFAULT_CONTEXT_RESOLVER_OPENAI_MODEL_ID = "gpt-4.1-mini"
 _DEFAULT_CONTEXT_RESOLVER_REQUEST_TIMEOUT_SECONDS = 90.0
+_DEFAULT_CONTEXT_RESOLVER_MAX_REQUEST_BYTES = 120_000
 _DEFAULT_CONTEXT_RESOLVER_REASONING_EFFORT = None
 _DEFAULT_CONTEXT_RESOLVER_BATCH_MAX_ATTRIBUTES = 10
 _DEFAULT_CONTEXT_RESOLVER_MAX_CONCURRENCY = 2
+_DEFAULT_OCR_MAX_CONCURRENCY = 1
+_DEFAULT_OCR_EVENT_DAPR_TIMEOUT_SECONDS = 5.0
 _DEFAULT_CONTEXT_RESOLVER_BATCH_MAX_COMPLETION_TOKENS = 20_000
 _DEFAULT_CONTEXT_RESOLVER_EVIDENCE_TOP_K = 12
 _DEFAULT_CONTEXT_RESOLVER_BATCH_MAX_EVIDENCE_CHARS = 10_000
 _DEFAULT_CONTEXT_RESOLVER_MAX_BATCH_ATTEMPTS = 2
 _DEFAULT_CONTEXT_RESOLVER_WORKFLOW_TIMEOUT_SECONDS = 700
+_DEFAULT_CONTEXT_RESOLVER_PROMPT_VERSION = "context-resolver-v2"
+_SUPPORTED_CONTEXT_RESOLVER_PROMPT_VERSIONS = frozenset(
+    {"context-resolver-v1", "context-resolver-v2"}
+)
 _TRUE_VALUES = frozenset({"1", "true", "yes", "on"})
 _FALSE_VALUES = frozenset({"0", "false", "no", "off"})
 
@@ -132,6 +139,7 @@ class OpenAIContextResolverSettings:
     base_url: str | None
     managed_identity_client_id: str | None
     request_timeout_seconds: float
+    max_request_bytes: int
     reasoning_effort: ContextResolverReasoningEffort | None
     batch_max_attributes: int
     max_concurrency: int
@@ -140,6 +148,7 @@ class OpenAIContextResolverSettings:
     batch_max_evidence_chars: int
     max_batch_attempts: int
     workflow_timeout_seconds: float
+    prompt_version: str
     canonical_model_id: str | None = None
     model_version: str | None = None
     pricing_key: str | None = None
@@ -189,6 +198,18 @@ def get_runtime_settings() -> RuntimeSettings:
     return load_runtime_settings(service_name="docmind-llmmagic")
 
 
+def get_ocr_max_concurrency(env: Mapping[str, str] | None = None) -> int:
+    """Return the whole-pipeline concurrency limit for this LLM Magic replica."""
+
+    values = os.environ if env is None else env
+    return _bounded_int(
+        values.get("DOCMIND_LLMMAGIC_OCR_MAX_CONCURRENCY"),
+        default=_DEFAULT_OCR_MAX_CONCURRENCY,
+        minimum=1,
+        maximum=100,
+    )
+
+
 def get_dapr_client_settings() -> DaprClientSettings:
     """Return Dapr sidecar client settings for the LLM Magic service."""
 
@@ -196,6 +217,20 @@ def get_dapr_client_settings() -> DaprClientSettings:
         app_id="docmind-llmmagic",
         http_endpoint_env="DOCMIND_LLMMAGIC_DAPR_HTTP_ENDPOINT",
         http_port_env="DOCMIND_LLMMAGIC_DAPR_HTTP_PORT",
+    )
+
+
+def get_ocr_event_dapr_client_settings() -> DaprClientSettings:
+    """Return a short-timeout Dapr client for best-effort OCR event traffic."""
+
+    settings = get_dapr_client_settings()
+    return DaprClientSettings(
+        app_id=settings.app_id,
+        http_endpoint=settings.http_endpoint,
+        timeout_seconds=_positive_float(
+            os.environ.get("DOCMIND_LLMMAGIC_OCR_EVENT_DAPR_TIMEOUT_SECONDS"),
+            default=_DEFAULT_OCR_EVENT_DAPR_TIMEOUT_SECONDS,
+        ),
     )
 
 
@@ -275,6 +310,12 @@ def get_openai_context_resolver_settings(
             values.get("DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_OPENAI_REQUEST_TIMEOUT_SECONDS"),
             default=_DEFAULT_CONTEXT_RESOLVER_REQUEST_TIMEOUT_SECONDS,
         ),
+        max_request_bytes=_bounded_int(
+            values.get("DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_MAX_REQUEST_BYTES"),
+            default=_DEFAULT_CONTEXT_RESOLVER_MAX_REQUEST_BYTES,
+            minimum=16_000,
+            maximum=1_000_000,
+        ),
         reasoning_effort=_context_resolver_reasoning_effort(
             values.get("DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_REASONING_EFFORT")
         ),
@@ -322,6 +363,9 @@ def get_openai_context_resolver_settings(
                 minimum=1,
                 maximum=_DEFAULT_CONTEXT_RESOLVER_WORKFLOW_TIMEOUT_SECONDS,
             )
+        ),
+        prompt_version=_context_resolver_prompt_version(
+            values.get("DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_PROMPT_VERSION")
         ),
         canonical_model_id=canonical_model_id,
         model_version=_optional_value(
@@ -750,6 +794,13 @@ def _optional_identity_text(value: object) -> str | None:
     if len(normalized) > 200 or any(character in normalized for character in "\r\n\t"):
         raise ValueError("Context Resolver model identity values must be single-line strings")
     return normalized
+
+
+def _context_resolver_prompt_version(value: str | None) -> str:
+    version = (value or _DEFAULT_CONTEXT_RESOLVER_PROMPT_VERSION).strip().lower()
+    if version not in _SUPPORTED_CONTEXT_RESOLVER_PROMPT_VERSIONS:
+        raise ValueError("Context Resolver prompt version is unsupported.")
+    return version
 
 
 def _trace_capture_mode(value: str | None) -> TraceCaptureModeSetting:

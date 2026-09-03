@@ -27,6 +27,7 @@ workload_identity_workloads = [
   "api-migrator",
   "dapr-servicebus-api",
   "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
   "llmmagic",
   "worker",
 ]
@@ -96,10 +97,11 @@ container_apps = {
       DOCMIND_CONNECTOR_PROFILE_PATH                         = "/app/deployments/ps/profile.yml"
       DOCMIND_DAPR_HTTP_TIMEOUT_SECONDS                      = "60.0"
       DOCMIND_DAPR_RUNTIME_HOST                              = "127.0.0.1"
+      DOCMIND_API_OCR_EVENT_PUBSUB_NAME                      = "docmind-servicebus-pubsub-api"
       OTEL_METRICS_EXPORTER                                  = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME             = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME             = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE                  = "ee7c45sbnsocrdev01.servicebus.windows.net"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME              = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME              = "processing-results"
       STORAGE_ACCOUNT_NAME                                   = "ee7c45stocrdocdev01"
       STORAGE_BLOB_ENDPOINT                                  = "https://ee7c45stocrdocdev01.blob.core.windows.net/"
     }
@@ -110,16 +112,17 @@ container_apps = {
     }
   }
   llmmagic = {
-    container_name   = "llmmagic"
-    image            = "ee7c45crocrdev01.azurecr.io/docmind/llmmagic@sha256:00eb49f65bb07d8d8a99acc6c69454b03633c11601b2cc5c5c76e4e3b9151612"
-    target_port      = 8000
-    external_enabled = false
-    transport        = "auto"
-    cpu              = 0.5
-    memory           = "1Gi"
-    min_replicas     = 1
-    max_replicas     = 3
-    identity_key     = "llmmagic"
+    container_name      = "llmmagic"
+    image               = "ee7c45crocrdev01.azurecr.io/docmind/llmmagic@sha256:00eb49f65bb07d8d8a99acc6c69454b03633c11601b2cc5c5c76e4e3b9151612"
+    target_port         = 8000
+    external_enabled    = false
+    transport           = "auto"
+    cpu                 = 0.5
+    memory              = "1Gi"
+    min_replicas        = 1
+    max_replicas        = 3
+    identity_key        = "llmmagic"
+    extra_identity_keys = ["dapr-servicebus-llmmagic"]
     environment_variables = {
       APPLICATIONINSIGHTS_CONNECTION_STRING                         = "InstrumentationKey=77f41fd2-26a5-483b-8331-91bb792c1fca;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://swedencentral.livediagnostics.monitor.azure.com/;ApplicationId=bfa7c938-b6cf-43e7-bd61-8df921c67996"
       APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL                    = "true"
@@ -149,9 +152,9 @@ container_apps = {
       DOCMIND_LLMMAGIC_OCR_FALLBACK_ENABLED                         = "false"
       DOCMIND_LLMMAGIC_OCR_PROVIDER                                 = "azure_document_intelligence"
       OTEL_METRICS_EXPORTER                                         = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME                    = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME                    = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE                         = "ee7c45sbnsocrdev01.servicebus.windows.net"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME                     = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME                     = "processing-results"
     }
     dapr = {
       app_id       = "docmind-llmmagic"
@@ -182,9 +185,9 @@ container_apps = {
       DOCMIND_DAPR_HTTP_TIMEOUT_SECONDS             = "60.0"
       DOCMIND_DAPR_RUNTIME_HOST                     = "127.0.0.1"
       OTEL_METRICS_EXPORTER                         = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME    = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME    = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE         = "ee7c45sbnsocrdev01.servicebus.windows.net"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME     = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME     = "processing-results"
     }
     dapr = {
       app_id       = "docmind-worker"
@@ -196,6 +199,7 @@ container_apps = {
 
 dapr_components = {
   servicebus-pubsub-api = {
+    name                         = "docmind-servicebus-pubsub-api"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -206,6 +210,7 @@ dapr_components = {
     service_bus_metadata_enabled = true
   }
   servicebus-pubsub-worker = {
+    name                         = "docmind-servicebus-pubsub-worker"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -213,6 +218,17 @@ dapr_components = {
     scopes                       = ["docmind-worker"]
     metadata                     = {}
     managed_identity_key         = "dapr-servicebus-worker"
+    service_bus_metadata_enabled = true
+  }
+  servicebus-pubsub-llmmagic = {
+    name                         = "docmind-servicebus-pubsub-llmmagic"
+    component_type               = "pubsub.azure.servicebus.queues"
+    version                      = "v1"
+    ignore_errors                = false
+    init_timeout                 = "5s"
+    scopes                       = ["docmind-llmmagic"]
+    metadata                     = {}
+    managed_identity_key         = "dapr-servicebus-llmmagic"
     service_bus_metadata_enabled = true
   }
 }

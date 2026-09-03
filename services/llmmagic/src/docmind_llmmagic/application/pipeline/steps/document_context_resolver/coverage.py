@@ -6,7 +6,10 @@ import re
 import unicodedata
 from dataclasses import dataclass, replace
 
-from docmind_llmmagic.application.pipeline.steps.document_context_resolver import metadata_priority
+from docmind_llmmagic.application.pipeline.steps.document_context_resolver import (
+    metadata_priority,
+    model_contract_limits,
+)
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.config import (
     ContextResolverConfig,
 )
@@ -48,6 +51,7 @@ class ContextResolverCoverageResult:
     selected_evidence_unit_count: int
     selected_evidence_char_count: int
     max_batch_attribute_count: int
+    model_request_count: int
 
 
 def requires_coverage_fallback(
@@ -80,7 +84,7 @@ def with_coverage_fallback(
         metrics=replace(
             metrics,
             batch_count=metrics.batch_count + coverage.batch_count,
-            model_request_count=metrics.model_request_count + coverage.batch_count,
+            model_request_count=metrics.model_request_count + coverage.model_request_count,
             selected_evidence_unit_count=max(
                 metrics.selected_evidence_unit_count,
                 coverage.selected_evidence_unit_count,
@@ -137,6 +141,7 @@ def plan_coverage_batches(
     windows = _evidence_windows(
         non_metadata,
         max_chars=max_evidence_chars - metadata_chars,
+        prefix_evidence_ids=tuple(unit.evidence_id for unit in metadata),
     )
     if not windows:
         windows = ((),)
@@ -224,6 +229,7 @@ def build_coverage_result(
             len(unit.text) for batch in batches for unit in batch.evidence
         ),
         max_batch_attribute_count=max(len(batch.attributes) for batch in batches),
+        model_request_count=sum(result.provider_request_count for result in batch_results),
     )
 
 
@@ -231,10 +237,15 @@ def _evidence_windows(
     evidence: tuple[EvidenceUnit, ...],
     *,
     max_chars: int,
+    prefix_evidence_ids: tuple[str, ...] = (),
 ) -> tuple[tuple[EvidenceUnit, ...], ...]:
+    if not model_contract_limits.evidence_enum_within_limits(prefix_evidence_ids):
+        _raise_evidence_contract_too_large()
+    prefix_evidence_id_chars = sum(len(evidence_id) for evidence_id in prefix_evidence_ids)
     windows: list[tuple[EvidenceUnit, ...]] = []
     current: list[EvidenceUnit] = []
     current_chars = 0
+    current_evidence_id_chars = 0
     for unit in evidence:
         unit_chars = len(unit.text)
         if unit_chars > max_chars:
@@ -242,15 +253,36 @@ def _evidence_windows(
                 code="CONTEXT_RESOLVER_INPUT_TOO_LARGE",
                 message="Context Resolver OCR evidence exceeds the supported batch limit.",
             )
-        if current and current_chars + unit_chars > max_chars:
+        candidate_within_contract = model_contract_limits.evidence_enum_shape_within_limits(
+            value_count=len(prefix_evidence_ids) + len(current) + 1,
+            total_characters=(
+                prefix_evidence_id_chars + current_evidence_id_chars + len(unit.evidence_id)
+            ),
+        )
+        if current and (current_chars + unit_chars > max_chars or not candidate_within_contract):
             windows.append(tuple(current))
             current = []
             current_chars = 0
+            current_evidence_id_chars = 0
+            candidate_within_contract = model_contract_limits.evidence_enum_shape_within_limits(
+                value_count=len(prefix_evidence_ids) + 1,
+                total_characters=prefix_evidence_id_chars + len(unit.evidence_id),
+            )
+        if not candidate_within_contract:
+            _raise_evidence_contract_too_large()
         current.append(unit)
         current_chars += unit_chars
+        current_evidence_id_chars += len(unit.evidence_id)
     if current:
         windows.append(tuple(current))
     return tuple(windows)
+
+
+def _raise_evidence_contract_too_large() -> None:
+    raise safe_context_resolver_error(
+        code="CONTEXT_RESOLVER_INPUT_TOO_LARGE",
+        message="Context Resolver evidence schema exceeds the supported safe limit.",
+    )
 
 
 def _merge_candidates(

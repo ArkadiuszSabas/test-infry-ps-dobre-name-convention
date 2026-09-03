@@ -55,7 +55,11 @@ import {
   documentReviewQueryOptions,
   reviewQueryKeys,
 } from "@/lib/review/query-options";
-import type { DocumentReview } from "@/lib/review/types";
+import type {
+  DocumentReview,
+  ReviewAttributeSource,
+  ReviewSourceSelection,
+} from "@/lib/review/types";
 import {
   buildReviewWorkspaceViewModel,
   formatFallbackStatusLabel,
@@ -74,6 +78,7 @@ const REVIEW_STATUS_LABEL_KEYS = [
   "received",
   "rejected",
 ] as const;
+const EMPTY_REVIEW_SOURCES: readonly ReviewAttributeSource[] = [];
 
 export function InboxDocumentDetailPage({
   approvalCompleted = false,
@@ -88,6 +93,16 @@ export function InboxDocumentDetailPage({
   const router = useRouter();
   const { actor } = useCurrentActor();
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false);
+  const [selectedReviewSources, setSelectedReviewSources] = useState<{
+    documentId: string;
+    fieldId: string;
+    reviewId: string | null;
+    reviewVersion: number | null;
+    reviewUpdatedAt: number;
+    navigationRequestId: number;
+    sources: readonly ReviewAttributeSource[];
+    targetPageNumber: number;
+  } | null>(null);
   const isArchive = mode === "archive";
   const collectionPath = isArchive ? "/archive" : "/documents";
   const documentsQuery = useQuery({
@@ -234,6 +249,24 @@ export function InboxDocumentDetailPage({
     latestPipelineRunStatus: latestPipelineRun?.status ?? null,
   });
   const statusLabel = getReviewStatusLabel(activeDocument.status, review);
+  const selectedFieldIsCurrent =
+    selectedReviewSources?.documentId === activeDocument.id &&
+    selectedReviewSources.reviewUpdatedAt === reviewQuery.dataUpdatedAt &&
+    reviewState.kind === "ready" &&
+    selectedReviewSources.reviewId === reviewState.model.reviewId &&
+    selectedReviewSources.reviewVersion === reviewState.model.version &&
+    reviewState.model.fields.some(
+      (field) => field.id === selectedReviewSources.fieldId,
+    );
+  const activeReviewSources = selectedFieldIsCurrent
+    ? selectedReviewSources.sources
+    : EMPTY_REVIEW_SOURCES;
+  const activeTargetPageNumber = selectedFieldIsCurrent
+    ? selectedReviewSources.targetPageNumber
+    : null;
+  const activeNavigationRequestId = selectedFieldIsCurrent
+    ? selectedReviewSources.navigationRequestId
+    : null;
 
   return (
     <PageShell
@@ -291,7 +324,13 @@ export function InboxDocumentDetailPage({
       ) : null}
 
       <PanelCard className="grid min-h-[40rem] gap-0 overflow-hidden py-0 lg:h-[calc(100vh-15rem)] lg:min-h-[34rem] lg:grid-cols-[minmax(0,58fr)_auto_minmax(360px,42fr)]">
-        <InboxPdfViewer document={activeDocument} />
+        <InboxPdfViewer
+          key={activeDocument.id}
+          document={activeDocument}
+          navigationRequestId={activeNavigationRequestId}
+          selectedSources={activeReviewSources}
+          targetPageNumber={activeTargetPageNumber}
+        />
         <Separator className="lg:hidden" />
         <Separator className="hidden lg:block" orientation="vertical" />
         <DocumentWorkspacePanel
@@ -306,6 +345,23 @@ export function InboxDocumentDetailPage({
             isPending: metadataSchemaQuery.isPending,
             metadataSchema: metadataSchemaQuery.data ?? null,
           }}
+          onReviewSourceCleared={() => setSelectedReviewSources(null)}
+          onReviewSourceSelected={(selection: ReviewSourceSelection) =>
+            setSelectedReviewSources((current) => ({
+              documentId: activeDocument.id,
+              fieldId: selection.fieldId,
+              navigationRequestId: (current?.navigationRequestId ?? 0) + 1,
+              reviewId:
+                reviewState.kind === "ready"
+                  ? reviewState.model.reviewId
+                  : null,
+              reviewVersion:
+                reviewState.kind === "ready" ? reviewState.model.version : null,
+              reviewUpdatedAt: reviewQuery.dataUpdatedAt,
+              sources: selection.sources.map((source) => ({ ...source })),
+              targetPageNumber: selection.targetPageNumber,
+            }))
+          }
           readOnly={isArchive || activeDocument.status === "approved"}
         />
       </PanelCard>

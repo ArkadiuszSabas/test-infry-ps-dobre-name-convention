@@ -93,9 +93,9 @@ container_apps = {
       DOCMIND_DAPR_HTTP_TIMEOUT_SECONDS                      = "60.0"
       DOCMIND_DAPR_RUNTIME_HOST                              = "127.0.0.1"
       OTEL_METRICS_EXPORTER                                  = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME             = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME             = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE                  = "REPLACE_PHASE_04_SERVICE_BUS_FQDN"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME              = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME              = "processing-results"
       STORAGE_ACCOUNT_NAME                                   = "ee7c45stocrdevdoc01"
       STORAGE_BLOB_ENDPOINT                                  = "REPLACE_PHASE_04_STORAGE_BLOB_ENDPOINT"
     }
@@ -145,9 +145,9 @@ container_apps = {
       DOCMIND_LLMMAGIC_OCR_FALLBACK_ENABLED                         = "false"
       DOCMIND_LLMMAGIC_OCR_PROVIDER                                 = "azure_document_intelligence"
       OTEL_METRICS_EXPORTER                                         = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME                    = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME                    = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE                         = "REPLACE_PHASE_04_SERVICE_BUS_FQDN"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME                     = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME                     = "processing-results"
     }
     dapr = {
       app_id       = "docmind-llmmagic"
@@ -178,9 +178,9 @@ container_apps = {
       DOCMIND_DAPR_HTTP_TIMEOUT_SECONDS             = "60.0"
       DOCMIND_DAPR_RUNTIME_HOST                     = "127.0.0.1"
       OTEL_METRICS_EXPORTER                         = "none"
-      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME    = "sbq-ocr-dev-docproc-01"
+      SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME    = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE         = "REPLACE_PHASE_04_SERVICE_BUS_FQDN"
-      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME     = "sbq-ocr-dev-procres-01"
+      SERVICE_BUS_PROCESSING_RESULTS_QUEUE_NAME     = "processing-results"
     }
     dapr = {
       app_id       = "docmind-worker"

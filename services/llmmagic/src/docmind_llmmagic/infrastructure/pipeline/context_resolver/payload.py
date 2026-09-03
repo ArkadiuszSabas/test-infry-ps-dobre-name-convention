@@ -12,17 +12,22 @@ from docmind_llmmagic.domain.pipeline.context_resolution import (
 )
 
 
-def request_payload(request: ContextResolverModelRequest) -> str:
-    """Serialize compact attribute definitions first and untrusted evidence last."""
+def request_data(request: ContextResolverModelRequest) -> dict[str, object]:
+    """Build the single JSON-compatible provider data projection."""
 
-    payload = {
+    return {
         "attributes": {
             attribute.attribute_external_id: _attribute_payload(attribute)
             for attribute in request.attributes
         },
         "evidence": [_evidence_payload(unit) for unit in request.evidence],
     }
-    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def serialize_provider_data(data: dict[str, object]) -> str:
+    """Serialize provider data compactly without changing its structure."""
+
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":"))
 
 
 def _attribute_payload(attribute: ContextAttributeSpec) -> dict[str, object]:

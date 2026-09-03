@@ -26,7 +26,10 @@ import { inboxQueryKeys } from "@/lib/inbox/query-options";
 import type { InboxDocument } from "@/lib/inbox/types";
 import { formatFileSize } from "@/lib/inbox/view-model";
 import { reviewQueryKeys } from "@/lib/review/query-options";
-import type { ReviewWorkspaceViewModel } from "@/lib/review/types";
+import type {
+  ReviewSourceSelection,
+  ReviewWorkspaceViewModel,
+} from "@/lib/review/types";
 import { systemCatalogOptionsQueryOptions } from "@/lib/system-catalogs/query-options";
 
 export type DocumentReviewState =
@@ -59,6 +62,8 @@ export interface DocumentWorkspacePanelProps {
   formatStatus: (status: string) => string;
   reviewState: DocumentReviewState;
   metadataState: DocumentParametersState;
+  onReviewSourceCleared: () => void;
+  onReviewSourceSelected: (selection: ReviewSourceSelection) => void;
   readOnly?: boolean;
 }
 
@@ -70,6 +75,8 @@ export function DocumentWorkspacePanel({
   formatStatus,
   reviewState,
   metadataState,
+  onReviewSourceCleared,
+  onReviewSourceSelected,
   readOnly = false,
 }: DocumentWorkspacePanelProps) {
   const t = useTranslations("ReviewWorkspace");
@@ -99,7 +106,12 @@ export function DocumentWorkspacePanel({
             className="min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
             value="review"
           >
-            <ReviewTabContent readOnly={readOnly} state={reviewState} />
+            <ReviewTabContent
+              onReviewSourceCleared={onReviewSourceCleared}
+              onReviewSourceSelected={onReviewSourceSelected}
+              readOnly={readOnly}
+              state={reviewState}
+            />
           </TabsContent>
         ) : null}
         <TabsContent
@@ -121,9 +133,13 @@ export function DocumentWorkspacePanel({
 }
 
 function ReviewTabContent({
+  onReviewSourceCleared,
+  onReviewSourceSelected,
   readOnly,
   state,
 }: {
+  onReviewSourceCleared: () => void;
+  onReviewSourceSelected: (selection: ReviewSourceSelection) => void;
   readOnly: boolean;
   state: DocumentReviewState;
 }) {
@@ -134,6 +150,8 @@ function ReviewTabContent({
       <DocumentReviewPanel
         key={state.model.document.id}
         model={state.model}
+        onReviewSourceCleared={onReviewSourceCleared}
+        onReviewSourceSelected={onReviewSourceSelected}
         readOnly={readOnly}
       />
     );
@@ -165,7 +183,13 @@ function DocumentDetailsPanel({
   formatStatus,
   metadataState,
   readOnly = false,
-}: Omit<DocumentWorkspacePanelProps, "canReview" | "reviewState">) {
+}: Omit<
+  DocumentWorkspacePanelProps,
+  | "canReview"
+  | "onReviewSourceCleared"
+  | "onReviewSourceSelected"
+  | "reviewState"
+>) {
   const t = useTranslations("Inbox");
 
   return (

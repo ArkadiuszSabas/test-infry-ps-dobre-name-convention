@@ -486,6 +486,8 @@ def _document_artifact_from_provider_result(
             selection_marks=page.selection_marks,
             warning_codes=page.warning_codes,
             provider_page_count=page.provider_page_count,
+            coordinate_width=page.coordinate_width,
+            coordinate_height=page.coordinate_height,
         )
         for page in provider_result.pages
     )

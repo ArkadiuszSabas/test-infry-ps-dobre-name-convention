@@ -1,7 +1,7 @@
 # OCR Pipeline Runs Domain
 
-The OCR pipeline runs domain models represent API-owned processing run state for the phase 2
-direct OCR execution slice.
+The OCR pipeline runs domain models represent API-owned durable processing state for the
+event-driven OCR execution path.
 
 ## Scope
 

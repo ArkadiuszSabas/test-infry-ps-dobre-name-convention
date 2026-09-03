@@ -40,10 +40,12 @@ class PipelineInvocationContextResolutionSource:
     """Safe source reference for one resolved attribute."""
 
     kind: str
+    order_index: int | None
     page_number: int | None
     line_number: int | None
     key_value_index: int | None
     confidence: float | None
+    bounding_polygon: tuple[float, ...] | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -178,10 +180,12 @@ def _comparison_entries(
 def _source(source: ResolvedAttributeSource) -> PipelineInvocationContextResolutionSource:
     return PipelineInvocationContextResolutionSource(
         kind=source.kind.value,
+        order_index=_non_negative_int(source.order_index),
         page_number=_positive_int(source.page_number),
         line_number=_positive_int(source.line_number),
         key_value_index=_positive_int(source.key_value_index),
         confidence=_confidence(source.confidence),
+        bounding_polygon=_normalized_polygon(source.bounding_polygon),
     )
 
 
@@ -234,3 +238,15 @@ def _positive_int(value: int | None) -> int | None:
     if value is None:
         return None
     return value if value > 0 else None
+
+
+def _non_negative_int(value: int | None) -> int | None:
+    if value is None:
+        return None
+    return value if value >= 0 else None
+
+
+def _normalized_polygon(value: tuple[float, ...] | None) -> tuple[float, ...] | None:
+    if value is None or len(value) < 8 or len(value) > 16 or len(value) % 2 != 0:
+        return None
+    return value if all(0 <= coordinate <= 1 for coordinate in value) else None

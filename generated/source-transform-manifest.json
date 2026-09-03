@@ -2,52 +2,97 @@
   "files": [
     {
       "destination": ".github/README.md",
-      "sha256": "8e1592251b7f3b85a275b896177a59383a46e2a88a7558ea3506a64a16cbf130",
+      "sha256": "55c538ff91d5cc5285680054ebe92bb36752d70f6a705d8ecb1f165fb09a114a",
       "source": "deployments/ps/source-overlay/.github/README.md"
     },
     {
       "destination": ".github/workflows/application-build.yml",
-      "sha256": "ab18718077c67d0f6e033e7ea1c1ebeb0f748c7b5abe4e27d5b5817c4c43a51e",
+      "sha256": "59aba270c1877b38be28b4760957c09794edfaf5dc1a756f3e2013eb1b6a973b",
       "source": "deployments/ps/source-overlay/.github/workflows/application-build.yml"
     },
     {
       "destination": ".github/workflows/application-deploy.yml",
-      "sha256": "a82ad523bff843dbbe68337019bc67d6fd2b6b166510930f5fc8cd3b93902601",
+      "sha256": "c14666efb7d4d5050a751f3a1c759ee8670f23234d41a70c10fc5e087a461961",
       "source": "deployments/ps/source-overlay/.github/workflows/application-deploy.yml"
     },
     {
-      "destination": ".github/workflows/langfuse.yml",
-      "sha256": "7a0bbeabb2c338e3622cc51050a7d454aa1f9911e41a9c6e155df07e35e33e05",
-      "source": "deployments/ps/source-overlay/.github/workflows/langfuse.yml"
+      "destination": ".github/workflows/langfuse-image-import.yml",
+      "sha256": "ce3e1be7da694d14def7e7bd721f1f1c3c2833d781e518d4a43e329456e99653",
+      "source": "deployments/ps/source-overlay/.github/workflows/langfuse-image-import.yml"
+    },
+    {
+      "destination": ".github/workflows/read-github-spn-object-id.yml",
+      "sha256": "17ad4052cbe264be3322a7a3b812b4c991a9c7e6f80b3f787cf3efc26787baed",
+      "source": "deployments/ps/source-overlay/.github/workflows/read-github-spn-object-id.yml"
+    },
+    {
+      "destination": ".github/workflows/terraform-core-read-outputs.yml",
+      "sha256": "48ddf477d60ec9101f4db56d05960a46250cf746a61a9f723da94ce3ec741e96",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-core-read-outputs.yml"
     },
     {
       "destination": ".github/workflows/terraform-core.yml",
-      "sha256": "066866de0c96f47208224180d0ae6f671fc6af0d50b0c00d843b12d590adf188",
+      "sha256": "b2fce97800e669d53864fa62f4d9761701b57d62e460395130824937bc86cc14",
       "source": "deployments/ps/source-overlay/.github/workflows/terraform-core.yml"
     },
     {
+      "destination": ".github/workflows/terraform-langfuse-core.yml",
+      "sha256": "3b92c89e3a149b094d6bc73404650cfa1df0f673c51bbefa3de91f316da90e4e",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-langfuse-core.yml"
+    },
+    {
+      "destination": ".github/workflows/terraform-langfuse-network.yml",
+      "sha256": "399e9127404297140ff0deea1d97739017c7bd574cf6a327b62d4c1a9d259e2d",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-langfuse-network.yml"
+    },
+    {
+      "destination": ".github/workflows/terraform-langfuse-rbac.yml",
+      "sha256": "a8c9801ee114e72f8bb90c2b52b99986e0d9b630bcc76be64a7927c1589841d0",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-langfuse-rbac.yml"
+    },
+    {
+      "destination": ".github/workflows/terraform-network-import-private-dns-link.yml",
+      "sha256": "1e4f2965c0b9e171fc60edffc0c059d33b4bab212a4458d88d61452f75c69b2e",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-network-import-private-dns-link.yml"
+    },
+    {
       "destination": ".github/workflows/terraform-network.yml",
-      "sha256": "1933dd6069151d993dcdc48f2c39f272d194704ee513518bd2e2ec2428e60c9f",
+      "sha256": "cfde0e927a6cd0846fdf5549c519e0b8aae2ea514142b3c5fe06f08b919a3afc",
       "source": "deployments/ps/source-overlay/.github/workflows/terraform-network.yml"
     },
     {
+      "destination": ".github/workflows/terraform-rbac-cmk.yml",
+      "sha256": "34aaffae92b062bf42dfda090266881d14a576ae98bb64337e0f2f37cfd13a52",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-rbac-cmk.yml"
+    },
+    {
       "destination": ".github/workflows/terraform-rbac.yml",
-      "sha256": "de910bce3d067c56c8cfead317553ba17df809c3b537e53e1693d77bc4a1df88",
+      "sha256": "94246852f00bf53b7d4e52f5e05f6b48bbc91070305f4b24c3169688219c61e8",
       "source": "deployments/ps/source-overlay/.github/workflows/terraform-rbac.yml"
     },
     {
-      "destination": "infra/terraform/core/.terraform.lock.hcl",
-      "sha256": "190636ead7c17fcca785b6d6858c90d4d0f79ef0830bc950f55842d4bc566abd",
-      "source": "deployments/ps/source-overlay/infra/terraform/core/.terraform.lock.hcl"
+      "destination": ".github/workflows/terraform-uami-cmk.yml",
+      "sha256": "847c0f88182db4eace821dab30eb3ddbe470693a06af09bc17dbb721a12437c0",
+      "source": "deployments/ps/source-overlay/.github/workflows/terraform-uami-cmk.yml"
+    },
+    {
+      "destination": "infra/terraform/core/env/dev.tfvars",
+      "sha256": "6abe76e3c93fbc32ecc2b8fc1c37f4add22a53193d00494c6d75a2d79b8e159f",
+      "source": "deployments/ps/source-overlay/infra/terraform/core/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/core/env/dev_04.tfvars",
+      "sha256": "294f0c335a4af34d6233d5d9738c83935fabb26409720708f45af075cd26c95f",
+      "source": "deployments/ps/source-overlay/infra/terraform/core/env/dev_04.tfvars"
     },
     {
       "destination": "infra/terraform/core/main.tf",
-      "sha256": "7ab44519ba428761b0649118640a5bfde3c24f4fa98fa8cca5dd7608c52162f3",
+      "sha256": "ff45cb34a2083cbc1ed066f8d20b6089a99861b01c36f1fc2340b7c01ad2c325",
       "source": "deployments/ps/source-overlay/infra/terraform/core/main.tf"
     },
     {
       "destination": "infra/terraform/core/outputs.tf",
-      "sha256": "2104ffc9f205721a509f8cf451740862458fd744a800df71c01bb850094a31fc",
+      "sha256": "7f6a31e576c0fae1d56f330ec6af204600ad101993a761374e0a4f8af1067a0d",
       "source": "deployments/ps/source-overlay/infra/terraform/core/outputs.tf"
     },
     {
@@ -57,117 +102,487 @@
     },
     {
       "destination": "infra/terraform/core/variables.tf",
-      "sha256": "9cc5d37aee18ea3325923e0098e47c521b539bf1266c4c3799c72601dce9bca8",
+      "sha256": "7728c5cedd07763c13cc3844a88db6d44f6f3a4f08cffbd7d2bb646627c1c262",
       "source": "deployments/ps/source-overlay/infra/terraform/core/variables.tf"
     },
     {
       "destination": "infra/terraform/core/versions.tf",
-      "sha256": "600ddb5f375adb4ad8914d78f158c4781ad0fa95ab577014b13b987f71d572d9",
+      "sha256": "57bf3b0cf0e054d5c07a1068d3644a7de496442cffeacd63f7616b5ec4d6f719",
       "source": "deployments/ps/source-overlay/infra/terraform/core/versions.tf"
     },
     {
-      "destination": "infra/terraform/langfuse/.terraform.lock.hcl",
-      "sha256": "e8d6f16c6702adea9ba1893bfd550ec21ef8baed214c232783e08f8cf38d6e18",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/.terraform.lock.hcl"
+      "destination": "infra/terraform/langfuse-core/env/dev.tfvars",
+      "sha256": "8e102eba6d3757c5210bba3c2103b549ff2309c844177444f2fbe6a0ece398e1",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/env/dev.tfvars"
     },
     {
-      "destination": "infra/terraform/langfuse/main.tf",
-      "sha256": "53ceefa95c463fc66254c0938581bab34216f1c84457d980908ef5117d78f82e",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/main.tf"
+      "destination": "infra/terraform/langfuse-core/main.tf",
+      "sha256": "ed2660d4d4f6616a5688d395e4c6efa27c11d8aebe3f613dead6d292b439d6ea",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/main.tf"
     },
     {
-      "destination": "infra/terraform/langfuse/outputs.tf",
-      "sha256": "c522e034074b78a8297dba749dbd55e4d25d0c9d41de43f2ad55fd856ac9538a",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/outputs.tf"
+      "destination": "infra/terraform/langfuse-core/outputs.tf",
+      "sha256": "255ae97077aa0b906b1c1f19881734bfbc7669e3a75c450ab2ce75a2bf6ad217",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/outputs.tf"
     },
     {
-      "destination": "infra/terraform/langfuse/providers.tf",
+      "destination": "infra/terraform/langfuse-core/providers.tf",
       "sha256": "ba9e50b501c4a798da454278d41de5085b41eba63a748961cfbff8ce4991d042",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/providers.tf"
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/providers.tf"
     },
     {
-      "destination": "infra/terraform/langfuse/variables.tf",
-      "sha256": "28f074931c8a90060c2818cc2406824d1308113df0326daf5f5095ebef77183a",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/variables.tf"
+      "destination": "infra/terraform/langfuse-core/variables.tf",
+      "sha256": "14e08f0fb8595942d652ad7b6ad4f5f4a6a522d386f917cb6f3e68efda726dfa",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/variables.tf"
     },
     {
-      "destination": "infra/terraform/langfuse/versions.tf",
+      "destination": "infra/terraform/langfuse-core/versions.tf",
       "sha256": "425a46d4bc76b6d307e2fec0149e5ac5d21bf4b61eb5ddfb24cfa09062350a36",
-      "source": "deployments/ps/source-overlay/infra/terraform/langfuse/versions.tf"
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-core/versions.tf"
     },
     {
-      "destination": "infra/terraform/network/.terraform.lock.hcl",
-      "sha256": "190636ead7c17fcca785b6d6858c90d4d0f79ef0830bc950f55842d4bc566abd",
-      "source": "deployments/ps/source-overlay/infra/terraform/network/.terraform.lock.hcl"
+      "destination": "infra/terraform/langfuse-network/env/dev.tfvars",
+      "sha256": "b953177fcc52d46c16110c87eb9878face89cc370b6d9f17895898e3bce3683d",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-network/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/langfuse-network/main.tf",
+      "sha256": "a6e222fb03b637b9cc960a298fe642e72c45d0dd24a5691bff287f44fd2f7466",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-network/main.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-network/providers.tf",
+      "sha256": "a659188e1398b367e7f3dc7b5154344242bc50b5f2746bd9cf87882662a724e0",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-network/providers.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-network/variables.tf",
+      "sha256": "1730f40c97e6fa5affd8b4978499ab78d2e1108802494aba06e89c88701a70eb",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-network/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-network/versions.tf",
+      "sha256": "a1a9244c97ec07d4a1b6254c707391e306b68d38f7e32d8de536787ef257e060",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-network/versions.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-rbac/env/dev.tfvars",
+      "sha256": "126eac01218615a9429b0e62e3242b4e265863ba85f1ca40ca85364fb2c4f3b6",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-rbac/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/langfuse-rbac/main.tf",
+      "sha256": "c64d34fa537122e0fb6ba2d75923034a46923e167046673ff457aac9772f7a49",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-rbac/main.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-rbac/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-rbac/providers.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-rbac/variables.tf",
+      "sha256": "4360f8227fd764dd9ff85db8e53bb2c95f06e3623f72b11b70a92b521f961832",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-rbac/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/langfuse-rbac/versions.tf",
+      "sha256": "a1a9244c97ec07d4a1b6254c707391e306b68d38f7e32d8de536787ef257e060",
+      "source": "deployments/ps/source-overlay/infra/terraform/langfuse-rbac/versions.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/ai-services/main.tf",
+      "sha256": "a15d3923cd681016c1db3626002a32145caab57d340f660de2acd3ceec8aa114",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/ai-services/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/ai-services/outputs.tf",
+      "sha256": "576d6936a959823fba889c0a6234aac5215c788dd3278b50583c53083d0001ea",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/ai-services/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/ai-services/README.md",
+      "sha256": "7cb73da89b7d0bcf6ae662d26b61ac6b8d2470bd150e53d187e6703c72fa4342",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/ai-services/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/ai-services/variables.tf",
+      "sha256": "a43af85433e308c34737525d582bf4078b5512e15ef807bcdc790759e4cb87d6",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/ai-services/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-apps/main.tf",
+      "sha256": "18d6e9394ecbf820a291a8164492f43d4695c38a66629943c1f63570bd0a532f",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-apps/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-apps/outputs.tf",
+      "sha256": "178af397bb68e858c43bf523d78d5dc1ca3a45ef3e0edf570f0ca48d39f7f937",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-apps/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-apps/README.md",
+      "sha256": "980ab0fcdfdc7c13760b9867a642de0a1eca794b8bc8522311c4b2c7c2481276",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-apps/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/container-apps/variables.tf",
+      "sha256": "8e46aae9f59ef4e0c584ca2e57991626522a00207288210f66d7c576bc7bee71",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-apps/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-registry/main.tf",
+      "sha256": "927660d00da6a1910c4d5232d7ac8ad724eb57a5e0f6fb86c59d23de44a3caf5",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-registry/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-registry/outputs.tf",
+      "sha256": "698ba6bada959a66ad833d6af5db6d45a62a6b6f8c208f35304b71a957ab541b",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-registry/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/container-registry/README.md",
+      "sha256": "d80a541d8e728d5260aa23cbfd40a3587b010e80c15be98be337012489adb4ba",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-registry/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/container-registry/variables.tf",
+      "sha256": "7e243baa6179d207094e342db8657382ba53793b4fdbc01e6b844e3f0dd28528",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/container-registry/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/key-vault/main.tf",
+      "sha256": "bb18cd071a80f5bd2d99ae7571e0d4828fde4cbd58105f038b82d5f5cdb48ffc",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/key-vault/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/key-vault/outputs.tf",
+      "sha256": "7039b857c7dfdf4d307e64a1aa1131fa7320e3f17404ce7fc659977993e6e1fa",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/key-vault/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/key-vault/README.md",
+      "sha256": "97086b4e0b0e9da1c21f74f247bd98d3c3f7e5dfcdfcf9f6dcaea066dd8697bf",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/key-vault/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/key-vault/variables.tf",
+      "sha256": "7b7ec3be6c0dec098bc7aca2a01fbe0ffa8a8d99ceaa260d25dfea42a7589e2e",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/key-vault/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/dependencies.tf",
+      "sha256": "98c446dcc35b2e04297150cd928f69cbb8822567503a531f0ab7b93b7ca35059",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/dependencies.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/main.tf",
+      "sha256": "33e03cb4d7013a13b956205520072a54216343fdfc14fa082bc678dfa27fd633",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/outputs.tf",
+      "sha256": "b9f8bd9d234f0e38151712f0a3c4cd1501b712f2b10a91daa2901f1c4fec5916",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/README.md",
+      "sha256": "ef957fd3e8e1ae7d19aca2f7d33e8bc07c3fa3b7e961023fb9fbc2d721e385e3",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/storage.tf",
+      "sha256": "650a0b0dd67b9c711b52675cdf42e6c796cff11a3cafd290437f6441fca33d3b",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/storage.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/variables.tf",
+      "sha256": "03653aef0990b31da6928193d3a1e5a96305d4d83844d05221966f8ebb4c7f12",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/langfuse/versions.tf",
+      "sha256": "5170cd61dcad818b97e5e8d3c2c3741b3a1e40fc3213eda21c2450fdfe15abd5",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/langfuse/versions.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/managed-identities/main.tf",
+      "sha256": "9ca1243b1e21fb3d8ce39cd83a4f759728e1cc6250928329f0c6e7e704274d7c",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/managed-identities/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/managed-identities/outputs.tf",
+      "sha256": "df0d73ceff2ae26e53e374eb385a17ea90303c1bbd00e19e67b8eb6d3a7a9121",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/managed-identities/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/managed-identities/README.md",
+      "sha256": "75a969857396723f6a6eefa6f555cd0eb0c9e4678e0d923735350365f4d6d06f",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/managed-identities/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/managed-identities/variables.tf",
+      "sha256": "64be67f8e55ddad671e029e112bc31c9ed72a4d42e483d85c4b1c47640f5875e",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/managed-identities/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/networking/main.tf",
+      "sha256": "3f65c3ebd3cb2e36aec91acfac0a04a29658dabc224f6ff9d024848cef5c10cd",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/networking/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/networking/outputs.tf",
+      "sha256": "2c1cd279fab90e4b01bc4ae4b820094c2b5cab690fbf83c47bf14231552251c7",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/networking/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/networking/README.md",
+      "sha256": "c4ab8b519dd4fcb6ef814650869e8321f4a81f5fb1627b243bce8262720457ea",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/networking/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/networking/variables.tf",
+      "sha256": "bb1691be7db4fd0023c1ade35a335f40de6cdf059d9d881725af93652d9967a6",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/networking/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/observability/main.tf",
+      "sha256": "e9a02d9c527f8c81c07c96fbeba6937e463391e574a204889fba40e3057a5200",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/observability/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/observability/outputs.tf",
+      "sha256": "9322803297c2560c1de515cfb315aaee56deff6c27c8351c4101781171583274",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/observability/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/observability/README.md",
+      "sha256": "3907996f2d806865a0b9a0638a2f8d9ed850bc0951fd8fdf33ba4fa847f6b400",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/observability/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/observability/variables.tf",
+      "sha256": "b79231ae555798137df94cba40218d857dab18a72ea887fa9be8f715b867f7e1",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/observability/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/cloud-init.yaml.tftpl",
+      "sha256": "b06f6e48da912b672c0ded1f0e14b78e23233c34af6acb9c868ecdc5e37d48fc",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/cloud-init.yaml.tftpl"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/main.tf",
+      "sha256": "6bdc5b81924dadd54dfcc2bd2b381a4a46f4c18d20f1f14c6a1df7b2e0bbe377",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/outputs.tf",
+      "sha256": "d39259379f2e700f67bc9b8f2e77eb579e241383e4a472188e84efb908cc1c58",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/README.md",
+      "sha256": "7747748a23e95ade0a25466cf7c5e18028c80986c2f2357c3ff2dfb0634a25df",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/ssh-admin-extension.sh.tftpl",
+      "sha256": "4bedb6341aa7d43a91680abebfbc5020ca00e43e6ca803922b3d9bfcc8ef8396",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/ssh-admin-extension.sh.tftpl"
+    },
+    {
+      "destination": "infra/terraform/modules/openvpn/variables.tf",
+      "sha256": "d7c6227cee01f666576590120bd7076849df737acff90a1215a661d6ef5cecc3",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/openvpn/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/postgresql/main.tf",
+      "sha256": "bd01ea48afb625608beb6eec32134e57c9119e8ea31f5eee180e4846d591f7bb",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/postgresql/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/postgresql/outputs.tf",
+      "sha256": "5c6e69de30c55f0ab5d35e319c6819867de5f3992d3dc145e76deffad69b8b15",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/postgresql/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/postgresql/README.md",
+      "sha256": "a87554ce7c0589ce8456e3d23f4aab7b5c077a69ccb1c5bdae0e5a2c1aeb5297",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/postgresql/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/postgresql/variables.tf",
+      "sha256": "e12646aed62b295973f57c579334915498e030fc58d8d889767408fc00b1fb31",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/postgresql/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/private-endpoints/main.tf",
+      "sha256": "319b73ba0602deef7721004c6e9a2b17f3f2b9520649a77425fe6874c4ef4f74",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/private-endpoints/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/private-endpoints/outputs.tf",
+      "sha256": "aa3066f782771927aaf134a2821c5c33e9cf40f80c98de10241fdfbef5957cf8",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/private-endpoints/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/private-endpoints/README.md",
+      "sha256": "469d50ad18278cb911ed2f2f3d72ab0dd3ce0def625395832d8f8d67a4feaac7",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/private-endpoints/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/private-endpoints/variables.tf",
+      "sha256": "33380a93622f5056a597969e23514de0c31ba89a8b47245d27d95f9230d5bc0b",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/private-endpoints/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/resource-groups/main.tf",
+      "sha256": "277183ac555d2cb4da3cf0ef27848631474c34737d346f532c0b782ae198491a",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/resource-groups/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/resource-groups/outputs.tf",
+      "sha256": "96340a5c8c72b5b0cb33c3ff384799d0fc8d16cb74439bb41aff2393f150efdf",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/resource-groups/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/resource-groups/README.md",
+      "sha256": "85ce83c317622a9ff602c279ab305fb5af70643b6d024d074f095b4f29af9740",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/resource-groups/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/resource-groups/variables.tf",
+      "sha256": "4ac907cd3979f55dfce0f8abf792d635dc039f8ec2b9c54fb529c83f1bd3f197",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/resource-groups/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/service-bus/main.tf",
+      "sha256": "0b70987068c0502cd515a1c8312139840e593682183e9d655ea25c78c21a2b9a",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/service-bus/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/service-bus/outputs.tf",
+      "sha256": "f7de50c62951983656bdedbfc848d95b16ebe37e88b8c5861c96158e7e0d57a7",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/service-bus/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/service-bus/README.md",
+      "sha256": "839235b714f73957fd3a65b3235dbf7b4062bc27b8ee61065ad8375454eb5d82",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/service-bus/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/service-bus/variables.tf",
+      "sha256": "f4653d3258ce2ce218f714855d98af42f7fe99a7372db3fbb63e58f58b9ff414",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/service-bus/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/storage/main.tf",
+      "sha256": "09ec47aa34c59bf861c17f2cb91bc07a0a8e8e67da8d45b412b02fb838064ec1",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/storage/main.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/storage/outputs.tf",
+      "sha256": "2f63577aa37de00ab4ca1b638a562cc32ebf40917df606dc14a1d198411af3b9",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/storage/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/modules/storage/README.md",
+      "sha256": "ff03c906034cc7f059db5b8b48545a27f8682d3aa114100d03a0d16988aae5c4",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/storage/README.md"
+    },
+    {
+      "destination": "infra/terraform/modules/storage/variables.tf",
+      "sha256": "389fff51cd00edb40ed6ff5a8361acf4a4c27a079860bfa40ad0d735556511c1",
+      "source": "deployments/ps/source-overlay/infra/terraform/modules/storage/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/network/env/dev.tfvars",
+      "sha256": "b1d648acf77fb10d0972081a34d81b221271aba2d694286fc11afcb60db5c39e",
+      "source": "deployments/ps/source-overlay/infra/terraform/network/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/network/env/dev_01_foundation.tfvars",
+      "sha256": "64f46ae98dcb6d936782152550cfac41ca1c70da271078be07311b0fb671697f",
+      "source": "deployments/ps/source-overlay/infra/terraform/network/env/dev_01_foundation.tfvars"
     },
     {
       "destination": "infra/terraform/network/main.tf",
-      "sha256": "4ff97c59dde06e26bf1652658c253038c1d7de354f95e24b30c269b3c28a5a81",
+      "sha256": "d74a733c8784d2abf65ae578e114a33e748c5fbda80ead88df84a6a63c3ff04a",
       "source": "deployments/ps/source-overlay/infra/terraform/network/main.tf"
     },
     {
       "destination": "infra/terraform/network/outputs.tf",
-      "sha256": "d9292966a8d77a9829b66fe2173138be056f0a6ccd00fa993382b6c3636c736b",
+      "sha256": "db4c8bde136aabb94820d3d5be2f3712d7a7d73514f1daaaa8ec5a01bf0a5daa",
       "source": "deployments/ps/source-overlay/infra/terraform/network/outputs.tf"
     },
     {
       "destination": "infra/terraform/network/providers.tf",
-      "sha256": "29caf4b9a2013837f0ef7a0e3ed237a0b46e8037093296964af9ba1747c5e94f",
+      "sha256": "c169f004626dafeffd330790893cc91b0c2a9e73d360ecb059ad78cbc89d7077",
       "source": "deployments/ps/source-overlay/infra/terraform/network/providers.tf"
     },
     {
       "destination": "infra/terraform/network/variables.tf",
-      "sha256": "de3e2f7534d08e0314d79b51a8ae8c16f659a374950abe433a115950136d3c80",
+      "sha256": "472fb6ef5b704c38b1ac08cb5b45847fd79b17d21518a8a264027d5f027e7d7d",
       "source": "deployments/ps/source-overlay/infra/terraform/network/variables.tf"
     },
     {
       "destination": "infra/terraform/network/versions.tf",
-      "sha256": "e9e55b57ce522aae28d40e7dd5dfb74dc47eb277fd6d722db87b5d7bb7469b5b",
+      "sha256": "ce388ae56757476ceca7f41e20440eeff4749c0a4454dece808958aef7607f9b",
       "source": "deployments/ps/source-overlay/infra/terraform/network/versions.tf"
     },
     {
       "destination": "infra/terraform/phases/dev/01-network-foundation.tfvars",
-      "sha256": "89ac84d48fcdf6378553c4dc76cc7253a20e07c1d34d916e5bc1afe0a27550f9",
+      "sha256": "d90feff71ee33a03993f256d1e1002e157df6ebbc8d296c05411b4e6d34e7fb4",
       "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/01-network-foundation.tfvars"
     },
     {
-      "destination": "infra/terraform/phases/dev/02-core-foundation.tfvars",
-      "sha256": "be0e9648e22b8b8f6e534bfe3272e988b9680bb6fa3dc5ee5f3199a9c498d262",
-      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/02-core-foundation.tfvars"
+      "destination": "infra/terraform/phases/dev/02-uami-cmk-foundation.tfvars",
+      "sha256": "3fdd9c13e77657763387418bb62536c88c4447ad066e698d1922ca8d1372a09a",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/02-uami-cmk-foundation.tfvars"
     },
     {
-      "destination": "infra/terraform/phases/dev/03-network-completion.tfvars",
-      "sha256": "da754e50bfd5534c9d2a2a2b070dd8b681a5ff52d5868233beda59e9d3ed0503",
-      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/03-network-completion.tfvars"
+      "destination": "infra/terraform/phases/dev/03-rbac-cmk.tfvars",
+      "sha256": "921ed63e0a8868189b974faaab828213910c2105373639440d49731a4031ab08",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/03-rbac-cmk.tfvars"
     },
     {
-      "destination": "infra/terraform/phases/dev/04-rbac.tfvars",
-      "sha256": "b9c76e8762120a8efba1107f5cd47ffaeee80f3916009f6624a5c419d98d70ce",
-      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/04-rbac.tfvars"
+      "destination": "infra/terraform/phases/dev/04-core-foundation.tfvars",
+      "sha256": "799f57739ad54ba39c2aa5cb7e1cb3e6e17338b97cd6a99321b622eed4095db8",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/04-core-foundation.tfvars"
     },
     {
-      "destination": "infra/terraform/phases/dev/05-core-runtime.tfvars",
-      "sha256": "a2ac30ad659e53e89cb46f93588288194e865e9b5ddd32240d9da3c96b15edcb",
-      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/05-core-runtime.tfvars"
+      "destination": "infra/terraform/phases/dev/05-network-completion.tfvars",
+      "sha256": "89333965906b8214588f5c5fb041215a4df5d52fa1b1ccf277f50a75277bd590",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/05-network-completion.tfvars"
+    },
+    {
+      "destination": "infra/terraform/phases/dev/06-rbac.tfvars",
+      "sha256": "2829e416f30134fd61c1a224a71e3128496df84bbb6d1e37d2e595388dcb50a6",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/06-rbac.tfvars"
+    },
+    {
+      "destination": "infra/terraform/phases/dev/07-core-runtime.tfvars",
+      "sha256": "bf9c99d2c7b7e02501266df19f32ec05658df6647ac307c9c2cce9b532967ea9",
+      "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/07-core-runtime.tfvars"
     },
     {
       "destination": "infra/terraform/phases/dev/README.md",
-      "sha256": "7078ef3eb468928639d0d88c65ee663541240d32d929f865bbae40fc0873e4df",
+      "sha256": "16fafdd5c3c36395a43f9ae4fc136a6b4ba3ba894d0e2beeeb5f6ae7cc74a71f",
       "source": "deployments/ps/source-overlay/infra/terraform/phases/dev/README.md"
     },
     {
-      "destination": "infra/terraform/rbac/.terraform.lock.hcl",
-      "sha256": "3740b439c93eec70e4160482f736ad81a0b262542b3af887679e6b3ea963b813",
-      "source": "deployments/ps/source-overlay/infra/terraform/rbac/.terraform.lock.hcl"
+      "destination": "infra/terraform/rbac/env/dev.tfvars",
+      "sha256": "2a9ee65239aefffa5277ac74a848937f2a2fce9b02778b1afc3f4eca70ff8fba",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac/env/dev.tfvars"
     },
     {
       "destination": "infra/terraform/rbac/main.tf",
-      "sha256": "c06244609700da7ac813382c04c913fe2c6a3d44420b6f6774eba3454b4b6e3c",
+      "sha256": "23d4dea57c345021f2116c13a1673c0eeef1db8170dc61e768e7a6f4296c5b0c",
       "source": "deployments/ps/source-overlay/infra/terraform/rbac/main.tf"
     },
     {
       "destination": "infra/terraform/rbac/outputs.tf",
-      "sha256": "f1b0170d86cacf0ad04bb603870c4c9dbed04808c1d1e701f343211519db24c1",
+      "sha256": "e12e6f683e7bb347a7c97ab9774f4f52946af170d74818ff97d7cd4f528abbe5",
       "source": "deployments/ps/source-overlay/infra/terraform/rbac/outputs.tf"
     },
     {
@@ -177,23 +592,83 @@
     },
     {
       "destination": "infra/terraform/rbac/variables.tf",
-      "sha256": "51b45053b64c5bc691ce5f7d2845d298df88a5f69f60a17acb7aed5fd9a461e9",
+      "sha256": "0ea194266de1c741362795a7a0b4e74bde4da5380bd15dbfc4a66ce92bcbfede",
       "source": "deployments/ps/source-overlay/infra/terraform/rbac/variables.tf"
     },
     {
       "destination": "infra/terraform/rbac/versions.tf",
-      "sha256": "7264858c1324e1fd11d618b8d53d8c3d7a1daf2066400bda59734200d4536281",
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd",
       "source": "deployments/ps/source-overlay/infra/terraform/rbac/versions.tf"
     },
     {
+      "destination": "infra/terraform/rbac-cmk/env/dev.tfvars",
+      "sha256": "921ed63e0a8868189b974faaab828213910c2105373639440d49731a4031ab08",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/rbac-cmk/main.tf",
+      "sha256": "28ea79c21e0ddad2cb74a5b5f64f5bbc6100574377d7e7e500d36d6be2a83842",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/main.tf"
+    },
+    {
+      "destination": "infra/terraform/rbac-cmk/outputs.tf",
+      "sha256": "e4d6493da94492de502a1995a51623d87b1a104db44e1fe93d087511fc783b85",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/rbac-cmk/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/providers.tf"
+    },
+    {
+      "destination": "infra/terraform/rbac-cmk/variables.tf",
+      "sha256": "5de4f7d9f2c034fccc9f0ff250693cf6ab9531a9d5a2226add864aeaa9caaec4",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/rbac-cmk/versions.tf",
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd",
+      "source": "deployments/ps/source-overlay/infra/terraform/rbac-cmk/versions.tf"
+    },
+    {
       "destination": "infra/terraform/README.md",
-      "sha256": "8483b583c62c617b1045ad17c09f4dcb7480d6223eef9c4f0aeb56e5d50da142",
+      "sha256": "dda54dbd19e55e5bdd244fc3b111df3d1fbb21aee217adeabb86f28386b88776",
       "source": "deployments/ps/source-overlay/infra/terraform/README.md"
     },
     {
       "destination": "infra/terraform/tests/proservice-phases.tests.ps1",
       "sha256": "8e26478f09f47d00001db2ad5bcf177c3513cc297422a9fec9991b2abcf1672d",
       "source": "deployments/ps/source-overlay/infra/terraform/tests/proservice-phases.tests.ps1"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/env/dev.tfvars",
+      "sha256": "3fdd9c13e77657763387418bb62536c88c4447ad066e698d1922ca8d1372a09a",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/env/dev.tfvars"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/main.tf",
+      "sha256": "1e0d2e8c9a43589d64af2c1da02348abfc4256536dcef4d230bc90d22cdcdd1c",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/main.tf"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/outputs.tf",
+      "sha256": "1c3f6629de0324e86d8eb3968017925d21b8fb41677be0d46bf48255cbf4e484",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/outputs.tf"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/providers.tf"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/variables.tf",
+      "sha256": "76606cccc27b34d43e861d1caaf002743d53bca5694ae604e93ac94671f3e8bf",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/variables.tf"
+    },
+    {
+      "destination": "infra/terraform/uami-cmk/versions.tf",
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd",
+      "source": "deployments/ps/source-overlay/infra/terraform/uami-cmk/versions.tf"
     }
   ],
   "overlay_path": "deployments/ps/source-overlay",

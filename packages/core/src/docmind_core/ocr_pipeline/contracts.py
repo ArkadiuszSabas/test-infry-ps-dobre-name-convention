@@ -23,6 +23,8 @@ from pydantic import (
 OCR_DOCUMENT_PROCESSING_TOPIC = "document-processing"
 OCR_PROCESSING_RESULTS_TOPIC = "processing-results"
 OCR_RUN_REQUESTED_ROUTE = "/internal/events/ocr-run-requested"
+OCR_RUN_REQUESTED_EVENT_TYPE = "com.docmind.ocr.run-requested.v1"
+OCR_RUN_CANCELLATION_REQUESTED_EVENT_TYPE = "com.docmind.ocr.run-cancellation-requested.v1"
 OCR_PIPELINE_EVENT_ROUTE = "/internal/events/ocr-pipeline-event"
 LLMMAGIC_DISPATCH_REJECTED = "LLMMAGIC_DISPATCH_REJECTED"
 
@@ -93,6 +95,7 @@ class OcrPipelineEventKindV1(StrEnum):
     STEP_COMPLETED = "pipeline.step.completed"
     COMPLETED = "pipeline.completed"
     FAILED = "pipeline.failed"
+    CANCELLED = "pipeline.cancelled"
 
 
 class OcrPipelineStatusV1(StrEnum):
@@ -102,6 +105,7 @@ class OcrPipelineStatusV1(StrEnum):
     SUCCEEDED = "succeeded"
     PARTIAL_FAILED = "partial_failed"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class OcrPipelineStepStatusV1(StrEnum):
@@ -118,6 +122,7 @@ class OcrDispatchDispositionV1(StrEnum):
     """API disposition returned to the Worker dispatch boundary."""
 
     DISPATCHABLE = "dispatchable"
+    DEFERRED = "deferred"
     ACTIVE = "active"
     TERMINAL = "terminal"
     DELETED = "deleted"
@@ -148,6 +153,19 @@ class OcrRunRequestedV1(_OcrTransportModel):
 
     run_id: CanonicalUuidString
     document_id: CanonicalUuidString
+    correlation_id: CorrelationId
+    requested_at: UtcZTimestampString
+
+
+class OcrRunCancellationRequestedV1(_OcrTransportModel):
+    """API-owned command requesting cancellation of one exact execution attempt."""
+
+    run_id: CanonicalUuidString
+    document_id: CanonicalUuidString
+    pipeline_id: CanonicalUuidString
+    attempt_id: CanonicalUuidString
+    fencing_token: Annotated[StrictInt, Field(ge=1)]
+    next_event_sequence: Annotated[StrictInt, Field(ge=2)]
     correlation_id: CorrelationId
     requested_at: UtcZTimestampString
 
@@ -184,7 +202,7 @@ class OcrPipelineEventV1(_OcrTransportModel):
     sequence: Annotated[StrictInt, Field(ge=1)]
     pipeline_id: CanonicalUuidString
     pipeline_status: OcrPipelineStatusV1
-    steps: tuple[OcrPipelineStepSnapshotV1, ...] = Field(min_length=1)
+    steps: tuple[OcrPipelineStepSnapshotV1, ...]
     completed_step_id: StepId | None = None
     error: OcrPipelineSafeErrorV1 | None = None
 
@@ -195,6 +213,13 @@ class OcrPipelineEventV1(_OcrTransportModel):
         step_ids = [step.step_id for step in self.steps]
         if len(step_ids) != len(set(step_ids)):
             raise ValueError("Pipeline event steps must use unique step_id values.")
+        if not self.steps and self.kind not in {
+            OcrPipelineEventKindV1.FAILED,
+            OcrPipelineEventKindV1.CANCELLED,
+        }:
+            raise ValueError(
+                "Only pipeline.failed or pipeline.cancelled may omit the step snapshot."
+            )
 
         if self.kind is OcrPipelineEventKindV1.STARTED:
             if self.sequence != 1:
@@ -256,6 +281,11 @@ class OcrPipelineEventV1(_OcrTransportModel):
         if self.kind is OcrPipelineEventKindV1.FAILED:
             if self.pipeline_status is not OcrPipelineStatusV1.FAILED:
                 raise ValueError("pipeline.failed must use pipeline_status='failed'.")
+            return self
+
+        if self.kind is OcrPipelineEventKindV1.CANCELLED:
+            if self.pipeline_status is not OcrPipelineStatusV1.CANCELLED:
+                raise ValueError("pipeline.cancelled must use pipeline_status='cancelled'.")
             return self
 
         raise ValueError("Unsupported OCR pipeline event kind.")

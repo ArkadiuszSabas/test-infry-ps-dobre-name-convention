@@ -36,6 +36,7 @@ test("route policy supports partial admin entry access", () => {
     [
       "adminDictionaries",
       "adminPipelines",
+      "adminOcrRuns",
       "adminConnectors",
       "adminApprovals",
     ],
@@ -43,6 +44,7 @@ test("route policy supports partial admin entry access", () => {
   assert.equal(canAccessRoute(settingsAdminActor, "admin"), true);
   assert.equal(canAccessRoute(settingsAdminActor, "adminUsers"), false);
   assert.equal(canAccessRoute(settingsAdminActor, "adminPipelines"), true);
+  assert.equal(canAccessRoute(settingsAdminActor, "adminOcrRuns"), true);
   assert.equal(canAccessRoute(settingsAdminActor, "adminConnectors"), true);
   assert.equal(canAccessRoute(settingsAdminActor, "adminApprovals"), true);
 });
@@ -58,6 +60,7 @@ test("route policy does not grant admin access from role name alone", () => {
   assert.equal(canAccessRoute(roleOnlyAdminActor, "adminUsers"), false);
   assert.equal(canAccessRoute(roleOnlyAdminActor, "adminDictionaries"), false);
   assert.equal(canAccessRoute(roleOnlyAdminActor, "adminPipelines"), false);
+  assert.equal(canAccessRoute(roleOnlyAdminActor, "adminOcrRuns"), false);
   assert.equal(canAccessRoute(roleOnlyAdminActor, "adminApprovals"), false);
   assert.deepEqual(getAccessibleAdminEntryRoutes(roleOnlyAdminActor), []);
 });

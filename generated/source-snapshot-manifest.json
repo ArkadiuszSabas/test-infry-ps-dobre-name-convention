@@ -6,31 +6,63 @@
     },
     {
       "path": ".github/README.md",
-      "sha256": "8e1592251b7f3b85a275b896177a59383a46e2a88a7558ea3506a64a16cbf130"
+      "sha256": "55c538ff91d5cc5285680054ebe92bb36752d70f6a705d8ecb1f165fb09a114a"
     },
     {
       "path": ".github/workflows/application-build.yml",
-      "sha256": "ab18718077c67d0f6e033e7ea1c1ebeb0f748c7b5abe4e27d5b5817c4c43a51e"
+      "sha256": "59aba270c1877b38be28b4760957c09794edfaf5dc1a756f3e2013eb1b6a973b"
     },
     {
       "path": ".github/workflows/application-deploy.yml",
-      "sha256": "a82ad523bff843dbbe68337019bc67d6fd2b6b166510930f5fc8cd3b93902601"
+      "sha256": "c14666efb7d4d5050a751f3a1c759ee8670f23234d41a70c10fc5e087a461961"
     },
     {
-      "path": ".github/workflows/langfuse.yml",
-      "sha256": "7a0bbeabb2c338e3622cc51050a7d454aa1f9911e41a9c6e155df07e35e33e05"
+      "path": ".github/workflows/langfuse-image-import.yml",
+      "sha256": "ce3e1be7da694d14def7e7bd721f1f1c3c2833d781e518d4a43e329456e99653"
+    },
+    {
+      "path": ".github/workflows/read-github-spn-object-id.yml",
+      "sha256": "17ad4052cbe264be3322a7a3b812b4c991a9c7e6f80b3f787cf3efc26787baed"
+    },
+    {
+      "path": ".github/workflows/terraform-core-read-outputs.yml",
+      "sha256": "48ddf477d60ec9101f4db56d05960a46250cf746a61a9f723da94ce3ec741e96"
     },
     {
       "path": ".github/workflows/terraform-core.yml",
-      "sha256": "066866de0c96f47208224180d0ae6f671fc6af0d50b0c00d843b12d590adf188"
+      "sha256": "b2fce97800e669d53864fa62f4d9761701b57d62e460395130824937bc86cc14"
+    },
+    {
+      "path": ".github/workflows/terraform-langfuse-core.yml",
+      "sha256": "3b92c89e3a149b094d6bc73404650cfa1df0f673c51bbefa3de91f316da90e4e"
+    },
+    {
+      "path": ".github/workflows/terraform-langfuse-network.yml",
+      "sha256": "399e9127404297140ff0deea1d97739017c7bd574cf6a327b62d4c1a9d259e2d"
+    },
+    {
+      "path": ".github/workflows/terraform-langfuse-rbac.yml",
+      "sha256": "a8c9801ee114e72f8bb90c2b52b99986e0d9b630bcc76be64a7927c1589841d0"
+    },
+    {
+      "path": ".github/workflows/terraform-network-import-private-dns-link.yml",
+      "sha256": "1e4f2965c0b9e171fc60edffc0c059d33b4bab212a4458d88d61452f75c69b2e"
     },
     {
       "path": ".github/workflows/terraform-network.yml",
-      "sha256": "1933dd6069151d993dcdc48f2c39f272d194704ee513518bd2e2ec2428e60c9f"
+      "sha256": "cfde0e927a6cd0846fdf5549c519e0b8aae2ea514142b3c5fe06f08b919a3afc"
+    },
+    {
+      "path": ".github/workflows/terraform-rbac-cmk.yml",
+      "sha256": "34aaffae92b062bf42dfda090266881d14a576ae98bb64337e0f2f37cfd13a52"
     },
     {
       "path": ".github/workflows/terraform-rbac.yml",
-      "sha256": "de910bce3d067c56c8cfead317553ba17df809c3b537e53e1693d77bc4a1df88"
+      "sha256": "94246852f00bf53b7d4e52f5e05f6b48bbc91070305f4b24c3169688219c61e8"
+    },
+    {
+      "path": ".github/workflows/terraform-uami-cmk.yml",
+      "sha256": "847c0f88182db4eace821dab30eb3ddbe470693a06af09bc17dbb721a12437c0"
     },
     {
       "path": ".gitignore",
@@ -66,11 +98,11 @@
     },
     {
       "path": "apps/web/package.json",
-      "sha256": "35406ca59f3bacf7e79035794022646ac67b726ff55859183af3f83151394f8b"
+      "sha256": "c2f1ffd37f80c55a4a8259518479941abaf860d3288279c319108e49c9cf81ba"
     },
     {
       "path": "apps/web/pnpm-lock.yaml",
-      "sha256": "6f82e25455049b3d2d85940335b53a8ebc8785e033d1d5ff6b339b6b89aa3d72"
+      "sha256": "96553b5417c38597f6795da175e75c9b1844153ff0757b204b7a9256cc63125f"
     },
     {
       "path": "apps/web/pnpm-workspace.yaml",
@@ -83,6 +115,806 @@
     {
       "path": "apps/web/public/.gitkeep",
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-EUC-H.bcmap",
+      "sha256": "d92a261336dc18b8c03a46eb4d462382d33f4338fa195d303256b2031434c874"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-EUC-V.bcmap",
+      "sha256": "61670bebc4e4827b67230c054fd0d820d6e30c3584d02e386804e62bbedc032a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-H.bcmap",
+      "sha256": "ece6415b853d61e1b2560165151407d35cf16e6556932b85a13ea75276b77402"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-RKSJ-H.bcmap",
+      "sha256": "696b1f973c97623496703809eaaa5f9b40696c77540057413f4b826a08edfa7b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-RKSJ-V.bcmap",
+      "sha256": "53cb6d560ab377da48cf65d6dcacb0bdb31f13fab7066c580de38c12a73a7ff9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78-V.bcmap",
+      "sha256": "289000f02fd34872b6975503217f33abae6bee676e7d28f640473a67c8db1712"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78ms-RKSJ-H.bcmap",
+      "sha256": "a2442595218f5f8bd8e1b42188e368587d876cfe0cc4cd87196f077c878f72e2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/78ms-RKSJ-V.bcmap",
+      "sha256": "f8ddceba96bfd9d3740bd1789ee30d1f47c78371520a8084f71f7df58f19be0b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/83pv-RKSJ-H.bcmap",
+      "sha256": "44040051ec818fe09b9703472bea72efd2759d5eeb5ff0d77c718d6bb5e6d1df"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90ms-RKSJ-H.bcmap",
+      "sha256": "c13e043e85ff715b75bb03801e8fd0fb8f3a75e4a48496faa6baaf92b5b48ba1"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90ms-RKSJ-V.bcmap",
+      "sha256": "499bb916ce1adbe4289b6e5811f4dc20eb238cdc2ffad20cf26ae56716885bab"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90msp-RKSJ-H.bcmap",
+      "sha256": "7b8b3b8bbf821702e9a4df9f3596ce292380c8c1b0925dedadbb4e4b2d80498b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90msp-RKSJ-V.bcmap",
+      "sha256": "6296c2b5c07dca8128e96d5296d621a3268803d4fa0e5812a21e52fe2802aacb"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90pv-RKSJ-H.bcmap",
+      "sha256": "fb5103f03d3a34547e18d316e52b6d9b26e485c662999222f84d2ba54c2e4fa8"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/90pv-RKSJ-V.bcmap",
+      "sha256": "7bcb5ad2ba55b9662ce379e16c2d9cc2b82d621a579807353741172e4af615c2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Add-H.bcmap",
+      "sha256": "a2ffab28b990998181bcca9b0e914bb2207820f100ae31d5c469444892e5ad8e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Add-RKSJ-H.bcmap",
+      "sha256": "b29f4b52e2465d0485856d5e69f1ba69927deb2848d8fd328c8035583b35bb7e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Add-RKSJ-V.bcmap",
+      "sha256": "2aa2232c283a3f5d0997c2834a36cead0b79ce2657944cfeed08140c293460ff"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Add-V.bcmap",
+      "sha256": "25125d3b1be64e86b2df5b3344170b45a42bcaa0b46e43a34314ef73c166e542"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-0.bcmap",
+      "sha256": "8c65be9d51a9f269a547dc12460707aaf4031ab67ebe8a2900f4b4cc6b3e450e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-1.bcmap",
+      "sha256": "73152bc1a59cc594b414ac6068be48e5512b96ae85920c40e32a99269fdb0c04"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-2.bcmap",
+      "sha256": "a1b8d353bdef9584c820464e8f1c9e2013d64ebf433cba0aa831dddf515818c2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-3.bcmap",
+      "sha256": "2ffc0c75c79fafde506163d3c08c390d183251009f3fbf6ae50d1167d14b9570"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-4.bcmap",
+      "sha256": "98a1f470c878c6b9691a4d7aef776af8ac9b55f5587c9fafa00547f3bf655716"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-5.bcmap",
+      "sha256": "ddd6e29955eb8cb545f2ebd09c628c3bbda5023256eda1b728f743c75fb77829"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-6.bcmap",
+      "sha256": "317bb2db71e0e5b7b0c47b75de1da915c2e22f65f0c0861507f9ca7ba238f8a2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-CNS1-UCS2.bcmap",
+      "sha256": "e665837f2197c6bd08cd8955ad4d6932cee2398e2e328b25b00e6bfb3bd72af9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-0.bcmap",
+      "sha256": "8b81cce8a11d510e505704953cfa4e4ab080c1a0cab991145a3512ee433946b9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-1.bcmap",
+      "sha256": "0426983081788ec7202703e71f1efa4b860f75b936994236010b39d89251a81e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-2.bcmap",
+      "sha256": "e67b37a83b160ab3831306a71a605893b24454ee81ac9b6123bf2d3984d268d5"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-3.bcmap",
+      "sha256": "aa299afc3e12a28726147305f191be28c7498078c8b182ece7886ac79cd99078"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-4.bcmap",
+      "sha256": "8fbd7d74c2ddb1350c1cecce54a73fde3f5453093d4bed445283ec0033d2097f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-5.bcmap",
+      "sha256": "c22cb2fcff24112fa31dab2111bdc51957006576d31aad5a25e67793ac01428c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-GB1-UCS2.bcmap",
+      "sha256": "20507620260c0c935c35afc1e70e5888aa7125d5ec7ffc03cef1959feb2c1641"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-0.bcmap",
+      "sha256": "464f08905236f5703b1f5cf8358767c8b18e6bcc808840d081f1de2c7ab38134"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-1.bcmap",
+      "sha256": "4c823848722187d1ffe75ae3f5f9126ccd2d7895a05fad14c919fb119e037008"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-2.bcmap",
+      "sha256": "7810fb808e367e70429e90a9478fe6a3fdc3e214f25c7582ce9c2da6a242315c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-3.bcmap",
+      "sha256": "84deb1828711ad3d390c9899c38abce1bf619d65ff7bf1a326ec95acc45f08f8"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-4.bcmap",
+      "sha256": "3f8a4f974919c2b8bae5d10175ffa2673be140481e00840542c85d48ef184067"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-5.bcmap",
+      "sha256": "1d3ce4ff28d977f8cf37a912ae4ec811f4175c3167b1ec0b2567feec3e79e1db"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-6.bcmap",
+      "sha256": "5609797b9401b30be72ef9645da62a87829f058c3be4b5c623383119f584b1d9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Japan1-UCS2.bcmap",
+      "sha256": "66c5d0dc4964f4093e77b194023f3a0f689324028ec8330e1e1d0570bcba7c2f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Korea1-0.bcmap",
+      "sha256": "dfb8c3874f0e5a8c3acf597d2c12d2b63e90bc5e4f0fce990ec4c56077d80b32"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Korea1-1.bcmap",
+      "sha256": "62f277b7b1c441c007797ae707d5c37258d029ce4661a2b911e2e1ee35e6adc1"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Korea1-2.bcmap",
+      "sha256": "1d77068af462f96d7ad28ad7e7d43eef6423c685b479d7dc25ff5df38db0380d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Adobe-Korea1-UCS2.bcmap",
+      "sha256": "857b723088be97255053562bfa41bd1075a7f7910d3bab59a0645c8bbc7060ff"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/B5-H.bcmap",
+      "sha256": "718ad0ffbef4c34f8f3f31292c462e519cd567a5511fc8b346c60010d64f4ef9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/B5-V.bcmap",
+      "sha256": "b5c37383517477620ced927b6b4ffd4f4cc6230d8051b5b46a21d6768e07f7d8"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/B5pc-H.bcmap",
+      "sha256": "bab6028aead1d6149400e904ab10cfd319082d826473ed4c582c8eeed920f17e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/B5pc-V.bcmap",
+      "sha256": "41543142b9767f3b76133899fc8453282b01ad3c653acaeea42d78c5a7d08c63"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS-EUC-H.bcmap",
+      "sha256": "e8f89cd61e6486b948205da46499d659ed0aed949b7095fd3c8e95ffe2b0e7a9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS-EUC-V.bcmap",
+      "sha256": "cae422bec2ac6dbe86bf921cec942bacd2d0b733ffcca5f91b3ba14e917025a0"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS1-H.bcmap",
+      "sha256": "e8487971ab20cd16f3de3e8ac56ec994b72b658ad113f2818239dfd5108f501a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS1-V.bcmap",
+      "sha256": "42df8076aaa7574505e7304af83a3323ec032c4177d64b1309db8c043d594a8a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS2-H.bcmap",
+      "sha256": "bc6024d274d440f0625c69e25f37036ef6cb6689432ceaa160d3432a2a716ca7"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/CNS2-V.bcmap",
+      "sha256": "2e4f70a8afd23a121030fc2e5b5f3816e903b11e7ba8b8c09654b31c80399c38"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETHK-B5-H.bcmap",
+      "sha256": "d2f10fa519336bc4efcc7b6deb9604b75429946b40d82e311cb3a97a1994c89a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETHK-B5-V.bcmap",
+      "sha256": "1fea3fd0d9f0f679f80505800851ef2e4131d81127e18c006938ffa2f4c8b247"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETen-B5-H.bcmap",
+      "sha256": "87ee6b3f5bfda5fe26fa35431264c7d73070d10dbbf398a75185d63ae322c18d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETen-B5-V.bcmap",
+      "sha256": "47dc0d2c21e3bde317947aec1675ceabc1d5460a60bf9c24334b8c407a17172c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETenms-B5-H.bcmap",
+      "sha256": "d5f5a73da4173b7da9a3a20e16f26f9cd5d12deb1553409919e0cec6fd37fdee"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/ETenms-B5-V.bcmap",
+      "sha256": "18252fca90f472f479af1bddd60d6ab51c8e1b55dcf6845951426504934543e0"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/EUC-H.bcmap",
+      "sha256": "f9939cd57fccdc65c5d9f4c205fd497ebdbd283643308da5663801a8c1d9c595"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/EUC-V.bcmap",
+      "sha256": "1283a50a706507c4436da83ede9ad7a4440be25378f2e96f6c81a430081426a3"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Ext-H.bcmap",
+      "sha256": "4000ed4e61a1c668ef453bbd0603cfa383defa793abd46a57ed870d7f527350b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Ext-RKSJ-H.bcmap",
+      "sha256": "e0d2f0df337660e73813238dd4a725f11f0621b90f3273857db253d0e7694caa"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Ext-RKSJ-V.bcmap",
+      "sha256": "f617a22b6d67febb187990952006c91a9f5a4db21155d268c656252d0c21985d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Ext-V.bcmap",
+      "sha256": "c2087fb845a9e3acea0c2922cd40e6af67e11957bec74dcd597f1285edd490ce"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GB-EUC-H.bcmap",
+      "sha256": "928bad06fd84a48f5ba7150d7716609119fb660f2aaa73eccad81ddab9b9d203"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GB-EUC-V.bcmap",
+      "sha256": "a9ad88ac2479da529b16dc48abc5952332e27bc355335f91df5729a587533324"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GB-H.bcmap",
+      "sha256": "1018c777a8910b5bb46d7d54a4aee9d51ca5cff8addb2b41c969d9101cb3fd1c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GB-V.bcmap",
+      "sha256": "0b96789143c0bbf9f1641ae7165b3456dccd14dabffcbb0bd654d5bf6f94f863"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBK-EUC-H.bcmap",
+      "sha256": "2103fed28650ede096a2281104a1a8a4304dae0db414342c636867522307123b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBK-EUC-V.bcmap",
+      "sha256": "a7fd35dd14d9dbdb955f34e6c0630618b6620dfd09d4283b2f65a65ce77fcaea"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBK2K-H.bcmap",
+      "sha256": "3d919ae72af16c5cc6846ec87a4326a9f125e493c59d3628429d35c2c95fe8c4"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBK2K-V.bcmap",
+      "sha256": "b927fdfd595c07ce9158bf2ec13f4641b2e83b01c70989dadfabd6ed7c6ac2dc"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBKp-EUC-H.bcmap",
+      "sha256": "d15ebd8e81fb4fe8a244f1b1e877922e03500ac69eddf5001093e502430451d2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBKp-EUC-V.bcmap",
+      "sha256": "fdc736d46e642625dccc8ad8c59f2c69fc7db7a13f2e799c6c6b779e707bb97a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBT-EUC-H.bcmap",
+      "sha256": "dc5f44e48a39f3367ae28665027d8ab1d8cedb5a9dcc5068a900acd6709f60f9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBT-EUC-V.bcmap",
+      "sha256": "a1ad24e63653b8aa388c18fa5e498f007564e43dde699a9f91ccb4645c999be8"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBT-H.bcmap",
+      "sha256": "8afda745a505763f3ff54c8126eeb48ef376ea9ed07d9f42ff9a22c5c547ec57"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBT-V.bcmap",
+      "sha256": "cdc2ec5c3c7c7033290c9a8894878202f08674eb9b1ae7d36218430326768771"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBTpc-EUC-H.bcmap",
+      "sha256": "7b23e2f7bfdb6c918f567b7324bf858f398bd8cd5f268d74ece19a3c91bf4f32"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBTpc-EUC-V.bcmap",
+      "sha256": "d7a1b13ead9ab511cf2cd01de6ce8b02aa8e8767e84895337d7a3b67f039f93b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBpc-EUC-H.bcmap",
+      "sha256": "3c4a4eb82f05abe51f6650985c630e180438bfdd491318f5d20d2ec29236e1c3"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/GBpc-EUC-V.bcmap",
+      "sha256": "215bdfa2842705624b4cf4cd29b8e3c720f1e192365e0305c11030a424c84d7c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/H.bcmap",
+      "sha256": "a0233e21047ec00b852125b243cbcf30abee511155b6d8159c24f944384bc9ee"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKdla-B5-H.bcmap",
+      "sha256": "5242bce18fb13ab4cc59b146a03eba36e4ce42667eeff09e10981a9d2aa4996b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKdla-B5-V.bcmap",
+      "sha256": "2e0537f786c0791d41a925f72bad2d4e7268aa6cbf15a1400a722672cec38e2c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKdlb-B5-H.bcmap",
+      "sha256": "fdc8159984bf5dbe475c0d5dfcb621ecee4dea07c38c668bd77f4c679e23b9b3"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKdlb-B5-V.bcmap",
+      "sha256": "b249eb9dcb915ab45057c5d4d7aa55ef88d0efbb092af6bae0b2d4705d139abf"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKgccs-B5-H.bcmap",
+      "sha256": "ab64c7fc5e9b2e97750cc4f269b0da14fd8649e49151b7598c8df86599bac591"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKgccs-B5-V.bcmap",
+      "sha256": "02ebdf7cdffb5395fb21091cd58a013a18ae5388922822f9dc6292ef16b98956"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKm314-B5-H.bcmap",
+      "sha256": "bfd8bbde6b36a9da4c1c902c74121a30d9807a7079a00eeea218be6adc223cef"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKm314-B5-V.bcmap",
+      "sha256": "2a64a815cfb6fdd480674a868762e3d161fda17543b20c9209978559f0667164"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKm471-B5-H.bcmap",
+      "sha256": "49d7c037758826b5b6c0fa329c35bbf25d3943197754e72ecd30c6fb04d745e6"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKm471-B5-V.bcmap",
+      "sha256": "be24c109e78aa4fe3c1f27d30aab3ed0741e783fa1b6b6c2719741072b54b132"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKscs-B5-H.bcmap",
+      "sha256": "08599378f41d96b40537adef6e6edcc4a787bc63f5accf47c026df4905a13914"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/HKscs-B5-V.bcmap",
+      "sha256": "d073542b7dad1c4cbf01c1af5f0cd13218d1281a491956e310c55702fc8705c4"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Hankaku.bcmap",
+      "sha256": "b454701f7aecd7856769016dfd04ca64280a060f2c67a2466d50b4395d24974e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Hiragana.bcmap",
+      "sha256": "2ed669394756dd9458651cd9995ab29ab691ecb7686659003306cdf22767a414"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-EUC-H.bcmap",
+      "sha256": "6784e16dbc5861c036c23d3e55f0d4ba0975a3e464da0ee8e49bcfff0be070c4"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-EUC-V.bcmap",
+      "sha256": "fdb36bad85e9924823d49db374067988e024cf80fc894711f2c9178951cbbe95"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-H.bcmap",
+      "sha256": "c1f6d61f1d3304fd539a65ae72624fa567ecc3853bf52e283958a7a2515b3eee"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-Johab-H.bcmap",
+      "sha256": "939993d213f68db763bf156217c217ae23af082b91a0eacecf3d11eb4ff8ef8c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-Johab-V.bcmap",
+      "sha256": "5d61967aac0e666def721e8b8d0fed8f95a879a14f2e76ce516c3d11c621e519"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSC-V.bcmap",
+      "sha256": "d7da5afd9f1fe74816d79c9325f0139a4efb6438664ebfdf9a7aa92f3034360f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCms-UHC-H.bcmap",
+      "sha256": "5b70d8f6a4fa9e2283dc649f0ff95d906d56efbee50a20e8d2faec3a8fed078e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCms-UHC-HW-H.bcmap",
+      "sha256": "a5e6ba22aceb02fdedee11bfb9ed138463d89e85b87810b9f075b469d936f8ec"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCms-UHC-HW-V.bcmap",
+      "sha256": "890332a6a26880d463a12f2a6ff048bf9cf7e45077cfb1ca8815b89baa7bf411"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCms-UHC-V.bcmap",
+      "sha256": "1631b531c9a40c8cbe24c2317dba107362e49fa6e18af620414d627c111d570c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCpc-EUC-H.bcmap",
+      "sha256": "709480682c55cedbb0124b9960d78e28febeee0df2e34607d61aac6601647ec7"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/KSCpc-EUC-V.bcmap",
+      "sha256": "031707887d6fc2378a36cdb6775334fd7a236c3f95048d8436abf43fe26fc49d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Katakana.bcmap",
+      "sha256": "3b6ca6642fbf8822da00d5e58a8aa275216d5c32dbf2bd73e934197fc9fc5c53"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/LICENSE",
+      "sha256": "abd69a0491a21582eabf70d5538f24027353c58eeaff574773147f4edf4c8ad2"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/NWP-H.bcmap",
+      "sha256": "286c6c9e335da330928a01edc3c97a3a623f1f7f3c42762b0a7dc2f651b1a78f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/NWP-V.bcmap",
+      "sha256": "3a75fb7b59adfb172710758c425d8ac6c93fd5360a64dd4afd5dd04e60ab4b4d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/RKSJ-H.bcmap",
+      "sha256": "a70de61a22a898f693f02cc011c3e3cff2e10aaa7cddb4661e456a21ae859f78"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/RKSJ-V.bcmap",
+      "sha256": "68c1a64506471a524ea5cfc3b3a9f8f70031989a6bd95427b1351f33ccf50b06"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/Roman.bcmap",
+      "sha256": "1c6b3ef9d9e5cb1aa329142ce9414b90f9b6d7f9182a2a9e927378dab8f0d43f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UCS2-H.bcmap",
+      "sha256": "779428116752f34e2490a1941d24e4634c71e3c22d053b811d2090ae2fb3c704"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UCS2-V.bcmap",
+      "sha256": "1e5cc184b850ea44abc2df8ae5674279df668e8edf5e2a1a2ea2bd77adbd280f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF16-H.bcmap",
+      "sha256": "32ff139b3c7b91d6ad25f994701f3ce7b242906022c418fd73e6493fc228bfe5"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF16-V.bcmap",
+      "sha256": "278eb1e68d1a236c60ef59472cf0176ee0d45f364285e76ca12419a08d46fb9a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF32-H.bcmap",
+      "sha256": "bf26eb67fe19ee5ba915799e80ca72408400aa8342fdf6a244a4f44de8f97336"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF32-V.bcmap",
+      "sha256": "f7da3caf83ceb1cb37936fa10700d9ba6e9c3f72c5bc9724e3ac79bff0c0179e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF8-H.bcmap",
+      "sha256": "2f2a742bcd1a84a148a4a518b9eed51a8f9c6ca5ed3bc5e2e41fff97de5dc2d8"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniCNS-UTF8-V.bcmap",
+      "sha256": "b7c3f10780a8c62dd1c8ff6c30dc1e4e23b6cdc87c3a96fcd514cc98ffd3af9d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UCS2-H.bcmap",
+      "sha256": "9201569b402e81ad8860650bd86350c4fa28e5dd5971f05fcacaf40f51de18ed"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UCS2-V.bcmap",
+      "sha256": "f10282335e4d64203bc2a653a3a47d745ec76c8ae04549f4d50180c1899be216"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF16-H.bcmap",
+      "sha256": "386fd39581245c034da016a92d23f3df1117d169f996100050b264fc09a84e35"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF16-V.bcmap",
+      "sha256": "0473cfbba612b92dd9918f0ff8aee9112897c48e0ffdc0eb82da3144ed8ea84a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF32-H.bcmap",
+      "sha256": "f48a145dc4e3ed1dca1dde7111716a72306a2a4191ab05c6bae3a5c3a961cd2f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF32-V.bcmap",
+      "sha256": "106acc49b7118bdef944e32107b4f348238f3929a0a15d3b7aab7b9101535993"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF8-H.bcmap",
+      "sha256": "f217b439c80ee5fa1bc2cf6d1defcc319f8d84483d166a00ee199e05a68588df"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniGB-UTF8-V.bcmap",
+      "sha256": "a64df947632878eacc532fa193c735c92a383b7d66e6f8374ac193af7c64fc63"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UCS2-H.bcmap",
+      "sha256": "ad2352f40870880fbf7f8ee5abadff743fbd025fbf9830b8ada472d1c5e4da0b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UCS2-HW-H.bcmap",
+      "sha256": "16e87edca954177c0881c874859d6783220925d821b5cdfb8755b61ebd93f9ce"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UCS2-HW-V.bcmap",
+      "sha256": "1973457e2c0192819947e56068625b34fb9a72ecc8a476ce6d7eaae5f73e2e5c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UCS2-V.bcmap",
+      "sha256": "42a133d8e2ce9dd6d2288018e01592d2bf2435b326d39b94ea0b6e6a44ac33d3"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF16-H.bcmap",
+      "sha256": "f6a89c5688978548c83fcee990e205bc63c74274d5c69b49032a3bd4c49a05ee"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF16-V.bcmap",
+      "sha256": "c67126fc7c73850855186bb0d6482ac0a365057e0b58778c4ab9f234683fef53"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF32-H.bcmap",
+      "sha256": "96195950ce0fe24443d8eb426fa6b88534ec421d7bef9046f0b2362809cfba73"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF32-V.bcmap",
+      "sha256": "ed4dafda402bdd19c4d5d8bf2ab41473c0f86f384552b4c7b963d6627daedeb1"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF8-H.bcmap",
+      "sha256": "798fb0bf06ab0788d1f6a91c2db7de581612eef03c628f10e8f7ecd8f70ab448"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS-UTF8-V.bcmap",
+      "sha256": "1021611424f913b2df0bfdbe94bd327c04e224ec89d8e821c6501ea3d21f4265"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF16-H.bcmap",
+      "sha256": "710a32d7cb43fd6bd9dbf30da5971f8c941590f74441e208d852c2be0e74cc97"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF16-V.bcmap",
+      "sha256": "3b149aff5c5707b57fb3215d1775852c8b1f413ec0f679ea628f25cf87fe098d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF32-H.bcmap",
+      "sha256": "8d2658e18741af7937d586a57c89729a6fec0d86121197c1f8518aa58b29cdfb"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF32-V.bcmap",
+      "sha256": "6dd475782f2897648a683c48b2fa015a15b8f06856760bddc8a17a63f418bacb"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF8-H.bcmap",
+      "sha256": "691c614ce432b3e62486efb54e5c84c6da5afe9b51b21253bde4758feb484183"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJIS2004-UTF8-V.bcmap",
+      "sha256": "40a8c7ea2d46711c5f78fc9a878a7db68b1543ba5cd60ecf14f519a2deb829b7"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISPro-UCS2-HW-V.bcmap",
+      "sha256": "6826f94d789d7bf1960668c1c5819c34c9585c1b23152fbc19ee81c7df08524b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISPro-UCS2-V.bcmap",
+      "sha256": "493de9fd1a08f7946065d8ab58f0c3c9fe489f5a0f109f2d05a3169b4bd5789f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISPro-UTF8-V.bcmap",
+      "sha256": "6181d382cf736c5e09492e8be9f26f31fa25b7462253f23ab16646af432cad81"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISX0213-UTF32-H.bcmap",
+      "sha256": "692044e1fb33445668632bc9fe7386805c624864be1ddeb29d65bb0c99fc630c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISX0213-UTF32-V.bcmap",
+      "sha256": "dd54e16ca7bffb3a886242549b2bf7d78a277087f7c60d2636f118c21a5b0646"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISX02132004-UTF32-H.bcmap",
+      "sha256": "f80ea5a989be30ccda5a8804baef6d3b4b044d2b339bf8b31c671b2466171cf6"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniJISX02132004-UTF32-V.bcmap",
+      "sha256": "94c22bd99e771c5fbe0dd8dc39850570d4db0075074aca13e272813edd7cc57f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UCS2-H.bcmap",
+      "sha256": "a1081396ab4adb6f4a5b6c15f896963c244c1c9bcb65ce5616d06096a1b9811c"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UCS2-V.bcmap",
+      "sha256": "6cab547431958fbdc1d401d06ebd4dd61a73f5509a10f974df32bcbca11a2e43"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF16-H.bcmap",
+      "sha256": "42d35b396286499dfae1737a07adb3a64500df37b426580bfb1d3ea872938519"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF16-V.bcmap",
+      "sha256": "5bdb7390c80dcc136cb47d41dc7460082560969c17322ee739fe3020fb642410"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF32-H.bcmap",
+      "sha256": "3a01ec51ed1b828101351e337ffb8250abe11880032e5210f881170fed2588de"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF32-V.bcmap",
+      "sha256": "dfda895eceaed081af030dbbb962b49629eea817fc3c02bae15db93d0c68acd7"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF8-H.bcmap",
+      "sha256": "3fac9c65145f72d7d42157a3b9c5ed6904632184e6a0888f2b828699afd2002f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/UniKS-UTF8-V.bcmap",
+      "sha256": "9ecc6cf30dd354b9778ddba163b6cc7302b087ce9f39d1ba73472d2b75ed13ca"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/V.bcmap",
+      "sha256": "b9ad1c0c09ff14bca52f9a28a9767eb857ad0e8946e64ba14c7387a7eb69866a"
+    },
+    {
+      "path": "apps/web/public/pdfjs/cmaps/WP-Symbol.bcmap",
+      "sha256": "543923bead225732aba30976690ee89095a19628277b5863efecc2c728d5d7bf"
+    },
+    {
+      "path": "apps/web/public/pdfjs/iccs/CGATS001Compat-v2-micro.icc",
+      "sha256": "73e1ba37d2bad5bab2a964f40a9eed96209666efc067c3322626214bbef234a0"
+    },
+    {
+      "path": "apps/web/public/pdfjs/iccs/LICENSE",
+      "sha256": "286e4fd7b447330b2c88e23890e3cd0a9d38cb398d4a59cb247f578ccbda3213"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitDingbats.pfb",
+      "sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitFixed.pfb",
+      "sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitFixedBold.pfb",
+      "sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitFixedBoldItalic.pfb",
+      "sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitFixedItalic.pfb",
+      "sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitSerif.pfb",
+      "sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitSerifBold.pfb",
+      "sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitSerifBoldItalic.pfb",
+      "sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitSerifItalic.pfb",
+      "sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/FoxitSymbol.pfb",
+      "sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LICENSE_FOXIT",
+      "sha256": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LICENSE_LIBERATION",
+      "sha256": "a0c060f758d33ee59a674cd7b45914a560d0a5935968af5e87b0c6981fd89ddc"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LiberationSans-Bold.ttf",
+      "sha256": "361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LiberationSans-BoldItalic.ttf",
+      "sha256": "a224075ac17495ad0a3af3bc0a419ac0704a8b3fd1095456201fb9b095fc281d"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LiberationSans-Italic.ttf",
+      "sha256": "832b4406dbef23628800d3aaad21048534ac84d7e3ad955be83b8172ed8ef512"
+    },
+    {
+      "path": "apps/web/public/pdfjs/standard_fonts/LiberationSans-Regular.ttf",
+      "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_JBIG2",
+      "sha256": "9e66b7f1b934a28b37f3bc4dac97915de1674271e79a0a88182a18ed9731b4d1"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_OPENJPEG",
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_PDFJS_JBIG2",
+      "sha256": "aad3cce09842e00e9e11ad5e8fef8cc02fbc3a3768fe2f007443b9cee37aaee5"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_PDFJS_OPENJPEG",
+      "sha256": "717fc62da03292dbb4dd0c8280bd4ce7bb8550dcf31d772bc93455fb50313425"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_PDFJS_QCMS",
+      "sha256": "eb5104ca33552be007857a28351bc408f379ddd4bfacab1226b09c6d1e9fd7c4"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/LICENSE_QCMS",
+      "sha256": "36d847ae882f6574ebc72f56a4f354e4f104fde4a584373496482e97d52d31bc"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/jbig2.wasm",
+      "sha256": "e6bee67724a7b5436fe8162638e3708cfc8d52b6342db69a49715e30ff27cfdc"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/jbig2_nowasm_fallback.js",
+      "sha256": "04c795a6657a4553a64b781ea3e85256203d913c3b71b72b85fa3ce00622f458"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/openjpeg.wasm",
+      "sha256": "004a0e62db930ba9ff2a22212f4554d0bb57a0635a8287caf70f98117cee14ba"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/openjpeg_nowasm_fallback.js",
+      "sha256": "0f998419819da4491d8302222aa9e2ff2494685641aa2a6c21c3760c29f3e319"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/qcms_bg.wasm",
+      "sha256": "663d86126d5f5fcb1c61490f94353e2a8375660b8c5498ab3ebab5a34b08800e"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/quickjs-eval.js",
+      "sha256": "fe7930418e869791ce892567dbd0bc4698152b7e550b5cefa553992c56ddc325"
+    },
+    {
+      "path": "apps/web/public/pdfjs/wasm/quickjs-eval.wasm",
+      "sha256": "7bcacc9f22cacf7e9b23866d2a6d1639693d40c7f144e41b7c69ed37ba9cbe8f"
     },
     {
       "path": "apps/web/src/app/[locale]/admin/approvals/page.tsx",
@@ -119,6 +951,10 @@
     {
       "path": "apps/web/src/app/[locale]/admin/dictionaries/page.tsx",
       "sha256": "dc04e730238aaefa7cdad276a0d2ab73e6060ec0b716987d01a24c2e39906036"
+    },
+    {
+      "path": "apps/web/src/app/[locale]/admin/ocr-runs/page.tsx",
+      "sha256": "4086f41d95d3e615d94b46c973d0d5b71814f2a8d94df5d50331295b58bcc1c3"
     },
     {
       "path": "apps/web/src/app/[locale]/admin/page.tsx",
@@ -182,7 +1018,7 @@
     },
     {
       "path": "apps/web/src/components/admin/admin-page.tsx",
-      "sha256": "e288df88f7d4252a3912e4734ec232a0ec4670366604fdb97aff142855c07d85"
+      "sha256": "a216a4d395821eeae5a22790c6671a13e4e0b2a89998da80ec25931d76b65cd0"
     },
     {
       "path": "apps/web/src/components/admin/approval-settings/admin-approval-settings-page.tsx",
@@ -337,16 +1173,52 @@
       "sha256": "734fb19e01ba785b532f6bc71884dd73784a45b06a9ecc13691c20e222ba10f7"
     },
     {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-run-actions.tsx",
+      "sha256": "5a82975772c7648eb13d998695da039356d8f658656a1dcb9d4856dd2c028990"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-run-detail-sheet.tsx",
+      "sha256": "fe607be31d4299417e6e3c8a4adcb64c88d7fe6e831dc2696a0f8628f020d6f3"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-bulk-actions.tsx",
+      "sha256": "040019ef4176f1cf7b0ae19868651495db10d4fcf1f86ade77012e9e01326c16"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-filters.tsx",
+      "sha256": "f8bae4f96a45ed21b3f86ff1cb54ca7cc89c46a977d6fd52a8c106c9ccca7137"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-page.tsx",
+      "sha256": "3b86577be4109f3c3574a258d1ac4501df111df08279ab69385032e8bab55380"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-pagination.tsx",
+      "sha256": "c68fe36e9d31bd7b8d431c52368e44d7fd3b6f7ba50febfd998ab58dcc5e7636"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-table.tsx",
+      "sha256": "24babbc70cfa2a837fa04b550d383e3b400ca23208dae4f717fb316d872e6357"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/ocr-run-status-badge.tsx",
+      "sha256": "954124c440cdc16cb4349807dfe221efb389030700972b6b4b2ddfdbeabfce27"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/use-admin-ocr-run-queue-actions.ts",
+      "sha256": "766f0681340f183263ed3be36b0f3f3bfadf389e9a36685e38fa65dc602aa1af"
+    },
+    {
       "path": "apps/web/src/components/admin/settings/admin-settings-page.tsx",
       "sha256": "abc2326660bce770820c95d873b6c40bfb25a580572fbe64ddee3e0dcc9807a6"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-catalog-table.tsx",
-      "sha256": "78f8c3e6fff93dc30c0b72aebcb00cc310da29483757f66cc50b7f749cf83522"
+      "sha256": "882bf555584b39497e3c148b3b571bd70c9020b37cc1727fb2c8d2796f65fde9"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-catalog.tsx",
-      "sha256": "d0d7690bfdbfaa18c5969200e788519bbd55f832745d30ed6e679736350ee980"
+      "sha256": "0ef17a50f50725ade18eb1139bcdd8a1eb50bdd7b0f6e715e33b287f93f9deb2"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-category-catalog.tsx",
@@ -363,6 +1235,14 @@
     {
       "path": "apps/web/src/components/admin/settings/attribute-category-table.tsx",
       "sha256": "07f7c10c6c5945683b9af303b5d6dcf79461e791201f7c4451b37e83e3e96127"
+    },
+    {
+      "path": "apps/web/src/components/admin/settings/attribute-document-type-assignments-drawer.tsx",
+      "sha256": "3fddf4b3f4bbaf6d8dec1f8bc063be7bd9a0de21d4e2b156dc26f04780ae02b8"
+    },
+    {
+      "path": "apps/web/src/components/admin/settings/attribute-edit-drawer.tsx",
+      "sha256": "f525f2b482bc27aef4c817bbdd61ac72783235cce6354890f6ad7d3be7ef7bfe"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-form-model.test.ts",
@@ -386,11 +1266,11 @@
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-editor.tsx",
-      "sha256": "94aa3f8c5335b8c7f48ea40398d00b8741d432d2d4aafa1c772df0fd66900868"
+      "sha256": "3a30610338d094daa2323f79e23d6afa2185f67b46876fe8f250788c9230fd9b"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-table.tsx",
-      "sha256": "10f6de03a8ed05dacb06cfacbc1514df96815b1e328facdfade0be904ca1b461"
+      "sha256": "7211893d5c5ee7f266b2e69327bbd1b366f5cd01b2b2bce58786865cffe9f7ed"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-toolbar.tsx",
@@ -510,7 +1390,7 @@
     },
     {
       "path": "apps/web/src/components/dashboard/dashboard-lists.tsx",
-      "sha256": "afed15c9609b2bc531102ac9de075285767192c38f2b489eac7feeead09ea42d"
+      "sha256": "5f9e41116b3617a1e94b1ecb71d6067612adddb7530bdab7a038461156ba5327"
     },
     {
       "path": "apps/web/src/components/dashboard/dashboard-metrics.tsx",
@@ -538,11 +1418,11 @@
     },
     {
       "path": "apps/web/src/components/inbox/document-review-sync.ts",
-      "sha256": "77010fcea7236cd8e1e4eabe629b30b57ef9a702dd228014f7956d0908fef6d0"
+      "sha256": "b97e158c27198b28928d217cdb27562a6bdc9bbb4b144f74d12cc74a7275a035"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-detail-page.tsx",
-      "sha256": "c660a57985bb36562d7d4c4b84344ea457817fdec6f6059315204da6f5e94f68"
+      "sha256": "19de89e6e4dc2a1f66679c13d0a777828168235ed39bc1b98f6773f03c282c31"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-parameter-row.tsx",
@@ -554,11 +1434,11 @@
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-review-panel.tsx",
-      "sha256": "d04ff827a7696c2cb656e25f539db0ebc63cf1fcd42814fb07ad1c9111be75d2"
+      "sha256": "413935955c380f4a4ec7c8d99356cdf93891031364ea771ab1d6d2e7c8f07997"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-workspace-panel.tsx",
-      "sha256": "43993d122a46a2fa766b379cb9a29a10600707aab8c43a27049e3ff1398d5f2e"
+      "sha256": "e9679679bf3066473960646300066be329ca0b31c2b71ad953975228af829efa"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-documents-table.tsx",
@@ -570,15 +1450,19 @@
     },
     {
       "path": "apps/web/src/components/inbox/inbox-ocr-result-section.tsx",
-      "sha256": "83283c054059aab799ac299e5d7f9d58e0acb927601fb0fea78de53c9afeac36"
+      "sha256": "0c45bc837d811ee7ac9543588e5ab4071ebafc08d515ec3b061de02ae35bc37e"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-page.tsx",
       "sha256": "84260a01f5bdb160be0c1e0b54f62e8e5dc07a06064dd504992dfb523d8d3f30"
     },
     {
+      "path": "apps/web/src/components/inbox/inbox-pdf-page.tsx",
+      "sha256": "3be930745cd4008c6bf98fa0423b8306556a7cd6925d3c1c762e1a15ba962e58"
+    },
+    {
       "path": "apps/web/src/components/inbox/inbox-pdf-viewer.tsx",
-      "sha256": "8273cb453f421e137aca08353f299d41baccd2f1bd7ae46391fa303be1a89695"
+      "sha256": "cda7d8e164452546960557d26e23a3efb924a34b4e0eb2c1a711af36511a2e46"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-toolbar.tsx",
@@ -594,19 +1478,27 @@
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-history-list.tsx",
-      "sha256": "ab6d99c213544e1f3a9264584bd12176526468e42ba0082a1fd0088fc10273c4"
+      "sha256": "438f29a04f7ffec26f17153b7e4b5eca54026ea44dd35b5ec385c683aa50d808"
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-panel.tsx",
-      "sha256": "ffcb37af25caa89efbe54ad56130a29ff505feee3db67079078681edd78497d4"
+      "sha256": "d3c56c7e18b364a2afd156148eee57eba06a39c8f4005ff0825eba18a3f8c7be"
+    },
+    {
+      "path": "apps/web/src/components/inbox/ocr-pipeline-run-start-guards.ts",
+      "sha256": "17ee34e5b32192aa1a72716044d7a98526f4a13f539dec513f8e60d9a2090ab3"
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-status.tsx",
-      "sha256": "3430311bd0fea131137104d889cd55297c92b3827098488e5d32782e1b934514"
+      "sha256": "dbeb7ca076e6df58da1c250d8cb59696dfc998fd3488ea4062e4bc9b819a3f6c"
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-summary.tsx",
       "sha256": "f0fcd32a193955a100cbaac3d02aa8549c4accf80b40905a68717133e5c5393f"
+    },
+    {
+      "path": "apps/web/src/components/inbox/ocr-pipeline-selector.tsx",
+      "sha256": "0bd0e7c3836fc931ec79aba15332ac2e7672384ff99af55cc52c705bbf28cb84"
     },
     {
       "path": "apps/web/src/components/inbox/review-add-field-sheet.tsx",
@@ -618,15 +1510,19 @@
     },
     {
       "path": "apps/web/src/components/inbox/review-field-row.tsx",
-      "sha256": "7642f4a1b8185192369701719d8ed87f53fc68c7cd7e983f72384ae9ca4cfbce"
+      "sha256": "a594b95cacf2be8661c8da7b10fb45a02cc07740e7f0cb52eccb8e0ddce68544"
     },
     {
       "path": "apps/web/src/components/inbox/review-fields-section.tsx",
-      "sha256": "f37809b2995115e3e1ce299c638990b44c288e9c87175cbd5ebf93a8d7cae567"
+      "sha256": "a27b3c6a682aefcfc1842904c155cab5870de87095804f3b4ed258ea92abd1f4"
     },
     {
       "path": "apps/web/src/components/inbox/use-inbox-document-types.ts",
       "sha256": "bda120248dab80c2164ca174b13cbca4853f905ac4c111277555b7423c116901"
+    },
+    {
+      "path": "apps/web/src/components/inbox/use-pdf-viewer-page-window.ts",
+      "sha256": "40471cde68fa398d5308edefaa9373a8cf847a69aaf694978841431ab32a1d50"
     },
     {
       "path": "apps/web/src/components/observability/dev-observability.tsx",
@@ -726,7 +1622,7 @@
     },
     {
       "path": "apps/web/src/components/ui/data-list-filters.tsx",
-      "sha256": "a130aa389b62997d97d3f882cccac1dafc05776031b50748ac4d6e5b91113a90"
+      "sha256": "7ac24bc8fb32a99cc024b8a1ca859a885fb4e83b9e4202b63fbf733ca7d4b1ba"
     },
     {
       "path": "apps/web/src/components/ui/data-list.tsx",
@@ -773,6 +1669,18 @@
       "sha256": "39948c84a421d01ebb1d5ffa92f4cf603fc64bdb440ab17dc47cb914d81d5c1d"
     },
     {
+      "path": "apps/web/src/components/ui/list-pagination-range.test.ts",
+      "sha256": "f22ddf46960af9d582289a22421a4383471537a14473fc3e9bf1d13f11d9e396"
+    },
+    {
+      "path": "apps/web/src/components/ui/list-pagination-range.ts",
+      "sha256": "2ed8f6249c8f718abfd7e6bf8c8c9d3697bcf197b04e93dd82f16a5dabaf15e6"
+    },
+    {
+      "path": "apps/web/src/components/ui/list-pagination.tsx",
+      "sha256": "8adba99a88691a9d609801362247c2697951e14ca0b300fb88769501ce1ce929"
+    },
+    {
       "path": "apps/web/src/components/ui/metric-card.tsx",
       "sha256": "c22d96f6381a102189288fc8cdd6582f98acdaacc6b3ac84d654160ee8fd7967"
     },
@@ -814,7 +1722,7 @@
     },
     {
       "path": "apps/web/src/components/ui/searchable-select.tsx",
-      "sha256": "b8b152aa42aab242a751c433028e6bc33cac2bf89dc137ef9abcfada7d9d3d64"
+      "sha256": "e4376152dac2b7081a8997ab3739307ef8374f13fb06d7776dee468d77b0847a"
     },
     {
       "path": "apps/web/src/components/ui/select.tsx",
@@ -850,7 +1758,7 @@
     },
     {
       "path": "apps/web/src/components/ui/table.tsx",
-      "sha256": "a8fd274ef3404dbfe595a62acbbc3eec2a8b8419d6225986ad49e3cd7fce9582"
+      "sha256": "4fa7e8c48fe43a97b418813892701d13c6c588e9aaa6d42e12a2e5680dde7bc9"
     },
     {
       "path": "apps/web/src/components/ui/tabs.tsx",
@@ -885,6 +1793,10 @@
       "sha256": "460a0b55e086520bb60bade0098dc200976d822f4ecb98606be9502cf762a4ef"
     },
     {
+      "path": "apps/web/src/hooks/use-debounced-list-search.ts",
+      "sha256": "ed68af02bac084d91bd3da11ad1253a9240d1d47111e9a0de312de2ced0f0322"
+    },
+    {
       "path": "apps/web/src/hooks/use-debounced-value.ts",
       "sha256": "d645be4de5bea7df32e7d27ef3101ac339943e43ddb315be3620f0b8cead3a0f"
     },
@@ -905,6 +1817,46 @@
       "sha256": "a9520c25180401bf7a5d915b0aeaf7cc05c1da88616123c06c7b3377aa18b663"
     },
     {
+      "path": "apps/web/src/lib/admin-ocr-runs/api.test.ts",
+      "sha256": "e4051cb20724f328d16acdd46704c92dfda7bb64f815395c3b2068251171bef0"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/api.ts",
+      "sha256": "5e95f2fac85d7e3632bfc805bed75de02151317329502c35b53bc6968159bba3"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/langfuse-server.ts",
+      "sha256": "6529c1e721e5d59cd07a3f52651eb36bafafcbd33455275751e662556acbaa5b"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/langfuse.test.ts",
+      "sha256": "26289fc6d4e4d71f95076f007bde5ae665bc1d90da32d8849769046e91a18958"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/langfuse.ts",
+      "sha256": "6c565696e201457ec223605af13f3a659dfde5ee4f97012dcd6a7b40152ef76f"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/query-options.test.ts",
+      "sha256": "f8d9d45f7590fce455e97e322e06160c7657d5c5c786f2f65921003e2ec76e3d"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/query-options.ts",
+      "sha256": "ed5e21c0e68138ba87370d4782d5f77881f56c33ef5d02248ca617ad921e5782"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/types.ts",
+      "sha256": "e0e2a08591084280f6b53a78c4ce9b3923cc3d2c8c48173334e56f9d545c24a1"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/view-model.test.ts",
+      "sha256": "52cf4a2b9f05efdc0f7950d7d2a577d4c5166b8a92d6ec44dfcafd63ec464565"
+    },
+    {
+      "path": "apps/web/src/lib/admin-ocr-runs/view-model.ts",
+      "sha256": "ea25fe6dae9d592cf96bbef3b80a4ec59e23069cebb3566e69c28a8b387638d9"
+    },
+    {
       "path": "apps/web/src/lib/admin-settings/api-helpers.ts",
       "sha256": "fe357c0738a2c2ef5af09977c01a2d495d1dba42ce98c4e17eaff137782c8430"
     },
@@ -922,7 +1874,15 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/attribute-requirements-api.ts",
-      "sha256": "0a2140e2c5f403120881e78ffc3ab01a911b30d0467baec0f2cc2e3a6f8ec26d"
+      "sha256": "734b135c6596f399892bba4754d316b1fac042014e38b0c8fb960253cea76d76"
+    },
+    {
+      "path": "apps/web/src/lib/admin-settings/attribute-requirements-cache.test.ts",
+      "sha256": "ed3981974389e5e469c525513bcd6e553298dfec0eb2b46e593c642a82d1a22a"
+    },
+    {
+      "path": "apps/web/src/lib/admin-settings/attribute-requirements-cache.ts",
+      "sha256": "62db1c87c79d8ff94bd841534c5882c936fea6f0817410ed4118340261337714"
     },
     {
       "path": "apps/web/src/lib/admin-settings/attribute-requirements-view-model.test.ts",
@@ -962,7 +1922,7 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/query-options.ts",
-      "sha256": "ddefcabe1bd2eff81b565ffa56d88f726b642a39d2d2ae7071def689ecac1634"
+      "sha256": "f948e2e135152d35db4bcb9dac32a33965907ae769d8a51399d7eaa3a568aac0"
     },
     {
       "path": "apps/web/src/lib/admin-settings/system-catalog-types.ts",
@@ -978,7 +1938,7 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/types.ts",
-      "sha256": "3b853485bac286caa5f4d065e63e550084b87021aaf260ca9a56b98d6b767a00"
+      "sha256": "6126aa2de1124f73006193b47870a2d0dc1d13541a56ef79840dc4271ac49123"
     },
     {
       "path": "apps/web/src/lib/admin-settings/view-model.test.ts",
@@ -1027,6 +1987,22 @@
     {
       "path": "apps/web/src/lib/api/errors.ts",
       "sha256": "ab4d2cfdadd2f88b57ef43189a08b0b3cec0c38b5dfaf2411efeeb60b108bb8c"
+    },
+    {
+      "path": "apps/web/src/lib/api/list-contract.test.ts",
+      "sha256": "7eb026c4d4474076a62bcf0bf6fbed3ba3b593d162d033c2d9f492b6e9b2357b"
+    },
+    {
+      "path": "apps/web/src/lib/api/list-contract.ts",
+      "sha256": "f18a226fa987b58250294a50cd69beea3fcf4b89ca2d6ddbcac4820efc27cc1d"
+    },
+    {
+      "path": "apps/web/src/lib/api/list-query-options.test.ts",
+      "sha256": "5a2c7b12bfe4ea04b130f404e1adad80c8146275379d6897f838d7ef906da9a8"
+    },
+    {
+      "path": "apps/web/src/lib/api/list-query-options.ts",
+      "sha256": "117f64ee6eb78de5f9a79a84efc5a6e31d5fb6c0575a511388f9770ab33ab96e"
     },
     {
       "path": "apps/web/src/lib/api/proxy-route.test.ts",
@@ -1266,23 +2242,23 @@
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-api.test.ts",
-      "sha256": "81f5086c52ba974650ab081637620b2f070daf26a9b7b0dce2a3256b83a671e5"
+      "sha256": "f70401bb67648db99eb1c45e4b8ad230b8713ba5312ddbbacbf9d7a44efde60c"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-api.ts",
-      "sha256": "591f9ebfc6cc6db783eb2af168bda53cfdf598687abfb641c8bf578d1132c1f8"
+      "sha256": "efcb47be54139847a3c3d85f76655bd4fb8dfaee90fb79a16c2bbf68a7583ecb"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-types.ts",
-      "sha256": "27b596c964d854172f0d77439d2d0a7ea4de1935d1a0f58dee76f7a85788fb27"
+      "sha256": "66ebc232be111a1eb2e7c35da5b98e62d2b394706ed726eaff0490ccfeeeeba8"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-run-view-model.test.ts",
-      "sha256": "f51905a1732981e29a38f433d1bb093760b8a418cbd35d3d5ab510f83b9dc785"
+      "sha256": "eb441f594d12fe32a43e3a010fa2e720c9dd5036c3983ed447cab9c16cef7e6c"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-run-view-model.ts",
-      "sha256": "6e8e0c6ca4debf41a42435761a3a7e7081d8c2e561f76c1b3e58db37f26d79ee"
+      "sha256": "63e594587692135baa8dc26fc42831120c9c8824d781ab0d5a9c57fc5aa29d19"
     },
     {
       "path": "apps/web/src/lib/inbox/query-options.test.ts",
@@ -1290,11 +2266,11 @@
     },
     {
       "path": "apps/web/src/lib/inbox/query-options.ts",
-      "sha256": "d08ce0b4a2c06c7bf830affafa25143889d12312d234f3972604776aca589be2"
+      "sha256": "e61830be68635abcc32c4aea0fe2c328ff0d4493565d7bbede9a9dae58107221"
     },
     {
       "path": "apps/web/src/lib/inbox/types.ts",
-      "sha256": "88b664b224661296fe4b9feac400528d6a2fba4140e8b42375d6da458baee61b"
+      "sha256": "b302f4118ea88d2c59a85611b8287c324e1bb1906a7f43320453a41347edb296"
     },
     {
       "path": "apps/web/src/lib/inbox/upload-metadata-values.test.ts",
@@ -1314,11 +2290,11 @@
     },
     {
       "path": "apps/web/src/lib/navigation/route-policy.test.ts",
-      "sha256": "41fd0496cfe82809d34ae17a426440f698f920378f6ee5dec14cfef6e9bc4839"
+      "sha256": "5515e34f4e538ba047a9ed22281ab17cd8cb1be73682ec92669261ab6489fb54"
     },
     {
       "path": "apps/web/src/lib/navigation/route-policy.ts",
-      "sha256": "d15cedd15249a8028272ddec0a86663c924d611da143db7d6798bbad9aee78e8"
+      "sha256": "601d27d646f90a699dd8ad747f17013486d211ffd5371987d9620146eea18a93"
     },
     {
       "path": "apps/web/src/lib/observability/dev-log-client.ts",
@@ -1410,35 +2386,59 @@
     },
     {
       "path": "apps/web/src/lib/review/editor-state.test.ts",
-      "sha256": "642589520860d6d4ed1140d4f8013be1d97ff0f51990e3ef3573d2746dc6cf6f"
+      "sha256": "cd382eae3d37d253f2672cba95894f4ef5dd70258e7e0868411a2736955a6111"
     },
     {
       "path": "apps/web/src/lib/review/editor-state.ts",
-      "sha256": "80f1d97d4388b30c026a531a1e8c02684e93dbd2e8515430eae56eefb0382f07"
+      "sha256": "17ea8a7e24512bafe9162c4771802fe7ad50375809b977b06c099023c7173ca0"
     },
     {
       "path": "apps/web/src/lib/review/field-list.test.ts",
-      "sha256": "2d24238b589cadf4b36d35f38589d3109358ac45d9822c25e5e1dd6eda2cac82"
+      "sha256": "ba1e585374b7fdbfbeaf46dde1530101ba703dbc4745d78454fc92e5844df145"
     },
     {
       "path": "apps/web/src/lib/review/field-list.ts",
-      "sha256": "acef6bf0208304b47482d4f9a4acaa7a9533368ee372f85ccdc499ab6e791548"
+      "sha256": "02ca645dcb76b3401b2f398ad9962a6cec2cfd7a4108c7fef3f082858c9e28d9"
     },
     {
       "path": "apps/web/src/lib/review/field-presentation.test.ts",
-      "sha256": "d6bc5177bb16677e14a0abb34cee496395eaee9590c89546230fbeb77e050625"
+      "sha256": "9d9c1772fed16d5e418d74213bcf152ec54139b9d7d2cbe8ff57f44a8560db4e"
     },
     {
       "path": "apps/web/src/lib/review/field-presentation.ts",
-      "sha256": "f296ed178529da0c1439d6a2a9d3472bf27a5d4e67a493a292092383ed5c194e"
+      "sha256": "00989e5bff8c168ba91926e3917909af2592e07ad78054d72f831c756b8b1b09"
+    },
+    {
+      "path": "apps/web/src/lib/review/pdf-page-geometry.test.ts",
+      "sha256": "931e2f438e3c267bf94b6a3cf7fb80f6a9ec0ae42c6b19cdc6e1198324b36641"
+    },
+    {
+      "path": "apps/web/src/lib/review/pdf-page-geometry.ts",
+      "sha256": "df9bd3907ba917463f11f357d0cdeebfc1891f6399fcb74e600d51478a061117"
+    },
+    {
+      "path": "apps/web/src/lib/review/pdf-page-window.test.ts",
+      "sha256": "d4220b9c57b7261161c49ae1e52d7041e50ef2d5378e8ac6315cda4803373bb2"
+    },
+    {
+      "path": "apps/web/src/lib/review/pdf-page-window.ts",
+      "sha256": "2abbe199d1c4d0624f413c2b6d53c9181e20a02e4531a135a0346efbf29e5fb5"
     },
     {
       "path": "apps/web/src/lib/review/query-options.ts",
       "sha256": "d4fb33c3786fa5b2825a9495f1f6298c65b9489b08f7c18bf19053823dc68294"
     },
     {
+      "path": "apps/web/src/lib/review/source-location.test.ts",
+      "sha256": "3de766ea215d7dd5213ebe1d23cb3987dcbc60de0eac32dde115cd0dc3587608"
+    },
+    {
+      "path": "apps/web/src/lib/review/source-location.ts",
+      "sha256": "434ceb490738123a0d382957abb113f007f40858158764021623b1379d32a9fb"
+    },
+    {
       "path": "apps/web/src/lib/review/types.ts",
-      "sha256": "05e3183a3e8ba2aeca1c45b8a441f734f79b05bd0a8cbe32c8fe25f24f465583"
+      "sha256": "b0c4b05fb663d27588b6ecb42711e300322ddec42832132a9fdfb5a136adad55"
     },
     {
       "path": "apps/web/src/lib/review/view-model.test.ts",
@@ -1482,11 +2482,11 @@
     },
     {
       "path": "apps/web/src/messages/en.json",
-      "sha256": "8ac4be06aa8d87d15fa41e7158053cb9bbcb376789af6565e331d04121ece4be"
+      "sha256": "f9e8b77187df2402708593b975afabb53d4ee3bae2fa0d680ea2ec49ea91e093"
     },
     {
       "path": "apps/web/src/messages/pl.json",
-      "sha256": "d8dc7d81270d0d5a1830551becfc47f2b5b5d75923692379f6d1b64392c7f546"
+      "sha256": "cc9dcb96c86c0eb6baa443d96ea9735e813162877cc139bb32d0f07fb8821fca"
     },
     {
       "path": "apps/web/src/proxy.ts",
@@ -1506,7 +2506,7 @@
     },
     {
       "path": "generated/source-transform-manifest.json",
-      "sha256": "bbd27a9e445485c7b765a1e227d0f7041811ec87a118d0fd31adcef17c540470"
+      "sha256": "6ed1070e5ffe576a62862fca52230e8b7c5b0ee249371840ed5346f8f1ad8b46"
     },
     {
       "path": "infra/.gitignore",
@@ -1514,19 +2514,23 @@
     },
     {
       "path": "infra/terraform/README.md",
-      "sha256": "8483b583c62c617b1045ad17c09f4dcb7480d6223eef9c4f0aeb56e5d50da142"
+      "sha256": "dda54dbd19e55e5bdd244fc3b111df3d1fbb21aee217adeabb86f28386b88776"
     },
     {
-      "path": "infra/terraform/core/.terraform.lock.hcl",
-      "sha256": "190636ead7c17fcca785b6d6858c90d4d0f79ef0830bc950f55842d4bc566abd"
+      "path": "infra/terraform/core/env/dev.tfvars",
+      "sha256": "6abe76e3c93fbc32ecc2b8fc1c37f4add22a53193d00494c6d75a2d79b8e159f"
+    },
+    {
+      "path": "infra/terraform/core/env/dev_04.tfvars",
+      "sha256": "294f0c335a4af34d6233d5d9738c83935fabb26409720708f45af075cd26c95f"
     },
     {
       "path": "infra/terraform/core/main.tf",
-      "sha256": "7ab44519ba428761b0649118640a5bfde3c24f4fa98fa8cca5dd7608c52162f3"
+      "sha256": "ff45cb34a2083cbc1ed066f8d20b6089a99861b01c36f1fc2340b7c01ad2c325"
     },
     {
       "path": "infra/terraform/core/outputs.tf",
-      "sha256": "2104ffc9f205721a509f8cf451740862458fd744a800df71c01bb850094a31fc"
+      "sha256": "7f6a31e576c0fae1d56f330ec6af204600ad101993a761374e0a4f8af1067a0d"
     },
     {
       "path": "infra/terraform/core/providers.tf",
@@ -1534,35 +2538,75 @@
     },
     {
       "path": "infra/terraform/core/variables.tf",
-      "sha256": "9cc5d37aee18ea3325923e0098e47c521b539bf1266c4c3799c72601dce9bca8"
+      "sha256": "7728c5cedd07763c13cc3844a88db6d44f6f3a4f08cffbd7d2bb646627c1c262"
     },
     {
       "path": "infra/terraform/core/versions.tf",
-      "sha256": "600ddb5f375adb4ad8914d78f158c4781ad0fa95ab577014b13b987f71d572d9"
+      "sha256": "57bf3b0cf0e054d5c07a1068d3644a7de496442cffeacd63f7616b5ec4d6f719"
     },
     {
-      "path": "infra/terraform/langfuse/.terraform.lock.hcl",
-      "sha256": "e8d6f16c6702adea9ba1893bfd550ec21ef8baed214c232783e08f8cf38d6e18"
+      "path": "infra/terraform/langfuse-core/env/dev.tfvars",
+      "sha256": "8e102eba6d3757c5210bba3c2103b549ff2309c844177444f2fbe6a0ece398e1"
     },
     {
-      "path": "infra/terraform/langfuse/main.tf",
-      "sha256": "53ceefa95c463fc66254c0938581bab34216f1c84457d980908ef5117d78f82e"
+      "path": "infra/terraform/langfuse-core/main.tf",
+      "sha256": "ed2660d4d4f6616a5688d395e4c6efa27c11d8aebe3f613dead6d292b439d6ea"
     },
     {
-      "path": "infra/terraform/langfuse/outputs.tf",
-      "sha256": "c522e034074b78a8297dba749dbd55e4d25d0c9d41de43f2ad55fd856ac9538a"
+      "path": "infra/terraform/langfuse-core/outputs.tf",
+      "sha256": "255ae97077aa0b906b1c1f19881734bfbc7669e3a75c450ab2ce75a2bf6ad217"
     },
     {
-      "path": "infra/terraform/langfuse/providers.tf",
+      "path": "infra/terraform/langfuse-core/providers.tf",
       "sha256": "ba9e50b501c4a798da454278d41de5085b41eba63a748961cfbff8ce4991d042"
     },
     {
-      "path": "infra/terraform/langfuse/variables.tf",
-      "sha256": "28f074931c8a90060c2818cc2406824d1308113df0326daf5f5095ebef77183a"
+      "path": "infra/terraform/langfuse-core/variables.tf",
+      "sha256": "14e08f0fb8595942d652ad7b6ad4f5f4a6a522d386f917cb6f3e68efda726dfa"
     },
     {
-      "path": "infra/terraform/langfuse/versions.tf",
+      "path": "infra/terraform/langfuse-core/versions.tf",
       "sha256": "425a46d4bc76b6d307e2fec0149e5ac5d21bf4b61eb5ddfb24cfa09062350a36"
+    },
+    {
+      "path": "infra/terraform/langfuse-network/env/dev.tfvars",
+      "sha256": "b953177fcc52d46c16110c87eb9878face89cc370b6d9f17895898e3bce3683d"
+    },
+    {
+      "path": "infra/terraform/langfuse-network/main.tf",
+      "sha256": "a6e222fb03b637b9cc960a298fe642e72c45d0dd24a5691bff287f44fd2f7466"
+    },
+    {
+      "path": "infra/terraform/langfuse-network/providers.tf",
+      "sha256": "a659188e1398b367e7f3dc7b5154344242bc50b5f2746bd9cf87882662a724e0"
+    },
+    {
+      "path": "infra/terraform/langfuse-network/variables.tf",
+      "sha256": "1730f40c97e6fa5affd8b4978499ab78d2e1108802494aba06e89c88701a70eb"
+    },
+    {
+      "path": "infra/terraform/langfuse-network/versions.tf",
+      "sha256": "a1a9244c97ec07d4a1b6254c707391e306b68d38f7e32d8de536787ef257e060"
+    },
+    {
+      "path": "infra/terraform/langfuse-rbac/env/dev.tfvars",
+      "sha256": "126eac01218615a9429b0e62e3242b4e265863ba85f1ca40ca85364fb2c4f3b6"
+    },
+    {
+      "path": "infra/terraform/langfuse-rbac/main.tf",
+      "sha256": "c64d34fa537122e0fb6ba2d75923034a46923e167046673ff457aac9772f7a49"
+    },
+    {
+      "path": "infra/terraform/langfuse-rbac/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023"
+    },
+    {
+      "path": "infra/terraform/langfuse-rbac/variables.tf",
+      "sha256": "4360f8227fd764dd9ff85db8e53bb2c95f06e3623f72b11b70a92b521f961832"
+    },
+    {
+      "path": "infra/terraform/langfuse-rbac/versions.tf",
+      "sha256": "a1a9244c97ec07d4a1b6254c707391e306b68d38f7e32d8de536787ef257e060"
     },
     {
       "path": "infra/terraform/modules/ai-services/README.md",
@@ -1570,15 +2614,15 @@
     },
     {
       "path": "infra/terraform/modules/ai-services/main.tf",
-      "sha256": "4ce657a470f1774e732aa199c02695afffd8ce64636c8e6db5734d6f6fcf7e60"
+      "sha256": "a15d3923cd681016c1db3626002a32145caab57d340f660de2acd3ceec8aa114"
     },
     {
       "path": "infra/terraform/modules/ai-services/outputs.tf",
-      "sha256": "3f429fd15ad2039ca55bb462f60f397957d62c35e83b4ce4b87b356118ee1f2d"
+      "sha256": "576d6936a959823fba889c0a6234aac5215c788dd3278b50583c53083d0001ea"
     },
     {
       "path": "infra/terraform/modules/ai-services/variables.tf",
-      "sha256": "b3432d156d19f56705c008d9e38df7a7c9c23346c0fb841de71969916ce00d4e"
+      "sha256": "a43af85433e308c34737525d582bf4078b5512e15ef807bcdc790759e4cb87d6"
     },
     {
       "path": "infra/terraform/modules/container-apps/README.md",
@@ -1602,7 +2646,7 @@
     },
     {
       "path": "infra/terraform/modules/container-registry/main.tf",
-      "sha256": "eb84cc961ed0583bf44f24a06f6827e6b445df245e7cf42f54c717f277f97d59"
+      "sha256": "927660d00da6a1910c4d5232d7ac8ad724eb57a5e0f6fb86c59d23de44a3caf5"
     },
     {
       "path": "infra/terraform/modules/container-registry/outputs.tf",
@@ -1634,23 +2678,23 @@
     },
     {
       "path": "infra/terraform/modules/langfuse/dependencies.tf",
-      "sha256": "03bd29f9af7bc955666efff0f168aafdc994b6a22128c2395b8663bd6f3ecd61"
+      "sha256": "98c446dcc35b2e04297150cd928f69cbb8822567503a531f0ab7b93b7ca35059"
     },
     {
       "path": "infra/terraform/modules/langfuse/main.tf",
-      "sha256": "16f4379b091c54fd53c5a9e3883b29ac2495e80fe84574473a5599c857bbff0f"
+      "sha256": "33e03cb4d7013a13b956205520072a54216343fdfc14fa082bc678dfa27fd633"
     },
     {
       "path": "infra/terraform/modules/langfuse/outputs.tf",
-      "sha256": "3320103e2b23bf2700964b6577164198ac8113ed449c9bf7672f544bbdc3cf0f"
+      "sha256": "b9f8bd9d234f0e38151712f0a3c4cd1501b712f2b10a91daa2901f1c4fec5916"
     },
     {
       "path": "infra/terraform/modules/langfuse/storage.tf",
-      "sha256": "06abc13e56290876ca8e738f85d3b5fc3c7eef7b18ca25cb319df7a3bf674e3a"
+      "sha256": "650a0b0dd67b9c711b52675cdf42e6c796cff11a3cafd290437f6441fca33d3b"
     },
     {
       "path": "infra/terraform/modules/langfuse/variables.tf",
-      "sha256": "8bd669fbdb2169a7b5bac0e9dab43ffe4210a4f9fe05c65f7387d7399af8a183"
+      "sha256": "03653aef0990b31da6928193d3a1e5a96305d4d83844d05221966f8ebb4c7f12"
     },
     {
       "path": "infra/terraform/modules/langfuse/versions.tf",
@@ -1674,39 +2718,39 @@
     },
     {
       "path": "infra/terraform/modules/networking/README.md",
-      "sha256": "21945b093927a6672d54654dfac7f76c288bc5173d12d0828af367f553cc181a"
+      "sha256": "c4ab8b519dd4fcb6ef814650869e8321f4a81f5fb1627b243bce8262720457ea"
     },
     {
       "path": "infra/terraform/modules/networking/main.tf",
-      "sha256": "b2ab16b9859cef53b7424e9be090773cdc7362acbefc507f4a967098385101b8"
+      "sha256": "3f65c3ebd3cb2e36aec91acfac0a04a29658dabc224f6ff9d024848cef5c10cd"
     },
     {
       "path": "infra/terraform/modules/networking/outputs.tf",
-      "sha256": "61429f86b0f0b8029231665e6ebc1fb5ebeddead96f95a6067583188e3032c66"
+      "sha256": "2c1cd279fab90e4b01bc4ae4b820094c2b5cab690fbf83c47bf14231552251c7"
     },
     {
       "path": "infra/terraform/modules/networking/variables.tf",
-      "sha256": "88c66ca4c2c186ff70e594b2e9b9846f4402ae2f4a6c824347c845782c966abf"
+      "sha256": "bb1691be7db4fd0023c1ade35a335f40de6cdf059d9d881725af93652d9967a6"
     },
     {
       "path": "infra/terraform/modules/observability/README.md",
-      "sha256": "38464ed92259df2370365b1f059f8570fef3346197f963227dc6994fd868debb"
+      "sha256": "3907996f2d806865a0b9a0638a2f8d9ed850bc0951fd8fdf33ba4fa847f6b400"
     },
     {
       "path": "infra/terraform/modules/observability/main.tf",
-      "sha256": "d7fac35e5e9a68e7bb7750162d1d331e7218cdef870b049a66887b95042c9ff0"
+      "sha256": "e9a02d9c527f8c81c07c96fbeba6937e463391e574a204889fba40e3057a5200"
     },
     {
       "path": "infra/terraform/modules/observability/outputs.tf",
-      "sha256": "84569eff76a4527552e3b1d4869e495f400565d4e91f0e9bf5acc1e7eb0d3348"
+      "sha256": "9322803297c2560c1de515cfb315aaee56deff6c27c8351c4101781171583274"
     },
     {
       "path": "infra/terraform/modules/observability/variables.tf",
-      "sha256": "6ee7de4c503e40b86252b61d351d0c29edadd3aa58ce7c5cdd74c612392ea77e"
+      "sha256": "b79231ae555798137df94cba40218d857dab18a72ea887fa9be8f715b867f7e1"
     },
     {
       "path": "infra/terraform/modules/openvpn/README.md",
-      "sha256": "44e39a9235bbcb4fa6096c9ab4b7cf930aedd8817079c77a30729c5c810c15f2"
+      "sha256": "7747748a23e95ade0a25466cf7c5e18028c80986c2f2357c3ff2dfb0634a25df"
     },
     {
       "path": "infra/terraform/modules/openvpn/cloud-init.yaml.tftpl",
@@ -1734,7 +2778,7 @@
     },
     {
       "path": "infra/terraform/modules/postgresql/main.tf",
-      "sha256": "b9ab15f927ebaa654e3652a25bd7ceb141009936ad374dcc91c6bf59328cc295"
+      "sha256": "bd01ea48afb625608beb6eec32134e57c9119e8ea31f5eee180e4846d591f7bb"
     },
     {
       "path": "infra/terraform/modules/postgresql/outputs.tf",
@@ -1742,7 +2786,7 @@
     },
     {
       "path": "infra/terraform/modules/postgresql/variables.tf",
-      "sha256": "a23f09775e13c4cf7af5b311894a79db5a9392fe3eb81f1e60a23a03cff5bc8d"
+      "sha256": "e12646aed62b295973f57c579334915498e030fc58d8d889767408fc00b1fb31"
     },
     {
       "path": "infra/terraform/modules/private-endpoints/README.md",
@@ -1798,7 +2842,7 @@
     },
     {
       "path": "infra/terraform/modules/storage/main.tf",
-      "sha256": "27dc08d75188f58a1989e929f0cd65205591f07261a2ebf45991c7c5548c5156"
+      "sha256": "09ec47aa34c59bf861c17f2cb91bc07a0a8e8e67da8d45b412b02fb838064ec1"
     },
     {
       "path": "infra/terraform/modules/storage/outputs.tf",
@@ -1806,67 +2850,103 @@
     },
     {
       "path": "infra/terraform/modules/storage/variables.tf",
-      "sha256": "e4e068ef601932d3f586ff6b7390d5fab133687505068245c6d1f3d1af00888d"
+      "sha256": "389fff51cd00edb40ed6ff5a8361acf4a4c27a079860bfa40ad0d735556511c1"
     },
     {
-      "path": "infra/terraform/network/.terraform.lock.hcl",
-      "sha256": "190636ead7c17fcca785b6d6858c90d4d0f79ef0830bc950f55842d4bc566abd"
+      "path": "infra/terraform/network/env/dev.tfvars",
+      "sha256": "b1d648acf77fb10d0972081a34d81b221271aba2d694286fc11afcb60db5c39e"
+    },
+    {
+      "path": "infra/terraform/network/env/dev_01_foundation.tfvars",
+      "sha256": "64f46ae98dcb6d936782152550cfac41ca1c70da271078be07311b0fb671697f"
     },
     {
       "path": "infra/terraform/network/main.tf",
-      "sha256": "4ff97c59dde06e26bf1652658c253038c1d7de354f95e24b30c269b3c28a5a81"
+      "sha256": "d74a733c8784d2abf65ae578e114a33e748c5fbda80ead88df84a6a63c3ff04a"
     },
     {
       "path": "infra/terraform/network/outputs.tf",
-      "sha256": "d9292966a8d77a9829b66fe2173138be056f0a6ccd00fa993382b6c3636c736b"
+      "sha256": "db4c8bde136aabb94820d3d5be2f3712d7a7d73514f1daaaa8ec5a01bf0a5daa"
     },
     {
       "path": "infra/terraform/network/providers.tf",
-      "sha256": "29caf4b9a2013837f0ef7a0e3ed237a0b46e8037093296964af9ba1747c5e94f"
+      "sha256": "c169f004626dafeffd330790893cc91b0c2a9e73d360ecb059ad78cbc89d7077"
     },
     {
       "path": "infra/terraform/network/variables.tf",
-      "sha256": "de3e2f7534d08e0314d79b51a8ae8c16f659a374950abe433a115950136d3c80"
+      "sha256": "472fb6ef5b704c38b1ac08cb5b45847fd79b17d21518a8a264027d5f027e7d7d"
     },
     {
       "path": "infra/terraform/network/versions.tf",
-      "sha256": "e9e55b57ce522aae28d40e7dd5dfb74dc47eb277fd6d722db87b5d7bb7469b5b"
+      "sha256": "ce388ae56757476ceca7f41e20440eeff4749c0a4454dece808958aef7607f9b"
     },
     {
       "path": "infra/terraform/phases/dev/01-network-foundation.tfvars",
-      "sha256": "89ac84d48fcdf6378553c4dc76cc7253a20e07c1d34d916e5bc1afe0a27550f9"
+      "sha256": "d90feff71ee33a03993f256d1e1002e157df6ebbc8d296c05411b4e6d34e7fb4"
     },
     {
-      "path": "infra/terraform/phases/dev/02-core-foundation.tfvars",
-      "sha256": "be0e9648e22b8b8f6e534bfe3272e988b9680bb6fa3dc5ee5f3199a9c498d262"
+      "path": "infra/terraform/phases/dev/02-uami-cmk-foundation.tfvars",
+      "sha256": "3fdd9c13e77657763387418bb62536c88c4447ad066e698d1922ca8d1372a09a"
     },
     {
-      "path": "infra/terraform/phases/dev/03-network-completion.tfvars",
-      "sha256": "da754e50bfd5534c9d2a2a2b070dd8b681a5ff52d5868233beda59e9d3ed0503"
+      "path": "infra/terraform/phases/dev/03-rbac-cmk.tfvars",
+      "sha256": "921ed63e0a8868189b974faaab828213910c2105373639440d49731a4031ab08"
     },
     {
-      "path": "infra/terraform/phases/dev/04-rbac.tfvars",
-      "sha256": "b9c76e8762120a8efba1107f5cd47ffaeee80f3916009f6624a5c419d98d70ce"
+      "path": "infra/terraform/phases/dev/04-core-foundation.tfvars",
+      "sha256": "799f57739ad54ba39c2aa5cb7e1cb3e6e17338b97cd6a99321b622eed4095db8"
     },
     {
-      "path": "infra/terraform/phases/dev/05-core-runtime.tfvars",
-      "sha256": "a2ac30ad659e53e89cb46f93588288194e865e9b5ddd32240d9da3c96b15edcb"
+      "path": "infra/terraform/phases/dev/05-network-completion.tfvars",
+      "sha256": "89333965906b8214588f5c5fb041215a4df5d52fa1b1ccf277f50a75277bd590"
+    },
+    {
+      "path": "infra/terraform/phases/dev/06-rbac.tfvars",
+      "sha256": "2829e416f30134fd61c1a224a71e3128496df84bbb6d1e37d2e595388dcb50a6"
+    },
+    {
+      "path": "infra/terraform/phases/dev/07-core-runtime.tfvars",
+      "sha256": "bf9c99d2c7b7e02501266df19f32ec05658df6647ac307c9c2cce9b532967ea9"
     },
     {
       "path": "infra/terraform/phases/dev/README.md",
-      "sha256": "7078ef3eb468928639d0d88c65ee663541240d32d929f865bbae40fc0873e4df"
+      "sha256": "16fafdd5c3c36395a43f9ae4fc136a6b4ba3ba894d0e2beeeb5f6ae7cc74a71f"
     },
     {
-      "path": "infra/terraform/rbac/.terraform.lock.hcl",
-      "sha256": "3740b439c93eec70e4160482f736ad81a0b262542b3af887679e6b3ea963b813"
+      "path": "infra/terraform/rbac-cmk/env/dev.tfvars",
+      "sha256": "921ed63e0a8868189b974faaab828213910c2105373639440d49731a4031ab08"
+    },
+    {
+      "path": "infra/terraform/rbac-cmk/main.tf",
+      "sha256": "28ea79c21e0ddad2cb74a5b5f64f5bbc6100574377d7e7e500d36d6be2a83842"
+    },
+    {
+      "path": "infra/terraform/rbac-cmk/outputs.tf",
+      "sha256": "e4d6493da94492de502a1995a51623d87b1a104db44e1fe93d087511fc783b85"
+    },
+    {
+      "path": "infra/terraform/rbac-cmk/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023"
+    },
+    {
+      "path": "infra/terraform/rbac-cmk/variables.tf",
+      "sha256": "5de4f7d9f2c034fccc9f0ff250693cf6ab9531a9d5a2226add864aeaa9caaec4"
+    },
+    {
+      "path": "infra/terraform/rbac-cmk/versions.tf",
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd"
+    },
+    {
+      "path": "infra/terraform/rbac/env/dev.tfvars",
+      "sha256": "2a9ee65239aefffa5277ac74a848937f2a2fce9b02778b1afc3f4eca70ff8fba"
     },
     {
       "path": "infra/terraform/rbac/main.tf",
-      "sha256": "c06244609700da7ac813382c04c913fe2c6a3d44420b6f6774eba3454b4b6e3c"
+      "sha256": "23d4dea57c345021f2116c13a1673c0eeef1db8170dc61e768e7a6f4296c5b0c"
     },
     {
       "path": "infra/terraform/rbac/outputs.tf",
-      "sha256": "f1b0170d86cacf0ad04bb603870c4c9dbed04808c1d1e701f343211519db24c1"
+      "sha256": "e12e6f683e7bb347a7c97ab9774f4f52946af170d74818ff97d7cd4f528abbe5"
     },
     {
       "path": "infra/terraform/rbac/providers.tf",
@@ -1874,15 +2954,39 @@
     },
     {
       "path": "infra/terraform/rbac/variables.tf",
-      "sha256": "51b45053b64c5bc691ce5f7d2845d298df88a5f69f60a17acb7aed5fd9a461e9"
+      "sha256": "0ea194266de1c741362795a7a0b4e74bde4da5380bd15dbfc4a66ce92bcbfede"
     },
     {
       "path": "infra/terraform/rbac/versions.tf",
-      "sha256": "7264858c1324e1fd11d618b8d53d8c3d7a1daf2066400bda59734200d4536281"
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd"
     },
     {
       "path": "infra/terraform/tests/proservice-phases.tests.ps1",
       "sha256": "8e26478f09f47d00001db2ad5bcf177c3513cc297422a9fec9991b2abcf1672d"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/env/dev.tfvars",
+      "sha256": "3fdd9c13e77657763387418bb62536c88c4447ad066e698d1922ca8d1372a09a"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/main.tf",
+      "sha256": "1e0d2e8c9a43589d64af2c1da02348abfc4256536dcef4d230bc90d22cdcdd1c"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/outputs.tf",
+      "sha256": "1c3f6629de0324e86d8eb3968017925d21b8fb41677be0d46bf48255cbf4e484"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/providers.tf",
+      "sha256": "3f5f839c621c02945bb91105d75d68dc4167ed4516f0ea4d713a11074cb88023"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/variables.tf",
+      "sha256": "76606cccc27b34d43e861d1caaf002743d53bca5694ae604e93ac94671f3e8bf"
+    },
+    {
+      "path": "infra/terraform/uami-cmk/versions.tf",
+      "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd"
     },
     {
       "path": "packages/backend-runtime/pyproject.toml",
@@ -1978,7 +3082,7 @@
     },
     {
       "path": "packages/backend-runtime/src/docmind_backend_runtime/telemetry.py",
-      "sha256": "2823c5bf4962b1d9da6c5db9c26eb09806ed60e5ad3b064628b7fd262a9d7074"
+      "sha256": "0403f87907fe9297d12e3b4b025adc081c8adac761d3837c4ba77c77ba835648"
     },
     {
       "path": "packages/connectors/hatch_build.py",
@@ -2054,11 +3158,11 @@
     },
     {
       "path": "packages/core/src/docmind_core/ocr_pipeline/__init__.py",
-      "sha256": "dd8f7f1a226a1eafd01cf0316a291cb29b03a63b40c91a981c9a543fa1b58aca"
+      "sha256": "4cecdc71b54f185ee9c94313b51187f29fde3674a57d08088b8b684b0b1a6a62"
     },
     {
       "path": "packages/core/src/docmind_core/ocr_pipeline/contracts.py",
-      "sha256": "8f38ac9d13821333411ccb21852798dae721cca0f66cc538f1686f74bf60562f"
+      "sha256": "9eb1e447d49dd8af515b38e6d2f8b1a84a2ba768f98caca30b8fb5d801170b0e"
     },
     {
       "path": "packages/core/src/docmind_core/py.typed",
@@ -2126,7 +3230,7 @@
     },
     {
       "path": "services/api/alembic/env.py",
-      "sha256": "e826524dffe88b08df7a5f6414be04edd9f7de4e0ce1eeb9e7a7bba7d7e7382e"
+      "sha256": "9971dce6750e4dd4deafd252478f6e568f73917f82e72950ec90650ecd91da25"
     },
     {
       "path": "services/api/alembic/versions/20260519_0001_create_users_table.py",
@@ -2321,6 +3425,34 @@
       "sha256": "6107fc44389b60eaea12e7bb9f6932df604fb4625a992cdebee32796e1989578"
     },
     {
+      "path": "services/api/alembic/versions/20260820_0044_add_ocr_pipeline_run_outbox.py",
+      "sha256": "182f321c30c5e28e3d72ba81c4f1f5e9cb96aa3326fc821b83b6e09813dbb001"
+    },
+    {
+      "path": "services/api/alembic/versions/20260820_0045_add_ocr_event_control_fields.py",
+      "sha256": "34f1e2207fef85cbc04d27d65e18dc752926251c7902e9f4dbac4b257bf1154f"
+    },
+    {
+      "path": "services/api/alembic/versions/20260822_0046_add_durable_ocr_admission.py",
+      "sha256": "67d79af71de9adb77367f5284d914d03149048c4b322c3458fe5db1756ddcc88"
+    },
+    {
+      "path": "services/api/alembic/versions/20260822_0047_add_ocr_cancellation.py",
+      "sha256": "611d6d9a762f0c26209b9df0b6db0de9d5f2718e47c4e2da4aad1a152a74f078"
+    },
+    {
+      "path": "services/api/alembic/versions/20260825_0048_add_ocr_pipeline_comparisons.py",
+      "sha256": "bd10a8bfdb58bf20e166c6af0c525c8d0da4d52c8427099823390fe9d7f0a198"
+    },
+    {
+      "path": "services/api/alembic/versions/20260828_0049_add_review_source_hydration_cache.py",
+      "sha256": "87a560f5bdefaa97928529d3600f36166ecad3b71bad836c0b1707a44fc83adc"
+    },
+    {
+      "path": "services/api/alembic/versions/20260828_0050_add_admin_ocr_run_indexes.py",
+      "sha256": "f51a258650744b8911e3bf151f849d783ed072f31c83098e04606953b07c288d"
+    },
+    {
       "path": "services/api/pyproject.toml",
       "sha256": "8cf53bd392c08f81e90f25002f63c4f0f36b1c89da87d4ecdcbd174f267a82f9"
     },
@@ -2338,11 +3470,11 @@
     },
     {
       "path": "services/api/src/docmind_api/api/attribute_requirements/router.py",
-      "sha256": "496ccc8e8735260f0124bb4dee083a4d6f133f234a269890cb0ecff2e7737649"
+      "sha256": "88a305c9b93cda1efee029ebf5a001b1236244726e8b8a5f2786e8e8c3110f6b"
     },
     {
       "path": "services/api/src/docmind_api/api/attribute_requirements/schemas.py",
-      "sha256": "7f742acd7365ceeb8ca720a452f906f7d5084863745d0e6d96a9724b45cfcdd0"
+      "sha256": "3b6cb35e96b91e236e3998a068fda41bbe2012b69e874f03a1e1d685cca27d57"
     },
     {
       "path": "services/api/src/docmind_api/api/attributes/__init__.py",
@@ -2538,7 +3670,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/documents/router.py",
-      "sha256": "95798fb080a5af72cc5ca7d72fc658ac827eb65ab9768f8662f3bbec0c4c21ae"
+      "sha256": "9dc74505405e1a9c2bf9fb7096f433e0ca6bdc09ebe0c92018d2fa1d91ced7ad"
     },
     {
       "path": "services/api/src/docmind_api/api/documents/schemas.py",
@@ -2557,20 +3689,36 @@
       "sha256": "5d2c3bc11f98c718888e31048fcf7f1977952fa95b86b6e5356aaf19d63283bc"
     },
     {
+      "path": "services/api/src/docmind_api/api/list_contract.py",
+      "sha256": "f48ac249b2aac0763f295269c58f90bce7ded9a3ac4050b075782b05298d89b8"
+    },
+    {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/__init__.py",
       "sha256": "56049223e33e06d0dd15359cc08d738d595edea8974e58cfeee60ce24578ba92"
     },
     {
+      "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_mappers.py",
+      "sha256": "7186c615fb1c7a75b8c3042d1faf9c7dc17242d9b42f31daef0c5374ddb66b5a"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_router.py",
+      "sha256": "f6f0fb83e0e77959c660ba274f9ea972dd792e31b747f2fec5706baaef07ccc6"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_schemas.py",
+      "sha256": "6fad1ae6884d876a7339ad0d246645a10c0174002662c04e985634f11307e7c8"
+    },
+    {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/mappers.py",
-      "sha256": "37bae3f3d5716ca2c76d2d3846799d7a1c8c5a909b6512e410f7fe09d6dd28c1"
+      "sha256": "5284fae1c86bd77d59d9891429c47434303fe4a1b6ccbfc2dc9c98f7f45d21e4"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/router.py",
-      "sha256": "f0d88b3b054ebfdfe0a5562d68a0dc1362986ea076d03c6c4a29f75c65184928"
+      "sha256": "245738e6b870a28541d476c27388f52049418a812d541e012abb5d875ec4c3e4"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/schemas.py",
-      "sha256": "60b962ef2326e9b2214e3e050f4ecf40dbeeec17b73e01d2a2c12ba8ebeda831"
+      "sha256": "08088345634813a63a0c0067325527944f46f8be2e6ef9642f65ec6b81f45dde"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipelines/__init__.py",
@@ -2638,7 +3786,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/attribute_requirements/models.py",
-      "sha256": "3ff700692095ed6ec142c96bc99e17dd7ef9cba9d574a84069c06ed192518df5"
+      "sha256": "a734e3bfd6402168af80dbc781f820403c97e7dc146a57194ac9273459a90417"
     },
     {
       "path": "services/api/src/docmind_api/application/attribute_requirements/policies.py",
@@ -2646,11 +3794,11 @@
     },
     {
       "path": "services/api/src/docmind_api/application/attribute_requirements/ports.py",
-      "sha256": "067f2a56f9eec057ca17d978007061ef900daf7aa307607e46b9836fecd6c6d3"
+      "sha256": "aff7eb59fbc4948a768013084d596900c2bb415aaeb3114e3a039b80929f5004"
     },
     {
       "path": "services/api/src/docmind_api/application/attribute_requirements/service.py",
-      "sha256": "39520d222ec2001aef5887d28ac0981f3c6c8cdf2ac80c51dfdf9673fe76838f"
+      "sha256": "686f43aed7928c4dc5928946d1eaf2bffa5fe047a2a94b00c86b794d2e7ecd56"
     },
     {
       "path": "services/api/src/docmind_api/application/attributes/__init__.py",
@@ -2754,7 +3902,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/connectors/document_intake.py",
-      "sha256": "c135661dc148b709cd61af0d3b6f320375f61b74d33c87d0303f22e010ed5b9b"
+      "sha256": "b6e6c2797091289c30c61255f28e9a6d71565da41d14b8b3a60c1f01eecedcaa"
     },
     {
       "path": "services/api/src/docmind_api/application/dapr_smoke/__init__.py",
@@ -2838,15 +3986,15 @@
     },
     {
       "path": "services/api/src/docmind_api/application/document_review/ports.py",
-      "sha256": "65907cdb46beaa2cab6c5cd5e92d3af32dcfdcb9d1ed2d8b81dcbf5a3978e7be"
+      "sha256": "937ec5f45594e95ec5cbbd17e8fcfce5c8d7ba4eba3f71ad5c3f3e5bef0f42b5"
     },
     {
       "path": "services/api/src/docmind_api/application/document_review/read_models.py",
-      "sha256": "85c147b6f34615c31526b26b6c433927681bac9583423807b933e0dae0d7d242"
+      "sha256": "d88bfa06b94f698bb8785ef7830c035d3706ab282daca1c072cd50a3f069a668"
     },
     {
       "path": "services/api/src/docmind_api/application/document_review/service.py",
-      "sha256": "54f23912690ccc8dfb38d9d86a6b6efb750c3df4a8618ee90857c2365c6a4678"
+      "sha256": "b45a4511d78d561850f7769251b53c4a065fa8f278db69433558431216565e19"
     },
     {
       "path": "services/api/src/docmind_api/application/document_types/__init__.py",
@@ -2937,32 +4085,40 @@
       "sha256": "234eb8cdf162e9868a356f1bfdd49cbee75cefcd6c8d12a7d57401a3cbd410ee"
     },
     {
+      "path": "services/api/src/docmind_api/application/listing.py",
+      "sha256": "cc802a44028834f22fc350751c90de1870e13d5c47ee978151513ba6ee1921b1"
+    },
+    {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/__init__.py",
       "sha256": "2808f41c985a60cc9bcd17550a7c6c864c35a01b1dbaeb5f32f3a5bbd85d5880"
     },
     {
+      "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/admin_read_model.py",
+      "sha256": "5df0a35e0e8ea3cb8b1b2319f96928e909354d07f4a4b7ae7946bdc3a6b0d229"
+    },
+    {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/commands.py",
-      "sha256": "3017533f1b3ec10816b06f38bebb514c7e6ab2e8a062130eeaa75cb726c6b437"
+      "sha256": "4eab59cb9375dcdcfa64d66b5254a853b65208dbe00e09c9b32f985f83485284"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/context_resolver_config.py",
-      "sha256": "64ff0cf0acef25e14ff3386f90bfb3c25c841d72893d1b8be9db80aa99f33dee"
+      "sha256": "64690bf758fd72e0ca6e858a1e35b02d3c1ab8777abf907476c2bef608cb0eb5"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/errors.py",
-      "sha256": "eadd6f9b49e135fb133e50f3783a100aa960ef65a19f4bd06ca49a429245c230"
+      "sha256": "2fac21ca41248bb2391f448746ebe6a5f93490b0fa4dad7f21e1432ab3ebcd5e"
     },
     {
-      "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/execution.py",
-      "sha256": "3636399e8fefe2e24b16519f8512ae8e44efc2730ca9b8008f40245e3afff251"
+      "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/outbox.py",
+      "sha256": "ebe7bd1abf510df17d1998e3185db3310a7ec76f68792b36a45ca1d06006f9ef"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/ports.py",
-      "sha256": "70aada983e7729b708937ca1cb21744af67b2073a0505257a15391558b678525"
+      "sha256": "ed8600cace0bc084e0a9b6c51180252b6e55cbdb86586fdd1a824fd53e8236ec"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/service.py",
-      "sha256": "17bc9dff96cd3050a56b81a84c1d207bfecbafc98d00a390a1d559de02349c88"
+      "sha256": "c4fbd032bb0bd86835ee8ade0035de1e7653c4b81cf3d01fcb9b597a2cf89da0"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/__init__.py",
@@ -3058,7 +4214,7 @@
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/app.py",
-      "sha256": "09a3a87867924a39896c40bb517d1c649b68b6b5b29494527ce574be4776f58c"
+      "sha256": "fbb18e26f74ca04b6b62d38bfb3dab860514c785815a9e2906cc7cb27352b5b3"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/commands/__init__.py",
@@ -3106,7 +4262,7 @@
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/dependencies/connector_platform.py",
-      "sha256": "6f03b4e3c6ee89a8c65ba228a928e72084cd07965074559698c3e92b3fe0f092"
+      "sha256": "966467f1449808762169298f3c81ddc84df1db79114ed5222ac511286c6dbea6"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/dependencies/connectors.py",
@@ -3149,12 +4305,12 @@
       "sha256": "e2b97a7bcb90572763a25b139d72fdf2514a6cf4a0ee6465a0f76bcc007c8491"
     },
     {
-      "path": "services/api/src/docmind_api/bootstrap/dependencies/ocr_pipeline_run_dispatch.py",
-      "sha256": "da293bc6e2a1ba6bd23f95d4b23c8472e0451c9b2d13a898aa75110246bbcad5"
+      "path": "services/api/src/docmind_api/bootstrap/dependencies/ocr_pipeline_review.py",
+      "sha256": "c2839762f49b7d341a11cd8187cd8c12763465367d5ad286846ab944e3ceb28e"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/dependencies/ocr_pipeline_runs.py",
-      "sha256": "e93f4ad6fd203b5c622a8a59a11e09b2b01c625e898ec3e39285534a43ae502a"
+      "sha256": "9e6ef6cf2499cd0424a2cb9dd48f1760d8439bb4326a0239a3a9ea87452e255f"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/dependencies/ocr_pipelines.py",
@@ -3170,7 +4326,7 @@
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/lifespan.py",
-      "sha256": "09bb7861eced9ef3b3f4629dd5826c6121db53e6c3a42fbe945028d44f427d20"
+      "sha256": "c7956698fa0fc02ac1453ecf27f7826982a03000675466b399c2c4883f2e7297"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/__init__.py",
@@ -3222,7 +4378,7 @@
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/documents.py",
-      "sha256": "10089b2301d5123faf30942732f2c5209ab721ddfdbe20926feee8aab3a20a74"
+      "sha256": "3f3e06b889f9477d510f2183dc1a6b6fe2fb7c9207b9e2691249040e8e43b7d1"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/health.py",
@@ -3230,7 +4386,7 @@
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/ocr_pipeline_runs.py",
-      "sha256": "4bacbef9f69568d20725c5ddaf43ce50e359b8aec0ef5786f0d2f7de4758d1ab"
+      "sha256": "0f68881c560648f4a1f6b0290db510edff5b0836d7294e79f43f5fd0307805e4"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/ocr_pipelines.py",
@@ -3462,35 +4618,31 @@
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/README.md",
-      "sha256": "477a172c0a0d6926ee1781bc3d54416032c7fd119c72c8ea5b8c063df8b8a8ae"
+      "sha256": "3c197ceb6b14948a4d2d5ad1f690eacad3ec227332a6ebbd0ee96f66c8930fc1"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/__init__.py",
-      "sha256": "5c12638ce589069eddf46b81ecd0b00629abf1494c22c135cb8bd73ac536bb8c"
+      "sha256": "266446967a8ede8efdd9a2a33cb2ad451cd2fc60a2d312e75c90a485689724eb"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/compiled_snapshots.py",
-      "sha256": "7835818693a9d65c3f100662dff722a9c356964a2a3a3646b17f9f19b4258e9b"
+      "sha256": "ffb38dab2543acef3ba0c95d9a6fcea1ffaf22c26f739ac424fe3c49e8df7d4d"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/constants.py",
-      "sha256": "55ce86f948c3ae3769297aff1352186087b47419e7bbf38b45ec268e57fb8a6f"
-    },
-    {
-      "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/executions.py",
-      "sha256": "d65bcdeb0d2e3073723843b80595f5060273998402b7b505e9ea9fe624dfa154"
+      "sha256": "087de7be02d3cbe38cc9e735070250188ce05c0a241798f9550380febac62cbd"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/models.py",
-      "sha256": "5469c67d186720d8dcd9f4c52dfbebed4ab65de32e78bce769278488a9f94e14"
+      "sha256": "2044c249467f7b99cf5a6015cba555e9c02bf15b75ab2d9d359a73dd2d086781"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/records.py",
-      "sha256": "e79608ab8f8d1e77a910410b662c15c3cfad22df4e67d667c0d336796460ab46"
+      "sha256": "4afebb3063e0fb333890fd0bb02afd356fee24a74de897fd520611209b17615d"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/statuses.py",
-      "sha256": "d853bd0a4a4e89496a946908cb26dcd1355883b425ffaf19d08a6a272bf507c6"
+      "sha256": "d3698424f9319630c7f1ad3326ff03886f1b7fe070eb09f465cae407f96580a2"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/types.py",
@@ -3654,11 +4806,11 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/document_review/context_resolution_mapper.py",
-      "sha256": "d87740130f4ccd800c4f687515ab7e28ff224059676f3bfaafae2e8809aa2f78"
+      "sha256": "b0a32d4c9d36f392a02cc863a1f6fe2bbff41d206d6d77740b273f7840b8e922"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/document_review/context_resolution_source.py",
-      "sha256": "39100b8fb4e09e6c386af11ef2bb69a94c4a04837b51ece0f34fa55f9b2ac964"
+      "sha256": "8d78250bafda2bbef645b848367731932ccbd97b1a1709ffad9a75de7303c24d"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/document_review/providers.py",
@@ -3697,16 +4849,20 @@
       "sha256": "079de21a5a88186f910f4deb5d1227f752efa23991cea7c8715c861f71014718"
     },
     {
-      "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/llmmagic_dapr.py",
-      "sha256": "fbcbe353f1f7aec6ea50c2937124a001ce48e3927956def89af3048d6f2c7878"
+      "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/maintenance.py",
+      "sha256": "0eec1107492ad451efa9cca18a08f3fe25f368190290cb3dcaf0470fd473ff36"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/metrics.py",
+      "sha256": "5d0b32984fa4fcc267dc105671b6b4efa8a8be4e0a48d6c5a605be332dc3799d"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/outbox.py",
+      "sha256": "591a20aa47027e62c8902406808bd43bd91457bc9dfbcd03ba0d8ed25cb48f9e"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/runtime.py",
-      "sha256": "cdec1bfc1f2908ef3f46bc66c4d607bad38157d396d137c7aaa85178933d21e4"
-    },
-    {
-      "path": "services/api/src/docmind_api/infrastructure/ocr_pipeline_runs/scheduler.py",
-      "sha256": "b58353bdb8df7d88c0e115c3881876291e5c52fa68d53aa21e02b8802cb95bf0"
+      "sha256": "c5c98bf08e8cd59bd2c9f866d8d9659a6a34ef688c5dac80d8317906f474e9da"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/ocr_pipelines/__init__.py",
@@ -3730,7 +4886,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/attribute_requirements/repositories.py",
-      "sha256": "1426a6f188cac2a51a09232d312650523fc2461854ad6881db6e956540181e7c"
+      "sha256": "8941821a1808215845bcd1de52d03db7e0ed6d50c5a421f8768afd5fa1147262"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/attribute_requirements/tables.py",
@@ -3802,7 +4958,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/dashboard/repositories.py",
-      "sha256": "2e5248639360ec9e0177c81a87df15eae3c92785dc9b0698393a19f9ee5ae625"
+      "sha256": "15da34b39f8fdef8403606858b709084567cbbe613ec66413ea621f61a501fcc"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/dictionaries/__init__.py",
@@ -3834,11 +4990,11 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_review/repositories.py",
-      "sha256": "2934babf245143e91919ff5e0c31c965d635581185407592d14541d372bc782f"
+      "sha256": "0cfbdae99a21a9277dd697f5e9c3496bc48bf61bbd82d144e0d24d6a8ab83f79"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_review/tables.py",
-      "sha256": "eea9763571bd23f05d170ad95de8220de98ca4cdcee8cf19d36f74250aaeacb5"
+      "sha256": "16a7ffdf142eeed0391bc6c382c968872ccba6ef798424a128fa772ebc5b5e8e"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_types/__init__.py",
@@ -3873,6 +5029,10 @@
       "sha256": "43426797f11de284f1decd2f48ac54a17087f4818561d7dc410b691966aa6f5f"
     },
     {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/list_sorting.py",
+      "sha256": "36618465c1818643a095f902dbe6ffe79314f07d47366d79a6206ec6f09de8e1"
+    },
+    {
       "path": "services/api/src/docmind_api/infrastructure/persistence/metadata.py",
       "sha256": "b3aceb8e76e679b2242a7b2a63d9e95ddc49536a9b19876cd7dbaad07cb86ac0"
     },
@@ -3885,28 +5045,24 @@
       "sha256": "0755c473c11c74f43f907053ae9cb43f9b95913ef4609ab9c65900bb8a55cce1"
     },
     {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/admin_read_repository.py",
+      "sha256": "e5495419d2bc686be1435c7427e37d93f2aac487a85f179fdba259e9119470d2"
+    },
+    {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/execution_mapping.py",
-      "sha256": "c2ab79f04392d8c1f413ed54e4c2cef6a107c1da5ab603f2f295ee652bf36186"
-    },
-    {
-      "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/execution_operations.py",
-      "sha256": "58b9f873891b410df649dfac39bc7947408b1697eb76ac15f7581dca9da9a629"
-    },
-    {
-      "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/execution_policy.py",
-      "sha256": "af6265ac481a37d319eec7586f7d1b75512502e82b1181e35479ee5975c66857"
+      "sha256": "54e73987a358784dbf08e24f2d23d3a980cf9ffb23bc3c6236163709c12dbe1e"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/mappers.py",
-      "sha256": "fcc391fb412b29963634d1976d048bd9d034b8b8967aebf660af4d856e608b12"
+      "sha256": "2f8e2fe277657fcafe6355c3aa7169b75bc27029d7d41d64b0a9a6410c7c0b68"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/repositories.py",
-      "sha256": "bbdcca56059eb820197b82295951b9713cd3d7d45f76b54f007d1fa2685d3ed5"
+      "sha256": "67cb1480c8627e867ab01e09ac91ef1428e7319a0576917b6c0d1a21a0c1d176"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/tables.py",
-      "sha256": "dcbce4c844ac08ede97eaa1e2d5bebef9f4bbffaf34de1d64a06e0e81ca84208"
+      "sha256": "a29b9f7e81e71314f9f18f2c141b24cf78c3eb02e31cd5a8f3780fd84fa6df2f"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipelines/__init__.py",
@@ -3986,7 +5142,7 @@
     },
     {
       "path": "services/api/src/docmind_api/settings.py",
-      "sha256": "a7b1d20670e688a27ab0dc1ba7962ca3c238fa3b77b0a09c22c8cf26074d74b7"
+      "sha256": "f45ed4bcfcfda5cff3ed2ee34d46ac8287bcaefc3048d4b4e975d03fec2d6234"
     },
     {
       "path": "services/llmmagic/Dockerfile",
@@ -4022,11 +5178,11 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/api/internal_ocr/router.py",
-      "sha256": "394e5d90ee40048dd6fc220d7f479f93a65dab18a1f170b9a7aef80d59b3e7b3"
+      "sha256": "075bc3a39750ae70990cdb951ccf69796fd4513920618fc3d350c6e85cd23d12"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/api/internal_ocr/schemas.py",
-      "sha256": "c3624a30c5730ee3d7cd4e4575f67ff89249cf1f14bfc9dcc574d12b79567a35"
+      "sha256": "8f7388c788273a4fd896874c4d721d2cab0a1ffcf0cef6c116683f7069d046d1"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/__init__.py",
@@ -4050,15 +5206,15 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/catalog.py",
-      "sha256": "ba4d300997fc0151d58e79236242fdd54e9f5ef2c718a8f88c91a0b50bba5e43"
+      "sha256": "e0196d699936c07af093f6a8d5ec7e9e541ad92785551fbfac768bc0386cba44"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/catalog_schemas.py",
-      "sha256": "969ece650be76894aaf7ee4aca69d4b2f2a83ef4eb51206c50fcd8d974eb2a81"
+      "sha256": "ffb0760fe3490be9346560d816dd45c94c1543caae856d839db27097ce5b119d"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/compiler.py",
-      "sha256": "8f34eb48b7885a6f517d2bce4fd8dc5e6b56dce3365fd2fa616b5b2e07df3c5a"
+      "sha256": "77b535e83bdd9ec1fdac64c2aa4c9b65d6ade4872d6cc2bb3135d0bf9bddd052"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/definitions/__init__.py",
@@ -4086,15 +5242,19 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/engine/runner.py",
-      "sha256": "3b765d05bda164f0fe9e06937f7281bee377dac83ce8666a6afdb3725d5748d5"
+      "sha256": "50e7cd2b8384549ff892a8cd9b04f08d6eb12f2b031c73611c9c32c65ad22937"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/__init__.py",
       "sha256": "c28443559a80d086e6b12cee9bdc2e8a27379336c92fd666f6769fcc34b972f3"
     },
     {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/async_execution.py",
+      "sha256": "e57e29e8a1b7a072a8c294a74ef3c85f1770ef2d10b856b990d5c319a8612592"
+    },
+    {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/context_resolution_result.py",
-      "sha256": "9948f1f66de1587d672797287d5b26020a1f5c645efa93ba0e6cd2dd2038f60a"
+      "sha256": "2514a136f52d536a89bf15288e608a45799de482a5806233c37bdb90b1d6aee2"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/contracts.py",
@@ -4125,6 +5285,62 @@
       "sha256": "e9bc4f855f2f97363af9562f53f64851c491ef19f88a699f9f13afce33b1dcbf"
     },
     {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/__init__.py",
+      "sha256": "9d4ddcac68e7505145ebe9416cb04faafdba955d3d8e452d9747fb2eb8c7b56a"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/aggregate_values.py",
+      "sha256": "be27d4b503362dfcd154bb807d242859c9d5815a11e8b223c8c0790842860a41"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/config.py",
+      "sha256": "8b8dbeafbc8f8651474ba169002ee330d725949da1590caf014c963421e1d40e"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/constants.py",
+      "sha256": "f80ca79264a571ba2fd3c594d7f8f576a9e8c1aefcfdcc4dc5bec1f768bf1d2c"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/document_view.py",
+      "sha256": "7d7b504566298021ba251afa2c2c975c5d196ce1279be39cdc75da81075f11aa"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/graph.py",
+      "sha256": "81090571d41f59f2d86946cd0018aa22183058753a3fe34a3ecad85a7d1f8172"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/grouping.py",
+      "sha256": "eb793472ccc346aef279c3290260ce43d1ed2bbe55262bec33359c0ac1777830"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/ports.py",
+      "sha256": "9bcc2472c8d43220c98e08fe35023e8d5917b06cb12786655782d3bf217f69d7"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/projection.py",
+      "sha256": "23bf3b84b498f00d49c8bd302273ea64084fcd07b1f0350c6a7172dd32bf8f16"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/step.py",
+      "sha256": "cb99d69e330f0b48171775cea60fe8e4f8751669747f09210f4323e5fa984558"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/validation.py",
+      "sha256": "7c0ff730c0f5bf2be2c89571f305119594c3d9e7c3a01db123057eefbd28437f"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/values_report.py",
+      "sha256": "94de3148471b17feda8e97b1eec616f4a7c44556615fa73693dceb387fa4119e"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/workflow_support.py",
+      "sha256": "d25ee9bc4068d3ce1c497def2551e3b1121e82db28dd916f45f41c79b878d636"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/workflow_validation.py",
+      "sha256": "82d6e1fb29abde12c111748991545558bbf9e13fe6001cd459b9622837469691"
+    },
+    {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/__init__.py",
       "sha256": "5e672daa19ef5328fd83b7f0e42fc031c161cd840b9b8d7ba7f4e6910d09c07c"
     },
@@ -4138,7 +5354,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/coverage.py",
-      "sha256": "f4b704862e2fc15df4c4df9d40335ef48ce48a6495ef20cb2ad459fbacb728c0"
+      "sha256": "87e322fcd0f122eb165ab64691a9820d61c3272a4278cd8180c818577e4bacbb"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/coverage_graph.py",
@@ -4146,7 +5362,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/errors.py",
-      "sha256": "b5041a75666514496c56eaa756de796e6c3d7648948a0b0c536988e29f6fdd00"
+      "sha256": "e39611e77bfc435266cd7a0efb629388cbc41e522acf73a7a266a4d6c5e770fa"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/evidence.py",
@@ -4154,23 +5370,27 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/graph.py",
-      "sha256": "cee0ebb2ba77c0b8e5f4e4fa094c247cbe0eada13911cc74b9c037b68fb29ac8"
+      "sha256": "bc27cd90f129c8083376ada8ef0f7efc640820d57ccbee62388728d970f163bf"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/graph_runtime.py",
-      "sha256": "89732139d3796431cf09d1449dd856590b88d3799c9c363bb835b403f4aa2f85"
+      "sha256": "6dd897a2c6037f24511fde01250f6bdf78b63b565c348e8c90aff405d4d95d78"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/graph_state.py",
-      "sha256": "e3d21c0f41b4c2e5c8abb6408ffc37af9a39aa07ff45d83b12a26347c3d5e691"
+      "sha256": "27cbc87793070a30ac5b910825e9b9e243e9d55de458ada61081b7438cd4c2a2"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/metadata_priority.py",
       "sha256": "36d4df0d562c8b051890ce4934e744387d3e014b0e3797ca9a6347788064632c"
     },
     {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/model_contract_limits.py",
+      "sha256": "63b21f2d93926c2a1a2e2abd5f61c433d11b369cd4019bcea76313ae59661b8c"
+    },
+    {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/ports.py",
-      "sha256": "54f54f919e54544d611c5c4b5ab552d071741956a9cd893db1ca8976600c0741"
+      "sha256": "f2cf5ca32f834f8fb3864e5fd6d8a0429a7d8da18c142223a8dfa667097a0d6b"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/result_mapping.py",
@@ -4182,7 +5402,15 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/step.py",
-      "sha256": "83916d705b7e67d1913d581559ccdcfb21e30b3c7f0c97e9df4f345ff131af76"
+      "sha256": "cbf581d2c9aba8dbd790ab5ea9e78cbdff4b657fdd3a3f8a4892b4e08bd73873"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/summary.py",
+      "sha256": "ef6abbe3184cb4e079c044ab4b738d0b505a07c7233c3543054631b9435814d4"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/summary_projection.py",
+      "sha256": "23a8c143e7d96698bfa6e4373ba595168cecdc22e521016332839591fc8b4308"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/validation.py",
@@ -4190,7 +5418,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_context_resolver/workflow.py",
-      "sha256": "e8f7b811735cde5d8a2c56c9d7ae958dc74e3d388e69a0889cb21e1f508cb704"
+      "sha256": "0eba1542cc17927ad8c37bdab4fb79da97b7396a3517e14e37034f1967931e15"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_kv_consistency/__init__.py",
@@ -4238,7 +5466,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_ocr/artifacts.py",
-      "sha256": "b81d3041e42eef4f69c3b81ae178783b6790d876a371f6e49944a44f521021de"
+      "sha256": "a6ad9962507b6538ca5f34d8bd610649a8de7e2e171c22ae86b54ddd98b441af"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_ocr/config.py",
@@ -4266,7 +5494,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_ocr/step.py",
-      "sha256": "172d046774beb83c85844e358a9e4b529bcf0ff51b86138070961537ee74c1d0"
+      "sha256": "db4af42a5fcfdad38c4ff266622780c5d58a77733fcb3a9834d4281e21bc6efb"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_ocr/validation.py",
@@ -4338,7 +5566,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/app.py",
-      "sha256": "d25c3bce9b0ef38d0e61270a301b58067ea9c8c5118fbcf4ab74f392e566a05f"
+      "sha256": "d8bfb45af593c356aca113aae8d3080064a14a06e77cb6913d4b6cb8fbb1308d"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/dependencies/__init__.py",
@@ -4350,15 +5578,15 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/dependencies/internal_ocr.py",
-      "sha256": "611e59707f3b86754c32d7a8ee494a47b3d9a4956cf8e3b19e33601bb2d038e3"
+      "sha256": "c69fdaea1c04169036f86ee8efb1b1722f86ecbe508860a3cb3abff0c646ebfb"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/dependencies/pipeline.py",
-      "sha256": "5240e59c0201d6da5c28cc9aed95fda34a7a175bc041bb5b179e6daa00915ff5"
+      "sha256": "aca937f861641aeba0f8e5b0e16641d5186fc14d71111297a5880e475ef976d9"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/routes/__init__.py",
-      "sha256": "87334a349e3cdb2004877b873d9bf2ad32a91054dbbf4ad4756cfc3b9e2c4a39"
+      "sha256": "4eb1fdf6b6e36ebe67821bf75fe588063751dd03da2265803bb65fd8cfc2970c"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/routes/health.py",
@@ -4366,7 +5594,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/bootstrap/routes/internal_ocr.py",
-      "sha256": "13dcbe108bf6a72006cb25a0a6b093659e668d3333acdd81bffc43ab1fb94ef7"
+      "sha256": "b032adf3b03d7ffaec2525e1bfb3d7115852810ae07b9a771021f22e0030645d"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/__init__.py",
@@ -4394,7 +5622,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/context_resolution.py",
-      "sha256": "18d6679a323dbf6c488c22c22ce61f2ea0c16d62a7e7fcae8fab6741c58779d9"
+      "sha256": "de2556bb982805e3ac46bc7cb0b3f48d97d5b55c3bdcf83b07a0b6bdadef8c8a"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/errors.py",
@@ -4402,7 +5630,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/models.py",
-      "sha256": "387ac8e3c72120f537a2c1e5de438970d858db0ca3d1a53544ff3c878b8f45f1"
+      "sha256": "00822ee20e4a56bd84b384f485d1c3fc2dbdbb4b9fdfd4904b82673513f3ec98"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/normalization.py",
@@ -4410,7 +5638,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/ocr.py",
-      "sha256": "efd56dace56c5545aa6241b5fc8738ecd39c3b8dbe63165d9e6892be7c376364"
+      "sha256": "cb31f7a707300fe4f8dbdabdd02a6d30d3f09c62c2d76befe7d9299cdca1ea6c"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/preflight.py",
@@ -4441,8 +5669,32 @@
       "sha256": "6065a9c6d1f4717d04d93f86225dff708a5d7035f0e4ba62a28ab37e616ac733"
     },
     {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/ocr_pipeline_events/__init__.py",
+      "sha256": "22e12154e176fbbac17866767fe800352080c4887b7b565f18715fc081209ddf"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/ocr_pipeline_events/publisher.py",
+      "sha256": "ee198e003bad2874ca9deca1485793d1e03fe67a2b729e0d9b0708fc1abc4c31"
+    },
+    {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/__init__.py",
       "sha256": "65b6f7ed41f7858f7fed372cde37e39761ca7b35b13b9f1d714393bcb87b7340"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/agentic_context_resolver/__init__.py",
+      "sha256": "07e1558e1e0cc915d56279a14ed16d329581c96687cf4f102a068dd471d64b48"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/agentic_context_resolver/observation.py",
+      "sha256": "527bffd6432d9539526a8ea68cab543603e05e05613dc2df1f059c34077f05fb"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/agentic_context_resolver/openai_turns.py",
+      "sha256": "c9c32df1da96b0fecf60ed25685361053b2577708ab1a266724cbc38c40951d1"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/agentic_context_resolver/provider_contract.py",
+      "sha256": "0654959d01d7542c1b48c8bbccb88d4b586b10923bdb68ead3c3e95795deec91"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/blob_references.py",
@@ -4453,16 +5705,36 @@
       "sha256": "10aa843b354fdaef7621f2ea9037ad419ef860f22cadc5c4adbb12232907413b"
     },
     {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/client_factory.py",
+      "sha256": "9f6c352fe6c6159a3780f171d6416f23f14868bf3cafda8af9264c587685e646"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/observation.py",
+      "sha256": "e5ce795b520a068387c4b0f84a5657be8197a56521453e3d1d50369f7ad6bba5"
+    },
+    {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/openai.py",
-      "sha256": "899da74b0a4fc5b1cb277538e695a74f6c806e8d13793edef6b97b822ec68e93"
+      "sha256": "087eee1db7fde1f8cd0d55ea8368e7b9a0eb5eea52c7a0becc65a8f56efb49bc"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/payload.py",
-      "sha256": "8553fe3b09de6ad222751072fcafabf1c9a2e87bf878eac236c17f0e3b9af5ae"
+      "sha256": "a06cb2adfc28b559efaddf0cb0c5ba98dc6ecfe9858b4064e061e18f484e3ac7"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/prompt.py",
-      "sha256": "82596436bcdc00712711416d56c3c358b6ae63aea7565e3ebc575fa01a24858d"
+      "sha256": "2717c6553d3e878215579259d5009a860f7cde5a05a6986f687c00208d242701"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/provider_completion.py",
+      "sha256": "b23ed0ecf167d8ba3d2aba0eb8fc45be98f21cc5fbaf68c8d5f7b6a2ea0d3f51"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/provider_errors.py",
+      "sha256": "1be5f25ca559221db06d441662ea5af394fbc3f4deff297246124c9cd9ece45b"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/request_preflight.py",
+      "sha256": "5615fadf1def73f4aaabe696ba4bd4d752ba302c28af5bb1b3297e6f44ee24f6"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/response_mapping.py",
@@ -4470,11 +5742,19 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/structured_output.py",
-      "sha256": "8f29e72edd990e6cbbd713f4742baaf179fcbd2ae2db430b44a961224cab87ac"
+      "sha256": "076f7e5044c19a624c424523c1bc3aa259247c8d563bab154cec6187e6480125"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/telemetry.py",
-      "sha256": "89d80dcfa1df8754fb5d516a2b9bdb6a24dec1f21b50bed3e1e3d02551b9ac0e"
+      "sha256": "d12fcc07332a9c1084802085fb8fa6f0981c4c6437837af6c7e826ddf841421a"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/trace_projection.py",
+      "sha256": "0fb82bad296e042c1ec00cf1229826048a4865fac903204a14a7217618dbded8"
+    },
+    {
+      "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/context_resolver/validation_diagnostics.py",
+      "sha256": "683d3b31ddc31c2ab48d4d3134ed3a27e7e86e7f1b70bf6d4a8f98f73504a1e3"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/ocr/__init__.py",
@@ -4482,7 +5762,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/ocr/azure_document_intelligence.py",
-      "sha256": "892daaa82be10b9fe5c24b74f0cd6b561e67e1870dc7946456e8947af4c232a6"
+      "sha256": "2fcf93ace69464adc353e0d34e5182951f4129828ce17063ed5c11283c2ecea8"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/ocr/azure_document_intelligence_layout.py",
@@ -4530,7 +5810,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/settings.py",
-      "sha256": "b2922a88bf35b7f3359440ae38a369500a037a3ea74ce79c231f868895d01b09"
+      "sha256": "cd2130ba854f4b58088ca00f4099d4dcfe6d0af03c111cf4b1b009c15db4d640"
     },
     {
       "path": "services/worker/Dockerfile",
@@ -4554,7 +5834,7 @@
     },
     {
       "path": "services/worker/src/docmind_worker/api/dapr_smoke/router.py",
-      "sha256": "6cefd24d7491c5a08e4867daab19639d084e43cc3acc15db647e31feef2f57dc"
+      "sha256": "5a7ab738ceeb9ee5dd98e193d4ef9e001e60abf496fa876c4c3a350854c5cefa"
     },
     {
       "path": "services/worker/src/docmind_worker/api/dapr_smoke/schemas.py",
@@ -4571,6 +5851,14 @@
     {
       "path": "services/worker/src/docmind_worker/api/health/schemas.py",
       "sha256": "c6cb69b5a1d74e552c782dec05aa854380b45729d243673985b68fd1042b7fd9"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/api/ocr_pipeline_runs/__init__.py",
+      "sha256": "038aa06353f20678c3ddada9ea7e06ee94b56d9a6f15bc4456359998a57c97da"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/api/ocr_pipeline_runs/router.py",
+      "sha256": "a44cbec05c9bfa9f6dbc6725c19b15f52fad485b669ee3d86512b37db21ae73e"
     },
     {
       "path": "services/worker/src/docmind_worker/api/system/__init__.py",
@@ -4621,6 +5909,22 @@
       "sha256": "97e95b3fdc7b3b0f53e419b4d57d4b6720b1b507907d50fa05ce9249914db5ff"
     },
     {
+      "path": "services/worker/src/docmind_worker/application/ocr_pipeline_runs/README.md",
+      "sha256": "95bbbe08190c188f3dddfb6302147f507b89c54ddf2f5c5b31523b6de90cf140"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/application/ocr_pipeline_runs/__init__.py",
+      "sha256": "c731c4737a43a2afa36dd9f75965a8ce72a942a1434197a4c08ca71407780bee"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/application/ocr_pipeline_runs/ports.py",
+      "sha256": "2181d8727177fc7eb42112905137761de35a09fc25d8559b06e80e680a4f3733"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/application/ocr_pipeline_runs/service.py",
+      "sha256": "3f7b8f331f199383c32986cce670b11a487293e53c65e3eaba782cc7db1098ec"
+    },
+    {
       "path": "services/worker/src/docmind_worker/application/system/__init__.py",
       "sha256": "e7f6b6d7bf0a1f611b61fad1ea27347b4aca99e208116b2a913f070dddc4bfee"
     },
@@ -4653,12 +5957,16 @@
       "sha256": "81730470b0d0befdf58f8e8d4c3cb8c3e0cc3763b903971f8653d13370865c7e"
     },
     {
+      "path": "services/worker/src/docmind_worker/bootstrap/dependencies/ocr_pipeline_runs.py",
+      "sha256": "37796046fa233424b6d873a0bb47b98c0af55001dd711a26309aec32c99e9b19"
+    },
+    {
       "path": "services/worker/src/docmind_worker/bootstrap/dependencies/system.py",
       "sha256": "a5da4813cbe8caac9c32d12dd95946a75e6a95eb054aa94442b449062b2dc2d5"
     },
     {
       "path": "services/worker/src/docmind_worker/bootstrap/routes/__init__.py",
-      "sha256": "bcbf09c961e9716fe82c4f3ce6cc0fa0e7c888d152c67ef490cd6197cd8fd7f7"
+      "sha256": "0e3b6ccd8038f720a6180edaa7123962b0b0cb896ccfcf16ad787b16ea9707d8"
     },
     {
       "path": "services/worker/src/docmind_worker/bootstrap/routes/dapr_smoke.py",
@@ -4667,6 +5975,10 @@
     {
       "path": "services/worker/src/docmind_worker/bootstrap/routes/health.py",
       "sha256": "1d33e91d6389c780d088706d74e36a9915fe5330864125f1d4ab1b48185232d3"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/bootstrap/routes/ocr_pipeline_runs.py",
+      "sha256": "6f247d2e8dbbf150dafd9ff06f154c10a1843ccf73c01cbf16a621292ce97346"
     },
     {
       "path": "services/worker/src/docmind_worker/bootstrap/routes/system.py",
@@ -4717,6 +6029,18 @@
       "sha256": "73cc035dc6b596879bec4d59849330e0c01260a93105659dfafe5d00fdc1ff9b"
     },
     {
+      "path": "services/worker/src/docmind_worker/infrastructure/ocr_pipeline_runs/__init__.py",
+      "sha256": "c7db12220b41ab669a5c7db1a36f4c9dee649111d2edccfae60af8787fdb1736"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/infrastructure/ocr_pipeline_runs/dapr_dispatch.py",
+      "sha256": "58e8651032f229fb6e400ba95f6a97ef8ec358b173658af5e67b0246d21d5609"
+    },
+    {
+      "path": "services/worker/src/docmind_worker/infrastructure/ocr_pipeline_runs/metrics.py",
+      "sha256": "99426210e3a7655c97e8c798f417b051950333f1e965d6d73a0fc32066461896"
+    },
+    {
       "path": "services/worker/src/docmind_worker/main.py",
       "sha256": "9d49c50aedd6248108c992ec9eb923a609d58ed99e87035984ff65efd8d8f483"
     },
@@ -4735,5 +6059,5 @@
   ],
   "profile_id": "ps",
   "schema_version": 1,
-  "source_version": "6113a0382cdb8244f9bd18ad845d417ae422b80d"
+  "source_version": "23e528d898c716650b4b07d9afe2d6da6f75d998"
 }

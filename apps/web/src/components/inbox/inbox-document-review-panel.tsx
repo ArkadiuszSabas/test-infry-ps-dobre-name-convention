@@ -3,8 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDownIcon,
+  CheckCircle2Icon,
   CircleEllipsisIcon,
   ClipboardCheckIcon,
+  Clock3Icon,
   GaugeIcon,
   Loader2Icon,
   PencilIcon,
@@ -52,12 +54,12 @@ import { getBlockingRequiredFieldIds } from "@/lib/review/field-presentation";
 import {
   canCurrentActorDecide,
   getApprovalPresentation,
-  requiresDifferentSecondReviewer,
   reviewerDisplayLabel,
 } from "@/lib/review/approval-presentation";
 import type {
   DocumentReview,
   ReviewFieldItem,
+  ReviewSourceSelection,
   ReviewWorkspaceViewModel,
 } from "@/lib/review/types";
 import { cn } from "@/lib/utils";
@@ -66,11 +68,15 @@ type ReviewFilter = "all" | "errors" | "unverified";
 
 export interface DocumentReviewPanelProps {
   model: ReviewWorkspaceViewModel;
+  onReviewSourceCleared: () => void;
+  onReviewSourceSelected: (selection: ReviewSourceSelection) => void;
   readOnly?: boolean;
 }
 
 export function DocumentReviewPanel({
   model,
+  onReviewSourceCleared,
+  onReviewSourceSelected,
   readOnly = false,
 }: DocumentReviewPanelProps) {
   const t = useTranslations("ReviewWorkspace");
@@ -158,6 +164,7 @@ export function DocumentReviewPanel({
 
   function startEditing() {
     if (!canEdit) return;
+    onReviewSourceCleared();
     setEditSession(createReviewEditSession(model.fields, model.version));
     setEditing(true);
     setSaveError(null);
@@ -232,6 +239,7 @@ export function DocumentReviewPanel({
           }
           onEdit={startEditing}
           onRemove={setRemoveId}
+          onSelectSource={onReviewSourceSelected}
         />
       </div>
 
@@ -284,11 +292,13 @@ export function DocumentReviewPanel({
         onConflictReload={reloadAfterConflict}
         onDiscard={discardChanges}
         onRemove={() => {
-          if (removeId)
+          if (removeId) {
             setEditSession((current) => ({
               ...current,
               fields: removeDraftField(current.fields, removeId),
             }));
+            onReviewSourceCleared();
+          }
           setRemoveId(null);
         }}
         onRemoveOpenChange={(open) => {
@@ -428,7 +438,9 @@ function ApprovalSection({
   const [approvalOutcomeUnknown, setApprovalOutcomeUnknown] = useState(false);
   const [checkingFinalApproval, setCheckingFinalApproval] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const detailsId = useId();
+  const historyId = useId();
   const approval = model.approval;
   const expectedReviewVersion = model.version;
   const blockingRequiredFieldCount = getBlockingRequiredFieldIds(
@@ -650,37 +662,77 @@ function ApprovalSection({
         <div className="px-4 pb-3" id={detailsId}>
           {approval ? (
             <ol className="space-y-2" aria-label={t("steps")}>
-              {approval.steps.map((step) => (
-                <li
-                  className="rounded-md border border-border/70 p-2 text-xs"
-                  key={step.number}
-                >
-                  <div className="flex justify-between gap-2 font-medium">
-                    <span>{t("step", { number: step.number })}</span>
-                    <Badge variant="outline">
-                      {t(`stepStatuses.${step.status}`)}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-muted-foreground">
-                    {reviewerDisplayLabel(
-                      step.reviewerDisplayName,
-                      t("unassigned"),
+              {approval.steps.map((step) => {
+                const isApproved = step.status === "approved";
+                const StatusIcon = isApproved ? CheckCircle2Icon : Clock3Icon;
+                const statusLabel = t(`stepStatuses.${step.status}`);
+
+                return (
+                  <li
+                    className={cn(
+                      "min-w-0 rounded-md border-l-2 border-y border-r border-border/70 p-3 text-xs",
+                      isApproved
+                        ? "border-l-emerald-500"
+                        : "border-l-orange-500",
                     )}
-                    {step.decidedAt
-                      ? ` · ${format.dateTime(new Date(step.decidedAt), { day: "2-digit", hour: "2-digit", minute: "2-digit", month: "short", year: "numeric" })}`
-                      : ""}
-                  </p>
-                  {step.comment ? (
-                    <p className="mt-1 text-muted-foreground">{step.comment}</p>
-                  ) : null}
-                </li>
-              ))}
+                    key={step.number}
+                  >
+                    <div className="flex min-w-0 gap-2">
+                      <StatusIcon
+                        aria-label={statusLabel}
+                        className={cn(
+                          "mt-0.5 size-4 shrink-0",
+                          isApproved ? "text-emerald-600" : "text-orange-600",
+                        )}
+                        role="img"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                          <span
+                            className={cn(
+                              "font-semibold",
+                              isApproved
+                                ? "text-emerald-700"
+                                : "text-orange-700",
+                            )}
+                          >
+                            {statusLabel}
+                          </span>
+                          <span className="text-muted-foreground">
+                            · {t("step", { number: step.number })}
+                          </span>
+                        </div>
+                        {isApproved ? (
+                          <p className="mt-1 break-words text-muted-foreground">
+                            {reviewerDisplayLabel(
+                              step.reviewerDisplayName,
+                              t("unassigned"),
+                            )}
+                            {step.decidedAt
+                              ? ` · ${formatApprovalDate(format, step.decidedAt)}`
+                              : ""}
+                          </p>
+                        ) : (
+                          <p className="mt-1 break-words text-muted-foreground">
+                            {t("unassignedDifferentReviewer")}
+                          </p>
+                        )}
+                        {step.comment ? (
+                          <div className="mt-2 break-words bg-muted/50 px-3 py-2 text-foreground">
+                            <p className="text-[0.6875rem] font-medium text-muted-foreground">
+                              {t("commentLabel")}
+                            </p>
+                            <p className="mt-0.5 whitespace-pre-wrap">
+                              {step.comment}
+                            </p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
-          ) : null}
-          {requiresDifferentSecondReviewer(approval) ? (
-            <p className="mt-2 text-xs text-muted-foreground">
-              {t("samePersonRule")}
-            </p>
           ) : null}
           {canDecide ? (
             <div className="mt-3 space-y-2">
@@ -768,37 +820,106 @@ function ApprovalSection({
           ) : null}
           {approval?.history.length ? (
             <div className="mt-3 border-t pt-3">
-              <h3 className="text-xs font-medium">{t("history")}</h3>
-              <ol className="mt-2 space-y-1 text-xs text-muted-foreground">
-                {approval.history.map((item) => (
-                  <li
-                    key={`${item.runNumber}-${item.stepNumber}-${item.decidedAt}`}
-                  >
-                    {t("historyItem", {
-                      actor: reviewerDisplayLabel(
-                        item.actorDisplayName,
-                        t("unassigned"),
-                      ),
-                      comment: item.comment ?? t("noComment"),
-                      decision: t(`historyDecisions.${item.decision}`),
-                      step: item.stepNumber,
-                      timestamp: format.dateTime(new Date(item.decidedAt), {
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      }),
-                    })}
-                  </li>
-                ))}
-              </ol>
+              <button
+                aria-controls={historyId}
+                aria-expanded={isHistoryOpen}
+                className="flex w-full items-center gap-2 text-left text-xs font-medium"
+                onClick={() => setIsHistoryOpen((current) => !current)}
+                type="button"
+              >
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className={cn(
+                    "size-4 text-muted-foreground transition-transform",
+                    isHistoryOpen && "rotate-180",
+                  )}
+                />
+                <span>{t("history")}</span>
+                <span className="text-muted-foreground">
+                  {t("historyCount", { count: approval.history.length })}
+                </span>
+              </button>
+              {isHistoryOpen ? (
+                <ol
+                  className="mt-3 space-y-3 border-l border-border pl-3 text-xs"
+                  id={historyId}
+                >
+                  {approval.history.map((item) => {
+                    const decisionLabel = t(
+                      `historyDecisions.${item.decision}`,
+                    );
+                    const isApproved = item.decision === "approved";
+                    const StatusIcon = isApproved
+                      ? CheckCircle2Icon
+                      : Clock3Icon;
+
+                    return (
+                      <li
+                        className={cn(
+                          "relative min-w-0 before:absolute before:-left-[1.05rem] before:top-1 before:size-2 before:rounded-full",
+                          isApproved
+                            ? "before:bg-emerald-600"
+                            : "before:bg-red-600",
+                        )}
+                        key={`${item.runNumber}-${item.stepNumber}-${item.decidedAt}`}
+                      >
+                        <div className="flex min-w-0 gap-2">
+                          <StatusIcon
+                            aria-label={decisionLabel}
+                            className={cn(
+                              "mt-0.5 size-4 shrink-0",
+                              isApproved ? "text-emerald-600" : "text-red-600",
+                            )}
+                            role="img"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words font-medium">
+                              {decisionLabel}
+                              <span className="font-normal text-muted-foreground">
+                                {` · ${t("step", { number: item.stepNumber })}`}
+                              </span>
+                            </p>
+                            <p className="mt-0.5 break-words text-muted-foreground">
+                              {reviewerDisplayLabel(
+                                item.actorDisplayName,
+                                t("unassigned"),
+                              )}
+                              {` · ${formatApprovalDate(format, item.decidedAt)}`}
+                            </p>
+                            <div className="mt-2 break-words bg-muted/50 px-3 py-2 text-foreground">
+                              <p className="text-[0.6875rem] font-medium text-muted-foreground">
+                                {t("commentLabel")}
+                              </p>
+                              <p className="mt-0.5 whitespace-pre-wrap">
+                                {item.comment ?? t("noComment")}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : null}
             </div>
           ) : null}
         </div>
       ) : null}
     </section>
   );
+}
+
+function formatApprovalDate(
+  format: ReturnType<typeof useFormatter>,
+  decidedAt: string,
+): string {
+  return format.dateTime(new Date(decidedAt), {
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function approvalStatusClassName(

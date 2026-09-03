@@ -8,11 +8,16 @@ import { useUnsavedChangesRegistration } from "@/components/system-catalogs/unsa
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
+import { updateAttributeRequirementMatrixCache } from "@/lib/admin-settings/attribute-requirements-cache";
 import {
   adminCatalogQueryKeys,
   attributeRequirementsQueryOptions,
   documentTypesQueryOptions,
 } from "@/lib/admin-settings/query-options";
+import type {
+  AttributeDefinition,
+  AttributeRequirementMatrixEnvelope,
+} from "@/lib/admin-settings/types";
 import { systemCatalogDefinitionQueryOptions } from "@/lib/system-catalogs/query-options";
 import {
   buildAttributeRequirementDraftRows,
@@ -34,6 +39,7 @@ import {
   getCatalogErrorMessage,
 } from "@/components/admin/catalog/catalog-shared";
 import { AttributeMatrixTable } from "./attribute-matrix-table";
+import { AttributeEditDrawer } from "./attribute-edit-drawer";
 import {
   ALL_ATTRIBUTE_CATEGORIES_VALUE,
   AttributeMatrixToolbar,
@@ -76,6 +82,7 @@ export function AttributeMatrixEditor({
   const [pendingDocumentTypeId, setPendingDocumentTypeId] = useState<
     string | null
   >(null);
+  const [editAttributeId, setEditAttributeId] = useState<string | null>(null);
 
   const selectedDocumentType = useMemo(
     () =>
@@ -296,6 +303,51 @@ export function AttributeMatrixEditor({
     setDraft(null);
   }
 
+  function applyAttributeUpdate(
+    attribute: AttributeDefinition,
+    isMetadata: boolean,
+  ) {
+    const updateDraftAttribute = (row: AttributeRequirementDraftRow) =>
+      row.attribute.id === attribute.id
+        ? {
+            ...row,
+            attribute: {
+              ...row.attribute,
+              category: attribute.category,
+              externalId: attribute.externalId,
+              isMetadata,
+              name: attribute.name,
+              status: attribute.status,
+            },
+            includeMetadataInContextResolver: isMetadata
+              ? row.includeMetadataInContextResolver
+              : false,
+          }
+        : row;
+
+    setDraft((current) =>
+      current?.documentTypeId === effectiveDocumentTypeId
+        ? { ...current, rows: current.rows.map(updateDraftAttribute) }
+        : current,
+    );
+
+    if (effectiveDocumentTypeId) {
+      queryClient.setQueryData<AttributeRequirementMatrixEnvelope>(
+        adminCatalogQueryKeys.attributeRequirementsDetail(
+          effectiveDocumentTypeId,
+        ),
+        (current) =>
+          current
+            ? updateAttributeRequirementMatrixCache(
+                current,
+                attribute,
+                isMetadata,
+              )
+            : current,
+      );
+    }
+  }
+
   function discardChangesAndChangeDocumentType() {
     const documentTypeId = pendingDocumentTypeId;
     setPendingDocumentTypeId(null);
@@ -388,6 +440,7 @@ export function AttributeMatrixEditor({
               isPending={isMatrixPending}
               isSaving={saveMutation.isPending}
               matrixDocumentType={matrixDocumentType}
+              onEdit={setEditAttributeId}
               onStateChange={updateRowState}
               onMetadataInclusionChange={updateMetadataInclusion}
               rows={visibleRows}
@@ -407,6 +460,12 @@ export function AttributeMatrixEditor({
         }}
         open={pendingDocumentTypeId !== null}
         title={t("documentTypes.discardChanges.title")}
+      />
+
+      <AttributeEditDrawer
+        attributeId={editAttributeId}
+        onClose={() => setEditAttributeId(null)}
+        onSaved={applyAttributeUpdate}
       />
     </section>
   );

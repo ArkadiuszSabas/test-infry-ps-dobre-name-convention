@@ -16,6 +16,8 @@ export const inboxQueryKeys = {
   documentDetail: (documentId: string) =>
     [...inboxQueryKeys.documents(), "detail", documentId] as const,
   ocrPipelineRuns: () => [...inboxQueryKeys.all, "ocr-pipeline-runs"] as const,
+  publishedOcrPipelines: () =>
+    [...inboxQueryKeys.ocrPipelineRuns(), "published-pipelines"] as const,
   documentOcrPipelineRuns: (documentId: string) =>
     [...inboxQueryKeys.ocrPipelineRuns(), "document", documentId] as const,
   ocrPipelineRun: (runId: string) =>
@@ -157,6 +159,15 @@ export function documentOcrPipelineRunsQueryOptions(
         offset: 0,
         signal,
       }),
+    retry: false,
+  });
+}
+
+export function publishedOcrPipelinesQueryOptions(enabled = true) {
+  return queryOptions({
+    enabled,
+    queryKey: inboxQueryKeys.publishedOcrPipelines(),
+    queryFn: ({ signal }) => inboxClient.listPublishedOcrPipelines({ signal }),
     retry: false,
   });
 }

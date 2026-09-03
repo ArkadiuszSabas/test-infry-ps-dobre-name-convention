@@ -9,9 +9,54 @@ import type {
   AttributeRequirementMatrixEnvelope,
   AttributeRequirementMatrixEnvelopeDto,
   SaveAttributeRequirementInput,
+  AttributeAssignmentEnvelope,
+  AttributeAssignmentEnvelopeDto,
 } from "./types";
 
 export const attributeRequirementsCatalogClient = {
+  async getAttributeAssignments(
+    attributeId: string,
+    options: AdminCatalogRequestOptions = {},
+  ): Promise<AttributeAssignmentEnvelope> {
+    return mapAttributeAssignmentEnvelope(
+      await apiFetch<AttributeAssignmentEnvelopeDto>(
+        `/attributes/${encodeURIComponent(attributeId)}/document-type-assignments`,
+        { method: "GET", signal: options.signal },
+      ),
+    );
+  },
+  async saveAttributeAssignments(
+    attributeId: string,
+    baseVersion: string,
+    assignments: Array<{
+      documentTypeId: string;
+      required: boolean;
+      includeMetadataInContextResolver: boolean;
+      missingRequiredAction?: string | null;
+    }>,
+    options: AdminCatalogRequestOptions = {},
+  ): Promise<AttributeAssignmentEnvelope> {
+    return mapAttributeAssignmentEnvelope(
+      await apiFetch<AttributeAssignmentEnvelopeDto>(
+        `/attributes/${encodeURIComponent(attributeId)}/document-type-assignments`,
+        {
+          csrfToken: options.csrfToken,
+          json: {
+            base_version: baseVersion,
+            assignments: assignments.map((item) => ({
+              document_type_id: item.documentTypeId,
+              required: item.required,
+              include_metadata_in_context_resolver:
+                item.includeMetadataInContextResolver,
+              missing_required_action: item.missingRequiredAction ?? null,
+            })),
+          },
+          method: "PATCH",
+          signal: options.signal,
+        },
+      ),
+    );
+  },
   async getAttributeRequirements(
     documentTypeId: string,
     options: AdminCatalogRequestOptions = {},
@@ -53,6 +98,34 @@ export const attributeRequirementsCatalogClient = {
     );
   },
 };
+
+function mapAttributeAssignmentEnvelope(
+  envelope: AttributeAssignmentEnvelopeDto,
+): AttributeAssignmentEnvelope {
+  return {
+    data: {
+      attribute: mapAttributeRequirementAttribute(envelope.data.attribute),
+      assignments: envelope.data.assignments.map((item) => ({
+        documentType: mapAttributeRequirementDocumentType(item.document_type),
+        state: item.state,
+        requirementId: item.requirement_id,
+        includeMetadataInContextResolver:
+          item.include_metadata_in_context_resolver,
+        missingRequiredAction: item.missing_required_action,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+      })),
+    },
+    meta: {
+      totalCount: envelope.meta.total_count,
+      assignedCount: envelope.meta.assigned_count,
+      unassignedCount: envelope.meta.unassigned_count,
+      requiredCount: envelope.meta.required_count,
+      optionalCount: envelope.meta.optional_count,
+      version: envelope.meta.version,
+    },
+  };
+}
 
 function mapAttributeRequirementDocumentType(
   documentType: AttributeRequirementDocumentTypeDto,

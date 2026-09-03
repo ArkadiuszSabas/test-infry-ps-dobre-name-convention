@@ -34,8 +34,8 @@ from docmind_api.settings import (
     DocumentIngestSettings,
     get_runtime_settings,
     load_browser_security_settings,
-    load_direct_ocr_pipeline_run_settings,
     load_document_ingest_settings,
+    load_ocr_pipeline_run_settings,
 )
 from docmind_backend_runtime import RuntimeSettings
 from docmind_backend_runtime.app import create_service_app
@@ -54,7 +54,7 @@ def create_app(
         environment=runtime_settings.environment,
     )
     document_ingest_settings = load_document_ingest_settings()
-    direct_ocr_run_settings = load_direct_ocr_pipeline_run_settings()
+    ocr_run_settings = load_ocr_pipeline_run_settings()
 
     app = create_service_app(
         runtime_settings,
@@ -65,11 +65,8 @@ def create_app(
         lifespan=create_lifespan(
             settings=runtime_settings,
             startup_migration_runner=startup_migration_runner,
-            direct_ocr_run_max_concurrency=direct_ocr_run_settings.max_concurrency,
-            direct_ocr_stale_run_timeout_seconds=(
-                direct_ocr_run_settings.stale_run_timeout_seconds
-            ),
-            direct_ocr_watchdog_interval_seconds=direct_ocr_run_settings.watchdog_interval_seconds,
+            ocr_maintenance_interval_seconds=ocr_run_settings.maintenance_interval_seconds,
+            ocr_outbox_relay_interval_seconds=(ocr_run_settings.outbox_relay_interval_seconds),
         ),
     )
     app.dependency_overrides[get_api_actor_resolver] = get_bootstrap_actor_resolver

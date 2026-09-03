@@ -8,14 +8,17 @@ class OcrPipelineRunStatus(StrEnum):
 
     PENDING = "pending"
     RUNNING = "running"
+    CANCELLING = "cancelling"
     SUCCEEDED = "succeeded"
     PARTIAL_FAILED = "partial_failed"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 ACTIVE_OCR_PIPELINE_RUN_STATUSES = (
     OcrPipelineRunStatus.PENDING,
     OcrPipelineRunStatus.RUNNING,
+    OcrPipelineRunStatus.CANCELLING,
 )
 
 

@@ -74,6 +74,9 @@ class OcrPipelineRunRecord:
     connector_instance_id: str | None = None
     connector_display_name: str | None = None
     connector_correlation_id: str | None = None
+    cancellation_requested_at: datetime | None = None
+    cancellation_requested_by_actor_id: str | None = None
+    cancellation_requested_by_actor_login: str | None = None
 
     def __post_init__(self) -> None:
         if self.pipeline_version < 1:
@@ -188,6 +191,7 @@ class OcrPipelineRunRecord:
             OcrPipelineRunStatus.SUCCEEDED,
             OcrPipelineRunStatus.PARTIAL_FAILED,
             OcrPipelineRunStatus.FAILED,
+            OcrPipelineRunStatus.CANCELLED,
         }
 
     @property
@@ -207,18 +211,24 @@ class OcrPipelineRunRecord:
 
         if self.result_availability == OcrPipelineRunResultAvailability.AVAILABLE:
             return None
-        if self.status in {OcrPipelineRunStatus.PENDING, OcrPipelineRunStatus.RUNNING}:
+        if self.status in {
+            OcrPipelineRunStatus.PENDING,
+            OcrPipelineRunStatus.RUNNING,
+            OcrPipelineRunStatus.CANCELLING,
+        }:
             return "RUN_NOT_FINISHED"
         if self.error is not None:
             return self.error.code
         if self.status in {OcrPipelineRunStatus.SUCCEEDED, OcrPipelineRunStatus.PARTIAL_FAILED}:
             return "RESULT_PAYLOAD_MISSING"
+        if self.status is OcrPipelineRunStatus.CANCELLED:
+            return "RUN_CANCELLED"
         return "RUN_FAILED"
 
 
 @dataclass(frozen=True, slots=True)
 class RunnableOcrPipelineSnapshot:
-    """Published pipeline snapshot selected for direct execution."""
+    """Published pipeline snapshot selected for event-driven execution."""
 
     pipeline_id: UUID
     pipeline_version: int
@@ -226,11 +236,12 @@ class RunnableOcrPipelineSnapshot:
     catalog_version: str | None
     catalog_hash: str | None
     pipeline_name: str | None = None
+    is_default: bool = False
 
 
 @dataclass(frozen=True, slots=True)
 class OcrPipelineRunDocument:
-    """Minimal document data required to start a direct OCR pipeline run."""
+    """Minimal document data required to start an OCR pipeline run."""
 
     id: UUID
     document_type_id: UUID

@@ -37,14 +37,20 @@ resource "terraform_data" "approved_design_guard" {
     precondition {
       condition = length(var.container_apps) == 0 || try(
         var.dapr_components["servicebus-pubsub-api"].component_type == "pubsub.azure.servicebus.queues" &&
+        var.dapr_components["servicebus-pubsub-api"].name == "docmind-servicebus-pubsub-api" &&
         var.dapr_components["servicebus-pubsub-api"].managed_identity_key == "dapr-servicebus-api" &&
         var.dapr_components["servicebus-pubsub-api"].service_bus_metadata_enabled &&
         var.dapr_components["servicebus-pubsub-worker"].component_type == "pubsub.azure.servicebus.queues" &&
+        var.dapr_components["servicebus-pubsub-worker"].name == "docmind-servicebus-pubsub-worker" &&
         var.dapr_components["servicebus-pubsub-worker"].managed_identity_key == "dapr-servicebus-worker" &&
-        var.dapr_components["servicebus-pubsub-worker"].service_bus_metadata_enabled,
+        var.dapr_components["servicebus-pubsub-worker"].service_bus_metadata_enabled &&
+        var.dapr_components["servicebus-pubsub-llmmagic"].component_type == "pubsub.azure.servicebus.queues" &&
+        var.dapr_components["servicebus-pubsub-llmmagic"].name == "docmind-servicebus-pubsub-llmmagic" &&
+        var.dapr_components["servicebus-pubsub-llmmagic"].managed_identity_key == "dapr-servicebus-llmmagic" &&
+        var.dapr_components["servicebus-pubsub-llmmagic"].service_bus_metadata_enabled,
         false,
       )
-      error_message = "A runtime core configuration must retain the API and Worker Service Bus Dapr components with their dedicated managed identities."
+      error_message = "A runtime core configuration must retain the API, Worker, and LLM Magic Service Bus Dapr components with their dedicated managed identities and application component names."
     }
 
     precondition {
@@ -89,14 +95,14 @@ locals {
   }
 
   service_bus_queues = {
-    "sbq-${local.app_token}-${local.environment_token}-docproc-${local.instance_token}" = {
+    "document-processing" = {
       dead_lettering_on_message_expiration = true
       default_message_ttl                  = "P14D"
       lock_duration                        = "PT1M"
       max_delivery_count                   = 10
       max_size_in_megabytes                = 1024
     }
-    "sbq-${local.app_token}-${local.environment_token}-procres-${local.instance_token}" = {
+    "processing-results" = {
       dead_lettering_on_message_expiration = true
       default_message_ttl                  = "P14D"
       lock_duration                        = "PT1M"
@@ -162,7 +168,7 @@ locals {
 
   dapr_components = {
     for key, component in var.dapr_components : key => {
-      name           = "dapr-${local.app_token}-${local.environment_token}-${key}-${local.instance_token}"
+      name           = component.name
       component_type = component.component_type
       version        = component.version
       ignore_errors  = component.ignore_errors

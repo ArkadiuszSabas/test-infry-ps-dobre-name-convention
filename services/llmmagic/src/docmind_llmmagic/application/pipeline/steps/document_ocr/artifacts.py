@@ -40,7 +40,15 @@ def parsed_page(
         selection_marks=provider_result.selection_marks,
         warning_codes=provider_result.warning_codes,
         provider_page_count=provider_result.provider_page_count,
+        coordinate_width=provider_result.coordinate_width
+        or _coordinate_dimension(source_page.width_px),
+        coordinate_height=provider_result.coordinate_height
+        or _coordinate_dimension(source_page.height_px),
     )
+
+
+def _coordinate_dimension(value: int | None) -> float | None:
+    return float(value) if value is not None and value > 0 else None
 
 
 def quality_summary(

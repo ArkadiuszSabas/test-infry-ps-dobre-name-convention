@@ -10,6 +10,7 @@ from docmind_api.api.ocr_pipeline_runs.schemas import (
     OcrPipelineRunResultSchema,
     OcrPipelineRunSchema,
     OcrPipelineRunStepSchema,
+    PublishedOcrPipelineOptionSchema,
 )
 from docmind_api.domain.ocr_pipeline_runs.models import (
     JsonObject,
@@ -18,6 +19,7 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
     OcrPipelineRunList,
     OcrPipelineRunRecord,
     OcrPipelineRunStep,
+    RunnableOcrPipelineSnapshot,
 )
 from docmind_api.domain.ocr_pipeline_runs.statuses import OcrPipelineRunResultAvailability
 
@@ -44,6 +46,19 @@ def to_run_schema(record: OcrPipelineRunRecord) -> OcrPipelineRunSchema:
         updated_at=record.updated_at,
         started_at=record.started_at,
         completed_at=record.completed_at,
+    )
+
+
+def to_published_pipeline_option_schema(
+    pipeline: RunnableOcrPipelineSnapshot,
+) -> PublishedOcrPipelineOptionSchema:
+    """Map one runnable published snapshot to a safe selection option."""
+
+    return PublishedOcrPipelineOptionSchema(
+        id=pipeline.pipeline_id,
+        name=pipeline.pipeline_name or str(pipeline.pipeline_id),
+        published_version=pipeline.pipeline_version,
+        is_default=pipeline.is_default,
     )
 
 

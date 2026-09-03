@@ -15,6 +15,8 @@ import type {
   OcrPipelineRunResultDto,
   OcrPipelineRunResultEnvelope,
   OcrPipelineRunResultEnvelopeDto,
+  PublishedOcrPipelineOptionListEnvelope,
+  PublishedOcrPipelineOptionListEnvelopeDto,
 } from "./types";
 
 export const OCR_PIPELINE_RUN_HISTORY_LIMIT = 5;
@@ -23,6 +25,7 @@ const OCR_PIPELINE_RUN_LIST_LIMIT = 10;
 interface OcrPipelineRunRequestOptions {
   signal?: AbortSignal;
   csrfToken?: string | null;
+  pipelineId?: string;
 }
 
 export interface OcrPipelineRunListRequestOptions extends OcrPipelineRunRequestOptions {
@@ -41,12 +44,35 @@ export const ocrPipelineRunClient = {
           `/documents/${encodeURIComponent(documentId)}/ocr/pipeline-runs`,
           {
             csrfToken: options.csrfToken,
+            json: options.pipelineId
+              ? { pipeline_id: options.pipelineId }
+              : undefined,
             method: "POST",
             signal: options.signal,
           },
         ),
       ),
     );
+  },
+
+  async listPublishedOcrPipelines(
+    options: OcrPipelineRunRequestOptions = {},
+  ): Promise<PublishedOcrPipelineOptionListEnvelope> {
+    const envelope = await apiFetch<PublishedOcrPipelineOptionListEnvelopeDto>(
+      "/ocr/pipelines",
+      { method: "GET", signal: options.signal },
+    );
+    return {
+      data: {
+        pipelines: envelope.data.pipelines.map((pipeline) => ({
+          id: pipeline.id,
+          isDefault: pipeline.is_default,
+          name: pipeline.name,
+          publishedVersion: pipeline.published_version,
+        })),
+      },
+      meta: envelope.meta,
+    };
   },
 
   async listDocumentOcrPipelineRuns(
@@ -79,6 +105,24 @@ export const ocrPipelineRunClient = {
           `/ocr/pipeline-runs/${encodeURIComponent(runId)}`,
           {
             method: "GET",
+            signal: options.signal,
+          },
+        ),
+      ),
+    );
+  },
+
+  async cancelOcrPipelineRun(
+    runId: string,
+    options: OcrPipelineRunRequestOptions = {},
+  ): Promise<OcrPipelineRun> {
+    return mapOcrPipelineRun(
+      unwrapEnvelope(
+        await apiFetch<OcrPipelineRunEnvelopeDto>(
+          `/ocr/pipeline-runs/${encodeURIComponent(runId)}/cancel`,
+          {
+            csrfToken: options.csrfToken,
+            method: "POST",
             signal: options.signal,
           },
         ),

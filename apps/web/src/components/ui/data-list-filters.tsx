@@ -72,6 +72,7 @@ interface DataListDropdownFilterProps {
   searchPlaceholder: string;
   sortOptions?: boolean;
   triggerClassName?: string;
+  triggerLabel?: string;
   value: string;
 }
 
@@ -86,6 +87,7 @@ export function DataListDropdownFilter({
   searchPlaceholder,
   sortOptions = true,
   triggerClassName,
+  triggerLabel,
   value,
 }: DataListDropdownFilterProps) {
   return (
@@ -103,6 +105,7 @@ export function DataListDropdownFilter({
           "h-8 min-w-56 border-0 bg-transparent px-3 shadow-none focus-visible:ring-2 sm:w-72",
           triggerClassName,
         )}
+        triggerLabel={triggerLabel}
         value={value}
       />
     </DataListFilterGroup>

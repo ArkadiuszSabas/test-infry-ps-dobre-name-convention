@@ -2,17 +2,45 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from types import TracebackType
 from typing import cast
 
+from docmind_llmmagic.application.pipeline.observability import TraceCaptureMode
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.ports import (
     ContextResolverModelRequest,
 )
+from docmind_llmmagic.domain.pipeline.errors import PipelineStepError
+from docmind_llmmagic.infrastructure.pipeline.context_resolver.provider_errors import (
+    provider_request_error,
+)
 
 _MAX_LOG_IDENTIFIER_LENGTH = 200
+_MAX_PROVIDER_DEBUG_CHARS = 16_000
+_MAX_PROVIDER_DEBUG_DEPTH = 6
+_MAX_PROVIDER_DEBUG_ITEMS = 100
+_REDACTED = "<redacted>"
+_SENSITIVE_DEBUG_KEYS = frozenset(
+    {
+        "api-key",
+        "api_key",
+        "access_token",
+        "authorization",
+        "client-secret",
+        "client_secret",
+        "credential",
+        "ocp-apim-subscription-key",
+        "password",
+        "refresh_token",
+        "secret",
+        "subscription-key",
+        "token",
+        "x-api-key",
+    }
+)
 _LOGGER = logging.getLogger("docmind_llmmagic.context_resolver")
 
 
@@ -54,36 +82,6 @@ class ModelResponseMetadata:
     refusal: bool
     incomplete: bool
     provider_request_id: str | None
-
-
-def model_trace_input(
-    request: ContextResolverModelRequest,
-    *,
-    messages: tuple[dict[str, str], ...],
-    response_format: Mapping[str, object],
-    model_id: str,
-    request_timeout_seconds: float,
-) -> dict[str, object]:
-    """Return the exact model request plus stable correlation metadata."""
-
-    return {
-        "messages": messages,
-        "response_format": response_format,
-        "parameters": {
-            "model": model_id,
-            "reasoning_effort": request.reasoning_effort,
-            "max_completion_tokens": request.max_completion_tokens,
-            "timeout_seconds": request_timeout_seconds,
-        },
-        "correlation": {
-            "pipeline_id": request.pipeline_id,
-            "run_id": request.run_id,
-            "step_id": request.step_id,
-            "batch_id": request.batch_id,
-            "attempt": request.attempt,
-            "repair_kind": request.repair_kind,
-        },
-    }
 
 
 def model_trace_metadata(request: ContextResolverModelRequest) -> dict[str, object]:
@@ -150,6 +148,7 @@ def log_model_request_started(
     request: ContextResolverModelRequest,
     model_id: str,
     request_timeout_seconds: float,
+    request_shape: Mapping[str, object],
 ) -> None:
     _LOGGER.info(
         "Context Resolver model batch started.",
@@ -157,6 +156,31 @@ def log_model_request_started(
             "event_name": "context_resolver.model_batch.started",
             "model_id": model_id,
             "request_timeout_seconds": request_timeout_seconds,
+            **request_shape,
+            **model_trace_metadata(request),
+        },
+    )
+
+
+def log_model_preflight_rejected(
+    *,
+    error: PipelineStepError,
+    request: ContextResolverModelRequest,
+    model_id: str,
+    request_timeout_seconds: float,
+    request_shape: Mapping[str, object],
+) -> None:
+    """Log a content-free rejection that happened before any provider I/O."""
+
+    _LOGGER.warning(
+        "Context Resolver model batch rejected by preflight.",
+        extra={
+            "event_name": "context_resolver.model_batch.preflight_rejected",
+            "error_code": error.code,
+            "model_id": model_id,
+            "request_timeout_seconds": request_timeout_seconds,
+            "provider_call_attempted": False,
+            **request_shape,
             **model_trace_metadata(request),
         },
     )
@@ -171,6 +195,7 @@ def log_model_request_completed(
     result_count: int,
     metadata: ModelResponseMetadata,
     usage: ModelUsage | None,
+    request_shape: Mapping[str, object],
 ) -> None:
     _LOGGER.info(
         "Context Resolver model batch completed.",
@@ -185,6 +210,7 @@ def log_model_request_completed(
             "incomplete": metadata.incomplete,
             "provider_request_id": metadata.provider_request_id,
             "exact_contract_validation": True,
+            **request_shape,
             **_usage_log_fields(usage),
             **model_trace_metadata(request),
         },
@@ -201,6 +227,8 @@ def log_model_request_failure(
     latency_seconds: float,
     metadata: ModelResponseMetadata | None,
     usage: ModelUsage | None,
+    request_shape: Mapping[str, object],
+    validation_reason: str | None = None,
 ) -> None:
     _LOGGER.error(
         "Context Resolver model batch failed.",
@@ -224,10 +252,56 @@ def log_model_request_failure(
             "exception_type": _exception_type(error),
             "exception_chain_types": _exception_chain_types(error),
             "exact_contract_validation": False,
+            "validation_reason": validation_reason,
+            **request_shape,
             **_usage_log_fields(usage),
             **model_trace_metadata(request),
         },
     )
+
+
+def provider_error_metadata(error: Exception) -> dict[str, object]:
+    """Return content-free failure identifiers safe for METADATA Langfuse capture."""
+
+    return {
+        "error_code": (
+            error.code
+            if isinstance(error, PipelineStepError)
+            else provider_request_error(error).code
+        ),
+        "provider_status_code": _provider_status_code(error),
+        "provider_error_code": _provider_error_code(error),
+        "provider_request_id": _provider_request_id(error),
+    }
+
+
+def provider_error_trace_details(
+    error: Exception,
+    *,
+    capture_mode: TraceCaptureMode,
+    error_code: str | None = None,
+) -> dict[str, object]:
+    """Project one provider failure consistently for every Context Resolver."""
+
+    details = {
+        **provider_error_metadata(error),
+        "exception_type": _exception_type(error),
+        "exception_chain_types": list(_exception_chain_types(error)),
+    }
+    if error_code is not None:
+        details["error_code"] = error_code
+    if capture_mode is not TraceCaptureMode.FULL:
+        return details
+
+    message, message_truncated = _bounded_debug_text(str(error))
+    if message:
+        details["provider_error_message"] = message
+    body = getattr(error, "body", None)
+    body_text, body_truncated = _provider_debug_body(body)
+    if body_text is not None:
+        details["provider_error_body"] = body_text
+    details["provider_error_debug_truncated"] = message_truncated or body_truncated
+    return details
 
 
 def _usage_log_fields(usage: ModelUsage | None) -> dict[str, int | None]:
@@ -309,6 +383,49 @@ def _safe_log_identifier(value: object) -> str | None:
     if not all(character.isalnum() or character in "._:-" for character in normalized):
         return None
     return normalized
+
+
+def _provider_debug_body(value: object) -> tuple[str | None, bool]:
+    if value is None:
+        return None, False
+    projected = _redacted_debug_value(value, depth=0)
+    serialized = json.dumps(projected, ensure_ascii=False, separators=(",", ":"), default=str)
+    return _bounded_debug_text(serialized)
+
+
+def _redacted_debug_value(value: object, *, depth: int) -> object:
+    if depth >= _MAX_PROVIDER_DEBUG_DEPTH:
+        return "<max-depth>"
+    if isinstance(value, Mapping):
+        result: dict[str, object] = {}
+        for index, (key, item) in enumerate(cast(Mapping[object, object], value).items()):
+            if index >= _MAX_PROVIDER_DEBUG_ITEMS:
+                result["<truncated-items>"] = True
+                break
+            name = str(key)
+            if name.casefold() in _SENSITIVE_DEBUG_KEYS:
+                result[name] = _REDACTED
+            else:
+                result[name] = _redacted_debug_value(item, depth=depth + 1)
+        return result
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        items = cast(Sequence[object], value)
+        projected = [
+            _redacted_debug_value(item, depth=depth + 1)
+            for item in items[:_MAX_PROVIDER_DEBUG_ITEMS]
+        ]
+        if len(items) > _MAX_PROVIDER_DEBUG_ITEMS:
+            projected.append("<truncated-items>")
+        return projected
+    if value is None or isinstance(value, str | int | float | bool):
+        return value
+    return str(value)
+
+
+def _bounded_debug_text(value: str) -> tuple[str, bool]:
+    if len(value) <= _MAX_PROVIDER_DEBUG_CHARS:
+        return value, False
+    return value[:_MAX_PROVIDER_DEBUG_CHARS], True
 
 
 def _exception_type(error: BaseException) -> str:

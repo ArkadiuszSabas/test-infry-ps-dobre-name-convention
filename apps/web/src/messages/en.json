@@ -225,6 +225,17 @@
     },
     "preview": {
       "iframeTitle": "PDF preview: {name}",
+      "openOriginal": "Open original PDF: {name}",
+      "openOriginalAction": "Open PDF",
+      "controls": {
+        "label": "PDF controls",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "resetZoom": "Reset zoom",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "page": "Page {current} of {total}"
+      },
       "unknownSize": "Unknown",
       "metadata": {
         "type": "Document type",
@@ -339,9 +350,11 @@
         "runStatus": {
           "pending": "Pending",
           "running": "Running",
+          "cancelling": "Cancelling…",
           "succeeded": "Finished",
           "partialFailed": "Partial",
-          "failed": "Failed"
+          "failed": "Failed",
+          "cancelled": "Cancelled"
         },
         "pageStatus": {
           "succeeded": "Finished",
@@ -375,14 +388,31 @@
       "description": "Start the published OCR pipeline and follow safe run progress for this document.",
       "actions": {
         "start": "Run OCR",
-        "starting": "Starting"
+        "starting": "Starting",
+        "retry": "Run OCR again",
+        "cancel": "Cancel run",
+        "cancelling": "Cancelling…",
+        "cancelTitle": "Cancel OCR run?",
+        "cancelConfirm": "You can start a new run after cancellation finishes.",
+        "keepRun": "Keep run",
+        "cancelErrorTitle": "The OCR run could not be cancelled.",
+        "cancelErrorDescription": "Try cancelling the run again."
       },
       "disabled": {
         "permission": "You need document creation permission to start an OCR run.",
         "unknownSize": "OCR can start after the document size is known.",
+        "pipelinesLoading": "Loading published OCR pipelines.",
+        "pipelinesUnavailable": "OCR can start after published pipelines load successfully.",
+        "noPublishedPipelines": "No published OCR pipeline is available to run.",
         "runInProgress": "An OCR run is already in progress for this document.",
         "historyLoading": "Checking recent OCR runs before starting a new one.",
         "historyUnavailable": "OCR can start after recent run history loads successfully."
+      },
+      "pipelineSelector": {
+        "label": "OCR pipeline",
+        "loading": "Loading pipelines",
+        "placeholder": "Select pipeline",
+        "default": "Default"
       },
       "history": {
         "loading": "Loading OCR runs",
@@ -397,9 +427,11 @@
       "status": {
         "pending": "Pending",
         "running": "Running",
+        "cancelling": "Cancelling…",
         "succeeded": "Succeeded",
         "partial_failed": "Partial failed",
-        "failed": "Failed"
+        "failed": "Failed",
+        "cancelled": "Cancelled"
       },
       "stepStatus": {
         "pending": "Pending",
@@ -459,19 +491,15 @@
         },
         "pipelineNotRunnable": {
           "title": "Pipeline cannot run",
-          "description": "The selected published pipeline is missing a safe compiled snapshot or exceeds direct-run limits."
+          "description": "The selected published pipeline is missing a safe compiled snapshot or exceeds the configured OCR limits."
         },
         "documentSizeUnknown": {
           "title": "Document size is unknown",
-          "description": "The API cannot prove the document is within direct OCR limits yet."
+          "description": "The API cannot prove the document is within the configured OCR limits yet."
         },
         "limitExceeded": {
           "title": "Document exceeds OCR limits",
-          "description": "This direct OCR path is intentionally bounded. Use a smaller document or wait for worker-backed orchestration."
-        },
-        "llmMagicUnavailable": {
-          "title": "LLM Magic unavailable",
-          "description": "The OCR run service is not reachable for the direct run path."
+          "description": "Use a smaller document or adjust the configured OCR limits."
         },
         "documentNotFound": {
           "title": "Document not found",
@@ -555,8 +583,10 @@
         "approved": "Approved"
       },
       "unassigned": "Unassigned reviewer",
+      "unassignedDifferentReviewer": "Unassigned reviewer — a different person is required",
       "samePersonRule": "The second approval must be made by a different reviewer.",
       "comment": "Decision comment",
+      "commentLabel": "Comment",
       "commentPlaceholder": "Add a comment (required when rejecting)",
       "approve": "Approve",
       "approveFinal": "Approve and move to Archive",
@@ -573,6 +603,7 @@
       "versionConflict": "The review changed before the decision was saved. The latest version has been loaded; verify it before deciding again.",
       "versionConflictRefreshFailed": "The review changed, but the latest version could not be loaded. Refresh the page before deciding again.",
       "history": "Decision history",
+      "historyCount": "{count}",
       "historyDecisions": {
         "approved": "Approved",
         "rejected": "Rejected"
@@ -618,7 +649,100 @@
       "manualAdded": "Added manually",
       "manualChanged": "Changed manually",
       "deleteAria": "Delete field {name}",
+      "showSourceAria": "Show source in PDF for {name}",
       "valueAria": "Value of {name}",
+      "reviewReasonsAria": "Reasons requiring reviewer attention",
+      "reasonCodes": {
+        "CONFLICTING_VALUES": "The contract provides two different values",
+        "LOW_CONFIDENCE": "Verify this low-confidence value",
+        "MISSING_REQUIRED_VALUE": "Complete the required field",
+        "MISSING_REQUIRED_BLOCK_APPROVAL": "Complete before approval",
+        "MISSING_REQUIRED_REVIEW": "Review the missing required field",
+        "MANUAL_INPUT_REQUIRED": "Enter the value manually",
+        "MISSING_VALUE": "Check whether the value is present",
+        "MODEL_OUTPUT_INVALID": "The value could not be confirmed",
+        "EVIDENCE_QUOTE_NOT_FOUND": "The quote does not match the document",
+        "VALUE_NOT_DERIVABLE": "The value does not follow from the cited passage",
+        "VALUE_TYPE_MISMATCH": "The value does not match the field type",
+        "VALUE_OUTSIDE_DICTIONARY": "The value is outside the allowed list",
+        "EVIDENCE_TOO_SCATTERED": "The content is spread across too many locations",
+        "FIELD_NOT_PROCESSED": "The field was not checked",
+        "ATTRIBUTE_MAPPING_MISSING": "Field configuration error",
+        "KV_CONSISTENCY_CONFLICT": "Compare the value with OCR",
+        "METADATA_NOT_CONFIRMED": "Value from the source system",
+        "METADATA_CONTRADICTED": "The contract provides a different value",
+        "VALUE_FROM_SOURCE_SYSTEM": "Value from the source system",
+        "ATTRIBUTE_CONSTRAINT_REJECTED": "Field configuration error",
+        "ATTRIBUTE_CONSTRAINT_UNSATISFIABLE": "Field configuration error"
+      },
+      "reasonPopup": {
+        "detailsAria": "Reason details: {reason}",
+        "whatHappened": "What happened",
+        "whatItMeans": "What it means",
+        "whatToDo": "What to do",
+        "codes": {
+          "EVIDENCE_QUOTE_NOT_FOUND": {
+            "happened": "The system cited a passage from the contract, but its content does not match what was read from the scan.",
+            "meaning": "The most common cause is scan quality — OCR read the text differently from what is printed on the page.",
+            "action": "This information is probably present in the contract: find the relevant passage and enter the value manually."
+          },
+          "VALUE_NOT_DERIVABLE": {
+            "happened": "The system found the correct place in the contract but could not derive a value in the required form.",
+            "meaning": "This usually means the content is spread across several places or expressed descriptively.",
+            "action": "Read the document and enter the value manually."
+          },
+          "VALUE_TYPE_MISMATCH": {
+            "happened": "The field expects a specific type, such as a number, but the contract contains the information in another form.",
+            "meaning": "Either the document does not contain a value in that form or the field type is configured incorrectly.",
+            "action": "If the contract contains a specific value, enter it; if it is only descriptive, report that the field has the wrong type."
+          },
+          "VALUE_OUTSIDE_DICTIONARY": {
+            "happened": "The value found is not on the list of allowed values for this field.",
+            "meaning": "Either the contract contains a different value or the list needs to be extended.",
+            "action": "Select the correct entry or report the missing option."
+          },
+          "EVIDENCE_TOO_SCATTERED": {
+            "happened": "The content for this field consists of a larger number of passages.",
+            "meaning": "The system cannot process all of them at once.",
+            "action": "Complete the field manually or request a narrower field description in the configuration."
+          },
+          "FIELD_NOT_PROCESSED": {
+            "happened": "Processing did not finish because the time limit was exceeded or the AI service failed.",
+            "meaning": "This is NOT information about the document — nobody checked this field.",
+            "action": "Run processing again; report the issue if it keeps happening."
+          },
+          "MODEL_OUTPUT_INVALID": {
+            "happened": "The model response did not meet the required format, so the value was not saved.",
+            "meaning": "This is not information about the document content.",
+            "action": "Check the contract manually and report the issue if it repeats for the same field."
+          },
+          "VALUE_FROM_SOURCE_SYSTEM": {
+            "happened": "This value comes from the source system through the integration. It was not extracted from the contract content.",
+            "meaning": "The source system is authoritative here. The contract may confirm the value, remain silent about it, or provide it in a form we did not read — for example, as handwriting. In every case, the source-system value applies.",
+            "action": "Nothing. The value can be approved. If the contract provided a different value, you would see a separate “The contract provides a different value” badge."
+          },
+          "METADATA_CONTRADICTED": {
+            "happened": "The value comes from the source system, but a different one was found in the contract.",
+            "meaning": "The source-system value is shown because that system is the source of truth.",
+            "action": "Verify which value is correct."
+          },
+          "CONFLICTING_VALUES": {
+            "happened": "The document contains at least two conflicting values for this field — for example, the contract and an amendment say different things.",
+            "meaning": "One of the values was selected.",
+            "action": "Check which one applies."
+          },
+          "ATTRIBUTE_CONSTRAINT": {
+            "happened": "The value was rejected by validation rules configured for this attribute, such as pattern, length, or range.",
+            "meaning": "This is NOT a document problem and cannot be fixed in Review.",
+            "action": "Report it to the configuration administrator."
+          },
+          "ATTRIBUTE_MAPPING_MISSING": {
+            "happened": "The attribute has no valid configuration mapping, so the value could not be assigned.",
+            "meaning": "This problem cannot be fixed in Review.",
+            "action": "Report the issue to the configuration administrator."
+          }
+        }
+      },
       "filters": {
         "all": "All fields",
         "errors": "Errors only",
@@ -746,6 +870,10 @@
         "title": "OCR pipelines",
         "description": "Draft, validate, publish, and select the default OCR pipeline."
       },
+      "adminOcrRuns": {
+        "title": "OCR runs",
+        "description": "Active and historical OCR executions, diagnostics, and cancellation."
+      },
       "adminConnectors": {
         "title": "Connector configuration",
         "description": "Configure connectors available in this deployment profile."
@@ -810,6 +938,158 @@
           }
         }
       }
+    }
+  },
+  "AdminOcrRuns": {
+    "title": "OCR runs",
+    "description": "A consolidated view of active and historical OCR executions for every document.",
+    "back": "Back to admin",
+    "refresh": "Refresh",
+    "loading": "Loading OCR run…",
+    "loadError": "OCR runs could not be loaded",
+    "loadErrorDescription": "Refresh the view. If the problem persists, check the API status.",
+    "supportingDataError": "Document types or pipelines could not be loaded",
+    "supportingDataErrorDescription": "The run list remains available, but some filters and rerun actions may be unavailable.",
+    "empty": "No OCR runs yet",
+    "emptyDescription": "Runs will appear here after documents are submitted for OCR.",
+    "emptyFiltered": "No runs match these filters",
+    "emptyFilteredDescription": "Change or clear the filters to see more OCR runs.",
+    "pageSummary": "Records on this page: {count}",
+    "previous": "Previous",
+    "next": "Next",
+    "tabs": {
+      "label": "OCR run scope",
+      "active": "Active",
+      "history": "History"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Name, document ID, run ID, or correlation ID",
+      "pipeline": "Pipeline",
+      "pipelineShort": "Pipeline",
+      "allPipelines": "All pipelines",
+      "documentType": "Document type",
+      "documentTypeShort": "Doc. type",
+      "allDocumentTypes": "All document types",
+      "source": "Source",
+      "sourceShort": "Source",
+      "allSources": "All sources",
+      "connector": "Connector / instance",
+      "connectorShort": "Connector",
+      "allConnectors": "All connectors",
+      "status": "Status",
+      "allStatuses": "All",
+      "stale": "Not updated for",
+      "staleShort": "No update",
+      "anyAge": "Any age",
+      "staleValues": {
+        "15m": "15 minutes",
+        "1h": "1 hour",
+        "6h": "6 hours",
+        "24h": "24 hours"
+      },
+      "dateRange": "Created date",
+      "datePlaceholder": "YYYY-MM-DD",
+      "datePresets": {
+        "24h": "Last 24 hours",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days",
+        "custom": "Custom range…"
+      },
+      "from": "Created from",
+      "to": "Created to",
+      "clear": "Clear filters",
+      "noOptions": "No options",
+      "searchOptions": "Search options"
+    },
+    "columns": {
+      "document": "Document",
+      "status": "Status",
+      "pipeline": "Pipeline",
+      "progress": "Step / progress",
+      "sourceAndInitiator": "Source / initiator",
+      "updated": "Updated",
+      "actions": "Actions"
+    },
+    "actions": {
+      "details": "Details",
+      "detailsFor": "Show OCR run details for {name}",
+      "openDocumentShort": "Open document",
+      "openDocument": "Open document {name}",
+      "openLangfuseShort": "Open Langfuse session",
+      "openLangfuse": "Open the Langfuse session for {name}",
+      "langfuseUnavailable": "Langfuse unavailable: no project is configured for this environment",
+      "rerunLastShort": "Rerun with the last pipeline",
+      "rerunLast": "Rerun {name} with the last pipeline",
+      "rerunWithPipelineShort": "Rerun with a selected pipeline",
+      "rerunWithPipeline": "Choose a pipeline to rerun {name}",
+      "noPipelines": "No published pipelines",
+      "cancelShort": "Cancel run",
+      "cancelFor": "Cancel OCR run for {name}",
+      "more": "More actions",
+      "moreFor": "More actions for {name}"
+    },
+    "bulk": {
+      "selected": "Selected: {count}",
+      "selectAll": "Select all eligible documents on this page",
+      "selectFor": "Select document {name}",
+      "pipeline": "Pipeline for selected documents",
+      "loadingPipelines": "Loading pipelines…",
+      "defaultPipeline": "default",
+      "queue": "Queue selected",
+      "queueing": "Queueing…",
+      "clearSelection": "Clear selection"
+    },
+    "queueFeedback": {
+      "success": "Queued runs: {queued}.",
+      "partial": "Queued: {queued}. Failed: {failed}.",
+      "error": "Failed to queue runs: {failed}. Check whether a document already has an active run and whether the pipeline is still published."
+    },
+    "statuses": {
+      "pending": "Pending",
+      "running": "Running",
+      "cancelling": "Cancelling",
+      "succeeded": "Succeeded",
+      "partial_failed": "Partially failed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "stepStatuses": {
+      "pending": "Pending",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "skipped": "Skipped"
+    },
+    "detail": {
+      "title": "OCR run details",
+      "description": "Safe operational run data.",
+      "status": "Status",
+      "pipeline": "Pipeline",
+      "created": "Created",
+      "started": "Started",
+      "updated": "Updated",
+      "completed": "Completed",
+      "correlation": "Correlation ID",
+      "runId": "Run ID",
+      "steps": "Steps",
+      "noSteps": "No steps.",
+      "diagnostics": "Diagnostics and errors",
+      "noDiagnostics": "No diagnostics.",
+      "metrics": "Metrics",
+      "noMetrics": "No metrics.",
+      "attempts": "Execution attempts",
+      "noAttempts": "No execution attempts.",
+      "cancellation": "Cancellation audit",
+      "noCancellation": "Cancellation was not requested."
+    },
+    "cancelDialog": {
+      "title": "Cancel OCR run?",
+      "description": "The run for “{name}” will receive a cancellation request. The operation is idempotent.",
+      "back": "Back",
+      "confirm": "Cancel run",
+      "error": "OCR run could not be cancelled",
+      "errorDescription": "Check the current status before trying again."
     }
   },
   "AdminApprovalSettings": {
@@ -1622,8 +1902,35 @@
       },
       "actions": {
         "edit": "Edit {name}",
+        "assignments": "Document type assignments for {name}",
         "deactivate": "Deactivate {name}",
         "delete": "Delete {name}"
+      },
+      "assignments": {
+        "title": "Document type assignments: {name}",
+        "search": "Search document types",
+        "all": "All",
+        "assigned": "Assigned",
+        "unassigned": "Unassigned",
+        "required": "Required",
+        "optional": "Optional",
+        "missingAction": "Missing required action",
+        "blockApproval": "Block approval",
+        "requireReview": "Require review",
+        "contextResolver": "Include in Context Resolver",
+        "conflict": "Assignments changed on the server. Reload the current state before saving again.",
+        "reload": "Reload current state",
+        "saveError": "Changes could not be saved.",
+        "validation": "Some assignments are invalid. Review the selected document types and required actions.",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "loading": "Loading…",
+        "error": "Assignments could not be loaded.",
+        "forbidden": "You do not have permission to manage these assignments.",
+        "notFound": "This attribute no longer exists.",
+        "unsaved": "{count} unsaved changes",
+        "summary": "{assigned} assigned of {total}; {unassigned} unassigned",
+        "empty": "No document types match the current filters."
       },
       "dataTypes": {
         "string": "String",
@@ -1665,6 +1972,10 @@
         "createDescription": "New entries are saved as active attribute definitions.",
         "editTitle": "Edit attribute",
         "editDescription": "Editing {id}",
+        "loadingDetails": "Loading attribute details",
+        "loadDescription": "Refresh the API connection and try again.",
+        "notFoundTitle": "Attribute not found",
+        "notFoundDescription": "This attribute is no longer available in the catalog.",
         "fields": {
           "externalId": "External ID",
           "externalIdDescription": "Stable key for imports, exports, and integrations. Leave empty to let the API generate it.",
@@ -1710,6 +2021,7 @@
           "noConstraints": "The backend currently does not support constraints for this data type."
         },
         "errors": {
+          "loadFailed": "Attribute details could not be loaded.",
           "nameRequired": "Enter a name.",
           "categoryRequired": "Select an active category.",
           "allowedValuesRequired": "Enter at least one inline value.",
@@ -2126,6 +2438,7 @@
         "ready": "Ready"
       },
       "actions": {
+        "editDetails": "Edit attribute details {name}",
         "reset": "Reset",
         "save": "Save matrix",
         "saving": "Saving"
@@ -2195,9 +2508,11 @@
       "approved": "Approved",
       "pending": "Pending",
       "running": "Running",
+      "cancelling": "Cancelling…",
       "succeeded": "Completed",
       "partial_failed": "Partial",
-      "failed": "Error"
+      "failed": "Error",
+      "cancelled": "Cancelled"
     },
     "error": {
       "title": "Dashboard data could not be loaded",

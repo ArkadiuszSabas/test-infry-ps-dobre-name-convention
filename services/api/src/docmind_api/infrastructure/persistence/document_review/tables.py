@@ -48,6 +48,7 @@ document_review_versions_table = Table(
     Column("version", Integer, primary_key=True, nullable=False),
     Column("data_source", String(length=32), nullable=False),
     Column("is_reprocessing", Boolean, nullable=False, server_default="false"),
+    Column("pipeline_sources_hydrated", Boolean, nullable=False, server_default="false"),
     Column(
         "source_pipeline_run_id",
         UUID(as_uuid=True),

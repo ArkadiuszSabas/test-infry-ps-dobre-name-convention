@@ -212,6 +212,7 @@ class DocumentReviewResult:
     updated_at: datetime | None = None
     updated_by_actor_id: str | None = None
     is_reprocessing: bool = False
+    pipeline_sources_hydrated: bool = False
     approval: DocumentReviewApproval | None = None
 
 

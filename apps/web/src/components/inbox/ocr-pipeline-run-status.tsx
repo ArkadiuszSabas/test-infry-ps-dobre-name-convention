@@ -42,8 +42,10 @@ export function runStatusClassName(status: OcrPipelineRunStatus): string {
     case "partial_failed":
       return "border-amber-300 text-amber-700";
     case "failed":
+    case "cancelled":
       return "border-destructive/30 text-destructive";
     case "running":
+    case "cancelling":
       return "border-primary/30 text-primary";
     case "pending":
       return "border-muted-foreground/30 text-muted-foreground";

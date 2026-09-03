@@ -1,4 +1,5 @@
 import type { ReviewFieldItem } from "./types";
+import { getOrderedReviewSources } from "./source-location";
 
 type ReviewFieldLocation = Pick<ReviewFieldItem, "id" | "sources">;
 type SearchableReviewField = Pick<ReviewFieldItem, "label" | "value">;
@@ -43,18 +44,7 @@ function getDocumentLocation(field: ReviewFieldLocation): {
   orderIndex: number;
   pageNumber: number;
 } | null {
-  const locations = field.sources
-    .filter(
-      (source) =>
-        source.pageNumber > 0 &&
-        source.orderIndex >= 0 &&
-        isOrderedOcrSource(source.kind),
-    )
-    .sort(
-      (first, second) =>
-        first.pageNumber - second.pageNumber ||
-        first.orderIndex - second.orderIndex,
-    );
+  const locations = getOrderedReviewSources(field.sources);
   const firstLocation = locations[0];
   return firstLocation
     ? {
@@ -62,14 +52,6 @@ function getDocumentLocation(field: ReviewFieldLocation): {
         orderIndex: firstLocation.orderIndex,
       }
     : null;
-}
-
-function isOrderedOcrSource(kind: string): boolean {
-  return (
-    kind === "ocr_key_value" ||
-    kind === "ocr_key_value_pair" ||
-    kind === "ocr_line"
-  );
 }
 
 function normalizeSearchText(value: string): string {

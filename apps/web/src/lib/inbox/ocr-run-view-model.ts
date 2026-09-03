@@ -1,4 +1,8 @@
-import type { OcrPipelineRun, OcrPipelineRunStatus } from "./types";
+import type {
+  OcrPipelineRun,
+  OcrPipelineRunListEnvelope,
+  OcrPipelineRunStatus,
+} from "./types";
 
 export interface OcrPipelineRunProgress {
   completedSteps: number;
@@ -10,8 +14,27 @@ const TERMINAL_OCR_RUN_STATUSES = new Set<OcrPipelineRunStatus>([
   "failed",
   "partial_failed",
   "succeeded",
+  "cancelled",
 ]);
 export const OCR_PIPELINE_RUN_REFETCH_INTERVAL_MS = 3_000;
+
+export function replaceOcrPipelineRunInHistory(
+  history: OcrPipelineRunListEnvelope | undefined,
+  replacement: OcrPipelineRun,
+): OcrPipelineRunListEnvelope | undefined {
+  if (!history) {
+    return history;
+  }
+  return {
+    ...history,
+    data: {
+      ...history.data,
+      runs: history.data.runs.map((run) =>
+        run.id === replacement.id ? replacement : run,
+      ),
+    },
+  };
+}
 
 export function isTerminalOcrPipelineRunStatus(
   status: OcrPipelineRunStatus,
@@ -22,7 +45,7 @@ export function isTerminalOcrPipelineRunStatus(
 export function getOcrPipelineRunHistoryRefetchInterval(
   status: OcrPipelineRunStatus | null,
 ): number | false {
-  return status === "pending" || status === "running"
+  return status === "pending" || status === "running" || status === "cancelling"
     ? OCR_PIPELINE_RUN_REFETCH_INTERVAL_MS
     : false;
 }

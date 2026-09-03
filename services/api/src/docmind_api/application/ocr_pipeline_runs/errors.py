@@ -39,7 +39,7 @@ class OcrPipelineRunNoPublishedPipelineError(ConflictError):
     def __init__(self) -> None:
         super().__init__(
             code="OCR_PIPELINE_RUN_NO_PUBLISHED_DEFAULT",
-            message="No published default OCR pipeline is available for direct runs.",
+            message="No published default OCR pipeline is available.",
         )
 
 
@@ -60,24 +60,24 @@ class OcrPipelineRunPipelineNotRunnableError(ConflictError):
     def __init__(self, *, pipeline_id: UUID | str, reason: str) -> None:
         super().__init__(
             code="OCR_PIPELINE_RUN_PIPELINE_NOT_RUNNABLE",
-            message="Published OCR pipeline cannot be used for a direct run.",
+            message="Published OCR pipeline cannot be used for this run.",
             details={"pipeline_id": str(pipeline_id), "reason": reason},
         )
 
 
 class OcrPipelineRunUnknownDocumentSizeError(ConflictError):
-    """Raised when a direct OCR run cannot prove the document size is safe."""
+    """Raised when an OCR run cannot prove the document size is safe."""
 
     def __init__(self, *, document_id: UUID | str) -> None:
         super().__init__(
             code="OCR_PIPELINE_RUN_DOCUMENT_SIZE_UNKNOWN",
-            message="Document content size is unknown for direct OCR pipeline run.",
+            message="Document content size is unknown for the OCR pipeline run.",
             details={"document_id": str(document_id)},
         )
 
 
 class OcrPipelineRunLimitExceededError(ApplicationError):
-    """Raised when a direct OCR run would exceed the guarded direct path limits."""
+    """Raised when an OCR run would exceed the guarded execution limits."""
 
     def __init__(
         self,
@@ -88,7 +88,7 @@ class OcrPipelineRunLimitExceededError(ApplicationError):
     ) -> None:
         super().__init__(
             code="OCR_PIPELINE_RUN_LIMIT_EXCEEDED",
-            message="Document exceeds the direct OCR pipeline run size limit.",
+            message="Document exceeds the OCR pipeline run size limit.",
             status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
             details={
                 "document_id": str(document_id),
@@ -107,18 +107,3 @@ class OcrPipelineRunValidationError(ValidationApplicationError):
             message=message,
             details=details,
         )
-
-
-class OcrPipelineRunLlmMagicUnavailableError(ApplicationError):
-    """Raised when LLM Magic direct run invocation cannot be completed."""
-
-    def __init__(self) -> None:
-        super().__init__(
-            code="OCR_PIPELINE_RUN_LLMMAGIC_UNAVAILABLE",
-            message="LLM Magic OCR pipeline run service is unavailable.",
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-        )
-
-
-class OcrPipelineRunInvocationIndeterminateError(RuntimeError):
-    """Raised when a transport timeout cannot prove whether remote execution stopped."""

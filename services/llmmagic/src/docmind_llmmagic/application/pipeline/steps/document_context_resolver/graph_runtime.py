@@ -40,7 +40,7 @@ class StateGraphBuilder(Protocol):
         self,
         source: str,
         route: object,
-        path_map: Mapping[str, str] | None = None,
+        path_map: Mapping[str, object] | None = None,
     ) -> object: ...
 
     def compile(self) -> CompiledGraph: ...

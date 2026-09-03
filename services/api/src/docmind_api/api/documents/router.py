@@ -63,7 +63,6 @@ from docmind_api.application.documents.service import (
     DocumentRegistryService,
 )
 from docmind_api.application.ocr_pipeline_runs.commands import StartOcrPipelineRunCommand
-from docmind_api.application.ocr_pipeline_runs.ports import OcrPipelineRunScheduler
 from docmind_api.domain.auth.actors import AuthenticatedActor, Permission
 from docmind_api.domain.documents.models import (
     MANUAL_UPLOAD_SOURCE,
@@ -104,10 +103,6 @@ class DocumentReprocessingStarter(Protocol):
     async def start_run(self, command: StartOcrPipelineRunCommand) -> OcrPipelineRunRecord: ...
 
 
-class DocumentReprocessingDispatcher(Protocol):
-    async def dispatch(self, run_id: UUID) -> None: ...
-
-
 class DocumentTypeChangeCommitter(Protocol):
     """Commits a successful type change before background reprocessing starts."""
 
@@ -115,8 +110,6 @@ class DocumentTypeChangeCommitter(Protocol):
 
 
 DocumentReprocessingStarterDependency = Callable[..., DocumentReprocessingStarter]
-DocumentReprocessingDispatcherDependency = Callable[..., DocumentReprocessingDispatcher]
-DocumentReprocessingSchedulerDependency = Callable[..., OcrPipelineRunScheduler]
 DocumentTypeChangeCommitterDependency = Callable[..., DocumentTypeChangeCommitter]
 DocumentTypeChangeReviewServiceDependency = Callable[..., DocumentReviewService]
 
@@ -129,8 +122,6 @@ def create_documents_router(
     connector_profile_manifest_dependency: ConnectorProfileManifestDependency,
     user_session_service_dependency: UserSessionServiceDependency,
     document_reprocessing_starter_dependency: DocumentReprocessingStarterDependency,
-    document_reprocessing_dispatcher_dependency: DocumentReprocessingDispatcherDependency,
-    document_reprocessing_scheduler_dependency: DocumentReprocessingSchedulerDependency,
     document_type_change_committer_dependency: DocumentTypeChangeCommitterDependency,
     document_type_change_review_service_dependency: DocumentTypeChangeReviewServiceDependency,
     allowed_browser_origins: tuple[str, ...],
@@ -288,14 +279,6 @@ def create_documents_router(
             DocumentReprocessingStarter,
             Depends(document_reprocessing_starter_dependency),
         ],
-        dispatcher: Annotated[
-            DocumentReprocessingDispatcher,
-            Depends(document_reprocessing_dispatcher_dependency),
-        ],
-        scheduler: Annotated[
-            OcrPipelineRunScheduler,
-            Depends(document_reprocessing_scheduler_dependency),
-        ],
         committer: Annotated[
             DocumentTypeChangeCommitter,
             Depends(document_type_change_committer_dependency),
@@ -326,7 +309,6 @@ def create_documents_router(
         )
         await review_service.reset_for_document_type_change(document.id, run.id)
         await committer.commit()
-        scheduler.schedule(dispatcher.dispatch, run.id)
         return DocumentTypeChangeEnvelope(
             data=DocumentTypeChangeSchema(
                 document=to_document_type_change_document_schema(document),

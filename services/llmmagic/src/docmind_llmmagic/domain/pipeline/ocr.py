@@ -192,6 +192,8 @@ class OcrProviderPageResult:
     tables: tuple[OcrTable, ...] = ()
     warning_codes: tuple[str, ...] = ()
     provider_page_count: int = 1
+    coordinate_width: float | None = None
+    coordinate_height: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -230,6 +232,8 @@ class OcrPageArtifact:
     fallback_reason_codes: tuple[str, ...] = ()
     fallback_error_code: str | None = None
     primary_error_code: str | None = None
+    coordinate_width: float | None = None
+    coordinate_height: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

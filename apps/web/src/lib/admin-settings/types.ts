@@ -402,5 +402,52 @@ export type AttributeRequirementMatrixEnvelope = ApiEnvelope<
   AttributeRequirementMatrixMeta
 >;
 
+export interface AttributeAssignmentDto {
+  document_type: AttributeRequirementDocumentTypeDto;
+  state: "required" | "optional" | "unassigned";
+  requirement_id: string | null;
+  include_metadata_in_context_resolver: boolean;
+  missing_required_action: MissingRequiredAction | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+export interface AttributeAssignment {
+  documentType: AttributeRequirementDocumentType;
+  state: "required" | "optional" | "unassigned";
+  requirementId: string | null;
+  includeMetadataInContextResolver: boolean;
+  missingRequiredAction: MissingRequiredAction | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+export type AttributeAssignmentEnvelopeDto = ApiEnvelope<
+  {
+    attribute: AttributeRequirementAttributeDto;
+    assignments: AttributeAssignmentDto[];
+  },
+  {
+    total_count: number;
+    assigned_count: number;
+    unassigned_count: number;
+    required_count: number;
+    optional_count: number;
+    version: string;
+  }
+>;
+export type AttributeAssignmentEnvelope = ApiEnvelope<
+  {
+    attribute: AttributeRequirementAttribute;
+    assignments: AttributeAssignment[];
+  },
+  {
+    totalCount: number;
+    assignedCount: number;
+    unassignedCount: number;
+    requiredCount: number;
+    optionalCount: number;
+    version: string;
+  }
+>;
+
 export * from "./dictionary-types";
 export * from "./system-catalog-types";

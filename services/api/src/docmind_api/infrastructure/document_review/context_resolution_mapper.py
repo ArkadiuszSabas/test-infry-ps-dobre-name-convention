@@ -14,6 +14,7 @@ from docmind_api.application.document_review.read_models import (
     DocumentReviewDataSource,
     DocumentReviewProcessingStatus,
     DocumentReviewResult,
+    DocumentReviewValueSource,
 )
 from docmind_api.domain.attributes.models import AttributeDataType
 from docmind_api.infrastructure.document_review.consistency_mapper import (
@@ -52,7 +53,11 @@ _DATA_TYPE_ALIASES = {
 _SOURCE_KIND_BY_VALUE = {
     "ocr_key_value": "ocr_key_value_pair",
     "ocr_line": "ocr_line",
-    "ocr_document": "ocr_document",
+    # Keep the existing Review sorting contract while direct polygons retain the
+    # exact structured location or an honest whole-page document fallback.
+    "ocr_selection_mark": "ocr_line",
+    "ocr_table_cell": "ocr_line",
+    "ocr_document": "ocr_line",
 }
 
 
@@ -156,6 +161,7 @@ def _review_attribute(
     consistency = review_consistency_from_context_attribute(attribute_payload)
     required = _strict_bool(attribute_payload.get("required"))
     reason_codes = _reason_codes(attribute_payload.get("reason_codes"))
+    manual_input = "MANUAL_INPUT_REQUIRED" in reason_codes
     requires_review = (
         _strict_bool(attribute_payload.get("requires_review"))
         or (required and status != DocumentReviewAttributeStatus.PRESENT)
@@ -183,6 +189,9 @@ def _review_attribute(
         review_reason_codes=reason_codes,
         sources=_review_sources(attribute_payload.get("sources"), root_payload=root_payload),
         consistency=consistency,
+        value_source=(
+            DocumentReviewValueSource.MANUAL if manual_input else DocumentReviewValueSource.PIPELINE
+        ),
     )
 
 
@@ -336,10 +345,11 @@ def _review_source_kind(value: str | None) -> str:
 
 
 def _source_order_index(payload: Mapping[str, object]) -> int | None:
-    return (
-        _non_negative_int(payload.get("order_index"))
-        or _positive_int(payload.get("key_value_index"))
-        or _positive_int(payload.get("line_number"))
+    order_index = _non_negative_int(payload.get("order_index"))
+    if order_index is not None:
+        return order_index
+    return _positive_int(payload.get("key_value_index")) or _positive_int(
+        payload.get("line_number")
     )
 
 

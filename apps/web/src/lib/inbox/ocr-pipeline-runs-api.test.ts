@@ -12,7 +12,10 @@ test("inbox client starts document OCR pipeline runs with CSRF", async (t) => {
 
   const result = await inboxClient.startDocumentOcrPipelineRun(
     "33333333-3333-3333-3333-333333333333",
-    { csrfToken: "raw-csrf-token" },
+    {
+      csrfToken: "raw-csrf-token",
+      pipelineId: "77777777-7777-7777-7777-777777777777",
+    },
   );
 
   assert.equal(result.id, "99999999-9999-9999-9999-999999999999");
@@ -25,10 +28,42 @@ test("inbox client starts document OCR pipeline runs with CSRF", async (t) => {
     "/api/docmind/documents/33333333-3333-3333-3333-333333333333/ocr/pipeline-runs",
   );
   assert.equal(fetchMock.calls[0]?.init.method, "POST");
+  assert.deepEqual(JSON.parse(String(fetchMock.calls[0]?.init.body)), {
+    pipeline_id: "77777777-7777-7777-7777-777777777777",
+  });
   assert.equal(
     new Headers(fetchMock.calls[0]?.init.headers).get("X-CSRF-Token"),
     "raw-csrf-token",
   );
+});
+
+test("inbox client lists published OCR pipeline options", async (t) => {
+  const fetchMock = installFetchMock([
+    jsonResponse({
+      data: {
+        pipelines: [
+          {
+            id: "77777777-7777-7777-7777-777777777777",
+            name: "Invoice OCR",
+            published_version: 3,
+            is_default: true,
+          },
+        ],
+      },
+      meta: { total_count: 1 },
+    }),
+  ]);
+  t.after(fetchMock.restore);
+
+  const result = await inboxClient.listPublishedOcrPipelines();
+
+  assert.deepEqual(result.data.pipelines[0], {
+    id: "77777777-7777-7777-7777-777777777777",
+    isDefault: true,
+    name: "Invoice OCR",
+    publishedVersion: 3,
+  });
+  assert.equal(fetchMock.calls[0]?.input, "/api/docmind/ocr/pipelines");
 });
 
 test("inbox client lists document OCR pipeline runs", async (t) => {
@@ -89,6 +124,32 @@ test("inbox client gets OCR pipeline run status", async (t) => {
   assert.equal(
     fetchMock.calls[0]?.input,
     "/api/docmind/ocr/pipeline-runs/99999999-9999-9999-9999-999999999999",
+  );
+});
+
+test("inbox client cancels an OCR pipeline run with CSRF", async (t) => {
+  const fetchMock = installFetchMock([
+    jsonResponse({
+      data: ocrRunDtoFixture({ status: "cancelling" }),
+      meta: {},
+    }),
+  ]);
+  t.after(fetchMock.restore);
+
+  const result = await inboxClient.cancelOcrPipelineRun(
+    "99999999-9999-9999-9999-999999999999",
+    { csrfToken: "raw-csrf-token" },
+  );
+
+  assert.equal(result.status, "cancelling");
+  assert.equal(
+    fetchMock.calls[0]?.input,
+    "/api/docmind/ocr/pipeline-runs/99999999-9999-9999-9999-999999999999/cancel",
+  );
+  assert.equal(fetchMock.calls[0]?.init.method, "POST");
+  assert.equal(
+    new Headers(fetchMock.calls[0]?.init.headers).get("X-CSRF-Token"),
+    "raw-csrf-token",
   );
 });
 

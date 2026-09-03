@@ -3,9 +3,11 @@ import type { ApiEnvelope } from "@/lib/api/envelope";
 export type OcrPipelineRunStatus =
   | "pending"
   | "running"
+  | "cancelling"
   | "succeeded"
   | "partial_failed"
-  | "failed";
+  | "failed"
+  | "cancelled";
 export type OcrPipelineRunStepStatus =
   | "pending"
   | "running"
@@ -15,6 +17,28 @@ export type OcrPipelineRunStepStatus =
 export type OcrPipelineRunDiagnosticSeverity = "error" | "warning";
 export type OcrPipelineRunResultAvailability = "available" | "not_available";
 export type OcrPipelineRunMetricValue = boolean | number;
+
+export interface PublishedOcrPipelineOptionDto {
+  id: string;
+  name: string;
+  published_version: number;
+  is_default: boolean;
+}
+
+export interface PublishedOcrPipelineOption {
+  id: string;
+  name: string;
+  publishedVersion: number;
+  isDefault: boolean;
+}
+
+export type PublishedOcrPipelineOptionListEnvelopeDto = ApiEnvelope<{
+  pipelines: PublishedOcrPipelineOptionDto[];
+}>;
+
+export type PublishedOcrPipelineOptionListEnvelope = ApiEnvelope<{
+  pipelines: PublishedOcrPipelineOption[];
+}>;
 
 export interface OcrPipelineRunErrorDto {
   code: string;

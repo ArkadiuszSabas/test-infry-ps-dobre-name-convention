@@ -122,6 +122,11 @@ class DocumentContextResolverStep:
                 step_id=definition.step_id,
                 user_id=invocation_input.user_id if invocation_input is not None else None,
                 session_id=context.run_id,
+                document_id=(
+                    invocation_input.trace_context.document_id
+                    if invocation_input is not None and invocation_input.trace_context is not None
+                    else None
+                ),
             )
             attributes = resolved_attributes(
                 config=config,

@@ -19,6 +19,9 @@ from docmind_llmmagic.application.pipeline.observability import (
     PipelineObserver,
     TraceCaptureMode,
 )
+from docmind_llmmagic.application.pipeline.steps.document_agentic_context_resolver import (
+    register_document_agentic_context_resolver_step,
+)
 from docmind_llmmagic.application.pipeline.steps.document_context_resolver.step import (
     register_document_context_resolver_step,
 )
@@ -60,7 +63,7 @@ from docmind_llmmagic.infrastructure.observability.langfuse import LangfusePipel
 from docmind_llmmagic.infrastructure.pipeline.blob_references import (
     AzureBlobDocumentReferenceResolver,
 )
-from docmind_llmmagic.infrastructure.pipeline.context_resolver.openai import (
+from docmind_llmmagic.infrastructure.pipeline.context_resolver.client_factory import (
     UnconfiguredContextResolverModelClient,
     build_openai_context_resolver_client,
 )
@@ -303,6 +306,9 @@ def _register_context_resolver_step(
             base_url=runtime_settings.base_url,
             managed_identity_client_id=runtime_settings.managed_identity_client_id,
             request_timeout_seconds=runtime_settings.request_timeout_seconds,
+            max_request_bytes=runtime_settings.max_request_bytes,
+            prompt_version=runtime_settings.prompt_version,
+            trace_capture_mode=trace_capture_mode,
             model_tracer=pipeline_observer,
             model_identity=ModelIdentity(
                 provider_id="azure_openai",
@@ -340,9 +346,21 @@ def _register_context_resolver_step(
                 workflow_timeout_seconds=runtime_settings.workflow_timeout_seconds,
             ),
         )
+        register_document_agentic_context_resolver_step(
+            registry,
+            model_client=provider,
+            observer=pipeline_observer,
+            trace_capture_mode=trace_capture_mode,
+        )
         return provider
 
     register_document_context_resolver_step(
+        registry,
+        model_client=UnconfiguredContextResolverModelClient(),
+        observer=pipeline_observer,
+        trace_capture_mode=trace_capture_mode,
+    )
+    register_document_agentic_context_resolver_step(
         registry,
         model_client=UnconfiguredContextResolverModelClient(),
         observer=pipeline_observer,
