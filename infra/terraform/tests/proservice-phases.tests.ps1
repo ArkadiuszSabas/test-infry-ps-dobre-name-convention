@@ -21,10 +21,12 @@ function Assert-Excludes {
 
 $ExpectedPhases = @(
     "01-network-foundation.tfvars",
-    "02-core-foundation.tfvars",
-    "03-network-completion.tfvars",
-    "04-rbac.tfvars",
-    "05-core-runtime.tfvars",
+    "02-uami-cmk-foundation.tfvars",
+    "03-rbac-cmk.tfvars",
+    "04-core-foundation.tfvars",
+    "05-network-completion.tfvars",
+    "06-rbac.tfvars",
+    "07-core-runtime.tfvars",
     "README.md"
 )
 foreach ($FileName in $ExpectedPhases) {
@@ -39,8 +41,8 @@ Assert-Contains $NetworkMain 'data "azurerm_subnet" "container_apps_infrastructu
 Assert-Contains $NetworkMain 'response_export_values = ["properties.delegations"]' "ProService ACA delegation read"
 Assert-Contains $NetworkMain '"Microsoft.App/environments"' "ProService ACA delegation guard"
 Assert-Contains $NetworkMain 'service_bus         = "privatelink.servicebus.windows.net"' "ProService private DNS"
-Assert-Contains $NetworkMain 'resource "azurerm_nat_gateway" "this"' "ProService NAT"
 Assert-Excludes $NetworkMain 'resource "azurerm_virtual_network"' "ProService existing VNet boundary"
+Assert-Excludes $NetworkMain 'resource "azurerm_nat_gateway"' "ProService existing network boundary"
 Assert-Excludes $NetworkMain "openvpn" "ProService network root"
 Assert-Excludes $NetworkMain "snet-ocr-dev-tools" "Unmanaged ProService tools subnet"
 
@@ -49,18 +51,25 @@ Assert-Contains $CoreMain 'var.application_resource_group_name' "ProService core
 Assert-Contains $CoreMain 'var.network_resource_group_name' "ProService core network RG"
 
 $FoundationNetwork = Get-Content -LiteralPath (Join-Path $PhaseRoot "01-network-foundation.tfvars") -Raw
-$CompletedNetwork = Get-Content -LiteralPath (Join-Path $PhaseRoot "03-network-completion.tfvars") -Raw
+$CompletedNetwork = Get-Content -LiteralPath (Join-Path $PhaseRoot "05-network-completion.tfvars") -Raw
 Assert-Contains $FoundationNetwork 'private_endpoints                               = {}' "Network foundation"
 Assert-Contains $CompletedNetwork 'service-bus = {' "Network completion"
 Assert-Contains $CompletedNetwork 'subresource_names              = ["managedEnvironments"]' "Container Apps Private Endpoint"
 
-$FoundationCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "02-core-foundation.tfvars") -Raw
-$RuntimeCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "05-core-runtime.tfvars") -Raw
+$CmkFoundation = Get-Content -LiteralPath (Join-Path $PhaseRoot "02-uami-cmk-foundation.tfvars") -Raw
+$CmkRbac = Get-Content -LiteralPath (Join-Path $PhaseRoot "03-rbac-cmk.tfvars") -Raw
+Assert-Contains $CmkFoundation 'cmk-document-intelligence' "CMK identity foundation"
+Assert-Contains $CmkRbac 'cmk-postgresql' "CMK identity handoff"
+
+$FoundationCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "04-core-foundation.tfvars") -Raw
+$RuntimeCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "07-core-runtime.tfvars") -Raw
 Assert-Contains $FoundationCore 'runtime_dependencies_ready      = false' "Core foundation"
 Assert-Contains $FoundationCore 'container_apps     = {}' "Core foundation"
 Assert-Contains $RuntimeCore 'runtime_dependencies_ready      = true' "Core runtime"
 Assert-Contains $RuntimeCore 'DOCMIND_LLMMAGIC_LANGFUSE_ENABLED' "Explicit Langfuse runtime switch"
 Assert-Contains $RuntimeCore 'servicebus-pubsub-api' "Core runtime Dapr"
+Assert-Contains $RuntimeCore 'servicebus-pubsub-llmmagic' "LLM Magic Service Bus Dapr component"
+Assert-Contains $RuntimeCore 'dapr-servicebus-llmmagic' "LLM Magic Service Bus Dapr identity"
 Assert-Contains $RuntimeCore 'api-migrations = {' "Core runtime migrations"
 Assert-Contains $RuntimeCore 'REPLACE_IMAGE_API_BY_DIGEST' "Immutable image handoff"
 $StatsbeatSettings = [regex]::Matches($RuntimeCore, 'APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL\s*=\s*"true"')
@@ -68,12 +77,13 @@ if ($StatsbeatSettings.Count -ne 3) {
     throw "Core runtime must disable Azure Monitor Statsbeat in all three backend workloads."
 }
 
-$Rbac = Get-Content -LiteralPath (Join-Path $PhaseRoot "04-rbac.tfvars") -Raw
+$Rbac = Get-Content -LiteralPath (Join-Path $PhaseRoot "06-rbac.tfvars") -Raw
 Assert-Contains $Rbac 'Azure Service Bus Data Sender' "Dapr sender RBAC"
 Assert-Contains $Rbac 'Azure Service Bus Data Receiver' "Dapr receiver RBAC"
 Assert-Contains $Rbac 'Cognitive Services OpenAI User' "Foundry RBAC"
 Assert-Contains $Rbac 'github-build-acr-read = {' "GitHub build ACR control-plane read"
 Assert-Contains $Rbac 'github-deploy-acr-read = {' "GitHub deploy ACR control-plane read"
+Assert-Contains $Rbac 'dapr-llmmagic-send-processing-results' "LLM Magic Service Bus sender RBAC"
 Assert-Contains $Rbac 'REPLACE_PROSERVICE_OPERATOR_GROUP_OBJECT_ID' "ProService operator RBAC handoff"
 
 Write-Host "ProService phase tests passed."

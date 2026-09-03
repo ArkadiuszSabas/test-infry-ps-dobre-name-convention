@@ -24,9 +24,8 @@ be committed.
 | Unmanaged tools subnet | `snet-ocr-dev-tools`, `10.33.30.128/25` |
 
 The network root reads the VNet and both application subnets. It does not own, import, or change
-their address spaces, and it never reads or manages the tools subnet. It creates only the NAT
-Gateway association, Private DNS zones and links, Private Endpoints, and Container Apps private
-DNS records.
+their address spaces, and it never reads or manages the tools subnet. It creates only Private DNS
+links, Private Endpoints, and Container Apps private DNS records.
 
 ## One-time prerequisites
 
@@ -64,7 +63,7 @@ Record these outputs:
 Copy:
 
 ```bash
-cp infra/terraform/phases/dev/02-core-foundation.tfvars infra/terraform/core/env/dev.tfvars
+cp infra/terraform/phases/dev/04-core-foundation.tfvars infra/terraform/core/env/dev.tfvars
 ```
 
 Replace the phase 01 subnet token and every globally unique resource-name token. After the
@@ -82,22 +81,22 @@ runtime maps empty and `runtime_dependencies_ready=false`. Plan, review, and app
 Copy:
 
 ```bash
-cp infra/terraform/phases/dev/03-network-completion.tfvars infra/terraform/network/env/dev.tfvars
+cp infra/terraform/phases/dev/05-network-completion.tfvars infra/terraform/network/env/dev.tfvars
 ```
 
-Replace every target token from phase 02 and every DNS zone token from phase 01. Retain all
+Replace every target token from phase 04 and every DNS zone token from phase 01. Retain all
 foundation settings and set `network_design_approved=true` only after review. Plan must add the
-complete Private Endpoint and Container Apps DNS set without replacing the NAT or DNS zones.
+complete Private Endpoint and Container Apps DNS set without replacing existing network resources.
 
 ### 4. RBAC
 
 Copy:
 
 ```bash
-cp infra/terraform/phases/dev/04-rbac.tfvars infra/terraform/rbac/env/dev.tfvars
+cp infra/terraform/phases/dev/06-rbac.tfvars infra/terraform/rbac/env/dev.tfvars
 ```
 
-Replace all scope and principal tokens from phase 02. Get GitHub OIDC and ProService group
+Replace all scope and principal tokens from phase 04. Get GitHub OIDC and ProService group
 object IDs from Microsoft Entra; application/client IDs are not valid substitutes. Replace the
 operator role only with the approved role from the ProService access matrix. Plan must contain
 only the reviewed assignments.
@@ -113,17 +112,17 @@ Run `Application build` after ACR and its build-identity role exist. Download
 Copy:
 
 ```bash
-cp infra/terraform/phases/dev/05-core-runtime.tfvars infra/terraform/core/env/dev.tfvars
+cp infra/terraform/phases/dev/07-core-runtime.tfvars infra/terraform/core/env/dev.tfvars
 ```
 
-Carry forward the exact foundation values from phase 02. Replace runtime endpoints, principal
+Carry forward the exact foundation values from phase 04. Replace runtime endpoints, principal
 IDs, and image tokens. Set the approval flags to their already reviewed values. Keep
 `runtime_dependencies_ready=true` only after network completion and RBAC were successfully
-applied. Plan must add Web, API, LLM Magic, Worker, both Service Bus Dapr components, and the API
+applied. Plan must add Web, API, LLM Magic, Worker, all three Service Bus Dapr components, and the API
 migration job without replacing foundation resources.
 
 Langfuse application tracing is explicitly disabled in this runtime template. Its independently
-owned DEV stack and state are outside this five-phase application bootstrap.
+owned DEV stack and state are outside this seven-phase application bootstrap.
 
 ## Final checks
 

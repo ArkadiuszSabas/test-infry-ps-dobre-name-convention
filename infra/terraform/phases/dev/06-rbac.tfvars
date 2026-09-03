@@ -13,6 +13,7 @@ workload_identity_workloads = [
   "api-migrator",
   "dapr-servicebus-api",
   "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
   "llmmagic",
   "worker",
 ]
@@ -232,6 +233,13 @@ role_assignments = {
     scope                            = "REPLACE_PHASE_04_SCOPE_QUEUE_PROCESSING_RESULTS"
     role_definition_name             = "Azure Service Bus Data Sender"
     workload_identity_key            = "dapr-servicebus-worker"
+    principal_type                   = "ServicePrincipal"
+    skip_service_principal_aad_check = true
+  }
+  dapr-llmmagic-send-processing-results = {
+    scope                            = "REPLACE_PHASE_04_SCOPE_QUEUE_PROCESSING_RESULTS"
+    role_definition_name             = "Azure Service Bus Data Sender"
+    workload_identity_key            = "dapr-servicebus-llmmagic"
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }

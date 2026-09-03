@@ -23,7 +23,16 @@ resource_provider_list_verified = false
 runtime_dependencies_ready      = true
 foundry_enabled                 = true
 
-workload_identity_workloads = ["web", "api", "api-migrator", "dapr-servicebus-api", "dapr-servicebus-worker", "llmmagic", "worker"]
+workload_identity_workloads = [
+  "web",
+  "api",
+  "api-migrator",
+  "dapr-servicebus-api",
+  "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
+  "llmmagic",
+  "worker",
+]
 
 storage_containers = [
   "archive",
@@ -92,6 +101,7 @@ container_apps = {
       DOCMIND_CONNECTOR_PROFILE_PATH                         = "/app/deployments/ps/profile.yml"
       DOCMIND_DAPR_HTTP_TIMEOUT_SECONDS                      = "60.0"
       DOCMIND_DAPR_RUNTIME_HOST                              = "127.0.0.1"
+      DOCMIND_API_OCR_EVENT_PUBSUB_NAME                      = "docmind-servicebus-pubsub-api"
       OTEL_METRICS_EXPORTER                                  = "none"
       SERVICE_BUS_DOCUMENT_PROCESSING_QUEUE_NAME             = "document-processing"
       SERVICE_BUS_FULLY_QUALIFIED_NAMESPACE                  = "REPLACE_PHASE_04_SERVICE_BUS_FQDN"
@@ -106,16 +116,17 @@ container_apps = {
     }
   }
   llmmagic = {
-    container_name   = "llmmagic"
-    image            = "REPLACE_IMAGE_LLMMAGIC_BY_DIGEST"
-    target_port      = 8000
-    external_enabled = false
-    transport        = "auto"
-    cpu              = 0.5
-    memory           = "1Gi"
-    min_replicas     = 1
-    max_replicas     = 3
-    identity_key     = "llmmagic"
+    container_name      = "llmmagic"
+    image               = "REPLACE_IMAGE_LLMMAGIC_BY_DIGEST"
+    target_port         = 8000
+    external_enabled    = false
+    transport           = "auto"
+    cpu                 = 0.5
+    memory              = "1Gi"
+    min_replicas        = 1
+    max_replicas        = 3
+    identity_key        = "llmmagic"
+    extra_identity_keys = ["dapr-servicebus-llmmagic"]
     environment_variables = {
       APPLICATIONINSIGHTS_CONNECTION_STRING                         = "REPLACE_PHASE_04_APPLICATION_INSIGHTS_CONNECTION_STRING"
       APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL                    = "true"
@@ -192,6 +203,7 @@ container_apps = {
 
 dapr_components = {
   servicebus-pubsub-api = {
+    name                         = "docmind-servicebus-pubsub-api"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -202,6 +214,7 @@ dapr_components = {
     service_bus_metadata_enabled = true
   }
   servicebus-pubsub-worker = {
+    name                         = "docmind-servicebus-pubsub-worker"
     component_type               = "pubsub.azure.servicebus.queues"
     version                      = "v1"
     ignore_errors                = false
@@ -209,6 +222,17 @@ dapr_components = {
     scopes                       = ["docmind-worker"]
     metadata                     = {}
     managed_identity_key         = "dapr-servicebus-worker"
+    service_bus_metadata_enabled = true
+  }
+  servicebus-pubsub-llmmagic = {
+    name                         = "docmind-servicebus-pubsub-llmmagic"
+    component_type               = "pubsub.azure.servicebus.queues"
+    version                      = "v1"
+    ignore_errors                = false
+    init_timeout                 = "5s"
+    scopes                       = ["docmind-llmmagic"]
+    metadata                     = {}
+    managed_identity_key         = "dapr-servicebus-llmmagic"
     service_bus_metadata_enabled = true
   }
 }

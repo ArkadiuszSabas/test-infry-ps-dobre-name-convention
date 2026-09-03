@@ -2,8 +2,8 @@
 
 This customer snapshot intentionally uses four independent Terraform roots and states:
 
-- `network` reads the existing ProService VNet and application subnets and owns their NAT
-  association, Private DNS, and Private Endpoints;
+- `network` reads the existing ProService VNet and application subnets and owns Private DNS links
+  and Private Endpoints;
 - `core` owns application platform resources and workload managed identities;
 - `rbac` owns Azure role assignments.
 - `langfuse` owns the DEV-only Langfuse identities, workload-specific role assignments, private
