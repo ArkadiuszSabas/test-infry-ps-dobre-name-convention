@@ -201,21 +201,6 @@ role_assignments = {
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
-  llmmagic-langfuse-public-key = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.KeyVault/vaults/ee7c45kvocrappdev01/secrets/langfuse-init-public-key"
-    role_definition_name             = "Key Vault Secrets User"
-    workload_identity_key            = "llmmagic"
-    principal_type                   = "ServicePrincipal"
-    skip_service_principal_aad_check = true
-  }
-  llmmagic-langfuse-secret-key = {
-    scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.KeyVault/vaults/ee7c45kvocrappdev01/secrets/langfuse-init-secret-key"
-    role_definition_name             = "Key Vault Secrets User"
-    workload_identity_key            = "llmmagic"
-    principal_type                   = "ServicePrincipal"
-    skip_service_principal_aad_check = true
-  }
-
   dapr-api-send-document-processing = {
     scope                            = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrdev01/queues/document-processing"
     role_definition_name             = "Azure Service Bus Data Sender"

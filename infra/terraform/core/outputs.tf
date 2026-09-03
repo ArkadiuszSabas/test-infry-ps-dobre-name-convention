@@ -31,12 +31,8 @@ output "private_endpoint_targets" {
 output "rbac_scopes" {
   description = "Resource scopes consumed by the RBAC root."
   value = {
-    resource_group = data.azurerm_resource_group.environment.id
-    key_vault      = module.key_vault.id
-    key_vault_secrets = {
-      langfuse_init_project_public_key = "${module.key_vault.id}/secrets/${var.langfuse_tracing.init_project_public_key_secret_name}"
-      langfuse_init_project_secret_key = "${module.key_vault.id}/secrets/${var.langfuse_tracing.init_project_secret_key_secret_name}"
-    }
+    resource_group        = data.azurerm_resource_group.environment.id
+    key_vault             = module.key_vault.id
     storage               = module.storage.id
     container_registry    = module.container_registry.id
     service_bus           = azurerm_servicebus_namespace.this.id

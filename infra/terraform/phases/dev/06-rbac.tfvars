@@ -207,21 +207,6 @@ role_assignments = {
     principal_type                   = "ServicePrincipal"
     skip_service_principal_aad_check = true
   }
-  llmmagic-langfuse-public-key = {
-    scope                            = "REPLACE_PHASE_04_SCOPE_KEY_VAULT_SECRET_LANGFUSE_INIT_PROJECT_PUBLIC_KEY"
-    role_definition_name             = "Key Vault Secrets User"
-    workload_identity_key            = "llmmagic"
-    principal_type                   = "ServicePrincipal"
-    skip_service_principal_aad_check = true
-  }
-  llmmagic-langfuse-secret-key = {
-    scope                            = "REPLACE_PHASE_04_SCOPE_KEY_VAULT_SECRET_LANGFUSE_INIT_PROJECT_SECRET_KEY"
-    role_definition_name             = "Key Vault Secrets User"
-    workload_identity_key            = "llmmagic"
-    principal_type                   = "ServicePrincipal"
-    skip_service_principal_aad_check = true
-  }
-
   dapr-api-send-document-processing = {
     scope                            = "REPLACE_PHASE_04_SCOPE_QUEUE_DOCUMENT_PROCESSING"
     role_definition_name             = "Azure Service Bus Data Sender"
