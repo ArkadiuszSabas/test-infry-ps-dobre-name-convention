@@ -147,11 +147,15 @@ locals {
     "cmk-storage"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-storage-${local.instance_token}" }
   }
 
-  langfuse_tracing_environment_variables = var.langfuse_tracing.enabled ? {
-    DOCMIND_LLMMAGIC_LANGFUSE_ENABLED = "true"
-    LANGFUSE_BASE_URL                 = "https://${data.azurerm_container_app.langfuse_web[0].ingress[0].fqdn}"
-    LANGFUSE_TRACING_ENVIRONMENT      = var.environment
-  } : {}
+  langfuse_tracing_environment_variables = merge(
+    {
+      DOCMIND_LLMMAGIC_LANGFUSE_ENABLED = tostring(var.langfuse_tracing.enabled)
+    },
+    var.langfuse_tracing.enabled ? {
+      LANGFUSE_BASE_URL            = "https://${data.azurerm_container_app.langfuse_web[0].ingress[0].fqdn}"
+      LANGFUSE_TRACING_ENVIRONMENT = var.environment
+    } : {},
+  )
 
   langfuse_tracing_key_vault_secrets = var.langfuse_tracing.enabled ? {
     langfuse-public-key = {

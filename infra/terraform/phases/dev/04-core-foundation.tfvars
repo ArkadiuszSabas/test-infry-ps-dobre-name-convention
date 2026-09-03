@@ -32,6 +32,7 @@ workload_identity_workloads = [
   "api-migrator",
   "dapr-servicebus-api",
   "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
   "llmmagic",
   "worker",
 ]

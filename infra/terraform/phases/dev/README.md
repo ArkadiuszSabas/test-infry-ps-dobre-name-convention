@@ -148,6 +148,15 @@ The separately provisioned Langfuse Core stack must exist before this phase. The
 enables LLM Magic tracing and reads the private Langfuse Web FQDN, while the LLM Magic identity
 reads only the two Langfuse project-key secrets after phase 06 RBAC has been applied.
 
+### Existing-environment recovery when adding a new workload identity
+
+For an environment that was deployed before `dapr-servicebus-llmmagic` existed, first add that
+identity to the cumulative Core tfvars. Temporarily set `langfuse_tracing.enabled=false` and run
+`Terraform core` so Azure creates the identity without attempting to start LLM Magic with the new
+Key Vault references. Next run `Terraform rbac` to grant the Dapr and Key Vault roles. Restore
+`langfuse_tracing.enabled=true`, then run `Terraform core` once more to create the fully configured
+LLM Magic revision.
+
 ## Final checks
 
 After each apply, rerun the same workflow with `apply=false` and require `No changes`. Never

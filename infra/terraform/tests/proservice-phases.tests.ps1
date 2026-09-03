@@ -70,8 +70,9 @@ $FoundationCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "04-core-founda
 $RuntimeCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "07-core-runtime.tfvars") -Raw
 Assert-Contains $FoundationCore 'runtime_dependencies_ready      = false' "Core foundation"
 Assert-Contains $FoundationCore 'container_apps     = {}' "Core foundation"
+Assert-Contains $FoundationCore 'dapr-servicebus-llmmagic' "Core foundation LLM Magic Dapr identity"
 Assert-Contains $RuntimeCore 'runtime_dependencies_ready      = true' "Core runtime"
-Assert-Contains $RuntimeCore 'DOCMIND_LLMMAGIC_LANGFUSE_ENABLED' "Explicit Langfuse runtime switch"
+Assert-Contains $CoreMain 'DOCMIND_LLMMAGIC_LANGFUSE_ENABLED' "Explicit Langfuse runtime switch"
 Assert-Contains $RuntimeCore 'langfuse_tracing = {' "Enabled Langfuse runtime tracing"
 Assert-Contains $RuntimeCore 'enabled = true' "Langfuse runtime tracing"
 Assert-Contains $RuntimeCore 'servicebus-pubsub-api' "Core runtime Dapr"
