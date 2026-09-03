@@ -1,0 +1,194 @@
+name: Bootstrap first local administrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Protected GitHub Environment to bootstrap
+        required: true
+        type: environment
+      image_tag:
+        description: Optional full 40-character commit SHA produced by Application build
+        required: false
+        default: ""
+        type: string
+      login:
+        description: Login for the first local administrator
+        required: true
+        type: string
+      display_name:
+        description: Display name for the first local administrator
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  bootstrap:
+    environment: ${{ inputs.environment }}
+    runs-on: [self-hosted, linux, x64]
+    concurrency:
+      group: proservice-application-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      ACR_NAME: ${{ vars.ACR_NAME }}
+      API_MIGRATION_JOB_NAME: ${{ vars.API_MIGRATION_JOB_NAME }}
+      APP_RESOURCE_GROUP: ${{ vars.APP_RESOURCE_GROUP }}
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment }}
+      FIRST_ADMIN_DISPLAY_NAME: ${{ inputs.display_name }}
+      FIRST_ADMIN_LOGIN: ${{ inputs.login }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      MIGRATION_CONTAINER_NAME: ${{ vars.API_MIGRATION_CONTAINER_NAME }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate bootstrap configuration
+        env:
+          AZURE_DEPLOY_CLIENT_ID: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          TF_REF_PROTECTED: ${{ github.ref_protected }}
+        run: |
+          set -euo pipefail
+          case "$DEPLOYMENT_ENVIRONMENT" in
+            dev|uat|prd) ;;
+            *) echo "::error::Unsupported environment: $DEPLOYMENT_ENVIRONMENT"; exit 1 ;;
+          esac
+          [[ "$TF_REF_PROTECTED" == "true" ]] || {
+            echo "::error::First-admin bootstrap is allowed only from a protected ref."; exit 1;
+          }
+          [[ "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" ]] || {
+            echo "::error::First-admin bootstrap must be dispatched from the protected main branch."; exit 1;
+          }
+          [[ -n "${FIRST_ADMIN_LOGIN//[[:space:]]/}" ]] || {
+            echo "::error::login must not be empty."; exit 1;
+          }
+          [[ -n "${FIRST_ADMIN_DISPLAY_NAME//[[:space:]]/}" ]] || {
+            echo "::error::display_name must not be empty."; exit 1;
+          }
+          for variable_name in \
+            API_MIGRATION_JOB_NAME APP_RESOURCE_GROUP \
+            AZURE_DEPLOY_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID; do
+            [[ -n "${!variable_name}" ]] || {
+              echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
+            }
+          done
+          if [[ -n "$IMAGE_TAG" ]]; then
+            [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || {
+              echo "::error::image_tag must be a full lowercase commit SHA when provided."; exit 1;
+            }
+            git cat-file -e "${IMAGE_TAG}^{commit}" 2>/dev/null || {
+              echo "::error::image_tag does not identify a commit in this repository."; exit 1;
+            }
+            git merge-base --is-ancestor "$IMAGE_TAG" "$GITHUB_SHA" || {
+              echo "::error::image_tag is not reachable from the selected main revision."; exit 1;
+            }
+            [[ -n "$ACR_NAME" ]] || {
+              echo "::error::Missing GitHub Environment variable: ACR_NAME"; exit 1;
+            }
+          fi
+      - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Bootstrap first local administrator
+        env:
+          FIRST_ADMIN_PASSWORD: ${{ secrets.FIRST_ADMIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          [[ -n "${FIRST_ADMIN_PASSWORD:-}" ]] || {
+            echo "::error::Missing GitHub Environment Secret: FIRST_ADMIN_PASSWORD"; exit 1;
+          }
+
+          migration_container_name="${MIGRATION_CONTAINER_NAME:-api-migrations}"
+          migration_container="$(az containerapp job show \
+            --name "$API_MIGRATION_JOB_NAME" \
+            --resource-group "$APP_RESOURCE_GROUP" \
+            --query "properties.template.containers[?name=='${migration_container_name}'] | [0]" \
+            --output json)"
+          jq -e '(.name // "") != ""' <<<"$migration_container" >/dev/null || {
+            echo "::error::Could not find the configured API migration container."; exit 1;
+          }
+          api_image="$(jq -r '.image // empty' <<<"$migration_container")"
+          [[ -n "$api_image" ]] || {
+            echo "::error::The configured API migration container does not have an image."; exit 1;
+          }
+          if [[ -n "$IMAGE_TAG" ]]; then
+            login_server="$(az acr show --name "$ACR_NAME" --query loginServer --output tsv)"
+            [[ -n "$login_server" ]] || {
+              echo "::error::Could not resolve the ACR login server."; exit 1;
+            }
+            api_digest="$(az acr repository show \
+              --name "$ACR_NAME" \
+              --image "docmind/api:${IMAGE_TAG}" \
+              --query digest \
+              --output tsv)"
+            [[ "$api_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+              echo "::error::ACR returned an invalid digest for api."; exit 1;
+            }
+            api_image="${login_server}/docmind/api@${api_digest}"
+          fi
+
+          mapfile -t existing_env_vars < <(
+            jq -r '
+              (.env // [])[]
+              | if (.secretRef? // "") != "" then "\(.name)=secretref:\(.secretRef)"
+                elif has("value") then "\(.name)=\(.value)"
+                else empty
+                end
+            ' <<<"$migration_container"
+          )
+          execution_env_vars=()
+          for environment_variable in "${existing_env_vars[@]}"; do
+            environment_variable_name="${environment_variable%%=*}"
+            case "$environment_variable_name" in
+              DOCMIND_API_FIRST_ADMIN_LOGIN|DOCMIND_API_FIRST_ADMIN_DISPLAY_NAME|DOCMIND_API_FIRST_ADMIN_PASSWORD) ;;
+              *) execution_env_vars+=("$environment_variable") ;;
+            esac
+          done
+          execution_env_vars+=(
+            "DOCMIND_API_FIRST_ADMIN_LOGIN=$FIRST_ADMIN_LOGIN"
+            "DOCMIND_API_FIRST_ADMIN_DISPLAY_NAME=$FIRST_ADMIN_DISPLAY_NAME"
+            "DOCMIND_API_FIRST_ADMIN_PASSWORD=$FIRST_ADMIN_PASSWORD"
+          )
+
+          execution_name="$(az containerapp job start \
+            --name "$API_MIGRATION_JOB_NAME" \
+            --resource-group "$APP_RESOURCE_GROUP" \
+            --container-name "$migration_container_name" \
+            --image "$api_image" \
+            --command python \
+            --args /usr/local/lib/python3.14/site-packages/docmind_api/bootstrap/commands/first_admin.py \
+            --env-vars "${execution_env_vars[@]}" \
+            --query name \
+            --output tsv)"
+          [[ -n "$execution_name" ]] || {
+            echo "::error::First-admin bootstrap job did not return an execution name."; exit 1;
+          }
+
+          for _ in {1..30}; do
+            status="$(az containerapp job execution show \
+              --name "$API_MIGRATION_JOB_NAME" \
+              --resource-group "$APP_RESOURCE_GROUP" \
+              --job-execution-name "$execution_name" \
+              --query properties.status \
+              --output tsv)"
+            case "$status" in
+              Succeeded)
+                echo "First-admin bootstrap job completed successfully."
+                exit 0
+                ;;
+              Failed|Canceled)
+                echo "::error::First-admin bootstrap execution ${execution_name} finished with status ${status}."
+                exit 1
+                ;;
+            esac
+            sleep 10
+          done
+          echo "::error::First-admin bootstrap execution ${execution_name} timed out."
+          exit 1
