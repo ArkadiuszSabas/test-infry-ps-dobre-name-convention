@@ -21,7 +21,7 @@ resource_provider_list_verified = true
 runtime_dependencies_ready      = true
 foundry_enabled                 = true
 langfuse_tracing = {
-  enabled = false
+  enabled = true
 }
 
 workload_identity_workloads = [
