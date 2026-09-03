@@ -21,6 +21,10 @@ security_design_approved        = false
 resource_provider_list_verified = false
 runtime_dependencies_ready      = false # for core-foundation set it to 'false'
 foundry_enabled                 = true
+langfuse_tracing = {
+  # Runtime tracing is enabled only in phase 07, after Langfuse Core is deployed.
+  enabled = false
+}
 
 workload_identity_workloads = [
   "web",

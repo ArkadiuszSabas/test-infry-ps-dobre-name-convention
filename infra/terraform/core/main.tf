@@ -10,6 +10,13 @@ data "azurerm_subnet" "container_apps_infrastructure" {
   resource_group_name  = var.network_resource_group_name
 }
 
+data "azurerm_container_app" "langfuse_web" {
+  count = var.langfuse_tracing.enabled ? 1 : 0
+
+  name                = "ca-${lower(replace(var.app_id, "/[^0-9A-Za-z]/", ""))}-${lower(replace(var.environment, "/[^0-9A-Za-z]/", ""))}-langfuse-web-${lower(replace(var.instance_number, "/[^0-9A-Za-z]/", ""))}"
+  resource_group_name = var.application_resource_group_name
+}
+
 resource "terraform_data" "approved_design_guard" {
   lifecycle {
     precondition {
@@ -64,6 +71,14 @@ resource "terraform_data" "approved_design_guard" {
         false,
       )
       error_message = "A runtime core configuration must retain the api-migrations Container Apps job and its dedicated managed identity."
+    }
+
+    precondition {
+      condition = !var.langfuse_tracing.enabled || try(
+        var.container_apps["llmmagic"].identity_key == "llmmagic",
+        false,
+      )
+      error_message = "Enabled Langfuse tracing requires the LLM Magic Container App and its dedicated managed identity."
     }
   }
 }
@@ -132,31 +147,59 @@ locals {
     "cmk-storage"               = { name = "id-${local.app_token}-${local.environment_token}-cmk-storage-${local.instance_token}" }
   }
 
+  langfuse_tracing_environment_variables = var.langfuse_tracing.enabled ? {
+    DOCMIND_LLMMAGIC_LANGFUSE_ENABLED = "true"
+    LANGFUSE_BASE_URL                 = "https://${data.azurerm_container_app.langfuse_web[0].ingress[0].fqdn}"
+    LANGFUSE_TRACING_ENVIRONMENT      = var.environment
+  } : {}
+
+  langfuse_tracing_key_vault_secrets = var.langfuse_tracing.enabled ? {
+    langfuse-public-key = {
+      key_vault_secret_id = "${module.key_vault.vault_uri}secrets/${var.langfuse_tracing.init_project_public_key_secret_name}"
+      identity_id         = null
+    }
+    langfuse-secret-key = {
+      key_vault_secret_id = "${module.key_vault.vault_uri}secrets/${var.langfuse_tracing.init_project_secret_key_secret_name}"
+      identity_id         = null
+    }
+  } : {}
+
+  langfuse_tracing_secret_environment_variables = var.langfuse_tracing.enabled ? {
+    LANGFUSE_PUBLIC_KEY = "langfuse-public-key"
+    LANGFUSE_SECRET_KEY = "langfuse-secret-key"
+  } : {}
+
   container_apps = {
     for key, app in var.container_apps : key => {
-      name                  = "ca-${local.app_token}-${local.environment_token}-${key}-${local.instance_token}"
-      container_name        = app.container_name
-      image                 = app.image
-      target_port           = app.target_port
-      external_enabled      = app.external_enabled
-      transport             = app.transport
-      cpu                   = app.cpu
-      memory                = app.memory
-      min_replicas          = app.min_replicas
-      max_replicas          = app.max_replicas
-      identity_id           = module.managed_identities.ids[app.identity_key]
-      identity_client_id    = module.managed_identities.client_ids[app.identity_key]
-      extra_identity_ids    = toset([for identity_key in app.extra_identity_keys : module.managed_identities.ids[identity_key]])
-      environment_variables = app.environment_variables
-      health_probes         = app.health_probes
-      dapr                  = app.dapr
-      key_vault_secrets = {
+      name               = "ca-${local.app_token}-${local.environment_token}-${key}-${local.instance_token}"
+      container_name     = app.container_name
+      image              = app.image
+      target_port        = app.target_port
+      external_enabled   = app.external_enabled
+      transport          = app.transport
+      cpu                = app.cpu
+      memory             = app.memory
+      min_replicas       = app.min_replicas
+      max_replicas       = app.max_replicas
+      identity_id        = module.managed_identities.ids[app.identity_key]
+      identity_client_id = module.managed_identities.client_ids[app.identity_key]
+      extra_identity_ids = toset([for identity_key in app.extra_identity_keys : module.managed_identities.ids[identity_key]])
+      environment_variables = merge(
+        app.environment_variables,
+        key == "llmmagic" ? local.langfuse_tracing_environment_variables : {},
+      )
+      health_probes = app.health_probes
+      dapr          = app.dapr
+      key_vault_secrets = merge({
         for secret_key, secret in app.key_vault_secrets : secret_key => {
           key_vault_secret_id = secret.key_vault_secret_id
           identity_id         = secret.identity_key == null ? null : module.managed_identities.ids[secret.identity_key]
         }
-      }
-      secret_environment_variables = app.secret_environment_variables
+      }, key == "llmmagic" ? local.langfuse_tracing_key_vault_secrets : {})
+      secret_environment_variables = merge(
+        app.secret_environment_variables,
+        key == "llmmagic" ? local.langfuse_tracing_secret_environment_variables : {},
+      )
       custom_scale_rules = {
         for rule_key, rule in app.custom_scale_rules : rule_key => {
           custom_rule_type = rule.custom_rule_type

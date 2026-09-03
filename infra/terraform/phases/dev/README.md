@@ -121,8 +121,9 @@ IDs, and image tokens. Set the approval flags to their already reviewed values. 
 applied. Plan must add Web, API, LLM Magic, Worker, all three Service Bus Dapr components, and the API
 migration job without replacing foundation resources.
 
-Langfuse application tracing is explicitly disabled in this runtime template. Its independently
-owned DEV stack and state are outside this seven-phase application bootstrap.
+The separately provisioned Langfuse Core stack must exist before this phase. The runtime template
+enables LLM Magic tracing and reads the private Langfuse Web FQDN, while the LLM Magic identity
+reads only the two Langfuse project-key secrets after phase 06 RBAC has been applied.
 
 ## Final checks
 

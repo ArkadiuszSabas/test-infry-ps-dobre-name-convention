@@ -20,6 +20,9 @@ security_design_approved        = true
 resource_provider_list_verified = true
 runtime_dependencies_ready      = true
 foundry_enabled                 = true
+langfuse_tracing = {
+  enabled = true
+}
 
 workload_identity_workloads = [
   "web",
@@ -188,7 +191,7 @@ container_apps = {
       DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_OPENAI_MODEL_ID             = "dep-ocr-dev-gpt55-01"
       DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_REASONING_EFFORT            = "low"
       DOCMIND_LLMMAGIC_CONTEXT_RESOLVER_WORKFLOW_TIMEOUT_SECONDS    = "700"
-      DOCMIND_LLMMAGIC_LANGFUSE_ENABLED                             = "false"
+      DOCMIND_LLMMAGIC_LANGFUSE_ENABLED                             = "true"
       DOCMIND_LLMMAGIC_OCR_FALLBACK_ENABLED                         = "false"
       DOCMIND_LLMMAGIC_OCR_PROVIDER                                 = "azure_document_intelligence"
       OTEL_METRICS_EXPORTER                                         = "none"

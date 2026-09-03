@@ -83,6 +83,29 @@ variable "runtime_dependencies_ready" {
   default     = false
 }
 
+variable "langfuse_tracing" {
+  description = "Controls LLM Magic tracing to the separately provisioned private Langfuse instance. Enabling it requires Langfuse Web to exist before the Core runtime apply."
+  type = object({
+    enabled                             = bool
+    init_project_public_key_secret_name = optional(string, "langfuse-init-public-key")
+    init_project_secret_key_secret_name = optional(string, "langfuse-init-secret-key")
+  })
+  default = {
+    enabled = false
+  }
+
+  validation {
+    condition = (
+      !var.langfuse_tracing.enabled ||
+      (
+        trimspace(var.langfuse_tracing.init_project_public_key_secret_name) != "" &&
+        trimspace(var.langfuse_tracing.init_project_secret_key_secret_name) != ""
+      )
+    )
+    error_message = "Enabled Langfuse tracing requires the Key Vault names of the public and secret project keys."
+  }
+}
+
 variable "foundry_enabled" {
   description = "Whether Core manages Azure AI Foundry, its project, and the GPT deployment."
   type        = bool
