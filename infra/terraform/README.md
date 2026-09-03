@@ -1,16 +1,18 @@
 # ProService Terraform
 
-This customer snapshot intentionally uses four independent Terraform roots and states:
+This customer snapshot intentionally uses independent Terraform roots and states:
 
 - `network` reads the existing ProService VNet and application subnets and owns Private DNS links
   and Private Endpoints;
+- `uami-cmk` creates the customer-managed-key user-assigned identities;
+- `rbac-cmk` grants those identities access to the existing CMK Key Vault;
 - `core` owns application platform resources and workload managed identities;
 - `rbac` owns Azure role assignments.
 - `langfuse` owns the DEV-only Langfuse identities, workload-specific role assignments, private
   storage, Private Endpoints, Container Apps, and Container Apps Environment storage binding.
 
-The reviewed deployment order is `network` foundation, `core` foundation, `network` completion,
-`rbac`, then `core` runtime. Every root always plans its one cumulative
+The reviewed deployment order is `network` foundation, `uami-cmk` foundation, `rbac-cmk`, `core`
+foundation, `network` completion, `rbac`, then `core` runtime. Every root always plans its one cumulative
 `env/<environment>.tfvars` file. Reviewed DEV phase templates live under `phases/dev`; an operator
 copies the selected template to the root's cumulative file and replaces its explicit handoff
 tokens. Once a resource is added to desired state, never copy an earlier template over the

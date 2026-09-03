@@ -58,8 +58,13 @@ Assert-Contains $CompletedNetwork 'subresource_names              = ["managedEnv
 
 $CmkFoundation = Get-Content -LiteralPath (Join-Path $PhaseRoot "02-uami-cmk-foundation.tfvars") -Raw
 $CmkRbac = Get-Content -LiteralPath (Join-Path $PhaseRoot "03-rbac-cmk.tfvars") -Raw
+$PhaseRunbook = Get-Content -LiteralPath (Join-Path $PhaseRoot "README.md") -Raw
 Assert-Contains $CmkFoundation 'cmk-document-intelligence' "CMK identity foundation"
 Assert-Contains $CmkRbac 'cmk-postgresql' "CMK identity handoff"
+Assert-Contains $PhaseRunbook '02-uami-cmk-foundation.tfvars' "CMK identity runbook phase"
+Assert-Contains $PhaseRunbook '03-rbac-cmk.tfvars' "CMK RBAC runbook phase"
+Assert-Contains $PhaseRunbook 'Terraform UAMI CMK' "CMK identity workflow runbook"
+Assert-Contains $PhaseRunbook 'Terraform RBAC CMK' "CMK RBAC workflow runbook"
 
 $FoundationCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "04-core-foundation.tfvars") -Raw
 $RuntimeCore = Get-Content -LiteralPath (Join-Path $PhaseRoot "07-core-runtime.tfvars") -Raw

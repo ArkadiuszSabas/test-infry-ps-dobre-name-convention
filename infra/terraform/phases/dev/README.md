@@ -58,7 +58,30 @@ Record these outputs:
 - `container_apps_infrastructure_subnet_id`;
 - `private_dns_zone_ids`.
 
-### 2. Core foundation
+### 2. CMK managed identities
+
+Copy:
+
+```bash
+cp infra/terraform/phases/dev/02-uami-cmk-foundation.tfvars infra/terraform/uami-cmk/env/dev.tfvars
+```
+
+Run `Terraform UAMI CMK` with `apply=false`, review the three planned managed identities, then
+run the approved apply. Record `managed_identity_principal_ids` for the next phase.
+
+### 3. CMK RBAC
+
+Copy:
+
+```bash
+cp infra/terraform/phases/dev/03-rbac-cmk.tfvars infra/terraform/rbac-cmk/env/dev.tfvars
+```
+
+Run `Terraform RBAC CMK` with `apply=false`. Its plan must grant `Key Vault Crypto Service
+Encryption User` to each of the three CMK identities on the existing CMK Key Vault. Apply it
+before any Core plan that references the versioned CMK key URLs.
+
+### 4. Core foundation
 
 Copy:
 
@@ -76,7 +99,7 @@ runtime maps empty and `runtime_dependencies_ready=false`. Plan, review, and app
 - `rbac_scopes`;
 - `runtime_configuration`.
 
-### 3. Network completion
+### 5. Network completion
 
 Copy:
 
@@ -88,7 +111,7 @@ Replace every target token from phase 04 and every DNS zone token from phase 01.
 foundation settings and set `network_design_approved=true` only after review. Plan must add the
 complete Private Endpoint and Container Apps DNS set without replacing existing network resources.
 
-### 4. RBAC
+### 6. RBAC
 
 Copy:
 
@@ -104,7 +127,7 @@ only the reviewed assignments.
 The Network, Core, and RBAC workflow identities need their own bootstrap permissions before
 their respective first runs. Those permissions cannot be created by this later RBAC phase.
 
-### 5. Build and core runtime
+### 7. Build and core runtime
 
 Run `Application build` after ACR and its build-identity role exist. Download
 `application-image-manifest.json` and use only its four digest references.
