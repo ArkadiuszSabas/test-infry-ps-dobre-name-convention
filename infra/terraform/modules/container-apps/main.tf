@@ -143,6 +143,45 @@ resource "azurerm_container_app" "this" {
           secret_name = env.value
         }
       }
+
+      dynamic "startup_probe" {
+        for_each = try(each.value.health_probes.startup, null) == null ? [] : [each.value.health_probes.startup]
+
+        content {
+          transport               = "HTTP"
+          port                    = each.value.target_port
+          path                    = startup_probe.value.path
+          interval_seconds        = startup_probe.value.interval_seconds
+          timeout                 = startup_probe.value.timeout
+          failure_count_threshold = startup_probe.value.failure_count_threshold
+        }
+      }
+
+      dynamic "liveness_probe" {
+        for_each = try(each.value.health_probes.liveness, null) == null ? [] : [each.value.health_probes.liveness]
+
+        content {
+          transport               = "HTTP"
+          port                    = each.value.target_port
+          path                    = liveness_probe.value.path
+          interval_seconds        = liveness_probe.value.interval_seconds
+          timeout                 = liveness_probe.value.timeout
+          failure_count_threshold = liveness_probe.value.failure_count_threshold
+        }
+      }
+
+      dynamic "readiness_probe" {
+        for_each = try(each.value.health_probes.readiness, null) == null ? [] : [each.value.health_probes.readiness]
+
+        content {
+          transport               = "HTTP"
+          port                    = each.value.target_port
+          path                    = readiness_probe.value.path
+          interval_seconds        = readiness_probe.value.interval_seconds
+          timeout                 = readiness_probe.value.timeout
+          failure_count_threshold = readiness_probe.value.failure_count_threshold
+        }
+      }
     }
   }
 

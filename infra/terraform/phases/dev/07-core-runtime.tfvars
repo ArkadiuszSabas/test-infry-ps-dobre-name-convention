@@ -81,6 +81,26 @@ container_apps = {
     max_replicas        = 5
     identity_key        = "api"
     extra_identity_keys = ["dapr-servicebus-api"]
+    health_probes = {
+      startup = {
+        path                    = "/health/live"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 30
+      }
+      liveness = {
+        path                    = "/health/live"
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+      readiness = {
+        path                    = "/health/ready"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+    }
     environment_variables = {
       APPLICATIONINSIGHTS_CONNECTION_STRING                  = "REPLACE_PHASE_04_APPLICATION_INSIGHTS_CONNECTION_STRING"
       APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL             = "true"
@@ -127,6 +147,26 @@ container_apps = {
     max_replicas        = 3
     identity_key        = "llmmagic"
     extra_identity_keys = ["dapr-servicebus-llmmagic"]
+    health_probes = {
+      startup = {
+        path                    = "/health/live"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 30
+      }
+      liveness = {
+        path                    = "/health/live"
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+      readiness = {
+        path                    = "/health/ready"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+    }
     environment_variables = {
       APPLICATIONINSIGHTS_CONNECTION_STRING                         = "REPLACE_PHASE_04_APPLICATION_INSIGHTS_CONNECTION_STRING"
       APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL                    = "true"
@@ -178,6 +218,26 @@ container_apps = {
     max_replicas        = 3
     identity_key        = "worker"
     extra_identity_keys = ["dapr-servicebus-worker"]
+    health_probes = {
+      startup = {
+        path                    = "/health/live"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 30
+      }
+      liveness = {
+        path                    = "/health/live"
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+      readiness = {
+        path                    = "/health/ready"
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 3
+      }
+    }
     environment_variables = {
       APPLICATIONINSIGHTS_CONNECTION_STRING         = "REPLACE_PHASE_04_APPLICATION_INSIGHTS_CONNECTION_STRING"
       APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL    = "true"

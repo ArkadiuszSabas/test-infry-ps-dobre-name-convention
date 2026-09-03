@@ -144,6 +144,26 @@ variable "container_apps" {
     identity_key          = string
     extra_identity_keys   = optional(set(string), [])
     environment_variables = map(string)
+    health_probes = optional(object({
+      startup = optional(object({
+        path                    = string
+        interval_seconds        = number
+        timeout                 = number
+        failure_count_threshold = number
+      }))
+      liveness = optional(object({
+        path                    = string
+        interval_seconds        = number
+        timeout                 = number
+        failure_count_threshold = number
+      }))
+      readiness = optional(object({
+        path                    = string
+        interval_seconds        = number
+        timeout                 = number
+        failure_count_threshold = number
+      }))
+    }), null)
     dapr = optional(object({
       app_id       = string
       app_port     = number

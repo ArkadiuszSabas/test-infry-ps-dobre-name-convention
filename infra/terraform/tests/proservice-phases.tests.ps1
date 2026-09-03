@@ -70,6 +70,9 @@ Assert-Contains $RuntimeCore 'DOCMIND_LLMMAGIC_LANGFUSE_ENABLED' "Explicit Langf
 Assert-Contains $RuntimeCore 'servicebus-pubsub-api' "Core runtime Dapr"
 Assert-Contains $RuntimeCore 'servicebus-pubsub-llmmagic' "LLM Magic Service Bus Dapr component"
 Assert-Contains $RuntimeCore 'dapr-servicebus-llmmagic' "LLM Magic Service Bus Dapr identity"
+Assert-Contains $RuntimeCore 'health_probes = {' "Runtime health probes"
+Assert-Contains $RuntimeCore 'path                    = "/health/live"' "Runtime liveness health probes"
+Assert-Contains $RuntimeCore 'path                    = "/health/ready"' "Runtime readiness health probes"
 Assert-Contains $RuntimeCore 'api-migrations = {' "Core runtime migrations"
 Assert-Contains $RuntimeCore 'REPLACE_IMAGE_API_BY_DIGEST' "Immutable image handoff"
 $StatsbeatSettings = [regex]::Matches($RuntimeCore, 'APPLICATIONINSIGHTS_STATSBEAT_DISABLED_ALL\s*=\s*"true"')

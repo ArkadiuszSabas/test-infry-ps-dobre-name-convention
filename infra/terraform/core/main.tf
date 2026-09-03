@@ -148,6 +148,7 @@ locals {
       identity_client_id    = module.managed_identities.client_ids[app.identity_key]
       extra_identity_ids    = toset([for identity_key in app.extra_identity_keys : module.managed_identities.ids[identity_key]])
       environment_variables = app.environment_variables
+      health_probes         = app.health_probes
       dapr                  = app.dapr
       key_vault_secrets = {
         for secret_key, secret in app.key_vault_secrets : secret_key => {
