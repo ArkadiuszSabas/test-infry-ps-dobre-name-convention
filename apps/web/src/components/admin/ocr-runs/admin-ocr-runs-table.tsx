@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/data-list";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import {
+  SortableTableHead,
   TableBody,
   TableCell,
   TableHead,
@@ -20,9 +21,11 @@ import {
   TruncatedTableText,
 } from "@/components/ui/table";
 import type {
+  AdminOcrRunSortField,
   AdminOcrRunSummaryDto,
   PublishedOcrPipelineOption,
 } from "@/lib/admin-ocr-runs/types";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 import {
   canRerunRun,
   formatAdminOcrRunTimesTitle,
@@ -43,6 +46,7 @@ interface AdminOcrRunsTableProps {
   onCancel: (run: AdminOcrRunSummaryDto) => void;
   onRerun: (run: AdminOcrRunSummaryDto, pipelineId: string) => void;
   onSelect: (runId: string) => void;
+  onSortChange: (sort: SortState<AdminOcrRunSortField>) => void;
   onToggleAll: (
     runs: readonly AdminOcrRunSummaryDto[],
     selected: boolean,
@@ -53,6 +57,7 @@ interface AdminOcrRunsTableProps {
   pipelinesLoading: boolean;
   runs: readonly AdminOcrRunSummaryDto[];
   selectedDocumentIds: ReadonlySet<string>;
+  sort: SortState<AdminOcrRunSortField>;
 }
 
 export function AdminOcrRunsTable({
@@ -63,6 +68,7 @@ export function AdminOcrRunsTable({
   onCancel,
   onRerun,
   onSelect,
+  onSortChange,
   onToggleAll,
   onToggleSelection,
   pendingDocumentIds,
@@ -70,9 +76,11 @@ export function AdminOcrRunsTable({
   pipelinesLoading,
   runs,
   selectedDocumentIds,
+  sort,
 }: AdminOcrRunsTableProps) {
   const t = useTranslations("AdminOcrRuns");
   const locale = useLocale();
+  const collection = useTranslations("CollectionView");
   const selectableRuns = uniqueSelectableRuns(runs);
   const selectedVisibleCount = selectableRuns.filter((run) =>
     selectedDocumentIds.has(run.document_id),
@@ -83,6 +91,12 @@ export function AdminOcrRunsTable({
       : selectedVisibleCount === selectableRuns.length
         ? true
         : "indeterminate";
+
+  function sortLabel(column: AdminOcrRunSortField, label: string) {
+    const nextDirection =
+      sort.column === column && sort.direction === "asc" ? "desc" : "asc";
+    return collection(`sort.${nextDirection}`, { column: label });
+  }
 
   return (
     <DataListTable
@@ -101,14 +115,46 @@ export function AdminOcrRunsTable({
               }
             />
           </TableHead>
-          <TableHead className="w-[20%]">{t("columns.document")}</TableHead>
-          <TableHead className="w-[10%]">{t("columns.status")}</TableHead>
-          <TableHead className="w-[14%]">{t("columns.pipeline")}</TableHead>
+          <SortableTableHead
+            active={sort.column === "document_name"}
+            className="w-[20%]"
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "document_name"))}
+            sortLabel={sortLabel("document_name", t("columns.document"))}
+          >
+            {t("columns.document")}
+          </SortableTableHead>
+          <SortableTableHead
+            active={sort.column === "status"}
+            className="w-[10%]"
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
+            sortLabel={sortLabel("status", t("columns.status"))}
+          >
+            {t("columns.status")}
+          </SortableTableHead>
+          <SortableTableHead
+            active={sort.column === "pipeline_name"}
+            className="w-[14%]"
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "pipeline_name"))}
+            sortLabel={sortLabel("pipeline_name", t("columns.pipeline"))}
+          >
+            {t("columns.pipeline")}
+          </SortableTableHead>
           <TableHead className="w-[12%]">{t("columns.progress")}</TableHead>
           <TableHead className="w-[14%]">
             {t("columns.sourceAndInitiator")}
           </TableHead>
-          <TableHead className="w-[11%]">{t("columns.updated")}</TableHead>
+          <SortableTableHead
+            active={sort.column === "updated_at"}
+            className="w-[11%]"
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "updated_at"))}
+            sortLabel={sortLabel("updated_at", t("columns.updated"))}
+          >
+            {t("columns.updated")}
+          </SortableTableHead>
           <TableHead className="w-44 text-right">
             {t("columns.actions")}
           </TableHead>

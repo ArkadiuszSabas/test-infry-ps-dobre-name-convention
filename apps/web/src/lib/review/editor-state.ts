@@ -11,6 +11,7 @@ export interface ReviewFieldDraft extends ReviewFieldItem {
   originalReviewState: Pick<
     ReviewFieldItem,
     | "displayValue"
+    | "presentationRows"
     | "manuallyEdited"
     | "requiresReview"
     | "reviewReasonCodes"
@@ -68,6 +69,7 @@ export function updateDraftValue(
         : {
             ...field,
             displayValue: null,
+            presentationRows: [],
             manuallyEdited: true,
             value: normalizedValue,
             valueSource: "manual",
@@ -92,6 +94,7 @@ export function addManualDraftField(
       dataType: input.dataType,
       displayOrder: fields.length + 1,
       displayValue: null,
+      presentationRows: [],
       id: "",
       kind: "manual",
       label: input.label.trim(),
@@ -99,6 +102,7 @@ export function addManualDraftField(
       originalValue: null,
       originalReviewState: {
         displayValue: null,
+        presentationRows: [],
         manuallyEdited: true,
         requiresReview: false,
         reviewReasonCodes: [],
@@ -190,6 +194,7 @@ function reviewStateFrom(
 ): ReviewFieldDraft["originalReviewState"] {
   return {
     displayValue: field.displayValue,
+    presentationRows: field.presentationRows,
     manuallyEdited: field.manuallyEdited,
     requiresReview: field.requiresReview,
     reviewReasonCodes: [...field.reviewReasonCodes],

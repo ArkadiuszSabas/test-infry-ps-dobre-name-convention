@@ -1,4 +1,8 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type {
+  ListPageMetaDto,
+  ListSortDirection,
+} from "@/lib/api/list-contract";
 
 export type AdminOcrRunView = "active" | "history";
 export type OcrRunStatus =
@@ -94,12 +98,29 @@ export interface AdminOcrRunDetailDto {
   };
 }
 
-export interface AdminOcrRunListMetaDto {
-  returned_count: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
+export interface AdminOcrRunFacetOptionDto {
+  value: string;
+  label: string;
 }
+
+export type AdminOcrRunListMetaDto = ListPageMetaDto & {
+  facets: AdminOcrRunFacetsDto;
+};
+
+export interface AdminOcrRunFacetsDto {
+  status_total: number;
+  status_counts: Partial<Record<OcrRunStatus, number>>;
+  sources: AdminOcrRunFacetOptionDto[];
+  connectors: AdminOcrRunFacetOptionDto[];
+}
+
+export type AdminOcrRunSortField =
+  | "completed_at"
+  | "created_at"
+  | "document_name"
+  | "pipeline_name"
+  | "status"
+  | "updated_at";
 
 export interface AdminOcrRunListFilters {
   view: AdminOcrRunView;
@@ -112,6 +133,8 @@ export interface AdminOcrRunListFilters {
   createdTo?: string;
   staleMs?: number;
   search?: string;
+  sortBy?: AdminOcrRunSortField;
+  sortDirection?: ListSortDirection;
   limit: number;
   offset: number;
 }

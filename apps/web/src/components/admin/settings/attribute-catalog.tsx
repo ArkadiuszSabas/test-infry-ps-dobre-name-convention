@@ -27,12 +27,14 @@ import {
   DataListSearchFilter,
 } from "@/components/ui/data-list-filters";
 import { Sheet } from "@/components/ui/sheet";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
 import {
   adminCatalogQueryKeys,
+  ADMIN_CATALOG_PAGE_SIZE,
   attributeCategoriesQueryOptions,
-  attributesQueryOptions,
+  attributesPageQueryOptions,
   dictionariesQueryOptions,
 } from "@/lib/admin-settings/query-options";
 import type {
@@ -42,10 +44,11 @@ import type {
   UpdateAttributeInput,
   UpsertAttributeInput,
 } from "@/lib/admin-settings/types";
+import type { AttributeSortField } from "@/lib/admin-settings/attribute-api";
+import type { SortState } from "@/lib/collection-view";
 import {
   catalogStatusFilters,
   getAttributeCategoryOptions,
-  getAttributeFilterCount,
 } from "@/lib/admin-settings/view-model";
 import { AttributeForm } from "./attribute-form";
 import { AttributeCatalogTable } from "./attribute-catalog-table";
@@ -83,6 +86,11 @@ export function AttributeCatalog() {
     null,
   );
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<SortState<AttributeSortField>>({
+    column: "name",
+    direction: "asc",
+  });
   const [assignmentAttribute, setAssignmentAttribute] =
     useState<AttributeDefinition | null>(null);
   const [assignmentDirty, setAssignmentDirty] = useState(false);
@@ -98,7 +106,17 @@ export function AttributeCatalog() {
     setAssignmentDirty(false);
     setAssignmentAttribute(null);
   }
-  const query = useQuery(attributesQueryOptions(category));
+  const query = useQuery(
+    attributesPageQueryOptions({
+      category,
+      limit: ADMIN_CATALOG_PAGE_SIZE,
+      offset,
+      ...(search.trim() ? { search: search.trim() } : {}),
+      sortBy: sort.column,
+      sortDirection: sort.direction,
+      status,
+    }),
+  );
   const dictionariesQuery = useQuery(dictionariesQueryOptions("active", null));
   const attributeCategoriesQuery = useQuery(attributeCategoriesQueryOptions());
   const attributes = query.data?.data.attributes ?? EMPTY_ATTRIBUTES;
@@ -170,17 +188,20 @@ export function AttributeCatalog() {
   function handleStatusChange(value: string) {
     if (isAttributeStatusFilter(value)) {
       setStatus(value);
+      setOffset(0);
     }
   }
 
   function handleCategoryChange(value: string) {
     if (value === ALL_CATEGORIES_VALUE) {
       setCategory(null);
+      setOffset(0);
       return;
     }
 
     if (categoryOptions.some((option) => option.category === value)) {
       setCategory(value);
+      setOffset(0);
     }
   }
 
@@ -218,7 +239,12 @@ export function AttributeCatalog() {
               onValueChange={handleStatusChange}
               options={catalogStatusFilters.map((filter) => ({
                 label: t(`filters.${filter}`, {
-                  count: getAttributeFilterCount(attributes, filter),
+                  count:
+                    filter === "active"
+                      ? (query.data?.meta.activeCount ?? 0)
+                      : filter === "inactive"
+                        ? (query.data?.meta.inactiveCount ?? 0)
+                        : (query.data?.meta.catalogCount ?? 0),
                 }),
                 value: filter,
               }))}
@@ -248,7 +274,10 @@ export function AttributeCatalog() {
 
             <DataListSearchFilter
               ariaLabel={collection("search")}
-              onValueChange={setSearch}
+              onValueChange={(value) => {
+                setSearch(value);
+                setOffset(0);
+              }}
               placeholder={collection("search")}
               value={search}
             />
@@ -297,8 +326,20 @@ export function AttributeCatalog() {
               setEditAttributeId(attribute.id);
             }}
             onAssignments={setAssignmentAttribute}
+            onSortChange={(value) => {
+              setSort(value);
+              setOffset(0);
+            }}
             search={search}
-            status={status}
+            sort={sort}
+          />
+          <ListPagination
+            isPending={query.isFetching}
+            meta={query.data?.meta}
+            nextLabel={collection("pagination.next")}
+            onOffsetChange={setOffset}
+            previousLabel={collection("pagination.previous")}
+            summary={(range) => collection("pagination.summary", range)}
           />
         </DataListContent>
       </DataListPanel>

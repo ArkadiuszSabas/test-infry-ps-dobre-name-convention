@@ -76,7 +76,7 @@ class OcrPipelineAdminService:
     async def list_pipelines(self, query: ListOcrPipelinesQuery) -> OcrPipelineDefinitionList:
         """Return configured OCR pipeline definitions."""
 
-        return OcrPipelineDefinitionList(pipelines=await self._repository.list())
+        return await self._repository.list(query)
 
     async def create_pipeline(
         self,

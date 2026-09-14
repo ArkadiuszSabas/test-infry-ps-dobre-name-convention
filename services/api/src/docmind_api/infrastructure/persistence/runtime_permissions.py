@@ -285,6 +285,15 @@ def _quote_database_identifier(
 def _runtime_permission_statements(runtime_role: str) -> tuple[str, ...]:
     table_privileges = "select, insert, update, delete"
     sequence_privileges = "usage, select"
+    workspace_registry_tables = "workspaces, workspace_provisioning_requests"
+    workspace_insert_columns = (
+        "id, directory_dictionary_id, directory_entry_id, schema_name, schema_layout, "
+        "storage_prefix, created_at, updated_at"
+    )
+    provisioning_request_insert_columns = (
+        "id, workspace_id, idempotency_key, payload_fingerprint, target_revision, "
+        "created_at, updated_at"
+    )
 
     return (
         f"revoke azure_pg_admin from {runtime_role}",
@@ -302,5 +311,12 @@ def _runtime_permission_statements(runtime_role: str) -> tuple[str, ...]:
             f"grant {sequence_privileges} on sequences to {runtime_role}"
         ),
         (f"alter default privileges in schema public grant execute on functions to {runtime_role}"),
+        (f"revoke insert, update, delete on table {workspace_registry_tables} from {runtime_role}"),
+        (f"grant insert ({workspace_insert_columns}) on table workspaces to {runtime_role}"),
+        (
+            "grant insert "
+            f"({provisioning_request_insert_columns}) "
+            f"on table workspace_provisioning_requests to {runtime_role}"
+        ),
         f"revoke all privileges on table alembic_version from {runtime_role}",
     )

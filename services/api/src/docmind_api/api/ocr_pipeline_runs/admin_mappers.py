@@ -5,6 +5,8 @@ from docmind_api.api.ocr_pipeline_runs.admin_schemas import (
     AdminOcrRunCancellationAuditSchema,
     AdminOcrRunDetailEnvelope,
     AdminOcrRunDetailSchema,
+    AdminOcrRunFacetOptionSchema,
+    AdminOcrRunFacetsSchema,
     AdminOcrRunListData,
     AdminOcrRunListEnvelope,
     AdminOcrRunListMeta,
@@ -27,10 +29,22 @@ def to_admin_list_envelope(page: AdminOcrRunPage) -> AdminOcrRunListEnvelope:
     return AdminOcrRunListEnvelope(
         data=AdminOcrRunListData(runs=[to_admin_summary(item) for item in page.runs]),
         meta=AdminOcrRunListMeta(
+            total=page.total,
             returned_count=len(page.runs),
             limit=page.limit,
             offset=page.offset,
-            has_more=page.has_more,
+            facets=AdminOcrRunFacetsSchema(
+                status_total=page.facets.status_total,
+                status_counts=dict(page.facets.status_counts),
+                sources=[
+                    AdminOcrRunFacetOptionSchema(value=item.value, label=item.label)
+                    for item in page.facets.sources
+                ],
+                connectors=[
+                    AdminOcrRunFacetOptionSchema(value=item.value, label=item.label)
+                    for item in page.facets.connectors
+                ],
+            ),
         ),
     )
 

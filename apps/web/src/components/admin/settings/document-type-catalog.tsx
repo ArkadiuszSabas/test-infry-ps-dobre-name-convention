@@ -6,6 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { CatalogFormSheetContent } from "@/components/admin/catalog/catalog-form-sheet";
@@ -13,14 +14,17 @@ import { UnsavedChangesDialog } from "@/components/admin/catalog/unsaved-changes
 import { useSheetDismissGuard } from "@/components/ui/sheet-dismiss-guard";
 import { DataListPanel } from "@/components/ui/data-list";
 import { Sheet } from "@/components/ui/sheet";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
 import {
   adminCatalogQueryKeys,
+  ADMIN_CATALOG_PAGE_SIZE,
   attributesQueryOptions,
   dictionariesQueryOptions,
   dictionaryEntryLookupQueryOptions,
   documentTypesQueryOptions,
+  documentTypesPageQueryOptions,
 } from "@/lib/admin-settings/query-options";
 import type {
   CatalogStatusFilter,
@@ -31,7 +35,6 @@ import type {
 } from "@/lib/admin-settings/types";
 import {
   catalogStatusFilters,
-  filterDocumentTypesByParameterFilters,
   getActiveSystemCatalogFields,
   getDocumentTypeParameterFilters,
   getSystemCatalogExtensionDictionaryIds,
@@ -49,10 +52,9 @@ import {
 } from "./document-type-action-dialog";
 import { DocumentTypeCatalogContent } from "./document-type-catalog-content";
 import { DocumentTypeCatalogToolbar } from "./document-type-catalog-toolbar";
-import {
-  getVisibleDocumentTypes,
-  type DocumentTypeFormState,
-  type DocumentTypeSaveVariables,
+import type {
+  DocumentTypeFormState,
+  DocumentTypeSaveVariables,
 } from "./document-type-catalog-view-model";
 import { DocumentTypeDefinitionDrawer } from "./document-type-definition-drawer";
 import { DocumentTypeForm } from "./document-type-form";
@@ -60,6 +62,7 @@ import { DocumentTypeForm } from "./document-type-form";
 const EMPTY_DOCUMENT_TYPES: DocumentTypeDefinition[] = [];
 
 export function DocumentTypeCatalog() {
+  const pagination = useTranslations("CollectionView.pagination");
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const [status, setStatus] = useState<CatalogStatusFilter>("active");
@@ -73,21 +76,22 @@ export function DocumentTypeCatalog() {
     null,
   );
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
   const dismissGuard = useSheetDismissGuard();
   const [parameterFilterValues, setParameterFilterValues] = useState<
     Record<string, string | null>
   >({});
-  const query = useQuery(documentTypesQueryOptions(status));
   const activeTypesQuery = useQuery(documentTypesQueryOptions("active"));
   const definitionQuery = useQuery(
     systemCatalogDefinitionQueryOptions("document_type"),
   );
   const dictionariesQuery = useQuery(dictionariesQueryOptions("active", null));
   const attributesQuery = useQuery(attributesQueryOptions(null));
-  const documentTypes = query.data?.data.documentTypes ?? EMPTY_DOCUMENT_TYPES;
+  const activeDocumentTypes =
+    activeTypesQuery.data?.data.documentTypes ?? EMPTY_DOCUMENT_TYPES;
   const parameterFilters = useMemo(
-    () => getDocumentTypeParameterFilters(documentTypes),
-    [documentTypes],
+    () => getDocumentTypeParameterFilters(activeDocumentTypes),
+    [activeDocumentTypes],
   );
   const activeParameterFilterValues = useMemo(
     () =>
@@ -97,25 +101,19 @@ export function DocumentTypeCatalog() {
       ),
     [parameterFilterValues, parameterFilters],
   );
-  const filteredDocumentTypes = useMemo(
-    () =>
-      filterDocumentTypesByParameterFilters(
-        documentTypes,
-        activeParameterFilterValues,
-      ),
-    [activeParameterFilterValues, documentTypes],
+  const query = useQuery(
+    documentTypesPageQueryOptions({
+      limit: ADMIN_CATALOG_PAGE_SIZE,
+      offset,
+      parameterFilters: activeParameterFilterValues,
+      ...(search.trim() ? { search: search.trim() } : {}),
+      sortBy: "display_label",
+      sortDirection: "asc",
+      status,
+    }),
   );
-  const activeDocumentTypes =
-    activeTypesQuery.data?.data.documentTypes ?? EMPTY_DOCUMENT_TYPES;
+  const documentTypes = query.data?.data.documentTypes ?? EMPTY_DOCUMENT_TYPES;
   const definition = definitionQuery.data ?? null;
-  const visibleDocumentTypes = useMemo(
-    () =>
-      getVisibleDocumentTypes({
-        documentTypes: filteredDocumentTypes,
-        search,
-      }),
-    [filteredDocumentTypes, search],
-  );
   const hasSearch = search.trim().length > 0;
   const hasActiveFilters =
     hasSearch ||
@@ -267,6 +265,7 @@ export function DocumentTypeCatalog() {
   function handleStatusChange(value: string) {
     if (catalogStatusFilters.some((filter) => filter === value)) {
       setStatus(value as CatalogStatusFilter);
+      setOffset(0);
     }
   }
 
@@ -275,6 +274,7 @@ export function DocumentTypeCatalog() {
       ...current,
       [code]: value,
     }));
+    setOffset(0);
   }
 
   function closeForm() {
@@ -329,7 +329,10 @@ export function DocumentTypeCatalog() {
             setFormState({ kind: "create" });
           }}
           onParameterFilterChange={handleParameterFilterChange}
-          onSearchChange={setSearch}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setOffset(0);
+          }}
           onStatusChange={handleStatusChange}
           parameterFilterValues={activeParameterFilterValues}
           parameterFilters={parameterFilters}
@@ -347,7 +350,15 @@ export function DocumentTypeCatalog() {
           onDeactivate={(item) => openPendingAction(item, "deactivate")}
           onDelete={(item) => openPendingAction(item, "delete")}
           onEdit={openEditForm}
-          visibleDocumentTypes={visibleDocumentTypes}
+          visibleDocumentTypes={documentTypes}
+        />
+        <ListPagination
+          isPending={query.isFetching}
+          meta={query.data?.meta}
+          nextLabel={pagination("next")}
+          onOffsetChange={setOffset}
+          previousLabel={pagination("previous")}
+          summary={(range) => pagination("summary", range)}
         />
       </DataListPanel>
 

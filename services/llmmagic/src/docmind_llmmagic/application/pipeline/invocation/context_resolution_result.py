@@ -21,6 +21,8 @@ MAX_CONTEXT_RESOLUTION_REASON_CODE_COUNT = 16
 MAX_CONTEXT_RESOLUTION_CONSISTENCY_COMPARISON_COUNT = 16
 MAX_CONTEXT_RESOLUTION_TEXT_LENGTH = 1_000
 MAX_CONTEXT_RESOLUTION_VALUE_LENGTH = 4_000
+MAX_CONTEXT_RESOLUTION_PRESENTATION_ROW_COUNT = 100
+MAX_CONTEXT_RESOLUTION_PRESENTATION_CELL_COUNT = 16
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,6 +72,7 @@ class PipelineInvocationContextResolutionAttribute:
     compared_key_value_indexes: tuple[int, ...] = ()
     confidence_before: float | None = None
     confidence_after: float | None = None
+    presentation_rows: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -158,7 +161,22 @@ def _attribute(
         confidence_after=(
             _confidence(verification.confidence_after) if verification is not None else None
         ),
+        presentation_rows=_presentation_rows(attribute.presentation_rows),
     )
+
+
+def _presentation_rows(value: tuple[tuple[str, ...], ...]) -> tuple[tuple[str, ...], ...]:
+    rows: list[tuple[str, ...]] = []
+    for row in value[:MAX_CONTEXT_RESOLUTION_PRESENTATION_ROW_COUNT]:
+        cells = tuple(
+            text
+            for cell in row[:MAX_CONTEXT_RESOLUTION_PRESENTATION_CELL_COUNT]
+            if (text := _optional_text(cell, max_length=MAX_CONTEXT_RESOLUTION_TEXT_LENGTH))
+            is not None
+        )
+        if cells:
+            rows.append(cells)
+    return tuple(rows)
 
 
 def _comparison_entries(

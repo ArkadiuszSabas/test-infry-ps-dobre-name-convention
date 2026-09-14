@@ -501,10 +501,10 @@ function ApprovalSection({
           queryKey: inboxQueryKeys.documentDetail(model.document.id),
         }),
         queryClient.invalidateQueries({
-          queryKey: inboxQueryKeys.documentList(),
+          queryKey: inboxQueryKeys.documentLists(),
         }),
         queryClient.invalidateQueries({
-          queryKey: inboxQueryKeys.documentList(true),
+          queryKey: inboxQueryKeys.documentContexts(),
         }),
       ]);
     },
@@ -575,11 +575,11 @@ function ApprovalSection({
         refetchType: "none",
       }),
       queryClient.invalidateQueries({
-        queryKey: inboxQueryKeys.documentList(),
+        queryKey: inboxQueryKeys.documentLists(),
         refetchType: "none",
       }),
       queryClient.invalidateQueries({
-        queryKey: inboxQueryKeys.documentList(true),
+        queryKey: inboxQueryKeys.documentContexts(),
         refetchType: "none",
       }),
     ]);
@@ -950,10 +950,10 @@ function invalidateDocumentCaches(
       queryKey: inboxQueryKeys.documentDetail(documentId),
     }),
     queryClient.invalidateQueries({
-      queryKey: inboxQueryKeys.documentList(),
+      queryKey: inboxQueryKeys.documentLists(),
     }),
     queryClient.invalidateQueries({
-      queryKey: inboxQueryKeys.documentList(true),
+      queryKey: inboxQueryKeys.documentContexts(),
     }),
   ]);
 }

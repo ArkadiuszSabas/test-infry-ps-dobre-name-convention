@@ -21,6 +21,7 @@ from docmind_api.api.auth.schemas import (
     ManagedUserEnvelope,
     ManagedUserListEnvelope,
     ManagedUserListMetaSchema,
+    ManagedUserListQuery,
     ManagedUserListSchema,
     ManagedUserOperationMetaSchema,
     ManagedUserSchema,
@@ -39,8 +40,8 @@ from docmind_api.application.auth.users import (
     DeleteUserCommand,
     DeleteUserResult,
     GetUserCommand,
-    ListUsersCommand,
-    ManagedUserListResult,
+    ListUsersPageCommand,
+    ManagedUserPageResult,
     ManagedUserResult,
     SetUserPasswordCommand,
     SetUserPasswordResult,
@@ -72,18 +73,21 @@ def register_user_management_routes(
             UserAdministrationService,
             Depends(user_administration_service_dependency),
         ],
-        include_deleted: Annotated[
-            bool,
-            Query(description="Include soft-deleted users in the response."),
-        ] = False,
+        query: Annotated[ManagedUserListQuery, Query()],
     ) -> ManagedUserListEnvelope:
-        result = await user_administration.list_users(
-            ListUsersCommand(actor=admin_actor, include_deleted=include_deleted),
+        result = await user_administration.list_user_page(
+            ListUsersPageCommand(
+                actor=admin_actor,
+                include_deleted=query.include_deleted,
+                status=query.status,
+                search=query.search,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
         )
-        return _to_managed_user_list_envelope(
-            result,
-            include_deleted=include_deleted,
-        )
+        return _to_managed_user_list_envelope(result, query=query)
 
     async def create_user(
         request: CreateManagedLocalUserRequest,
@@ -249,19 +253,25 @@ def _to_managed_user_envelope(result: ManagedUserResult) -> ManagedUserEnvelope:
 
 
 def _to_managed_user_list_envelope(
-    result: ManagedUserListResult,
+    result: ManagedUserPageResult,
     *,
-    include_deleted: bool,
+    query: ManagedUserListQuery,
 ) -> ManagedUserListEnvelope:
     return ManagedUserListEnvelope(
         data=ManagedUserListSchema(
-            users=[_to_managed_user_schema(user) for user in result.users],
+            users=[_to_managed_user_schema(user) for user in result.page.items],
         ),
         meta=ManagedUserListMetaSchema(
             evaluated_at=result.evaluated_at,
-            total_count=result.total_count,
-            returned_count=result.returned_count,
-            include_deleted=include_deleted,
+            total=result.page.total,
+            returned_count=result.page.returned_count,
+            limit=query.limit,
+            offset=query.offset,
+            include_deleted=result.include_deleted,
+            active_count=result.active_count,
+            inactive_count=result.inactive_count,
+            deleted_count=result.deleted_count,
+            status=result.status,
         ),
     )
 

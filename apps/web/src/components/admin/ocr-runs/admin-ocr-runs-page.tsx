@@ -12,6 +12,7 @@ import { AdminOcrRunsFilters } from "@/components/admin/ocr-runs/admin-ocr-runs-
 import { AdminOcrRunsPagination } from "@/components/admin/ocr-runs/admin-ocr-runs-pagination";
 import { AdminOcrRunsTable } from "@/components/admin/ocr-runs/admin-ocr-runs-table";
 import { useAdminOcrRunQueueActions } from "@/components/admin/ocr-runs/use-admin-ocr-run-queue-actions";
+import { useStableAdminOcrRunFacets } from "@/components/admin/ocr-runs/use-stable-admin-ocr-run-facets";
 import { Button } from "@/components/ui/button";
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import {
@@ -34,6 +35,7 @@ import {
   publishedOcrPipelineQueryOptions,
 } from "@/lib/admin-ocr-runs/query-options";
 import type {
+  AdminOcrRunSortField,
   AdminOcrRunSummaryDto,
   AdminOcrRunView,
 } from "@/lib/admin-ocr-runs/types";
@@ -55,6 +57,8 @@ const urlKeys: Record<Exclude<keyof AdminOcrRunUrlState, "view">, string> = {
   offset: "offset",
   pipelineId: "pipeline_id",
   search: "search",
+  sortBy: "sort_by",
+  sortDirection: "sort_direction",
   source: "source",
   stale: "stale",
   status: "status",
@@ -138,6 +142,12 @@ export function AdminOcrRunsPage({
   }
 
   const page = listQuery.data;
+  const stableFacets = useStableAdminOcrRunFacets({
+    dataUpdatedAt: listQuery.dataUpdatedAt,
+    facets: page?.meta.facets,
+    filters,
+    isFetching: listQuery.isFetching,
+  });
   const pipelines = pipelinesQuery.data ?? [];
   const runs = page?.data.runs ?? [];
   const hasActiveFilters = hasActiveAdminOcrRunFilters(state);
@@ -175,6 +185,8 @@ export function AdminOcrRunsPage({
         onValueChange={(value) =>
           updateUrl({
             offset: 0,
+            sortBy: undefined,
+            sortDirection: undefined,
             status: undefined,
             view: value as AdminOcrRunView,
           })
@@ -212,10 +224,10 @@ export function AdminOcrRunsPage({
           <AdminOcrRunsFilters
             documentTypes={documentTypesQuery.data?.data.options ?? []}
             documentTypesLoading={documentTypesQuery.isPending}
+            facets={stableFacets}
             onChange={updateUrl}
             pipelines={pipelines}
             pipelinesLoading={pipelinesQuery.isPending}
-            runs={runs}
             state={state}
           />
           {hasActiveFilters || queueActions.selectedRuns.length > 0 ? (
@@ -275,6 +287,13 @@ export function AdminOcrRunsPage({
             }}
             onRerun={queueActions.queueOne}
             onSelect={setSelectedRunId}
+            onSortChange={(sort) =>
+              updateUrl({
+                offset: 0,
+                sortBy: sort.column,
+                sortDirection: sort.direction,
+              })
+            }
             onToggleAll={queueActions.toggleAll}
             onToggleSelection={queueActions.toggleSelection}
             pendingDocumentIds={queueActions.pendingDocumentIds}
@@ -282,21 +301,29 @@ export function AdminOcrRunsPage({
             pipelinesLoading={pipelinesQuery.isPending}
             runs={runs}
             selectedDocumentIds={queueActions.selectedDocumentIds}
+            sort={{
+              column: filters.sortBy as AdminOcrRunSortField,
+              direction: filters.sortDirection ?? "desc",
+            }}
           />
-          <AdminOcrRunsPagination
-            canGoNext={page?.meta.has_more ?? false}
-            canGoPrevious={state.offset > 0}
-            isFetching={listQuery.isFetching}
-            onGoNext={() =>
-              updateUrl({ offset: state.offset + ADMIN_OCR_RUN_PAGE_SIZE })
-            }
-            onGoPrevious={() =>
-              updateUrl({
-                offset: Math.max(0, state.offset - ADMIN_OCR_RUN_PAGE_SIZE),
-              })
-            }
-            returnedCount={page?.meta.returned_count ?? 0}
-          />
+          {page ? (
+            <AdminOcrRunsPagination
+              canGoNext={page.meta.has_more}
+              canGoPrevious={state.offset > 0}
+              isFetching={listQuery.isFetching}
+              onGoNext={() =>
+                updateUrl({ offset: state.offset + ADMIN_OCR_RUN_PAGE_SIZE })
+              }
+              onGoPrevious={() =>
+                updateUrl({
+                  offset: Math.max(0, state.offset - ADMIN_OCR_RUN_PAGE_SIZE),
+                })
+              }
+              offset={state.offset}
+              returnedCount={page.meta.returned_count}
+              total={page.meta.total}
+            />
+          ) : null}
         </DataListContent>
       </DataListPanel>
 

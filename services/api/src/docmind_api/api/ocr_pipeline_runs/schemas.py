@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from docmind_api.api.list_contract import ListPageMeta
 from docmind_api.domain.ocr_pipeline_runs.models import (
     MetricValue,
     OcrPipelineRunDiagnosticSeverity,
@@ -170,6 +171,7 @@ class OcrPipelineRunContextResolutionAttributeSchema(BaseModel):
     compared_key_value_indexes: list[int] = Field(default_factory=list[int])
     confidence_before: float | None = None
     confidence_after: float | None = None
+    presentation_rows: list[list[str]] = Field(default_factory=list[list[str]], max_length=100)
 
 
 class OcrPipelineRunContextResolutionResultSchema(BaseModel):
@@ -240,14 +242,10 @@ class OcrPipelineRunListSchema(BaseModel):
     runs: list[OcrPipelineRunSchema]
 
 
-class OcrPipelineRunListMeta(BaseModel):
+class OcrPipelineRunListMeta(ListPageMeta):
     """HTTP metadata for document OCR pipeline run history."""
 
     document_id: UUID
-    returned_count: int
-    limit: int
-    offset: int
-    has_more: bool
 
 
 class OcrPipelineRunListEnvelope(BaseModel):

@@ -1,9 +1,12 @@
 import { apiFetch } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta } from "@/lib/api/list-contract";
 
 import {
+  withListSearchParams,
   withSearchParams,
   type AdminCatalogRequestOptions,
+  type AdminListOptions,
 } from "./api-helpers";
 import type {
   CustomDictionary,
@@ -28,8 +31,21 @@ import type {
   UpsertDictionaryInput,
 } from "./types";
 
-export interface ListDictionariesOptions extends AdminCatalogRequestOptions {
-  search?: string | null;
+export type DictionarySortField =
+  | "external_id"
+  | "name"
+  | "status"
+  | "updated_at";
+
+export type DictionaryEntrySortField =
+  | "created_at"
+  | "external_id"
+  | "label"
+  | "sort_order"
+  | "status"
+  | "updated_at";
+
+export interface ListDictionariesOptions extends AdminListOptions<DictionarySortField> {
   status: DictionaryStatusFilter;
 }
 
@@ -38,6 +54,8 @@ export interface ListDictionaryEntriesOptions extends AdminCatalogRequestOptions
   limit: number;
   offset: number;
   search?: string | null;
+  sortBy?: DictionaryEntrySortField;
+  sortDirection?: "asc" | "desc";
   status: DictionaryStatusFilter;
 }
 
@@ -47,10 +65,9 @@ export const dictionaryCatalogClient = {
   ): Promise<DictionaryListEnvelope> {
     return mapDictionaryListEnvelope(
       await apiFetch<DictionaryListEnvelopeDto>(
-        withSearchParams("/dictionaries", {
-          search: options.search,
-          status: options.status,
-        }),
+        withListSearchParams("/dictionaries", options, (query) => ({
+          status: query.status,
+        })),
         {
           method: "GET",
           signal: options.signal,
@@ -193,6 +210,8 @@ export const dictionaryCatalogClient = {
             limit: String(options.limit),
             offset: String(options.offset),
             search: options.search,
+            sort_by: options.sortBy,
+            sort_direction: options.sortDirection,
             status: options.status,
           },
         ),
@@ -300,7 +319,10 @@ function mapDictionaryListEnvelope(
       dictionaries: envelope.data.dictionaries.map(mapDictionary),
     },
     meta: {
-      totalCount: envelope.meta.total_count,
+      ...mapListPageMeta(envelope.meta),
+      activeCount: envelope.meta.active_count,
+      inactiveCount: envelope.meta.inactive_count,
+      status: envelope.meta.status,
     },
   };
 }
@@ -361,11 +383,7 @@ function mapDictionaryEntryListEnvelope(
     },
     meta: {
       dictionaryId: envelope.meta.dictionary_id,
-      hasMore: envelope.meta.has_more,
-      limit: envelope.meta.limit,
-      offset: envelope.meta.offset,
-      returnedCount: envelope.meta.returned_count,
-      totalCount: envelope.meta.total_count,
+      ...mapListPageMeta(envelope.meta),
     },
   };
 }

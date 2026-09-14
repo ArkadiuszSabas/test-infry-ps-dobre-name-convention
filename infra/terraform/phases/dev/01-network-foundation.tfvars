@@ -19,9 +19,6 @@ private_dns_resource_group_name = "rg-private-dns-zone"
 
 
 
-
-
-
 virtual_network_name           = "vnet-ocr-dev"
 expected_network_address_space = ["10.33.24.0/21"]
 

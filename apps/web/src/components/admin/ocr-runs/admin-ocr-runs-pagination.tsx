@@ -11,6 +11,8 @@ interface AdminOcrRunsPaginationProps {
   onGoNext: () => void;
   onGoPrevious: () => void;
   returnedCount: number;
+  offset: number;
+  total: number;
 }
 
 export function AdminOcrRunsPagination({
@@ -19,14 +21,20 @@ export function AdminOcrRunsPagination({
   isFetching,
   onGoNext,
   onGoPrevious,
+  offset,
   returnedCount,
+  total,
 }: AdminOcrRunsPaginationProps) {
   const t = useTranslations("AdminOcrRuns");
 
   return (
     <div className="flex items-center justify-between gap-3">
       <p className="text-sm text-muted-foreground">
-        {t("pageSummary", { count: returnedCount })}
+        {t("pageSummary", {
+          from: returnedCount ? offset + 1 : 0,
+          to: returnedCount ? offset + returnedCount : 0,
+          total,
+        })}
       </p>
       <div className="flex gap-2">
         <Button

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -12,6 +13,7 @@ import {
   DataListSearchFilter,
 } from "@/components/ui/data-list-filters";
 import { DocumentTypeDisplayFilter } from "@/components/system-catalogs/document-type-display-filter";
+import { useDebouncedListSearch } from "@/hooks/use-debounced-list-search";
 import type { DocumentTypeDisplayItem } from "@/lib/system-catalogs/document-type-display";
 import type {
   DocumentStatus,
@@ -31,7 +33,6 @@ import { InboxUploadControls } from "./inbox-upload-controls";
 interface InboxToolbarProps {
   activeDocumentTypeId: string;
   canUpload: boolean;
-  documentCount: number;
   documentTypeDefinition: SystemCatalogDefinition | null;
   documentTypeFilter: string;
   documentTypeFilterOptions: readonly DocumentTypeDisplayItem[];
@@ -62,7 +63,6 @@ interface InboxToolbarProps {
 export function InboxToolbar({
   activeDocumentTypeId,
   canUpload,
-  documentCount,
   documentTypeDefinition,
   documentTypeFilter,
   documentTypeFilterOptions,
@@ -88,6 +88,38 @@ export function InboxToolbar({
 }: InboxToolbarProps) {
   const t = useTranslations("Inbox");
   const collection = useTranslations("CollectionView");
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebouncedListSearch(searchInput);
+  const lastSubmittedSearch = useRef(search);
+  const isSynchronizingSearch = useRef(false);
+  const onSearchChangeRef = useRef(onSearchChange);
+
+  useEffect(() => {
+    onSearchChangeRef.current = onSearchChange;
+  }, [onSearchChange]);
+
+  useEffect(() => {
+    if (search === lastSubmittedSearch.current) {
+      return;
+    }
+
+    lastSubmittedSearch.current = search;
+    isSynchronizingSearch.current = true;
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    if (isSynchronizingSearch.current) {
+      isSynchronizingSearch.current = false;
+      return;
+    }
+    if (debouncedSearch === lastSubmittedSearch.current) {
+      return;
+    }
+
+    lastSubmittedSearch.current = debouncedSearch;
+    onSearchChangeRef.current(debouncedSearch);
+  }, [debouncedSearch]);
 
   return (
     <DataListToolbar>
@@ -97,7 +129,7 @@ export function InboxToolbar({
           onValueChange={onStatusFilterChange}
           options={[
             {
-              label: t("filters.allStatuses", { count: documentCount }),
+              label: t("filters.allStatuses"),
               value: ALL_STATUSES_VALUE,
             },
             ...statusFilters.map((filter) => ({
@@ -130,9 +162,9 @@ export function InboxToolbar({
         />
         <DataListSearchFilter
           ariaLabel={collection("search")}
-          onValueChange={onSearchChange}
+          onValueChange={setSearchInput}
           placeholder={collection("search")}
-          value={search}
+          value={searchInput}
         />
       </DataListFilters>
 

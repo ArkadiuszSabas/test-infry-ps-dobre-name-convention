@@ -43,6 +43,7 @@ from docmind_api.api.documents.schemas import (
     ManualUploadOptionsMetaSchema,
     ManualUploadOptionsSchema,
 )
+from docmind_api.api.list_contract import ListSearch
 from docmind_api.application.auth.sessions import UserSessionService
 from docmind_api.application.document_review.service import DocumentReviewService
 from docmind_api.application.documents.commands import (
@@ -58,10 +59,14 @@ from docmind_api.application.documents.errors import (
 from docmind_api.application.documents.read_models import (
     DOCUMENT_LIST_DEFAULT_LIMIT,
     DOCUMENT_LIST_MAX_LIMIT,
+    DocumentListSortField,
+    DocumentListSortOrder,
+    DocumentListStatus,
 )
 from docmind_api.application.documents.service import (
     DocumentRegistryService,
 )
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.application.ocr_pipeline_runs.commands import StartOcrPipelineRunCommand
 from docmind_api.domain.auth.actors import AuthenticatedActor, Permission
 from docmind_api.domain.documents.models import (
@@ -81,6 +86,17 @@ class DocumentListSource(StrEnum):
     """Supported document registry source filters exposed over HTTP."""
 
     MANUAL_UPLOAD = MANUAL_UPLOAD_SOURCE
+
+
+class DocumentListSortBy(StrEnum):
+    """Sortable document columns exposed by the registry list endpoint."""
+
+    CREATED = DocumentListSortField.CREATED
+    NAME = DocumentListSortField.NAME
+    DOCUMENT_TYPE = DocumentListSortField.DOCUMENT_TYPE
+    SOURCE = DocumentListSortField.SOURCE
+    STATUS = DocumentListSortField.STATUS
+    SIZE = DocumentListSortField.SIZE
 
 
 class DocumentIngestSettings(Protocol):
@@ -156,6 +172,28 @@ def create_documents_router(
                 ),
             ),
         ] = None,
+        search: Annotated[
+            ListSearch | None,
+            Query(
+                description="Case-insensitive search across names, type, and source identifiers."
+            ),
+        ] = None,
+        status: Annotated[
+            DocumentListStatus | None,
+            Query(description="Filter documents by processing status."),
+        ] = None,
+        document_type_id: Annotated[
+            UUID | None,
+            Query(description="Filter documents by document type identifier."),
+        ] = None,
+        sort_by: Annotated[
+            DocumentListSortBy,
+            Query(description="Closed set of sortable document columns."),
+        ] = DocumentListSortBy.CREATED,
+        sort_direction: Annotated[
+            ListSortDirection,
+            Query(description="Sort direction."),
+        ] = ListSortDirection.DESC,
         limit: Annotated[
             int,
             Query(
@@ -175,6 +213,11 @@ def create_documents_router(
         result = await registry.list_documents(
             source=source.value if source is not None else None,
             archived=archived,
+            search=search,
+            status=status.value if status is not None else None,
+            document_type_id=document_type_id,
+            sort_by=DocumentListSortField(sort_by.value),
+            sort_order=DocumentListSortOrder(sort_direction.value),
             limit=limit,
             offset=offset,
         )

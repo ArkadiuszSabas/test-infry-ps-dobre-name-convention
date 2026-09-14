@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/data-list";
 import { IconTooltipButton } from "@/components/ui/icon-tooltip-button";
 import {
+  SortableTableHead,
   TableBody,
   TableCell,
   TableHead,
@@ -27,7 +28,11 @@ import {
   TableRow,
   TruncatedTableText,
 } from "@/components/ui/table";
-import type { OcrPipelineSummary } from "@/lib/ocr-pipelines/types";
+import type {
+  OcrPipelineSortField,
+  OcrPipelineSummary,
+} from "@/lib/ocr-pipelines/types";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 import {
   canEditOcrPipelineSummary,
   pipelineHasUnpublishedDraftChanges,
@@ -49,8 +54,10 @@ interface PipelineListProps {
     action: OcrPipelineActionKind,
     pipeline: OcrPipelineSummary,
   ) => void;
+  onSortChange: (sort: SortState<OcrPipelineSortField>) => void;
   pipelines: OcrPipelineSummary[];
   selectedPipelineId: string | null;
+  sort: SortState<OcrPipelineSortField>;
 }
 
 const lifecycleIcons = {
@@ -68,28 +75,57 @@ const validationIcons = {
 export function PipelineList({
   isLoading,
   onAction,
+  onSortChange,
   pipelines,
   selectedPipelineId,
+  sort,
 }: PipelineListProps) {
   const t = useTranslations("AdminOcrPipelines");
   const lifecycle = useTranslations("AdminOcrPipelines.lifecycle");
   const validation = useTranslations("AdminOcrPipelines.validationState");
+  const collection = useTranslations("CollectionView");
+
+  function sortLabel(column: OcrPipelineSortField, label: string) {
+    const nextDirection =
+      sort.column === column && sort.direction === "asc" ? "desc" : "asc";
+    return collection(`sort.${nextDirection}`, { column: label });
+  }
 
   return (
     <div className="@container/pipeline-list">
       <DataListTable>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[36%] @max-[48rem]/pipeline-list:w-[52%]">
+            <SortableTableHead
+              active={sort.column === "name"}
+              className="w-[36%] @max-[48rem]/pipeline-list:w-[52%]"
+              direction={sort.direction}
+              onSort={() => onSortChange(nextSortState(sort, "name"))}
+              sortLabel={sortLabel("name", t("columns.pipeline"))}
+            >
               {t("columns.pipeline")}
-            </TableHead>
-            <TableHead className="w-28 @max-[48rem]/pipeline-list:hidden">
+            </SortableTableHead>
+            <SortableTableHead
+              active={sort.column === "lifecycle"}
+              className="w-28 @max-[48rem]/pipeline-list:hidden"
+              direction={sort.direction}
+              onSort={() => onSortChange(nextSortState(sort, "lifecycle"))}
+              sortLabel={sortLabel("lifecycle", t("columns.lifecycle"))}
+            >
               {t("columns.lifecycle")}
-            </TableHead>
+            </SortableTableHead>
             <TableHead className="w-28 @max-[48rem]/pipeline-list:hidden">
               {t("columns.validation")}
             </TableHead>
-            <TableHead className="w-28">{t("columns.updatedAt")}</TableHead>
+            <SortableTableHead
+              active={sort.column === "updated_at"}
+              className="w-28"
+              direction={sort.direction}
+              onSort={() => onSortChange(nextSortState(sort, "updated_at"))}
+              sortLabel={sortLabel("updated_at", t("columns.updatedAt"))}
+            >
+              {t("columns.updatedAt")}
+            </SortableTableHead>
             <TableHead className="w-52 @max-[48rem]/pipeline-list:w-44 text-right">
               {t("columns.actions")}
             </TableHead>

@@ -16,9 +16,11 @@ from docmind_api.api.ocr_pipeline_runs.admin_schemas import (
     AdminOcrRunDetailEnvelope,
     AdminOcrRunListEnvelope,
 )
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.application.ocr_pipeline_runs.admin_read_model import (
     AdminOcrRunFilters,
     AdminOcrRunReadService,
+    AdminOcrRunSortField,
 )
 from docmind_api.domain.auth.actors import AuthenticatedActor, Permission
 from docmind_api.domain.ocr_pipeline_runs.models import OcrPipelineRunStatus
@@ -45,6 +47,8 @@ def create_admin_ocr_runs_router(
         created_to: Annotated[datetime | None, Query()] = None,
         updated_before: Annotated[datetime | None, Query()] = None,
         search: Annotated[str | None, Query(min_length=1, max_length=200)] = None,
+        sort_by: Annotated[AdminOcrRunSortField | None, Query()] = None,
+        sort_direction: Annotated[ListSortDirection | None, Query()] = None,
         limit: Annotated[int, Query(ge=1, le=100)] = 50,
         offset: Annotated[int, Query(ge=0)] = 0,
     ) -> AdminOcrRunListEnvelope:
@@ -60,6 +64,8 @@ def create_admin_ocr_runs_router(
                 created_to=created_to,
                 updated_before=updated_before,
                 search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
                 limit=limit,
                 offset=offset,
             )

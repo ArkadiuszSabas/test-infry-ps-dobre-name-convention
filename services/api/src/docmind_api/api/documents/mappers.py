@@ -8,6 +8,7 @@ from docmind_api.api.documents.schemas import (
     DocumentDeletionOperationSchema,
     DocumentDetailSchema,
     DocumentListEnvelope,
+    DocumentListFacetSchema,
     DocumentListItemSchema,
     DocumentListMetaSchema,
     DocumentListSchema,
@@ -148,11 +149,19 @@ def to_document_list_envelope(result: DocumentListResult) -> DocumentListEnvelop
             documents=[to_document_list_item_schema(item) for item in result.items],
         ),
         meta=DocumentListMetaSchema(
+            total=result.total_count,
             returned_count=result.returned_count,
             source=result.source,
             limit=result.limit,
             offset=result.offset,
-            has_more=result.has_more,
+            status_facets=[
+                DocumentListFacetSchema(value=status, count=count)
+                for status, count in result.status_counts
+            ],
+            document_type_facets=[
+                DocumentListFacetSchema(value=str(document_type_id), count=count)
+                for document_type_id, count in result.document_type_counts
+            ],
         ),
     )
 
@@ -166,7 +175,7 @@ def to_document_list_item_schema(item: DocumentListItem) -> DocumentListItemSche
         document_type_id=UUID(str(document.document_type_id)),
         document_type_external_id=item.document_type_external_id,
         document_type_name=item.document_type_name,
-        status=document.status,
+        status=item.status,
         source=document.source.source,
         connector=document.source.connector,
         connector_name=item.connector_name,

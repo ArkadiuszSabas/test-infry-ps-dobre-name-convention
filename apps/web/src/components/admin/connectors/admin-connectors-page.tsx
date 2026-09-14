@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { CableIcon, Settings2Icon } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import {
   CatalogNotice,
@@ -34,6 +34,7 @@ import { PageBackLink } from "@/components/ui/page-back-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/page-shell";
 import { PanelCard } from "@/components/ui/panel-card";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import {
@@ -45,15 +46,11 @@ import {
   TruncatedTableText,
 } from "@/components/ui/table";
 import { Link } from "@/i18n/navigation";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   listConfigurableConnectorInstances,
   type ConnectorInstanceDto,
 } from "@/lib/connector-configurations/api";
-import {
-  connectorConfigurationLocale,
-  getConnectorConfigurationExtension,
-} from "@/lib/connector-configurations/extensions";
-import { applyCollectionView } from "@/lib/collection-view";
 
 interface ConnectorDisplayData {
   description: string | null;
@@ -63,28 +60,26 @@ interface ConnectorDisplayData {
 export function AdminConnectorsPage() {
   const t = useTranslations("AdminConnectors");
   const collection = useTranslations("CollectionView");
-  const locale = connectorConfigurationLocale(useLocale());
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
   const [view, setView] = useState<DataListView>("cards");
+  const debouncedSearch = useDebouncedValue(search, 300).trim();
+  const listQuery = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    limit: 24,
+    offset,
+    sortBy: "label" as const,
+    sortDirection: "asc" as const,
+  };
   const query = useQuery({
-    queryFn: listConfigurableConnectorInstances,
-    queryKey: ["connector-configurations"],
+    queryFn: ({ signal }) =>
+      listConfigurableConnectorInstances(listQuery, signal),
+    queryKey: ["connector-configurations", listQuery],
+    placeholderData: (previousData) => previousData,
   });
-  const visibleInstances = useMemo(
-    () =>
-      applyCollectionView(query.data ?? [], {
-        search,
-        searchAccessors: [
-          (instance) => connectorDisplayData(instance, locale).label,
-          (instance) => connectorDisplayData(instance, locale).description,
-          (instance) => instance.connector_instance_id,
-          (instance) => instance.status,
-        ],
-      }),
-    [locale, query.data, search],
-  );
+  const visibleInstances = query.data?.data.connector_instances ?? [];
   const hasSearch = search.trim().length > 0;
-  const showCollection = query.isPending || Boolean(query.data?.length);
+  const showCollection = query.isPending || Boolean(query.data?.meta.total);
 
   return (
     <PageShell
@@ -100,7 +95,10 @@ export function AdminConnectorsPage() {
           <DataListFilters>
             <DataListSearchFilter
               ariaLabel={t("search")}
-              onValueChange={setSearch}
+              onValueChange={(value) => {
+                setSearch(value);
+                setOffset(0);
+              }}
               placeholder={t("search")}
               value={search}
             />
@@ -123,7 +121,9 @@ export function AdminConnectorsPage() {
             />
           ) : null}
 
-          {!query.isPending && !query.isError && query.data?.length === 0 ? (
+          {!query.isPending &&
+          !query.isError &&
+          query.data?.meta.total === 0 ? (
             <EmptyState description={t("empty")} title={t("emptyTitle")} />
           ) : null}
 
@@ -132,7 +132,6 @@ export function AdminConnectorsPage() {
               hasSearch={hasSearch}
               instances={visibleInstances}
               isPending={query.isPending}
-              locale={locale}
               noResultsDescription={collection("noResultsDescription")}
               noResultsTitle={collection("noResults")}
               statusLabel={(status) => t(`status.${status}`)}
@@ -145,7 +144,6 @@ export function AdminConnectorsPage() {
               hasSearch={hasSearch}
               instances={visibleInstances}
               isPending={query.isPending}
-              locale={locale}
               noResultsDescription={collection("noResultsDescription")}
               noResultsTitle={collection("noResults")}
               statusLabel={(status) => t(`status.${status}`)}
@@ -156,6 +154,14 @@ export function AdminConnectorsPage() {
               }}
             />
           ) : null}
+          <ListPagination
+            isPending={query.isFetching}
+            meta={query.data?.meta}
+            nextLabel={collection("pagination.next")}
+            onOffsetChange={setOffset}
+            previousLabel={collection("pagination.previous")}
+            summary={(range) => collection("pagination.summary", range)}
+          />
         </DataListContent>
       </DataListPanel>
     </PageShell>
@@ -166,7 +172,6 @@ function ConnectorCardGrid({
   hasSearch,
   instances,
   isPending,
-  locale,
   noResultsDescription,
   noResultsTitle,
   statusLabel,
@@ -174,7 +179,6 @@ function ConnectorCardGrid({
   hasSearch: boolean;
   instances: readonly ConnectorInstanceDto[];
   isPending: boolean;
-  locale: "en" | "pl";
   noResultsDescription: string;
   noResultsTitle: string;
   statusLabel: (status: ConnectorInstanceDto["status"]) => string;
@@ -196,7 +200,6 @@ function ConnectorCardGrid({
         <ConnectorCard
           instance={instance}
           key={instance.connector_instance_id}
-          locale={locale}
           statusLabel={statusLabel}
         />
       ))}
@@ -213,14 +216,12 @@ function ConnectorCardGrid({
 
 function ConnectorCard({
   instance,
-  locale,
   statusLabel,
 }: {
   instance: ConnectorInstanceDto;
-  locale: "en" | "pl";
   statusLabel: (status: ConnectorInstanceDto["status"]) => string;
 }) {
-  const display = connectorDisplayData(instance, locale);
+  const display = connectorDisplayData(instance);
 
   return (
     <Link
@@ -260,7 +261,6 @@ function ConnectorTable({
   hasSearch,
   instances,
   isPending,
-  locale,
   noResultsDescription,
   noResultsTitle,
   statusLabel,
@@ -270,7 +270,6 @@ function ConnectorTable({
   hasSearch: boolean;
   instances: readonly ConnectorInstanceDto[];
   isPending: boolean;
-  locale: "en" | "pl";
   noResultsDescription: string;
   noResultsTitle: string;
   statusLabel: (status: ConnectorInstanceDto["status"]) => string;
@@ -295,7 +294,7 @@ function ConnectorTable({
           />
         ) : null}
         {instances.map((instance) => {
-          const display = connectorDisplayData(instance, locale);
+          const display = connectorDisplayData(instance);
 
           return (
             <DataListRow key={instance.connector_instance_id}>
@@ -345,15 +344,9 @@ function ConnectorTable({
 
 function connectorDisplayData(
   instance: ConnectorInstanceDto,
-  locale: "en" | "pl",
 ): ConnectorDisplayData {
-  const messages = getConnectorConfigurationExtension(
-    instance.connector_instance_id,
-  )?.messages[locale];
-
   return {
-    description:
-      messages?.cardDescription ?? instance.safe_metadata.description,
-    label: messages?.cardTitle ?? instance.safe_metadata.label,
+    description: instance.safe_metadata.description,
+    label: instance.safe_metadata.label,
   };
 }

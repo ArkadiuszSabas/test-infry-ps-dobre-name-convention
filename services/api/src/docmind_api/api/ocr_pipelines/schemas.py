@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from docmind_api.api.list_contract import ListPageMeta
 from docmind_api.domain.ocr_pipelines.models import (
     OCR_PIPELINE_DESCRIPTION_MAX_LENGTH,
     OCR_PIPELINE_DISPLAY_NAME_MAX_LENGTH,
@@ -175,10 +176,11 @@ class OcrPipelineListSchema(BaseModel):
     pipelines: list[OcrPipelineSummarySchema]
 
 
-class OcrPipelineListMeta(BaseModel):
+class OcrPipelineListMeta(ListPageMeta):
     """HTTP metadata for OCR pipeline lists."""
 
-    total_count: int
+    lifecycle_counts: dict[str, int]
+    routing_status: str
 
 
 class OcrPipelineListEnvelope(BaseModel):

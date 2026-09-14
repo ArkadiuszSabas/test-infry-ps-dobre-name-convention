@@ -27,6 +27,7 @@ from docmind_llmmagic.application.pipeline.invocation.service import (
 )
 from docmind_llmmagic.domain.pipeline.models import (
     PipelineProgress,
+    PipelineStatus,
     PipelineStepProgress,
     StepError,
     StepResult,
@@ -270,7 +271,7 @@ def _safe_error_payload(error: StepError | None) -> dict[str, str] | None:
 
 
 def _completion_result_payload(result: PipelineInvocationResult) -> dict[str, object] | None:
-    if result.ocr_result is None:
+    if result.status is PipelineStatus.FAILED or result.ocr_result is None:
         return None
     payload = asdict(result.ocr_result)
     if result.context_resolution_result is not None:

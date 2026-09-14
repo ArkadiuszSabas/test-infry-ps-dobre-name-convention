@@ -33,6 +33,12 @@ export const ALL_ATTRIBUTE_CATEGORIES_VALUE = "__all-attribute-categories";
 export type AttributeMatrixRequirementFilter =
   (typeof attributeMatrixRequirementFilters)[number];
 
+export function isAttributeMatrixRequirementFilter(
+  value: string,
+): value is AttributeMatrixRequirementFilter {
+  return attributeMatrixRequirementFilters.some((filter) => filter === value);
+}
+
 interface AttributeMatrixToolbarProps {
   attributeCategoryFilter: string;
   attributeCategoryOptions: readonly { category: string; count: number }[];

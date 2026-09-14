@@ -1,6 +1,8 @@
 """Attribute definition catalog application use cases."""
 
 from dataclasses import dataclass, field
+from datetime import datetime
+from enum import StrEnum
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 from docmind_api.application.attributes.deactivation_guards import (
@@ -21,7 +23,15 @@ from docmind_api.application.attributes.ports import (
     AttributeDictionaryReferenceRepository,
     Clock,
 )
+from docmind_api.application.listing import (
+    ListPage,
+    ListRequest,
+    ListSortDirection,
+    filter_bounded_list,
+    process_bounded_list,
+)
 from docmind_api.domain.attributes.models import (
+    ATTRIBUTE_CATEGORY_DEFAULT,
     ATTRIBUTE_CATEGORY_DEFAULT_EXTERNAL_ID,
     AttributeCategory,
     AttributeConstraints,
@@ -53,6 +63,39 @@ class CreateAttributeDefinitionCommand:
 @dataclass(frozen=True, slots=True)
 class ListAttributeDefinitionsQuery:
     category: str | None = None
+
+
+class AttributeDefinitionListStatus(StrEnum):
+    """Lifecycle filters supported by the attribute definition list."""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    ALL = "all"
+
+
+class AttributeDefinitionSortField(StrEnum):
+    """Safe sort keys exposed by the attribute definition list."""
+
+    NAME = "name"
+    CATEGORY = "category"
+    DATA_TYPE = "data_type"
+    SCHEMA = "schema"
+    SOURCE = "source"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
+
+
+@dataclass(frozen=True, slots=True)
+class ListAttributeDefinitionsPageQuery:
+    """Criteria for the paged attribute definition catalog."""
+
+    category: str | None = None
+    status: AttributeDefinitionListStatus = AttributeDefinitionListStatus.ALL
+    search: str | None = None
+    sort_by: AttributeDefinitionSortField = AttributeDefinitionSortField.NAME
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
 
 
 class PreserveAttributeField:
@@ -109,6 +152,18 @@ class DeleteAttributeDefinitionResult:
 class AttributeDefinitionList:
     attributes: tuple[AttributeDefinition, ...]
     category_counts: tuple[AttributeCategoryCount, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class AttributeDefinitionPageResult:
+    """Paged attributes plus lifecycle and category facets."""
+
+    page: ListPage[AttributeDefinition]
+    category_counts: tuple[AttributeCategoryCount, ...]
+    catalog_count: int
+    active_count: int
+    inactive_count: int
+    status: AttributeDefinitionListStatus
 
 
 class AttributeDefinitionCatalogService:
@@ -305,6 +360,80 @@ class AttributeDefinitionCatalogService:
             ),
         )
 
+    async def list_attribute_definition_page(
+        self,
+        query: ListAttributeDefinitionsPageQuery,
+    ) -> AttributeDefinitionPageResult:
+        """Search, facet, sort, and page attributes inside the application boundary."""
+
+        category = _normalize_category_filter(query.category)
+        attributes = await self._repository.list(category=None)
+        search_matches = filter_bounded_list(
+            attributes,
+            search=query.search,
+            search_values=lambda attribute: (
+                attribute.name,
+                attribute.external_id,
+                attribute.category,
+                attribute.data_type.value,
+                attribute.source.value,
+                attribute.status.value,
+                attribute.comment,
+            ),
+        )
+        category_matches = tuple(
+            attribute
+            for attribute in search_matches
+            if category is None or attribute.category == category
+        )
+        active_count = sum(
+            attribute.status is AttributeStatus.ACTIVE for attribute in category_matches
+        )
+        page_candidates = tuple(
+            attribute
+            for attribute in category_matches
+            if query.status is AttributeDefinitionListStatus.ALL
+            or attribute.status.value == query.status.value
+        )
+        facet_candidates = tuple(
+            attribute
+            for attribute in search_matches
+            if query.status is AttributeDefinitionListStatus.ALL
+            or attribute.status.value == query.status.value
+        )
+        category_counts_by_name: dict[str, int] = {}
+        for attribute in facet_candidates:
+            category_name = attribute.category or ATTRIBUTE_CATEGORY_DEFAULT_EXTERNAL_ID
+            category_counts_by_name[category_name] = (
+                category_counts_by_name.get(category_name, 0) + 1
+            )
+        if category is not None:
+            category_counts_by_name.setdefault(category, 0)
+        page = process_bounded_list(
+            page_candidates,
+            request=ListRequest(
+                search=None,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+            search_values=lambda _attribute: (),
+            sort_value=_attribute_sort_value,
+            identity=lambda attribute: attribute.id,
+        )
+        return AttributeDefinitionPageResult(
+            page=page,
+            category_counts=tuple(
+                AttributeCategoryCount(category=name, count=count)
+                for name, count in sorted(category_counts_by_name.items())
+            ),
+            catalog_count=len(category_matches),
+            active_count=active_count,
+            inactive_count=len(category_matches) - active_count,
+            status=query.status,
+        )
+
     async def _validate_dictionary_binding(self, attribute: AttributeDefinition) -> None:
         if attribute.value_source != AttributeValueSource.DICTIONARY:
             return
@@ -376,6 +505,28 @@ class AttributeDefinitionCatalogService:
                 details={"category_id": str(category.id)},
             )
         return category
+
+
+def _attribute_sort_value(
+    attribute: AttributeDefinition,
+    sort_by: AttributeDefinitionSortField,
+) -> str | datetime:
+    if sort_by is AttributeDefinitionSortField.CATEGORY:
+        return attribute.category or ATTRIBUTE_CATEGORY_DEFAULT
+    if sort_by is AttributeDefinitionSortField.DATA_TYPE:
+        return attribute.data_type.value
+    if sort_by is AttributeDefinitionSortField.SCHEMA:
+        return (
+            f"{attribute.data_type.value} {attribute.source.value} "
+            f"{attribute.value_source.value} {attribute.schema_version}"
+        )
+    if sort_by is AttributeDefinitionSortField.SOURCE:
+        return attribute.source.value
+    if sort_by is AttributeDefinitionSortField.STATUS:
+        return attribute.status.value
+    if sort_by is AttributeDefinitionSortField.UPDATED_AT:
+        return attribute.updated_at
+    return attribute.name
 
 
 def _normalize_category_filter(category: str | None) -> str | None:

@@ -2,7 +2,7 @@
 
 import { PlusIcon, UsersRoundIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesDialog } from "@/components/system-catalogs/unsaved-changes-dialog";
@@ -21,6 +21,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { PageBackLink } from "@/components/ui/page-back-link";
 import { PageShell } from "@/components/ui/page-shell";
+import { ListPagination } from "@/components/ui/list-pagination";
 import {
   Sheet,
   SheetContent,
@@ -29,18 +30,20 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ManagedUser } from "@/lib/admin-users/types";
-import {
-  getManagedUserActions,
-  sortManagedUserRoles,
-} from "@/lib/admin-users/view-model";
-import { applyCollectionView, type SortValue } from "@/lib/collection-view";
+import type { ManagedUserListMeta } from "@/lib/admin-users/types";
+import { getManagedUserActions } from "@/lib/admin-users/view-model";
+import type { ManagedUserSortField } from "@/lib/admin-users/api";
+import { ADMIN_USERS_PAGE_SIZE } from "@/lib/admin-users/query-options";
 
 import { AdminUserInvitationsPanel } from "./admin-user-invitations-panel";
 import { InvitationNotice } from "./invitation-shared";
 import { ManagedUserForm } from "./managed-user-form";
 import { ManagedUserConfirmPanel } from "./managed-user-confirm-panel";
-import { ManagedUsersTable } from "./managed-users-table";
+import {
+  defaultManagedUserSort,
+  ManagedUsersTable,
+  type ManagedUserSortColumn,
+} from "./managed-users-table";
 import { PasswordForm } from "./password-form";
 import { useAdminUsersController } from "./use-admin-users-controller";
 
@@ -51,9 +54,10 @@ type UserStatusFilter = (typeof userStatusFilters)[number];
 export function AdminUsersPage() {
   const t = useTranslations("AdminUsers");
   const collection = useTranslations("CollectionView");
-  const roleLabels = useTranslations("Shell.roles");
   const [statusFilter, setStatusFilter] = useState<UserStatusFilter>("all");
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState(defaultManagedUserSort);
   const [formDirty, setFormDirty] = useState(false);
   const [passwordDirty, setPasswordDirty] = useState(false);
   const [discardFormOpen, setDiscardFormOpen] = useState(false);
@@ -67,7 +71,6 @@ export function AdminUsersPage() {
     confirmPendingAction,
     formState,
     handleUserAction,
-    includeDeleted,
     openCreateForm,
     openEditForm,
     passwordMutation,
@@ -76,37 +79,23 @@ export function AdminUsersPage() {
     pendingAction,
     saveUserMutation,
     submitPassword,
-    toggleIncludeDeleted,
     userActionMutation,
     users,
     usersQuery,
   } = useAdminUsersController({
     getPasswordSuccessMessage: (user) =>
       t("users.passwordSuccess", { name: user.display_name }),
+    listQuery: {
+      includeDeleted: statusFilter === "deleted",
+      limit: ADMIN_USERS_PAGE_SIZE,
+      offset,
+      search,
+      sortBy: managedUserSortField(sort.column),
+      sortDirection: sort.direction,
+      status: statusFilter,
+    },
   });
-  const visibleUsers = useMemo(
-    () =>
-      applyCollectionView(filterManagedUsers(users, statusFilter), {
-        search,
-        searchAccessors: [
-          (user): SortValue => user.display_name,
-          (user): SortValue => user.email,
-          (user): SortValue => user.status,
-          (user): SortValue => t(`users.status.${user.status}`),
-          (user): SortValue => user.roles.join(" "),
-          (user): SortValue =>
-            sortManagedUserRoles(user.roles)
-              .map((role) => (isKnownRole(role) ? roleLabels(role) : role))
-              .join(" "),
-          (user): SortValue => user.auth_providers.join(" "),
-          (user): SortValue =>
-            user.auth_providers
-              .map((provider) => t(`users.providers.${provider}`))
-              .join(" "),
-        ],
-      }),
-    [roleLabels, search, statusFilter, t, users],
-  );
+  const meta = usersQuery.data?.meta;
   const hasSearch = search.trim().length > 0;
   const dismissGuard = useSheetDismissGuard();
 
@@ -116,15 +105,7 @@ export function AdminUsersPage() {
     }
 
     setStatusFilter(value);
-
-    if (value === "deleted" && !includeDeleted) {
-      toggleIncludeDeleted();
-      return;
-    }
-
-    if (value !== "deleted" && includeDeleted) {
-      toggleIncludeDeleted();
-    }
+    setOffset(0);
   }
 
   function requestCloseForm() {
@@ -190,7 +171,7 @@ export function AdminUsersPage() {
                   onValueChange={handleStatusFilterChange}
                   options={userStatusFilters.map((filter) => ({
                     label: t(`users.filters.${filter}`, {
-                      count: getManagedUserFilterCount(users, filter),
+                      count: getManagedUserFilterCount(meta, filter),
                     }),
                     value: filter,
                   }))}
@@ -199,7 +180,10 @@ export function AdminUsersPage() {
 
                 <DataListSearchFilter
                   ariaLabel={collection("search")}
-                  onValueChange={setSearch}
+                  onValueChange={(value) => {
+                    setSearch(value);
+                    setOffset(0);
+                  }}
                   placeholder={collection("search")}
                   value={search}
                 />
@@ -226,7 +210,20 @@ export function AdminUsersPage() {
                 isPending={usersQuery.isPending}
                 onAction={handleUserAction}
                 onEdit={openEditForm}
-                users={visibleUsers}
+                onSortChange={(nextSort) => {
+                  setSort(nextSort);
+                  setOffset(0);
+                }}
+                sort={sort}
+                users={users}
+              />
+              <ListPagination
+                isPending={usersQuery.isFetching}
+                meta={meta}
+                nextLabel={collection("pagination.next")}
+                onOffsetChange={setOffset}
+                previousLabel={collection("pagination.previous")}
+                summary={(range) => collection("pagination.summary", range)}
               />
             </DataListContent>
           </DataListPanel>
@@ -366,36 +363,26 @@ export function AdminUsersPage() {
   );
 }
 
-function filterManagedUsers(
-  users: readonly ManagedUser[],
-  filter: UserStatusFilter,
-): ManagedUser[] {
-  if (filter === "all") {
-    return users.filter((user) => user.status !== "deleted");
-  }
-
-  return users.filter((user) => user.status === filter);
-}
-
 function getManagedUserFilterCount(
-  users: readonly ManagedUser[],
+  meta: ManagedUserListMeta | undefined,
   filter: UserStatusFilter,
 ): number {
-  return filterManagedUsers(users, filter).length;
+  if (!meta) return 0;
+  if (filter === "active") return meta.activeCount;
+  if (filter === "inactive") return meta.inactiveCount;
+  if (filter === "deleted") return meta.deletedCount;
+  return meta.activeCount + meta.inactiveCount;
 }
 
 function isUserStatusFilter(value: string): value is UserStatusFilter {
   return userStatusFilters.some((filter) => filter === value);
 }
 
-function isKnownRole(
-  role: string,
-): role is "admin" | "operator" | "reviewer" | "viewer" | "document_deleter" {
-  return [
-    "admin",
-    "operator",
-    "reviewer",
-    "viewer",
-    "document_deleter",
-  ].includes(role);
+function managedUserSortField(
+  column: ManagedUserSortColumn,
+): ManagedUserSortField {
+  if (column === "user") return "display_name";
+  if (column === "updatedAt") return "updated_at";
+  if (column === "providers") return "auth_providers";
+  return column;
 }

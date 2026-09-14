@@ -44,7 +44,7 @@ jobs:
             echo "::error::Langfuse images may be imported only from the protected main branch."; exit 1;
           }
           case "$TF_ENVIRONMENT" in
-            dev|uat|prd) ;;
+            dev|test|prod) ;;
             *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
           esac
           for variable_name in ACR_NAME AZURE_BUILD_CLIENT_ID AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID; do

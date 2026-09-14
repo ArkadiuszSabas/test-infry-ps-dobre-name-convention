@@ -13,6 +13,8 @@ import {
   validationFromPublishError,
 } from "@/components/admin/ocr-pipelines/use-ocr-pipelines-controller-state";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import type { SortState } from "@/lib/collection-view";
 import {
   attributesQueryOptions,
   documentTypesQueryOptions,
@@ -28,11 +30,12 @@ import {
 import type {
   CreateOcrPipelineInput,
   OcrPipelineDetailEnvelope,
+  OcrPipelineListQuery,
+  OcrPipelineSortField,
   OcrPipelineValidation,
 } from "@/lib/ocr-pipelines/types";
 import {
   canPublishOcrPipeline,
-  filterOcrPipelines,
   isOcrPipelineLifecycleFilter,
   selectedVisiblePipelineId,
   type OcrPipelineLifecycleFilter,
@@ -42,6 +45,12 @@ export function useOcrPipelinesController() {
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const [filter, setFilter] = useState<OcrPipelineLifecycleFilter>("all");
+  const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<SortState<OcrPipelineSortField>>({
+    column: "name",
+    direction: "asc",
+  });
   const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(
     null,
   );
@@ -54,7 +63,16 @@ export function useOcrPipelinesController() {
   const [latestValidation, setLatestValidation] =
     useState<LatestValidation | null>(null);
 
-  const pipelinesQuery = useQuery(ocrPipelinesListQueryOptions());
+  const debouncedSearch = useDebouncedValue(search, 300).trim();
+  const listQuery: OcrPipelineListQuery = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    lifecycle: filter,
+    limit: 25,
+    offset,
+    sortBy: sort.column,
+    sortDirection: sort.direction,
+  };
+  const pipelinesQuery = useQuery(ocrPipelinesListQueryOptions(listQuery));
   const catalogQuery = useQuery(ocrPipelineBlockCatalogQueryOptions());
   const documentTypesQuery = useQuery(documentTypesQueryOptions("active"));
   const documentTypeDefinitionQuery = useQuery(
@@ -72,10 +90,7 @@ export function useOcrPipelinesController() {
       ),
     [attributesQuery.data],
   );
-  const filteredPipelines = useMemo(
-    () => filterOcrPipelines(pipelines, filter),
-    [filter, pipelines],
-  );
+  const filteredPipelines = pipelines;
   const effectiveSelectedPipelineId = useMemo(
     () => selectedVisiblePipelineId(filteredPipelines, selectedPipelineId),
     [filteredPipelines, selectedPipelineId],
@@ -242,7 +257,18 @@ export function useOcrPipelinesController() {
   function handleFilterChange(value: string) {
     if (isOcrPipelineLifecycleFilter(value)) {
       setFilter(value);
+      setOffset(0);
     }
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setOffset(0);
+  }
+
+  function handleSortChange(value: SortState<OcrPipelineSortField>) {
+    setSort(value);
+    setOffset(0);
   }
 
   function handlePipelineAction(
@@ -375,9 +401,12 @@ export function useOcrPipelinesController() {
     editError,
     effectiveSelectedPipelineId,
     filter,
+    filterCounts: pipelinesQuery.data?.meta.lifecycleCounts,
     filteredPipelines,
     handleBuilderOpenChange,
     handleFilterChange,
+    handleSearchChange,
+    handleSortChange,
     handlePendingActionOpenChange,
     handlePipelineAction,
     lifecycleMutation,
@@ -386,12 +415,18 @@ export function useOcrPipelinesController() {
     pendingAction,
     pipelines,
     pipelinesQuery,
+    listMeta: pipelinesQuery.data?.meta,
+    offset,
     publishMutation,
     publishSelectedPipeline,
     saveMutation,
     selectorCatalogError,
     selectorCatalogPending,
+    routingStatus: pipelinesQuery.data?.meta.routingStatus ?? "noPipelines",
+    search,
     setBuilderTarget,
+    setOffset,
+    sort,
     submitBuilder,
     validateMutation,
     validateSelectedPipeline,

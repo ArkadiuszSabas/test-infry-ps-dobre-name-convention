@@ -8,6 +8,15 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from docmind_api.api.list_contract import ListPageMeta, ListQueryParams
+from docmind_api.application.attributes.category_service import (
+    AttributeCategoryListStatus,
+    AttributeCategorySortField,
+)
+from docmind_api.application.attributes.service import (
+    AttributeDefinitionListStatus,
+    AttributeDefinitionSortField,
+)
 from docmind_api.domain.attributes.models import (
     ATTRIBUTE_CATEGORY_MAX_LENGTH,
     ATTRIBUTE_COMMENT_MAX_LENGTH,
@@ -33,6 +42,21 @@ class AttributeDataTypeRequest(StrEnum):
     BOOLEAN = "boolean"
     DATE = "date"
     DATETIME = "datetime"
+
+
+class AttributeDefinitionListQuery(ListQueryParams[AttributeDefinitionSortField]):
+    """Filtered, sorted, paged attribute definition query."""
+
+    sort_by: AttributeDefinitionSortField = AttributeDefinitionSortField.NAME
+    category: str | None = None
+    status: AttributeDefinitionListStatus = AttributeDefinitionListStatus.ALL
+
+
+class AttributeCategoryListQuery(ListQueryParams[AttributeCategorySortField]):
+    """Filtered, sorted, paged attribute category query."""
+
+    sort_by: AttributeCategorySortField = AttributeCategorySortField.LABEL
+    status: AttributeCategoryListStatus = AttributeCategoryListStatus.ACTIVE
 
 
 class AttributeConstraintsRequest(BaseModel):
@@ -278,11 +302,14 @@ class AttributeCategoryCountSchema(BaseModel):
     count: int
 
 
-class AttributeDefinitionListMeta(BaseModel):
+class AttributeDefinitionListMeta(ListPageMeta):
     """HTTP metadata for attribute definition catalog lists."""
 
-    total_count: int
     category_counts: list[AttributeCategoryCountSchema]
+    status: AttributeDefinitionListStatus
+    catalog_count: int
+    active_count: int
+    inactive_count: int
 
 
 class AttributeDefinitionListEnvelope(BaseModel):
@@ -317,14 +344,12 @@ class AttributeCategoryListSchema(BaseModel):
     categories: list[AttributeCategorySchema]
 
 
-class AttributeCategoryListMeta(BaseModel):
+class AttributeCategoryListMeta(ListPageMeta):
     """HTTP metadata for system attribute category lists."""
 
-    total_count: int
     active_count: int
     inactive_count: int
-    returned_count: int
-    status: str
+    status: AttributeCategoryListStatus
 
 
 class AttributeCategoryListEnvelope(BaseModel):

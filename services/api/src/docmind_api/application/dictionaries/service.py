@@ -1,5 +1,6 @@
 """Custom dictionary application use cases."""
 
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from docmind_api.application.dictionaries.commands import (
@@ -12,6 +13,9 @@ from docmind_api.application.dictionaries.commands import (
     DeleteDictionaryEntryResult,
     DeleteDictionaryResult,
     DictionaryEntryPage,
+    DictionaryListPageResult,
+    DictionaryListStatus,
+    DictionarySortField,
     ListDictionariesQuery,
     ListDictionaryEntriesQuery,
     SaveDictionaryFieldsCommand,
@@ -28,6 +32,7 @@ from docmind_api.application.dictionaries.errors import (
     DictionaryNotFoundError,
     DictionaryUsedByActiveAttributeError,
     DictionaryUsedByActiveSystemCatalogFieldError,
+    DictionaryUsedByWorkspaceError,
     DictionaryValidationError,
 )
 from docmind_api.application.dictionaries.field_factory import build_dictionary_field
@@ -46,6 +51,11 @@ from docmind_api.application.dictionaries.validation import (
     require_active_dictionary,
     resolve_update,
     validated_dictionary_reference,
+)
+from docmind_api.application.listing import (
+    ListRequest,
+    filter_bounded_list,
+    process_bounded_list,
 )
 from docmind_api.domain.dictionaries.models import (
     Dictionary,
@@ -120,6 +130,52 @@ class DictionaryCatalogService:
             search=normalize_search(query.search),
         )
 
+    async def list_dictionary_page(
+        self,
+        query: ListDictionariesQuery,
+    ) -> DictionaryListPageResult:
+        """Search, facet, sort, and page the bounded dictionary catalog."""
+
+        dictionaries = await self._repository.list_dictionaries(status=None, search=None)
+        matching_dictionaries = filter_bounded_list(
+            dictionaries,
+            search=normalize_search(query.search),
+            search_values=lambda dictionary: (
+                dictionary.name,
+                dictionary.external_id,
+                dictionary.description,
+                dictionary.status.value,
+            ),
+        )
+        active_count = sum(
+            dictionary.status is DictionaryStatus.ACTIVE for dictionary in matching_dictionaries
+        )
+        status_filtered = tuple(
+            dictionary
+            for dictionary in matching_dictionaries
+            if query.status is DictionaryListStatus.ALL
+            or dictionary.status.value == query.status.value
+        )
+        page = process_bounded_list(
+            status_filtered,
+            request=ListRequest(
+                search=None,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+            search_values=lambda _dictionary: (),
+            sort_value=_dictionary_sort_value,
+            identity=lambda dictionary: dictionary.id,
+        )
+        return DictionaryListPageResult(
+            page=page,
+            active_count=active_count,
+            inactive_count=len(matching_dictionaries) - active_count,
+            status=query.status,
+        )
+
     async def update_dictionary(self, command: UpdateDictionaryCommand) -> Dictionary:
         dictionary = await self._get_dictionary(command.dictionary_id)
         try:
@@ -139,7 +195,7 @@ class DictionaryCatalogService:
         self,
         command: DeactivateDictionaryCommand,
     ) -> Dictionary:
-        dictionary = await self._get_dictionary(command.dictionary_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
         usage = await self._usage_repository.get_usage(dictionary.id)
         if usage.active_attribute_bindings:
             raise DictionaryUsedByActiveAttributeError(
@@ -148,6 +204,11 @@ class DictionaryCatalogService:
             )
         if usage.active_system_catalog_fields:
             raise DictionaryUsedByActiveSystemCatalogFieldError(
+                dictionary_id=dictionary.id,
+                usage=usage,
+            )
+        if usage.workspace_bindings:
+            raise DictionaryUsedByWorkspaceError(
                 dictionary_id=dictionary.id,
                 usage=usage,
             )
@@ -161,7 +222,7 @@ class DictionaryCatalogService:
         self,
         command: DeleteDictionaryCommand,
     ) -> DeleteDictionaryResult:
-        dictionary = await self._get_dictionary(command.dictionary_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
         usage = await self._usage_repository.get_usage(dictionary.id)
         if usage.has_blocking_dependencies:
             raise DictionaryInUseError(dictionary_id=dictionary.id, usage=usage)
@@ -265,3 +326,25 @@ class DictionaryCatalogService:
         if dictionary is None:
             raise DictionaryNotFoundError(dictionary_id=normalized_reference)
         return dictionary
+
+    async def _get_dictionary_for_update(self, dictionary_id: UUID | str) -> Dictionary:
+        normalized_reference = validated_dictionary_reference(dictionary_id)
+        dictionary = await self._repository.get_dictionary_by_id_for_update(
+            normalized_reference,
+        )
+        if dictionary is None:
+            raise DictionaryNotFoundError(dictionary_id=normalized_reference)
+        return dictionary
+
+
+def _dictionary_sort_value(
+    dictionary: Dictionary,
+    sort_by: DictionarySortField,
+) -> str | datetime:
+    if sort_by is DictionarySortField.EXTERNAL_ID:
+        return dictionary.external_id
+    if sort_by is DictionarySortField.STATUS:
+        return dictionary.status.value
+    if sort_by is DictionarySortField.UPDATED_AT:
+        return dictionary.updated_at
+    return dictionary.name

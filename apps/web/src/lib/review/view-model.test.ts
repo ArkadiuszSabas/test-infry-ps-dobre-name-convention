@@ -94,6 +94,7 @@ function reviewFixture(): DocumentReview {
         dataType: "string",
         displayOrder: 10,
         displayValue: "AGR-2026-001",
+        presentationRows: [],
         id: "field-1",
         kind: "configured",
         label: "Contract number",

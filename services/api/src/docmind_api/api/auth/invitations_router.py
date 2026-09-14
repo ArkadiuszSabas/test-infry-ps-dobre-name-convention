@@ -4,20 +4,22 @@ from collections.abc import Awaitable, Callable
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from docmind_api.api.auth.schemas import (
     UserInvitationCreateRequest,
     UserInvitationEnvelope,
     UserInvitationListEnvelope,
+    UserInvitationListMetaSchema,
+    UserInvitationListQuery,
     UserInvitationListSchema,
     UserInvitationSchema,
 )
 from docmind_api.application.auth.invitations import (
     CancelUserInvitationCommand,
     CreateUserInvitationCommand,
-    ListPendingUserInvitationsCommand,
-    UserInvitationListResult,
+    ListUserInvitationsPageCommand,
+    UserInvitationPageResult,
     UserInvitationResult,
     UserInvitationService,
 )
@@ -38,17 +40,26 @@ def register_invitation_routes(
 ) -> None:
     """Register admin invitation routes on the auth router."""
 
-    async def list_pending_invitations(
+    async def list_invitations(
         admin_actor: Annotated[AuthenticatedActor, Depends(require_admin_users_manage)],
         invitation_service: Annotated[
             UserInvitationService,
             Depends(user_invitation_service_dependency),
         ],
+        query: Annotated[UserInvitationListQuery, Query()],
     ) -> UserInvitationListEnvelope:
-        result = await invitation_service.list_pending_invitations(
-            ListPendingUserInvitationsCommand(actor=admin_actor),
+        result = await invitation_service.list_invitation_page(
+            ListUserInvitationsPageCommand(
+                actor=admin_actor,
+                status=query.status,
+                search=query.search,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
         )
-        return _to_user_invitation_list_envelope(result)
+        return _to_user_invitation_list_envelope(result, query=query)
 
     async def create_invitation(
         request: UserInvitationCreateRequest,
@@ -85,7 +96,7 @@ def register_invitation_routes(
 
     router.add_api_route(
         "/invitations",
-        list_pending_invitations,
+        list_invitations,
         methods=["GET"],
         response_model=UserInvitationListEnvelope,
     )
@@ -119,18 +130,28 @@ def _to_user_invitation_envelope(
 
 
 def _to_user_invitation_list_envelope(
-    result: UserInvitationListResult,
+    result: UserInvitationPageResult,
+    *,
+    query: UserInvitationListQuery,
 ) -> UserInvitationListEnvelope:
     return UserInvitationListEnvelope(
         data=UserInvitationListSchema(
             invitations=[
-                _to_user_invitation_schema(invitation) for invitation in result.invitations
+                _to_user_invitation_schema(invitation) for invitation in result.page.items
             ],
         ),
-        meta={
-            "delivery_available": result.delivery_available,
-            "evaluated_at": result.evaluated_at,
-        },
+        meta=UserInvitationListMetaSchema(
+            delivery_available=result.delivery_available,
+            evaluated_at=result.evaluated_at,
+            total=result.page.total,
+            returned_count=result.page.returned_count,
+            limit=query.limit,
+            offset=query.offset,
+            pending_count=result.pending_count,
+            cancelled_count=result.cancelled_count,
+            accepted_count=result.accepted_count,
+            status=result.status,
+        ),
     )
 
 

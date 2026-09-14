@@ -14,6 +14,7 @@ from docmind_api.application.dictionaries.commands import (
 )
 from docmind_api.application.dictionaries.errors import (
     DictionaryEntryAlreadyExistsError,
+    DictionaryEntryBoundToWorkspaceError,
     DictionaryEntryInUseError,
     DictionaryEntryNotFoundError,
     DictionaryEntryValidationError,
@@ -65,7 +66,7 @@ class DictionaryEntryCatalogWorkflow:
         self,
         command: CreateDictionaryEntryCommand,
     ) -> DictionaryEntry:
-        dictionary = await self._get_dictionary(command.dictionary_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
         require_active_dictionary(dictionary)
         try:
             external_id = normalize_dictionary_external_id(command.external_id)
@@ -86,7 +87,7 @@ class DictionaryEntryCatalogWorkflow:
             fields=fields,
             include_for_generated_values=True,
         )
-        values = _with_generated_entry_values(
+        values = with_generated_entry_values(
             fields=fields,
             values=command.values,
             existing_entries=existing_entries,
@@ -135,6 +136,8 @@ class DictionaryEntryCatalogWorkflow:
             search=normalize_search(query.search),
             limit=query.limit,
             offset=query.offset,
+            sort_by=query.sort_by,
+            sort_direction=query.sort_direction,
         )
         return DictionaryEntryPage(
             entries=result.entries,
@@ -144,9 +147,11 @@ class DictionaryEntryCatalogWorkflow:
         )
 
     async def update_entry(self, command: UpdateDictionaryEntryCommand) -> DictionaryEntry:
-        dictionary = await self._get_dictionary(command.dictionary_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
         require_active_dictionary(dictionary)
-        existing = await self._repository.get_entry_by_id(dictionary.id, command.entry_id)
+        existing = await self._repository.get_entry_by_id_for_update(
+            dictionary.id, command.entry_id
+        )
         if existing is None:
             raise DictionaryEntryNotFoundError(
                 dictionary_id=dictionary.id,
@@ -202,12 +207,24 @@ class DictionaryEntryCatalogWorkflow:
         self,
         command: DeactivateDictionaryEntryCommand,
     ) -> DictionaryEntry:
-        dictionary = await self._get_dictionary(command.dictionary_id)
-        existing = await self._repository.get_entry_by_id(dictionary.id, command.entry_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
+        existing = await self._repository.get_entry_by_id_for_update(
+            dictionary.id,
+            command.entry_id,
+        )
         if existing is None:
             raise DictionaryEntryNotFoundError(
                 dictionary_id=dictionary.id,
                 entry_id=command.entry_id,
+            )
+        usage = await self._usage_repository.get_entry_usage(
+            dictionary.id,
+            existing.external_id,
+        )
+        if usage.workspace_bindings:
+            raise DictionaryEntryBoundToWorkspaceError(
+                dictionary_id=dictionary.id,
+                entry_id=existing.id,
             )
         timestamp = self._clock.now()
         deactivated = existing.deactivate(updated_at=timestamp)
@@ -222,8 +239,11 @@ class DictionaryEntryCatalogWorkflow:
         self,
         command: DeleteDictionaryEntryCommand,
     ) -> DeleteDictionaryEntryResult:
-        dictionary = await self._get_dictionary(command.dictionary_id)
-        existing = await self._repository.get_entry_by_id(dictionary.id, command.entry_id)
+        dictionary = await self._get_dictionary_for_update(command.dictionary_id)
+        existing = await self._repository.get_entry_by_id_for_update(
+            dictionary.id,
+            command.entry_id,
+        )
         if existing is None:
             raise DictionaryEntryNotFoundError(
                 dictionary_id=dictionary.id,
@@ -276,6 +296,15 @@ class DictionaryEntryCatalogWorkflow:
             raise DictionaryNotFoundError(dictionary_id=normalized_reference)
         return dictionary
 
+    async def _get_dictionary_for_update(self, dictionary_id: UUID | str) -> Dictionary:
+        normalized_reference = validated_dictionary_reference(dictionary_id)
+        dictionary = await self._repository.get_dictionary_by_id_for_update(
+            normalized_reference,
+        )
+        if dictionary is None:
+            raise DictionaryNotFoundError(dictionary_id=normalized_reference)
+        return dictionary
+
     async def _existing_entries_for_unique_validation(
         self,
         *,
@@ -301,7 +330,7 @@ class DictionaryEntryCatalogWorkflow:
         ).entries
 
 
-def _with_generated_entry_values(
+def with_generated_entry_values(
     *,
     fields: tuple[DictionaryField, ...],
     values: Mapping[str, DictionaryEntryScalar],

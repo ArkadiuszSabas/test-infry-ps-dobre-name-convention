@@ -51,11 +51,17 @@ test("inbox client lists documents from every source", async (t) => {
         ],
       },
       meta: {
-        returned_count: 2,
-        source: null,
+        document_type_facets: [
+          { count: 1, value: "898ffb04-4e04-48b9-9996-b5b6bc466a52" },
+          { count: 1, value: SUPPLIER_INVOICE_ID },
+        ],
+        has_more: false,
         limit: 50,
         offset: 0,
-        has_more: false,
+        returned_count: 2,
+        source: null,
+        status_facets: [{ count: 2, value: "received" }],
+        total: 2,
       },
     }),
   ]);
@@ -80,7 +86,7 @@ test("inbox client lists documents from every source", async (t) => {
   );
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/documents?archived=false&limit=50&offset=0",
+    "/api/docmind/documents?limit=50&offset=0&sort_by=created&sort_direction=desc&archived=false",
   );
   assert.equal(fetchMock.calls[0]?.init.method, "GET");
 });
@@ -90,11 +96,14 @@ test("inbox client lists a requested document window", async (t) => {
     jsonResponse({
       data: { documents: [] },
       meta: {
-        returned_count: 0,
-        source: null,
+        document_type_facets: [],
+        has_more: false,
         limit: 25,
         offset: 50,
-        has_more: false,
+        returned_count: 0,
+        source: null,
+        status_facets: [],
+        total: 0,
       },
     }),
   ]);
@@ -108,7 +117,42 @@ test("inbox client lists a requested document window", async (t) => {
 
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/documents?archived=true&limit=25&offset=50",
+    "/api/docmind/documents?limit=25&offset=50&sort_by=created&sort_direction=desc&archived=true",
+  );
+});
+
+test("inbox client sends every backend-owned list criterion", async (t) => {
+  const fetchMock = installFetchMock([
+    jsonResponse({
+      data: { documents: [] },
+      meta: {
+        document_type_facets: [{ count: 2, value: SUPPLIER_INVOICE_ID }],
+        has_more: false,
+        limit: 50,
+        offset: 0,
+        returned_count: 0,
+        source: null,
+        status_facets: [{ count: 2, value: "received" }],
+        total: 2,
+      },
+    }),
+  ]);
+  t.after(fetchMock.restore);
+
+  const result = await inboxClient.listDocuments({
+    archived: true,
+    documentTypeId: SUPPLIER_INVOICE_ID,
+    search: "invoice",
+    sortBy: "name",
+    sortDirection: "asc",
+    status: "received",
+  });
+
+  assert.equal(result.meta.total, 2);
+  assert.deepEqual(result.meta.statusFacets, [{ count: 2, value: "received" }]);
+  assert.equal(
+    fetchMock.calls[0]?.input,
+    `/api/docmind/documents?limit=50&offset=0&sort_by=name&sort_direction=asc&search=invoice&archived=true&document_type_id=${SUPPLIER_INVOICE_ID}&status=received`,
   );
 });
 
@@ -117,11 +161,14 @@ test("inbox client paginates documents until requested document is found", async
     jsonResponse({
       data: { documents: [documentFixture("first-page-document")] },
       meta: {
-        returned_count: 1,
-        source: null,
+        document_type_facets: [],
+        has_more: true,
         limit: 100,
         offset: 0,
-        has_more: true,
+        returned_count: 1,
+        source: null,
+        status_facets: [],
+        total: 3,
       },
     }),
     jsonResponse({
@@ -132,11 +179,14 @@ test("inbox client paginates documents until requested document is found", async
         ],
       },
       meta: {
-        returned_count: 2,
-        source: null,
+        document_type_facets: [],
+        has_more: false,
         limit: 100,
         offset: 1,
-        has_more: false,
+        returned_count: 2,
+        source: null,
+        status_facets: [],
+        total: 3,
       },
     }),
   ]);
@@ -151,11 +201,11 @@ test("inbox client paginates documents until requested document is found", async
   assert.equal(fetchMock.calls.length, 2);
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/documents?archived=false&limit=100&offset=0",
+    "/api/docmind/documents?limit=100&offset=0&sort_by=created&sort_direction=desc&archived=false",
   );
   assert.equal(
     fetchMock.calls[1]?.input,
-    "/api/docmind/documents?archived=false&limit=100&offset=1",
+    "/api/docmind/documents?limit=100&offset=1&sort_by=created&sort_direction=desc&archived=false",
   );
 });
 
@@ -421,7 +471,7 @@ test("inbox client loads active dictionary lookup entries", async (t) => {
         limit: 100,
         offset: 0,
         returned_count: 1,
-        total_count: 2,
+        total: 2,
       },
     }),
     jsonResponse({
@@ -441,7 +491,7 @@ test("inbox client loads active dictionary lookup entries", async (t) => {
         limit: 100,
         offset: 1,
         returned_count: 1,
-        total_count: 2,
+        total: 2,
       },
     }),
   ]);

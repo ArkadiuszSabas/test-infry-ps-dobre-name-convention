@@ -11,6 +11,7 @@ import { DataListRow, DataListTable } from "@/components/ui/data-list";
 import { IconTooltipButton } from "@/components/ui/icon-tooltip-button";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import {
+  SortableTableHead,
   TableBody,
   TableCell,
   TableHead,
@@ -18,11 +19,13 @@ import {
   TableRow,
   TruncatedTableText,
 } from "@/components/ui/table";
+import type { DictionaryEntrySortField } from "@/lib/admin-settings/dictionary-api";
 import type {
   DictionaryEntry,
   DictionaryField,
 } from "@/lib/admin-settings/types";
 import { formatDictionaryEntryValue } from "@/lib/admin-settings/view-model";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 
 interface DictionaryEntryTableProps {
   entries: DictionaryEntry[];
@@ -33,6 +36,8 @@ interface DictionaryEntryTableProps {
   onDeactivate: (entry: DictionaryEntry) => void;
   onDelete: (entry: DictionaryEntry) => void;
   onEdit: (entry: DictionaryEntry) => void;
+  onSortChange: (sort: SortState<DictionaryEntrySortField>) => void;
+  sort: SortState<DictionaryEntrySortField>;
 }
 
 export function DictionaryEntryTable({
@@ -44,10 +49,13 @@ export function DictionaryEntryTable({
   onDeactivate,
   onDelete,
   onEdit,
+  onSortChange,
+  sort,
 }: DictionaryEntryTableProps) {
   const t = useTranslations("AdminSettings.customDictionaryDetail");
   const common = useTranslations("AdminSettings.common");
   const format = useFormatter();
+  const collection = useTranslations("CollectionView");
   const activeFields = fields
     .filter((field) => field.status === "active")
     .slice()
@@ -64,15 +72,47 @@ export function DictionaryEntryTable({
         ];
   const columnCount = valueColumns.length + 3;
 
+  function sortLabel(column: DictionaryEntrySortField, label: string) {
+    const nextDirection =
+      sort.column === column && sort.direction === "asc" ? "desc" : "asc";
+    return collection(`sort.${nextDirection}`, { column: label });
+  }
+
   return (
     <DataListTable className="min-w-[720px]">
       <TableHeader>
         <TableRow className="border-0 hover:bg-transparent">
-          {valueColumns.map((field) => (
-            <TableHead key={field.id}>{field.label}</TableHead>
-          ))}
-          <TableHead>{t("entries.columns.status")}</TableHead>
-          <TableHead>{t("entries.columns.updatedAt")}</TableHead>
+          {valueColumns.map((field) =>
+            field.externalId === "__entry" ? (
+              <SortableTableHead
+                active={sort.column === "label"}
+                direction={sort.direction}
+                key={field.id}
+                onSort={() => onSortChange(nextSortState(sort, "label"))}
+                sortLabel={sortLabel("label", field.label)}
+              >
+                {field.label}
+              </SortableTableHead>
+            ) : (
+              <TableHead key={field.id}>{field.label}</TableHead>
+            ),
+          )}
+          <SortableTableHead
+            active={sort.column === "status"}
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
+            sortLabel={sortLabel("status", t("entries.columns.status"))}
+          >
+            {t("entries.columns.status")}
+          </SortableTableHead>
+          <SortableTableHead
+            active={sort.column === "updated_at"}
+            direction={sort.direction}
+            onSort={() => onSortChange(nextSortState(sort, "updated_at"))}
+            sortLabel={sortLabel("updated_at", t("entries.columns.updatedAt"))}
+          >
+            {t("entries.columns.updatedAt")}
+          </SortableTableHead>
           <TableHead className="text-right">
             {t("entries.columns.actions")}
           </TableHead>

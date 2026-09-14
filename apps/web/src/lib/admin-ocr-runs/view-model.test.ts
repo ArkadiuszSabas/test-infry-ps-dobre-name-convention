@@ -2,15 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  buildConnectorFilterOptions,
   buildPipelineFilterOptions,
-  buildSourceFilterOptions,
   canCancelRun,
   canRerunRun,
   formatAdminOcrRunTimesTitle,
   formatAdminOcrRunUpdatedAt,
   getAdminOcrRunDatePresetRange,
-  getAdminOcrRunStatusCount,
   hasActiveAdminOcrRunFilters,
   parseAdminOcrRunUrlState,
   toListFilters,
@@ -30,6 +27,26 @@ test("admin OCR URL state validates values and derives stale cutoff", () => {
   assert.equal(filters.staleMs, 3_600_000);
   assert.equal(filters.search, "invoice");
   assert.equal(filters.offset, 25);
+  assert.equal(filters.sortBy, "completed_at");
+  assert.equal(filters.sortDirection, "desc");
+});
+
+test("admin OCR URL state validates and forwards explicit sorting", () => {
+  const filters = toListFilters(
+    parseAdminOcrRunUrlState(
+      new URLSearchParams("sort_by=document_name&sort_direction=asc"),
+    ),
+  );
+  const invalid = toListFilters(
+    parseAdminOcrRunUrlState(
+      new URLSearchParams("sort_by=raw_sql&sort_direction=sideways"),
+    ),
+  );
+
+  assert.equal(filters.sortBy, "document_name");
+  assert.equal(filters.sortDirection, "asc");
+  assert.equal(invalid.sortBy, "updated_at");
+  assert.equal(invalid.sortDirection, "asc");
 });
 
 test("admin OCR URL state retains the document type filter", () => {
@@ -55,20 +72,6 @@ test("admin OCR rerun is limited to terminal states", () => {
 });
 
 test("admin OCR presentation options use real run and pipeline values", () => {
-  const runs = [runFixture(), runFixture({ document_source: "email" })];
-
-  assert.deepEqual(buildSourceFilterOptions(runs), [
-    { label: "email", value: "email" },
-    { label: "sharepoint", value: "sharepoint" },
-  ]);
-  assert.deepEqual(buildConnectorFilterOptions(runs), [
-    { label: "KM Primary · km-primary", value: "km-primary" },
-  ]);
-  assert.deepEqual(buildSourceFilterOptions(runs, "archived-source"), [
-    { label: "archived-source", value: "archived-source" },
-    { label: "email", value: "email" },
-    { label: "sharepoint", value: "sharepoint" },
-  ]);
   assert.deepEqual(
     buildPipelineFilterOptions([
       {
@@ -83,11 +86,6 @@ test("admin OCR presentation options use real run and pipeline values", () => {
 });
 
 test("admin OCR presentation state counts filters and builds date presets", () => {
-  const runs = [runFixture(), runFixture({ status: "failed" })];
-
-  assert.equal(getAdminOcrRunStatusCount(runs), 2);
-  assert.equal(getAdminOcrRunStatusCount(runs, "succeeded"), 1);
-  assert.equal(getAdminOcrRunStatusCount(runs, "failed"), 1);
   assert.equal(
     hasActiveAdminOcrRunFilters(
       parseAdminOcrRunUrlState(new URLSearchParams("view=history")),
@@ -129,8 +127,8 @@ function runFixture(
     completed_at: "2026-08-28T09:45:00Z",
     completed_step_count: 2,
     connector_correlation_id: "corr-1",
-    connector_display_name: "KM Primary",
-    connector_instance_id: "km-primary",
+    connector_display_name: "Primary Connector",
+    connector_instance_id: "primary-connector",
     created_at: "2026-08-28T09:00:00Z",
     current_step_name: null,
     current_step_status: null,

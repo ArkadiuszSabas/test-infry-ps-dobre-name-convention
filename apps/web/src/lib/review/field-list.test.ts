@@ -94,6 +94,7 @@ function fieldFixture(
     dataType: "string",
     displayOrder: 10,
     displayValue: value,
+    presentationRows: [],
     id,
     kind: "manual",
     label,

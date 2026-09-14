@@ -6,6 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from docmind_api.api.list_contract import ListPageMeta
+from docmind_api.application.documents.read_models import DocumentListStatus
 from docmind_api.domain.attributes.models import (
     AttributeDataType,
     AttributeStatus,
@@ -219,7 +221,7 @@ class DocumentListItemSchema(BaseModel):
     document_type_id: UUID
     document_type_external_id: str | None = None
     document_type_name: str
-    status: DocumentStatus
+    status: DocumentListStatus
     source: str
     connector: str
     connector_name: str
@@ -238,14 +240,19 @@ class DocumentListSchema(BaseModel):
     documents: list[DocumentListItemSchema]
 
 
-class DocumentListMetaSchema(BaseModel):
+class DocumentListFacetSchema(BaseModel):
+    """One count returned for a document list filter value."""
+
+    value: str
+    count: int = Field(ge=0)
+
+
+class DocumentListMetaSchema(ListPageMeta):
     """HTTP metadata for document registry collections."""
 
-    returned_count: int
     source: str | None
-    limit: int
-    offset: int
-    has_more: bool
+    status_facets: list[DocumentListFacetSchema]
+    document_type_facets: list[DocumentListFacetSchema]
 
 
 class DocumentListEnvelope(BaseModel):

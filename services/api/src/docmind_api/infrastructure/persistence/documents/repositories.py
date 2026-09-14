@@ -5,11 +5,19 @@ from datetime import datetime
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, update
+from sqlalchemy import String, case, func, or_, select, update
+from sqlalchemy import cast as sql_cast
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from docmind_api.application.documents.ports import DocumentRegistryRepository
+from docmind_api.application.documents.read_models import (
+    DocumentListEntry,
+    DocumentListQuery,
+    DocumentListSortField,
+    DocumentListStatus,
+)
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.domain.documents.metadata import JsonScalar
 from docmind_api.domain.documents.models import (
     DocumentRecord,
@@ -18,12 +26,17 @@ from docmind_api.domain.documents.models import (
     DocumentUploadActor,
     StorageLocator,
 )
+from docmind_api.infrastructure.persistence.document_types.tables import document_types_table
 from docmind_api.infrastructure.persistence.documents.deletion_tables import (
     document_is_not_deleting,
 )
 from docmind_api.infrastructure.persistence.documents.tables import (
     document_type_change_audit_events_table,
     documents_table,
+)
+from docmind_api.infrastructure.persistence.list_sorting import stable_order_by
+from docmind_api.infrastructure.persistence.ocr_pipeline_runs.tables import (
+    ocr_pipeline_runs_table,
 )
 
 
@@ -140,34 +153,154 @@ class SqlAlchemyDocumentRegistryRepository(DocumentRegistryRepository):
             updated_at=changed_at,
         )
 
-    async def list(
-        self,
-        *,
-        source: str | None = None,
-        connector: str | None = None,
-        archived: bool | None = None,
-        limit: int = 50,
-        offset: int = 0,
-    ) -> tuple[DocumentRecord, ...]:
-        """Return document registry entries, newest first."""
+    async def list(self, query: DocumentListQuery) -> tuple[DocumentListEntry, ...]:
+        """Return one filtered, deterministically sorted document page."""
 
-        statement = select(documents_table).order_by(
-            documents_table.c.created_at.desc(),
-            documents_table.c.id.desc(),
-        )
-        statement = statement.where(document_is_not_deleting(documents_table.c.id))
-        if source is not None:
-            statement = statement.where(documents_table.c.source == source)
-        if connector is not None:
-            statement = statement.where(documents_table.c.connector == connector)
-        if archived is True:
-            statement = statement.where(documents_table.c.status == DocumentStatus.APPROVED.value)
-        elif archived is False:
-            statement = statement.where(documents_table.c.status != DocumentStatus.APPROVED.value)
-
-        statement = statement.limit(limit).offset(offset)
+        visible_status = _visible_status_expression()
+        statement = self._filtered_statement(
+            query,
+            columns=(documents_table, visible_status),
+            visible_status=visible_status,
+        ).order_by(*_document_ordering(query, visible_status))
+        statement = statement.limit(query.limit).offset(query.offset)
         result = await self._session.execute(statement)
-        return tuple(document_from_row(row) for row in result.mappings())
+        return tuple(
+            DocumentListEntry(
+                document=document_from_row(row),
+                status=DocumentListStatus(row["visible_status"]),
+            )
+            for row in result.mappings()
+        )
+
+    async def count(self, query: DocumentListQuery) -> int:
+        result = await self._session.execute(
+            self._filtered_statement(query, columns=(func.count(documents_table.c.id),))
+        )
+        return int(result.scalar_one())
+
+    async def count_statuses(self, query: DocumentListQuery) -> tuple[tuple[str, int], ...]:
+        visible_status = _visible_status_expression()
+        result = await self._session.execute(
+            self._filtered_statement(
+                query,
+                columns=(visible_status, func.count(documents_table.c.id).label("count")),
+                include_status=False,
+                visible_status=visible_status,
+            )
+            .group_by(visible_status)
+            .order_by(visible_status)
+        )
+        return tuple((str(status), int(count)) for status, count in result.tuples())
+
+    async def count_document_types(self, query: DocumentListQuery) -> tuple[tuple[UUID, int], ...]:
+        result = await self._session.execute(
+            self._filtered_statement(
+                query,
+                columns=(
+                    documents_table.c.document_type_id,
+                    func.count(documents_table.c.id).label("count"),
+                ),
+                include_document_type=False,
+            )
+            .group_by(documents_table.c.document_type_id)
+            .order_by(documents_table.c.document_type_id)
+        )
+        return tuple((document_type_id, int(count)) for document_type_id, count in result.tuples())
+
+    def _filtered_statement(
+        self,
+        query: DocumentListQuery,
+        *,
+        columns: tuple[Any, ...] = (documents_table,),
+        include_document_type: bool = True,
+        include_status: bool = True,
+        visible_status: Any | None = None,
+    ) -> Any:
+        statement: Any = (
+            select(*columns)
+            .select_from(
+                documents_table.join(
+                    document_types_table,
+                    documents_table.c.document_type_id == document_types_table.c.id,
+                )
+            )
+            .where(document_is_not_deleting(documents_table.c.id))
+        )
+        if query.source is not None:
+            statement = statement.where(documents_table.c.source == query.source)
+        if query.connector is not None:
+            statement = statement.where(documents_table.c.connector == query.connector)
+        if query.archived is True:
+            statement = statement.where(documents_table.c.status == DocumentStatus.APPROVED.value)
+        elif query.archived is False:
+            statement = statement.where(documents_table.c.status != DocumentStatus.APPROVED.value)
+        if include_status and query.status is not None:
+            statement = statement.where(
+                (visible_status if visible_status is not None else _visible_status_expression())
+                == query.status.value
+            )
+        if include_document_type and query.document_type_id is not None:
+            statement = statement.where(
+                documents_table.c.document_type_id == query.document_type_id
+            )
+        if query.search is not None:
+            pattern = _contains_pattern(query.search)
+            statement = statement.where(
+                or_(
+                    documents_table.c.name.ilike(pattern, escape="\\"),
+                    documents_table.c.original_filename.ilike(pattern, escape="\\"),
+                    document_types_table.c.name.ilike(pattern, escape="\\"),
+                    document_types_table.c.external_id.ilike(pattern, escape="\\"),
+                    documents_table.c.source.ilike(pattern, escape="\\"),
+                    documents_table.c.connector.ilike(pattern, escape="\\"),
+                    sql_cast(documents_table.c.document_type_id, String).ilike(
+                        pattern, escape="\\"
+                    ),
+                )
+            )
+        return statement
+
+
+def _document_ordering(query: DocumentListQuery, visible_status: Any) -> tuple[Any, Any]:
+    return stable_order_by(
+        sort_by=query.sort_by,
+        direction=ListSortDirection(query.sort_order.value),
+        allowlist={
+            DocumentListSortField.CREATED: documents_table.c.created_at,
+            DocumentListSortField.NAME: documents_table.c.name,
+            DocumentListSortField.DOCUMENT_TYPE: document_types_table.c.name,
+            DocumentListSortField.SOURCE: documents_table.c.source,
+            DocumentListSortField.STATUS: visible_status,
+            DocumentListSortField.SIZE: documents_table.c.content_size_bytes,
+        },
+        identity=documents_table.c.id,
+    )
+
+
+def _visible_status_expression() -> Any:
+    """Return the status shown, filtered, faceted, and sorted in document lists."""
+
+    latest_ocr_status = (
+        select(ocr_pipeline_runs_table.c.status)
+        .where(ocr_pipeline_runs_table.c.document_id == documents_table.c.id)
+        .order_by(
+            ocr_pipeline_runs_table.c.created_at.desc(),
+            ocr_pipeline_runs_table.c.id.desc(),
+        )
+        .limit(1)
+        .scalar_subquery()
+    )
+    return case(
+        (latest_ocr_status == "failed", DocumentListStatus.FAILED.value),
+        else_=documents_table.c.status,
+    ).label("visible_status")
+
+
+def _contains_pattern(value: str) -> str:
+    """Escape SQL LIKE metacharacters before a case-insensitive contains search."""
+
+    escaped = value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
 
 
 def document_from_row(row: Mapping[Any, Any]) -> DocumentRecord:

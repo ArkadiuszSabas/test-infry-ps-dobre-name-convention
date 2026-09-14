@@ -619,6 +619,7 @@ def _build_next_version(
                     value=value,
                 ),
                 requires_review=previous.required and value is None,
+                presentation_rows=(),
             ),
         )
 

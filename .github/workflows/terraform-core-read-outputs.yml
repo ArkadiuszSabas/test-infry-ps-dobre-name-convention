@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TF_ENVIRONMENT" in
-            dev|uat|prd) ;;
+            dev|test|prod) ;;
             *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
           esac
           for variable_name in TF_BACKEND_RESOURCE_GROUP TF_BACKEND_STORAGE_ACCOUNT TF_BACKEND_CONTAINER; do

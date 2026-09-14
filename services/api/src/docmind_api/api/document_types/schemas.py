@@ -3,9 +3,13 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from docmind_api.application.document_types.service import DocumentTypeListStatus
+from docmind_api.api.list_contract import ListPageMeta, ListQueryParams
+from docmind_api.application.document_types.service import (
+    DocumentTypeListStatus,
+    DocumentTypeSortField,
+)
 from docmind_api.domain.document_types.models import (
     DOCUMENT_TYPE_DESCRIPTION_MAX_LENGTH,
     DOCUMENT_TYPE_ID_MAX_LENGTH,
@@ -23,6 +27,25 @@ class DocumentTypeExtensionValueRequest(BaseModel):
     extension_field_id: UUID = Field(alias="extensionFieldId")
     dictionary_entry_id: UUID | None = Field(default=None, alias="dictionaryEntryId")
     text_value: str | None = Field(default=None, alias="textValue")
+
+
+class DocumentTypeListQuery(ListQueryParams[DocumentTypeSortField]):
+    """Filtered, sorted, paged document type catalog query."""
+
+    sort_by: DocumentTypeSortField = DocumentTypeSortField.DISPLAY_LABEL
+    status: DocumentTypeListStatus = DocumentTypeListStatus.ACTIVE
+    parameter: list[str] = Field(default_factory=list)
+
+    @field_validator("parameter")
+    @classmethod
+    def validate_parameters(cls, values: list[str]) -> list[str]:
+        """Require each dynamic parameter filter to use a non-empty ``code=value`` pair."""
+
+        for value in values:
+            code, separator, expected = value.partition("=")
+            if not separator or not code.strip() or not expected.strip():
+                raise ValueError("parameter filters must use a non-empty code=value pair.")
+        return values
 
 
 def _empty_extension_value_requests() -> list[DocumentTypeExtensionValueRequest]:
@@ -133,13 +156,11 @@ class DocumentTypeListSchema(BaseModel):
     document_types: list[DocumentTypeSchema]
 
 
-class DocumentTypeListMetaSchema(BaseModel):
+class DocumentTypeListMetaSchema(ListPageMeta):
     """HTTP metadata for document type catalog results."""
 
-    total_count: int
     active_count: int
     inactive_count: int
-    returned_count: int
     status: DocumentTypeListStatus
 
 

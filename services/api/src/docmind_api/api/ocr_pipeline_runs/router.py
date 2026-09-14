@@ -30,7 +30,9 @@ from docmind_api.api.ocr_pipeline_runs.schemas import (
     StartOcrPipelineRunRequest,
 )
 from docmind_api.application.auth.sessions import UserSessionService
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.application.ocr_pipeline_runs.commands import (
+    DocumentOcrRunSortField,
     GetOcrPipelineRunQuery,
     ListDocumentOcrPipelineRunsQuery,
     StartOcrPipelineRunCommand,
@@ -49,6 +51,7 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
     OcrPipelineRunDiagnostic,
     OcrPipelineRunError,
     OcrPipelineRunRecord,
+    OcrPipelineRunStatus,
     OcrPipelineRunStep,
 )
 from docmind_core.ocr_pipeline.contracts import DispatchFailedV1, OcrPipelineEventV1
@@ -195,12 +198,20 @@ def create_ocr_pipeline_runs_router(
                 ge=0,
             ),
         ] = 0,
+        search: Annotated[str | None, Query(min_length=1, max_length=200)] = None,
+        status: Annotated[OcrPipelineRunStatus | None, Query()] = None,
+        sort_by: Annotated[DocumentOcrRunSortField, Query()] = (DocumentOcrRunSortField.CREATED_AT),
+        sort_direction: Annotated[ListSortDirection, Query()] = ListSortDirection.DESC,
     ) -> OcrPipelineRunListEnvelope:
         page = await service.list_document_runs(
             ListDocumentOcrPipelineRunsQuery(
                 document_id=document_id,
                 limit=limit,
                 offset=offset,
+                search=search,
+                status=status,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
             ),
         )
         return to_run_list_envelope(page)

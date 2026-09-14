@@ -121,6 +121,7 @@ def _to_attribute_schema(attribute: DocumentReviewAttribute) -> DocumentReviewAt
         ),
         value_source=attribute.value_source,
         manually_edited=attribute.manually_edited,
+        presentation_rows=[list(row) for row in attribute.presentation_rows],
     )
 
 

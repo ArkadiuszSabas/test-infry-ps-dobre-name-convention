@@ -91,6 +91,7 @@ test("inbox client lists document OCR pipeline runs", async (t) => {
         limit: 2,
         offset: 5,
         has_more: false,
+        total: 6,
       },
     }),
   ]);
@@ -106,7 +107,7 @@ test("inbox client lists document OCR pipeline runs", async (t) => {
   assert.equal(result.data.runs[0]?.diagnostics[0]?.stepId, "ocr");
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/documents/33333333-3333-3333-3333-333333333333/ocr/pipeline-runs?limit=2&offset=5",
+    "/api/docmind/documents/33333333-3333-3333-3333-333333333333/ocr/pipeline-runs?limit=2&offset=5&sort_by=created_at&sort_direction=desc",
   );
 });
 

@@ -125,6 +125,7 @@ class ResolvedDocumentAttribute:
     aliases: tuple[str, ...] = ()
     reason_codes: tuple[ContextResolutionReasonCode, ...] = ()
     consistency_verification: AttributeConsistencyVerification | None = None
+    presentation_rows: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

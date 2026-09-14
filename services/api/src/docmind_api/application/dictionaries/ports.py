@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
+from docmind_api.application.dictionaries.commands import DictionaryEntrySortField
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.domain.dictionaries.models import (
     Dictionary,
     DictionaryEntry,
@@ -54,7 +56,17 @@ class DictionaryRepository(Protocol):
 
     async def get_dictionary_by_id(self, dictionary_id: UUID | str) -> Dictionary | None: ...
 
+    async def get_dictionary_by_id_for_update(
+        self,
+        dictionary_id: UUID | str,
+    ) -> Dictionary | None: ...
+
     async def get_dictionary_by_external_id(self, external_id: str) -> Dictionary | None: ...
+
+    async def get_dictionary_by_external_id_for_update(
+        self,
+        external_id: str,
+    ) -> Dictionary | None: ...
 
     async def list_dictionaries(
         self,
@@ -92,6 +104,12 @@ class DictionaryRepository(Protocol):
         entry_id: UUID | str,
     ) -> DictionaryEntry | None: ...
 
+    async def get_entry_by_id_for_update(
+        self,
+        dictionary_id: UUID | str,
+        entry_id: UUID | str,
+    ) -> DictionaryEntry | None: ...
+
     async def get_entry_by_external_id(
         self,
         dictionary_id: UUID | str,
@@ -106,6 +124,8 @@ class DictionaryRepository(Protocol):
         search: str | None = None,
         limit: int = 50,
         offset: int = 0,
+        sort_by: DictionaryEntrySortField = DictionaryEntrySortField.SORT_ORDER,
+        sort_direction: ListSortDirection = ListSortDirection.ASC,
     ) -> DictionaryEntrySearchResult: ...
 
     async def update_entry_business_fields(self, entry: DictionaryEntry) -> bool: ...

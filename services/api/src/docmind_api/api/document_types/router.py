@@ -20,6 +20,7 @@ from docmind_api.api.document_types.schemas import (
     DocumentTypeExtensionValueSchema,
     DocumentTypeListEnvelope,
     DocumentTypeListMetaSchema,
+    DocumentTypeListQuery,
     DocumentTypeListSchema,
     DocumentTypeOverviewParameterSchema,
     DocumentTypeSchema,
@@ -41,7 +42,7 @@ from docmind_api.application.document_types.service import (
     DocumentTypeDescriptionUpdate,
     DocumentTypeExtensionValuesUpdate,
     DocumentTypeExternalIdUpdate,
-    DocumentTypeListStatus,
+    ListDocumentTypesPageQuery,
     UpdateDocumentTypeCommand,
 )
 from docmind_api.domain.auth.actors import AuthenticatedActor, Permission
@@ -91,22 +92,32 @@ def create_document_types_router(
             DocumentTypeCatalogService,
             Depends(document_type_catalog_dependency),
         ],
-        status: Annotated[
-            DocumentTypeListStatus,
-            Query(description="Filter document types by lifecycle status."),
-        ] = DocumentTypeListStatus.ACTIVE,
+        query: Annotated[DocumentTypeListQuery, Query()],
     ) -> DocumentTypeListEnvelope:
-        result = await catalog.list_document_types(status=status)
-        read_models = await catalog.build_read_models(result.document_types)
+        result = await catalog.list_document_type_page(
+            ListDocumentTypesPageQuery(
+                status=query.status,
+                search=query.search,
+                parameter_filters=_parameter_filters(query.parameter),
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+        )
         return DocumentTypeListEnvelope(
             data=DocumentTypeListSchema(
-                document_types=[_to_document_type_schema(read_model) for read_model in read_models],
+                document_types=[
+                    _to_document_type_schema(read_model) for read_model in result.page.items
+                ],
             ),
             meta=DocumentTypeListMetaSchema(
-                total_count=result.total_count,
+                total=result.page.total,
                 active_count=result.active_count,
                 inactive_count=result.inactive_count,
-                returned_count=result.returned_count,
+                returned_count=result.page.returned_count,
+                limit=query.limit,
+                offset=query.offset,
                 status=result.status,
             ),
         )
@@ -236,6 +247,12 @@ def _to_document_type_schema(read_model: DocumentTypeReadModel) -> DocumentTypeS
             for parameter in read_model.parameters
         ],
         displayModeId=read_model.display_mode_id,
+    )
+
+
+def _parameter_filters(values: list[str]) -> tuple[tuple[str, str], ...]:
+    return tuple(
+        (code, expected) for value in values for code, expected in (value.split("=", maxsplit=1),)
     )
 
 

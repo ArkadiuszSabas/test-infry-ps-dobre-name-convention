@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from docmind_api.api.attributes.schemas import (
     AttributeCategoryCountSchema,
@@ -14,6 +14,7 @@ from docmind_api.api.attributes.schemas import (
     AttributeDefinitionEnvelope,
     AttributeDefinitionListEnvelope,
     AttributeDefinitionListMeta,
+    AttributeDefinitionListQuery,
     AttributeDefinitionListSchema,
     AttributeDefinitionSchema,
     CreateAttributeDefinitionRequest,
@@ -34,7 +35,7 @@ from docmind_api.application.attributes.service import (
     AttributeConstraintsUpdate,
     AttributeDataTypeUpdate,
     AttributeDefinitionCatalogService,
-    AttributeDefinitionList,
+    AttributeDefinitionPageResult,
     AttributeDictionaryIdUpdate,
     AttributeExternalIdUpdate,
     AttributeLlmContextUpdate,
@@ -44,7 +45,7 @@ from docmind_api.application.attributes.service import (
     CreateAttributeDefinitionCommand,
     DeactivateAttributeDefinitionCommand,
     DeleteAttributeDefinitionCommand,
-    ListAttributeDefinitionsQuery,
+    ListAttributeDefinitionsPageQuery,
     UpdateAttributeDefinitionCommand,
 )
 from docmind_api.application.auth.sessions import UserSessionService
@@ -106,12 +107,23 @@ def create_attributes_router(
             AttributeDefinitionCatalogService,
             Depends(attribute_definition_catalog_dependency),
         ],
-        category: str | None = None,
+        query: Annotated[AttributeDefinitionListQuery, Query()],
     ) -> AttributeDefinitionListEnvelope:
-        result = await catalog.list_attribute_definitions(
-            ListAttributeDefinitionsQuery(category=category),
+        result = await catalog.list_attribute_definition_page(
+            ListAttributeDefinitionsPageQuery(
+                category=query.category,
+                status=query.status,
+                search=query.search,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
         )
-        return _to_attribute_definition_list_envelope(result)
+        return _to_attribute_definition_list_envelope(
+            result,
+            query=query,
+        )
 
     async def update_attribute_definition(
         attribute_id: UUID,
@@ -235,16 +247,25 @@ def _to_attribute_definition_schema(
 
 
 def _to_attribute_definition_list_envelope(
-    result: AttributeDefinitionList,
+    result: AttributeDefinitionPageResult,
+    *,
+    query: AttributeDefinitionListQuery,
 ) -> AttributeDefinitionListEnvelope:
     return AttributeDefinitionListEnvelope(
         data=AttributeDefinitionListSchema(
             attributes=[
-                _to_attribute_definition_schema(attribute) for attribute in result.attributes
+                _to_attribute_definition_schema(attribute) for attribute in result.page.items
             ],
         ),
         meta=AttributeDefinitionListMeta(
-            total_count=len(result.attributes),
+            total=result.page.total,
+            returned_count=result.page.returned_count,
+            limit=query.limit,
+            offset=query.offset,
+            status=result.status,
+            catalog_count=result.catalog_count,
+            active_count=result.active_count,
+            inactive_count=result.inactive_count,
             category_counts=[
                 AttributeCategoryCountSchema(
                     category=category_count.category,

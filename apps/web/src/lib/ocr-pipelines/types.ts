@@ -1,3 +1,5 @@
+import type { ListPageMeta, ListQuery } from "@/lib/api/list-contract";
+
 export type OcrPipelineLifecycle = "draft" | "published" | "archived";
 export type OcrPipelineKind = "linear";
 export type OcrPipelineFailurePolicy = "required" | "optional";
@@ -108,10 +110,21 @@ export interface OcrPipelineListEnvelope {
   data: {
     pipelines: OcrPipelineSummary[];
   };
-  meta: {
-    totalCount: number;
+  meta: ListPageMeta & {
+    lifecycleCounts: Record<OcrPipelineLifecycle, number>;
+    routingStatus: "noDefault" | "noPipelines" | "noPublished" | "ready";
   };
 }
+
+export type OcrPipelineSortField =
+  | "created_at"
+  | "lifecycle"
+  | "name"
+  | "updated_at";
+
+export type OcrPipelineListQuery = ListQuery<OcrPipelineSortField> & {
+  lifecycle: "all" | OcrPipelineLifecycle;
+};
 
 export interface OcrPipelineBlockCatalogEnvelope {
   data: OcrPipelineBlockCatalog;

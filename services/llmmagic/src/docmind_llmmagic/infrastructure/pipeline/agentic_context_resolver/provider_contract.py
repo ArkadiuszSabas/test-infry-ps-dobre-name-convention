@@ -8,6 +8,9 @@ from docmind_llmmagic.application.pipeline.steps.document_agentic_context_resolv
 
 _SYSTEM_PROMPT = """Extract every requested value from the complete document view. The document
 view is the only evidence. LlmContext and target configuration are guidance, never evidence.
+Table rows are rendered as `Table <number>, row <number>, cells: [<cell>, ...]`; the cell array
+preserves the OCR column boundaries. Treat each table row as one record and copy its literal
+rendering when it is evidence.
 For every non-missing candidate return one or more short literal quotes copied from the view and
 an optional 1-based page hint. Never invent a quote or value. Use `verbatim` when the value is
 copied, `normalized` for deterministic type normalization, `word_number` for a number written in

@@ -3,9 +3,11 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
+from enum import StrEnum
 from typing import Protocol
 from uuid import UUID
 
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.application.ocr_pipeline_runs.errors import OcrPipelineRunNotFoundError
 from docmind_api.domain.ocr_pipeline_runs.models import (
     MetricValue,
@@ -14,6 +16,17 @@ from docmind_api.domain.ocr_pipeline_runs.models import (
     OcrPipelineRunStatus,
     OcrPipelineRunStep,
 )
+
+
+class AdminOcrRunSortField(StrEnum):
+    """Transport-safe sort keys supported by the administrative run list."""
+
+    COMPLETED_AT = "completed_at"
+    CREATED_AT = "created_at"
+    DOCUMENT_NAME = "document_name"
+    PIPELINE_NAME = "pipeline_name"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,6 +80,24 @@ class AdminOcrRunSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class AdminOcrRunFacetOption:
+    """One transport-neutral option exposed by an administrative list facet."""
+
+    value: str
+    label: str
+
+
+@dataclass(frozen=True, slots=True)
+class AdminOcrRunFacets:
+    """Facet values calculated from the complete filtered result set."""
+
+    status_total: int
+    status_counts: Mapping[OcrPipelineRunStatus, int]
+    sources: tuple[AdminOcrRunFacetOption, ...]
+    connectors: tuple[AdminOcrRunFacetOption, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class AdminOcrRunDetail:
     """Safe run detail with diagnostics and execution history."""
 
@@ -97,6 +128,8 @@ class AdminOcrRunFilters:
     search: str | None
     limit: int
     offset: int
+    sort_by: AdminOcrRunSortField | None = None
+    sort_direction: ListSortDirection | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,9 +137,11 @@ class AdminOcrRunPage:
     """One stable page of administrative OCR runs."""
 
     runs: tuple[AdminOcrRunSummary, ...]
+    total: int
     limit: int
     offset: int
     has_more: bool
+    facets: AdminOcrRunFacets
 
 
 class AdminOcrRunReadRepository(Protocol):

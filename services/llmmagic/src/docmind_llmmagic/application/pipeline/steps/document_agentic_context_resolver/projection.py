@@ -110,6 +110,7 @@ def _project_ai(
         requires_review=requires_review,
         sources=tuple(_source(item) for item in decision.evidence),
         reason_codes=tuple(dict.fromkeys(reasons)),
+        presentation_rows=_presentation_rows(decision.evidence),
     )
 
 
@@ -258,4 +259,33 @@ def _source(evidence: DocumentSource) -> ResolvedAttributeSource:
         key_value_index=evidence.key_value_index,
         confidence=evidence.confidence,
         bounding_polygon=evidence.bounding_polygon or None,
+    )
+
+
+def _presentation_rows(
+    evidence: tuple[DocumentSource, ...],
+) -> tuple[tuple[str, ...], ...]:
+    """Keep table rows from selected evidence without changing the extracted scalar."""
+
+    rows: dict[tuple[str, int], list[tuple[int, str, int]]] = {}
+    for source in evidence:
+        if (
+            source.kind != "ocr_table_cell"
+            or source.table_id is None
+            or source.table_row_index is None
+            or source.table_column_index is None
+            or source.table_cell_text is None
+        ):
+            continue
+        rows.setdefault((source.table_id, source.table_row_index), []).append(
+            (source.table_column_index, source.table_cell_text, source.order)
+        )
+
+    return tuple(
+        tuple(cell_text for _column_index, cell_text, _order in sorted(cells))
+        for _row_id, cells in sorted(
+            rows.items(),
+            key=lambda item: min(order for _column_index, _cell_text, order in item[1]),
+        )
+        if any(cell_text for _column_index, cell_text, _order in cells)
     )

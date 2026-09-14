@@ -33,6 +33,9 @@ _MAX_REASON_CODE_COUNT = 16
 _MAX_LABEL_LENGTH = 200
 _MAX_EXTERNAL_ID_LENGTH = 128
 _MAX_VALUE_LENGTH = 4_000
+_MAX_PRESENTATION_ROW_COUNT = 100
+_MAX_PRESENTATION_CELL_COUNT = 16
+_MAX_PRESENTATION_CELL_LENGTH = 1_000
 
 _STATUS_BY_VALUE = {
     "present": DocumentReviewAttributeStatus.PRESENT,
@@ -192,7 +195,27 @@ def _review_attribute(
         value_source=(
             DocumentReviewValueSource.MANUAL if manual_input else DocumentReviewValueSource.PIPELINE
         ),
+        presentation_rows=_presentation_rows(attribute_payload.get("presentation_rows")),
     )
+
+
+def _presentation_rows(value: object) -> tuple[tuple[str, ...], ...]:
+    rows: list[tuple[str, ...]] = []
+    for raw_row in _sequence(value)[:_MAX_PRESENTATION_ROW_COUNT]:
+        cells = tuple(
+            text
+            for raw_cell in _sequence(raw_row)[:_MAX_PRESENTATION_CELL_COUNT]
+            if (
+                text := _optional_text(
+                    raw_cell,
+                    max_length=_MAX_PRESENTATION_CELL_LENGTH,
+                )
+            )
+            is not None
+        )
+        if cells:
+            rows.append(cells)
+    return tuple(rows)
 
 
 def _review_sources(

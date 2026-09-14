@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from docmind_api.api.auth.dependencies import require_cookie_csrf_protection, require_permissions
 from docmind_api.api.ocr_pipelines.mappers import (
@@ -33,6 +33,7 @@ from docmind_api.api.ocr_pipelines.schemas import (
     UpdateOcrPipelineDraftRequest,
 )
 from docmind_api.application.auth.sessions import UserSessionService
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.application.ocr_pipelines.commands import (
     ArchiveOcrPipelineCommand,
     CreateOcrPipelineCommand,
@@ -40,6 +41,8 @@ from docmind_api.application.ocr_pipelines.commands import (
     GetOcrPipelineQuery,
     ListOcrPipelinesQuery,
     MakeDefaultOcrPipelineCommand,
+    OcrPipelineLifecycleFilter,
+    OcrPipelineSortField,
     PublishOcrPipelineCommand,
     UpdateOcrPipelineDraftCommand,
     ValidateOcrPipelineCommand,
@@ -82,13 +85,37 @@ def create_ocr_pipelines_router(
             OcrPipelineAdminService,
             Depends(ocr_pipeline_admin_dependency),
         ],
+        lifecycle: Annotated[OcrPipelineLifecycleFilter, Query()] = (
+            OcrPipelineLifecycleFilter.ALL
+        ),
+        search: Annotated[str | None, Query(min_length=1, max_length=200)] = None,
+        sort_by: Annotated[OcrPipelineSortField, Query()] = OcrPipelineSortField.NAME,
+        sort_direction: Annotated[ListSortDirection, Query()] = ListSortDirection.ASC,
+        limit: Annotated[int, Query(ge=1, le=100)] = 50,
+        offset: Annotated[int, Query(ge=0)] = 0,
     ) -> OcrPipelineListEnvelope:
-        result = await service.list_pipelines(ListOcrPipelinesQuery())
+        result = await service.list_pipelines(
+            ListOcrPipelinesQuery(
+                lifecycle=lifecycle,
+                search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
+                limit=limit,
+                offset=offset,
+            )
+        )
         return OcrPipelineListEnvelope(
             data=OcrPipelineListSchema(
                 pipelines=[to_pipeline_summary_schema(record) for record in result.pipelines],
             ),
-            meta=OcrPipelineListMeta(total_count=len(result.pipelines)),
+            meta=OcrPipelineListMeta(
+                total=result.total,
+                returned_count=result.returned_count,
+                limit=result.limit,
+                offset=result.offset,
+                lifecycle_counts=result.lifecycle_counts,
+                routing_status=result.routing_status,
+            ),
         )
 
     async def create_pipeline(

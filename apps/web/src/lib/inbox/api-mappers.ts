@@ -1,4 +1,5 @@
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta } from "@/lib/api/list-contract";
 
 import type {
   InboxDocument,
@@ -51,11 +52,16 @@ export function mapInboxDocumentListEnvelope(
       documents: envelope.data.documents.map(mapInboxDocument),
     },
     meta: {
-      hasMore: envelope.meta.has_more,
-      limit: envelope.meta.limit,
-      offset: envelope.meta.offset,
-      returnedCount: envelope.meta.returned_count,
+      ...mapListPageMeta(envelope.meta),
+      documentTypeFacets: envelope.meta.document_type_facets.map((facet) => ({
+        count: facet.count,
+        value: facet.value,
+      })),
       source: envelope.meta.source,
+      statusFacets: envelope.meta.status_facets.map((facet) => ({
+        count: facet.count,
+        value: facet.value,
+      })),
     },
   };
 }
@@ -122,13 +128,7 @@ export function mapManualUploadDictionaryEntryListEnvelope(
     data: {
       entries: envelope.data.entries.map(mapManualUploadDictionaryEntry),
     },
-    meta: {
-      hasMore: envelope.meta.has_more,
-      limit: envelope.meta.limit,
-      offset: envelope.meta.offset,
-      returnedCount: envelope.meta.returned_count,
-      totalCount: envelope.meta.total_count,
-    },
+    meta: mapListPageMeta(envelope.meta),
   };
 }
 

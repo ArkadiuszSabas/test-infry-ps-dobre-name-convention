@@ -142,6 +142,7 @@ function fieldFixture(): ReviewFieldItem {
     dataType: "string",
     displayOrder: 10,
     displayValue: "original",
+    presentationRows: [],
     id: "field-1",
     kind: "configured",
     label: "Contract number",

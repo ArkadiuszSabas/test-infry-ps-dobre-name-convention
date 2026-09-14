@@ -5,20 +5,28 @@
       "sha256": "4c64186497fdd9443be2db0458fb606ab8dfdc20ed4886e2bfb47073abbc6edd"
     },
     {
+      "path": ".gitattributes",
+      "sha256": "141804a285704fed71dd5e921dbd57e64dbaec191071f808528a6fba524caad1"
+    },
+    {
       "path": ".github/README.md",
       "sha256": "55c538ff91d5cc5285680054ebe92bb36752d70f6a705d8ecb1f165fb09a114a"
     },
     {
       "path": ".github/workflows/application-build.yml",
-      "sha256": "59aba270c1877b38be28b4760957c09794edfaf5dc1a756f3e2013eb1b6a973b"
+      "sha256": "c3cb34cb0f92593da673e07ae6bb816cccd8daeb0d4e5c12f6c1321e4a41064c"
     },
     {
       "path": ".github/workflows/application-deploy.yml",
-      "sha256": "c14666efb7d4d5050a751f3a1c759ee8670f23234d41a70c10fc5e087a461961"
+      "sha256": "67910126399a5995fbf826deaecdc58716d995397a5f7846c2cb9c73e74b67d4"
+    },
+    {
+      "path": ".github/workflows/first-admin-bootstrap.yml",
+      "sha256": "d48e6455d13d623397ddcadc54485871ace3a66e9beaf06e2327a0e9a608cb1c"
     },
     {
       "path": ".github/workflows/langfuse-image-import.yml",
-      "sha256": "ce3e1be7da694d14def7e7bd721f1f1c3c2833d781e518d4a43e329456e99653"
+      "sha256": "5f2786ea1188ab2df0f45f60ba97910fea0bc7dc8d282f462523396b562be7b6"
     },
     {
       "path": ".github/workflows/read-github-spn-object-id.yml",
@@ -26,23 +34,23 @@
     },
     {
       "path": ".github/workflows/terraform-core-read-outputs.yml",
-      "sha256": "48ddf477d60ec9101f4db56d05960a46250cf746a61a9f723da94ce3ec741e96"
+      "sha256": "728a8997d1718738357d2f565dc575ace88cd86049211bb6b17c7e373622905c"
     },
     {
       "path": ".github/workflows/terraform-core.yml",
-      "sha256": "b2fce97800e669d53864fa62f4d9761701b57d62e460395130824937bc86cc14"
+      "sha256": "c429d126c9ff220d66954413c7435f042a3c0f486167f31aecffeab54e7f5535"
     },
     {
       "path": ".github/workflows/terraform-langfuse-core.yml",
-      "sha256": "3b92c89e3a149b094d6bc73404650cfa1df0f673c51bbefa3de91f316da90e4e"
+      "sha256": "a8ffa1a1f5b4275eee4d072842eecd1e673c901b37f53396b603771092e001e1"
     },
     {
       "path": ".github/workflows/terraform-langfuse-network.yml",
-      "sha256": "399e9127404297140ff0deea1d97739017c7bd574cf6a327b62d4c1a9d259e2d"
+      "sha256": "d56e9ad7e7f1b46b32e12d9b26713636be8cb103d38ab8d4312a356e7330c73c"
     },
     {
       "path": ".github/workflows/terraform-langfuse-rbac.yml",
-      "sha256": "a8c9801ee114e72f8bb90c2b52b99986e0d9b630bcc76be64a7927c1589841d0"
+      "sha256": "d82d2db2ad8c586de691f208185866ab66509d81a48fdef35f3b05cf33f3b52f"
     },
     {
       "path": ".github/workflows/terraform-network-import-private-dns-link.yml",
@@ -50,23 +58,23 @@
     },
     {
       "path": ".github/workflows/terraform-network.yml",
-      "sha256": "cfde0e927a6cd0846fdf5549c519e0b8aae2ea514142b3c5fe06f08b919a3afc"
+      "sha256": "1d66cf817593c62b52fdad794f9b7d507f11d2957986445f80c1c0ad1922428c"
     },
     {
       "path": ".github/workflows/terraform-rbac-cmk.yml",
-      "sha256": "34aaffae92b062bf42dfda090266881d14a576ae98bb64337e0f2f37cfd13a52"
+      "sha256": "acb8b17beca4a873f027989f81c9783f1afed2333d1d234c007f6065805b4c1b"
     },
     {
       "path": ".github/workflows/terraform-rbac.yml",
-      "sha256": "94246852f00bf53b7d4e52f5e05f6b48bbc91070305f4b24c3169688219c61e8"
+      "sha256": "1a4d3d5fc8281af293fdfc14c4cb02b963538cdca399a314dbe6b3cd6914d054"
     },
     {
       "path": ".github/workflows/terraform-uami-cmk.yml",
-      "sha256": "847c0f88182db4eace821dab30eb3ddbe470693a06af09bc17dbb721a12437c0"
+      "sha256": "e69bb3efc6cf11c953230ca4e96a36199307d2490b20807eeb26d9f9ead60083"
     },
     {
       "path": ".gitignore",
-      "sha256": "82f980166f3c7c7486e9858aa50b195e6331cb19b5a2d76c8a15a7237d6bbd44"
+      "sha256": "8ab858aee1fdf9451e654cfa991777935dca26d076b468a34ec8a910269d8dcd"
     },
     {
       "path": "apps/web/.dependency-cruiser.cjs",
@@ -1046,7 +1054,7 @@
     },
     {
       "path": "apps/web/src/components/admin/connectors/admin-connectors-page.tsx",
-      "sha256": "5f06c368cf61b6c5e49b619aeb092bab5c87e250c46a58608c360fedff05df44"
+      "sha256": "08e559017ee9f3425fdb39ae6bef0033efba961bb20bfa63a214462ee072bf8c"
     },
     {
       "path": "apps/web/src/components/admin/connectors/attribute-mapping-editor.test.ts",
@@ -1066,7 +1074,7 @@
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/admin-dictionaries-page.tsx",
-      "sha256": "f849ece540e33ffa667cd5735ad19639ff804e8f91ab83afbe3eb9b7297c1baa"
+      "sha256": "8dde4ab94e299d178ac2ecf4196bae8a47336729df24d875d5cfb747f1a56ac0"
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/admin-dictionary-page.tsx",
@@ -1074,11 +1082,11 @@
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/custom-dictionary-detail-page.tsx",
-      "sha256": "9af8536a828c69c9acff4315c171aea7af5e1c7a8bf551c05970c37c8b49a05a"
+      "sha256": "451001eadef6a6acab0070b2954265c820c4dc3c5c3c5fe4c2848a9b0e056ef8"
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-card-grid.tsx",
-      "sha256": "671f2fdefaf0e05e4b13873e12fc690477d05a3504769c6efb4bfd563cb8852d"
+      "sha256": "90993613ef8ebc23759327f4e9bacf4e9a64a93390579b5edaa697f53b581375"
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-detail-badges.tsx",
@@ -1086,7 +1094,7 @@
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-entry-filter-counts.ts",
-      "sha256": "d5b5ee12ae786e178b6e4e5b8544c0f95fde76fab2432d293dda501402e7928e"
+      "sha256": "136da6672febe4f46c0364b29832d6bb08f915512a35abce7a8ff3880d79d1af"
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-entry-form.tsx",
@@ -1098,7 +1106,7 @@
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-entry-table.tsx",
-      "sha256": "b3c1f3ef5a39fd33541b490b65023a23332fbf7d4f835b3753bb3dd147ef772f"
+      "sha256": "fac627c7d4018222eb13d2944c26bc2add8ebccc88a87b66d5a5a44576dce74c"
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/dictionary-entry-toolbar.tsx",
@@ -1126,11 +1134,11 @@
     },
     {
       "path": "apps/web/src/components/admin/dictionaries/use-dictionary-entry-filters.ts",
-      "sha256": "2f7adee42dddbb2102d22a9e93c37a291c438112bfe6045a7e6cbab1ce7ae12f"
+      "sha256": "730662a658b0038beb2c148a2d5cec1aec6e74e90137f001b0353cb04605076e"
     },
     {
       "path": "apps/web/src/components/admin/ocr-pipelines/admin-ocr-pipelines-page.tsx",
-      "sha256": "77dc29edd7c5d1d889509b3a46c31754f692f7628e42e95a5f822814f282e36e"
+      "sha256": "ced023bc92ed6ce8d943a3efece36e118c495aa99a3b3e648c05e500fed0b283"
     },
     {
       "path": "apps/web/src/components/admin/ocr-pipelines/confidence-color-settings-sheet.tsx",
@@ -1154,7 +1162,7 @@
     },
     {
       "path": "apps/web/src/components/admin/ocr-pipelines/pipeline-list.tsx",
-      "sha256": "2dcfb8ea3ec59bafebfa90dbad7d34f413fb19d579034874820096db3beeb6a8"
+      "sha256": "eb2e594aad5709907d95a95d03615844cfcd535a788005ab82e08bf0328c8bec"
     },
     {
       "path": "apps/web/src/components/admin/ocr-pipelines/pipeline-step-config-fields.tsx",
@@ -1170,7 +1178,7 @@
     },
     {
       "path": "apps/web/src/components/admin/ocr-pipelines/use-ocr-pipelines-controller.ts",
-      "sha256": "734fb19e01ba785b532f6bc71884dd73784a45b06a9ecc13691c20e222ba10f7"
+      "sha256": "c3b7a75e8cb004ecb9e6aef50554e5b65ef22b39db2a2d1b49d4008f7fa5e8f9"
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-run-actions.tsx",
@@ -1186,19 +1194,19 @@
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-filters.tsx",
-      "sha256": "f8bae4f96a45ed21b3f86ff1cb54ca7cc89c46a977d6fd52a8c106c9ccca7137"
+      "sha256": "5f556157f5555a1a42e2e84b3a7615d335d8a750814b79949ff40d25372a6da0"
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-page.tsx",
-      "sha256": "3b86577be4109f3c3574a258d1ac4501df111df08279ab69385032e8bab55380"
+      "sha256": "6870ca96f605ece2f04cced5548176c10451e0dd43b769e8432e3d325cc0e0de"
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-pagination.tsx",
-      "sha256": "c68fe36e9d31bd7b8d431c52368e44d7fd3b6f7ba50febfd998ab58dcc5e7636"
+      "sha256": "f801f642978026e1c5cd2b66f54b11cca6c62f8c125ce4e2fc5bf6da6d5719c7"
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/admin-ocr-runs-table.tsx",
-      "sha256": "24babbc70cfa2a837fa04b550d383e3b400ca23208dae4f717fb316d872e6357"
+      "sha256": "8d2e371bdb91a78a913f618ab84084f4f5bd33f1543052bd50cc9093d7e618f6"
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/ocr-run-status-badge.tsx",
@@ -1206,7 +1214,15 @@
     },
     {
       "path": "apps/web/src/components/admin/ocr-runs/use-admin-ocr-run-queue-actions.ts",
-      "sha256": "766f0681340f183263ed3be36b0f3f3bfadf389e9a36685e38fa65dc602aa1af"
+      "sha256": "6a91338cab1ddb60a80563c7cedf01635c215155d65fb0830d8d03ed276959f6"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/use-stable-admin-ocr-run-facets.test.ts",
+      "sha256": "ebe7d843061bd77c514e47a0fed6e413d059266e3d5c672b110d2126885bd6ce"
+    },
+    {
+      "path": "apps/web/src/components/admin/ocr-runs/use-stable-admin-ocr-run-facets.ts",
+      "sha256": "feb2354ec9bc52c3100b461cef8bc887af2e9b8ef022ee3930dbfdee7fe1ac24"
     },
     {
       "path": "apps/web/src/components/admin/settings/admin-settings-page.tsx",
@@ -1214,15 +1230,15 @@
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-catalog-table.tsx",
-      "sha256": "882bf555584b39497e3c148b3b571bd70c9020b37cc1727fb2c8d2796f65fde9"
+      "sha256": "abfb8cab608220a6bea44c7513e290c134ae2104f42e6af9848616c30d800dc0"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-catalog.tsx",
-      "sha256": "0ef17a50f50725ade18eb1139bcdd8a1eb50bdd7b0f6e715e33b287f93f9deb2"
+      "sha256": "ea7380b3fa92e02d3c243502fbef11ec3705ff346abba9072b821760127698ec"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-category-catalog.tsx",
-      "sha256": "0ef01b0aaa9a2257750e407d2c0ad013dac02af167bef207f0453ad02e898d4a"
+      "sha256": "e2bfdb25608c41972c0b25790c607c472f6c8fe495871b76d25700171df71bd9"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-category-flag-badges.tsx",
@@ -1234,11 +1250,11 @@
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-category-table.tsx",
-      "sha256": "07f7c10c6c5945683b9af303b5d6dcf79461e791201f7c4451b37e83e3e96127"
+      "sha256": "7955d43cdd2f1b6721327d22d0d6fb276bd36a46c59b88b11a1fcfd5c7e936b1"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-document-type-assignments-drawer.tsx",
-      "sha256": "3fddf4b3f4bbaf6d8dec1f8bc063be7bd9a0de21d4e2b156dc26f04780ae02b8"
+      "sha256": "c8eba81e138e0a7a39d8325eb04b5c7857e164ae8b32947df8e51142c9311530"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-edit-drawer.tsx",
@@ -1266,15 +1282,15 @@
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-editor.tsx",
-      "sha256": "3a30610338d094daa2323f79e23d6afa2185f67b46876fe8f250788c9230fd9b"
+      "sha256": "587fd9594e7c3ffddd6f3092abd42f58fd253b2bb34ddaeb82b257def6f33af6"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-table.tsx",
-      "sha256": "7211893d5c5ee7f266b2e69327bbd1b366f5cd01b2b2bce58786865cffe9f7ed"
+      "sha256": "ee92a79f77758f8da1f7a3f0ed1abe4f0e505cb5fa0656e9e5f574733d258b0c"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-matrix-toolbar.tsx",
-      "sha256": "f15152b097d662bb2ad75e7985e01c4d2a4c7bc385183f1e6606cd3b0f7b9769"
+      "sha256": "4053ed9c07bef6c16dd03935ccf0a8728c719ab393552b5e24bd1f30aa77016a"
     },
     {
       "path": "apps/web/src/components/admin/settings/attribute-value-source-fields.tsx",
@@ -1298,11 +1314,11 @@
     },
     {
       "path": "apps/web/src/components/admin/settings/document-type-catalog-view-model.ts",
-      "sha256": "75c82f88ad940f543b7197b900245130c2718c467729a1875a312b9e7ee4a8d9"
+      "sha256": "f58cb5a59898a3a1188f161ad70ac93d3fb688f84da1d8ad736fe5d0490bc40f"
     },
     {
       "path": "apps/web/src/components/admin/settings/document-type-catalog.tsx",
-      "sha256": "26136d7cd247c89636d90f44a5a2d9b9d2c816211fb0a4703af8070239f83109"
+      "sha256": "cf5d2a2a5cc58e80e86e7bddf2a5c2a43b0827ca0d408da759a95369b030a15b"
     },
     {
       "path": "apps/web/src/components/admin/settings/document-type-definition-backfill-notice.tsx",
@@ -1337,12 +1353,16 @@
       "sha256": "b73471cefb5fde0bc4a3ffa6b1cca035c31d9e18692cf6f6e331f7bf32321d5c"
     },
     {
+      "path": "apps/web/src/components/admin/settings/use-attribute-matrix-draft-actions.ts",
+      "sha256": "2d2b530e814a691e5e682058e1eee07940914302de8dac7fa23d93ae52456eaf"
+    },
+    {
       "path": "apps/web/src/components/admin/users/admin-user-invitations-panel.tsx",
-      "sha256": "58a97be6bcb09bbd4a4e7ec5454e2055c41bb563caf7d3222b07d181d3c2e18a"
+      "sha256": "0980659f8aabc862600134a39ddeaec2859d828911c658c4f2df47a872c6e6cc"
     },
     {
       "path": "apps/web/src/components/admin/users/admin-users-page.tsx",
-      "sha256": "69314df8c4483201e0a85b7e5ec1a87c256cd909eaadf08dde0d31c944410d9d"
+      "sha256": "e1d41cffa0a44d202ed941c7b02510306e928bd0c3fbf2749f717f268b919633"
     },
     {
       "path": "apps/web/src/components/admin/users/invitation-form.tsx",
@@ -1354,7 +1374,7 @@
     },
     {
       "path": "apps/web/src/components/admin/users/invitation-table.tsx",
-      "sha256": "3e4346c8a8b53533e70da968ed4a83a5e627d0d3eba1d43dcc5e471da626113f"
+      "sha256": "34b2221e052fa1976bf0150f32bfd9bbfded914ce476c1e9fdfec75d159ccd91"
     },
     {
       "path": "apps/web/src/components/admin/users/managed-user-confirm-panel.tsx",
@@ -1366,7 +1386,7 @@
     },
     {
       "path": "apps/web/src/components/admin/users/managed-users-table.tsx",
-      "sha256": "23f1a1b40f96e1957a56996ba688c0d10e6ce680a4c1f600e229da3a36fedaa8"
+      "sha256": "cfdc02280834488777075d48cece07d13501f23179f6a7a2f4c3fc1bdcb1f3dd"
     },
     {
       "path": "apps/web/src/components/admin/users/password-form.tsx",
@@ -1374,7 +1394,7 @@
     },
     {
       "path": "apps/web/src/components/admin/users/use-admin-users-controller.ts",
-      "sha256": "9288cdb876b55812a3c3de245755d3ff1c2cbad9f8233445120ac9006e5bebb1"
+      "sha256": "5a4c5a20c4aad3e96308a71fe589a5125d10e897eb95ae39f9b3f8d63b53c96a"
     },
     {
       "path": "apps/web/src/components/auth/auth-guard.tsx",
@@ -1422,7 +1442,7 @@
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-detail-page.tsx",
-      "sha256": "19de89e6e4dc2a1f66679c13d0a777828168235ed39bc1b98f6773f03c282c31"
+      "sha256": "ea102d5591cb17d7ea584432f772df63fc9a5a11f897f55276ec16d916eb9a8a"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-parameter-row.tsx",
@@ -1434,15 +1454,15 @@
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-review-panel.tsx",
-      "sha256": "413935955c380f4a4ec7c8d99356cdf93891031364ea771ab1d6d2e7c8f07997"
+      "sha256": "b1ebda09ad0dd0ffa0e725080fde0a1f19dcb762a2d8de0e6b830eaaf90e35b8"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-document-workspace-panel.tsx",
-      "sha256": "e9679679bf3066473960646300066be329ca0b31c2b71ad953975228af829efa"
+      "sha256": "19c6bc178daff8fc31dd1891a43901253909491df6cdf1e41709a83c6ecb9990"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-documents-table.tsx",
-      "sha256": "bc7185abe2c59370225f201d0ba7e757386ec46063ab9b551b8af7fda9fc1d60"
+      "sha256": "fc202966eb44721d99d556d94d389b22f2d2e067decde0b573446c6ddf14ec6a"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-notice.tsx",
@@ -1454,19 +1474,35 @@
     },
     {
       "path": "apps/web/src/components/inbox/inbox-page.tsx",
-      "sha256": "84260a01f5bdb160be0c1e0b54f62e8e5dc07a06064dd504992dfb523d8d3f30"
+      "sha256": "83aff5cefad772b2a39f8269545b35cf64cf2fdf1906723195923674ae85b9e6"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-pdf-page.tsx",
       "sha256": "3be930745cd4008c6bf98fa0423b8306556a7cd6925d3c1c762e1a15ba962e58"
     },
     {
+      "path": "apps/web/src/components/inbox/inbox-pdf-viewer-header.tsx",
+      "sha256": "9db43886bf13e17b6ccbd6d424c15cb52d7b8d6c7fcbb31c79cd6d8d8864d1d2"
+    },
+    {
+      "path": "apps/web/src/components/inbox/inbox-pdf-viewer-pages.tsx",
+      "sha256": "adccf9bf9f9af2e36ca6fa84f1e846b178bb0d6e581b2fbcd4f70aebcdc7b182"
+    },
+    {
+      "path": "apps/web/src/components/inbox/inbox-pdf-viewer-status.tsx",
+      "sha256": "9da136099d2b29a1180a52e5629d9bfa007902100f6e46b818bafb1644876bff"
+    },
+    {
+      "path": "apps/web/src/components/inbox/inbox-pdf-viewer-toolbar.tsx",
+      "sha256": "caf33f809c6600041c548229470c3bdb418d52c65f8625e6c425fdb76fa74298"
+    },
+    {
       "path": "apps/web/src/components/inbox/inbox-pdf-viewer.tsx",
-      "sha256": "cda7d8e164452546960557d26e23a3efb924a34b4e0eb2c1a711af36511a2e46"
+      "sha256": "2db5f44f531cd82ff66a55eaf1780888887c0720988de18c47ac0b843a578fe2"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-toolbar.tsx",
-      "sha256": "3e28540236609ebc1f60acca372a1e04d4c65d4842ecfd9db0d88e9c868d13f2"
+      "sha256": "8ecf3cccada7429e93cb48cac51e2e9c4f6a9fb48542d9105048f67f49d71e84"
     },
     {
       "path": "apps/web/src/components/inbox/inbox-upload-controls.tsx",
@@ -1482,7 +1518,7 @@
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-panel.tsx",
-      "sha256": "d3c56c7e18b364a2afd156148eee57eba06a39c8f4005ff0825eba18a3f8c7be"
+      "sha256": "be8e8821b7eaa2e43db671055ae929a4fd1be139b0e735522e488f7ddeda5415"
     },
     {
       "path": "apps/web/src/components/inbox/ocr-pipeline-run-start-guards.ts",
@@ -1510,7 +1546,7 @@
     },
     {
       "path": "apps/web/src/components/inbox/review-field-row.tsx",
-      "sha256": "a594b95cacf2be8661c8da7b10fb45a02cc07740e7f0cb52eccb8e0ddce68544"
+      "sha256": "e2e8a439943c905fbb54bb53a58f14ee9977fa24c2c90b08ebaee34cda37e276"
     },
     {
       "path": "apps/web/src/components/inbox/review-fields-section.tsx",
@@ -1519,6 +1555,10 @@
     {
       "path": "apps/web/src/components/inbox/use-inbox-document-types.ts",
       "sha256": "bda120248dab80c2164ca174b13cbca4853f905ac4c111277555b7423c116901"
+    },
+    {
+      "path": "apps/web/src/components/inbox/use-pdf-viewer-actions.ts",
+      "sha256": "7bb42cc1c9732bf74b26c7a858925308b07c377483adaf03245dbbca6435ea32"
     },
     {
       "path": "apps/web/src/components/inbox/use-pdf-viewer-page-window.ts",
@@ -1818,11 +1858,11 @@
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/api.test.ts",
-      "sha256": "e4051cb20724f328d16acdd46704c92dfda7bb64f815395c3b2068251171bef0"
+      "sha256": "757777cfafe91c0b14172998f729cba0debf14c7bc7806c99aec133b2a95a4df"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/api.ts",
-      "sha256": "5e95f2fac85d7e3632bfc805bed75de02151317329502c35b53bc6968159bba3"
+      "sha256": "71a2204e7346bac8f87168082a6b1be52752191223ac60d096081b41bb995b5a"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/langfuse-server.ts",
@@ -1838,31 +1878,31 @@
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/query-options.test.ts",
-      "sha256": "f8d9d45f7590fce455e97e322e06160c7657d5c5c786f2f65921003e2ec76e3d"
+      "sha256": "051610c8219cbef9beb0bab92c2ac582a62dbe015683087ee7f1473618ae1bb3"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/query-options.ts",
-      "sha256": "ed5e21c0e68138ba87370d4782d5f77881f56c33ef5d02248ca617ad921e5782"
+      "sha256": "06e26b88d80ac2c567372db64e3d27971fa8399988fc13c1471e2d98a842925d"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/types.ts",
-      "sha256": "e0e2a08591084280f6b53a78c4ce9b3923cc3d2c8c48173334e56f9d545c24a1"
+      "sha256": "ab0e8f3af0141ffaa797dfc34f45ab3d6487c864d92af7400ab85376ac361756"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/view-model.test.ts",
-      "sha256": "52cf4a2b9f05efdc0f7950d7d2a577d4c5166b8a92d6ec44dfcafd63ec464565"
+      "sha256": "9bb3ac161ade5bfc8d168b440d37b4e2825ab7a169081c35fa561bd715e1ae07"
     },
     {
       "path": "apps/web/src/lib/admin-ocr-runs/view-model.ts",
-      "sha256": "ea25fe6dae9d592cf96bbef3b80a4ec59e23069cebb3566e69c28a8b387638d9"
+      "sha256": "3821e14408edf9f01fb03d47df4d4e0aac8693034a123b96cff66ad47ee7c159"
     },
     {
       "path": "apps/web/src/lib/admin-settings/api-helpers.ts",
-      "sha256": "fe357c0738a2c2ef5af09977c01a2d495d1dba42ce98c4e17eaff137782c8430"
+      "sha256": "ac4281270045b05d6ba4e1d5b2650a6af0bb150999121f0c990a148919eab7f8"
     },
     {
       "path": "apps/web/src/lib/admin-settings/api.test.ts",
-      "sha256": "c06f1393dfa24546faefbef967e35f7da4ffeed17c246432b735eba6e07eb69f"
+      "sha256": "2b8909e997336a2258fbab5cf64304f52e3badab14bd966a88c2b8be9e7316fc"
     },
     {
       "path": "apps/web/src/lib/admin-settings/api.ts",
@@ -1870,7 +1910,7 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/attribute-api.ts",
-      "sha256": "be624ceb3e790431f4ef8088972cff78c9c6771f9985d9fc6d3c22811c8ea758"
+      "sha256": "5820a9b0f67094340f6c0ff1cbf3fdfd75b242fca64ad1a9d69422cdf07b9a9f"
     },
     {
       "path": "apps/web/src/lib/admin-settings/attribute-requirements-api.ts",
@@ -1890,11 +1930,11 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/dictionary-api.test.ts",
-      "sha256": "86e2a677f94e648302b7375be83342fa4e0415b067c4bcece48c8eb677f5eb37"
+      "sha256": "94c0f1234768b7fd605ffb306976b96665d6a6f440912146f5ee41dee28d4412"
     },
     {
       "path": "apps/web/src/lib/admin-settings/dictionary-api.ts",
-      "sha256": "9b84537a88950e5861edfeb30a45776fd1d4241d824d9e6876df3fad57e074a4"
+      "sha256": "a3eee42a499f15b8c312bb7dc19e3a690f1542ee37e88e4b8995f5a5060901b7"
     },
     {
       "path": "apps/web/src/lib/admin-settings/dictionary-field-presets.ts",
@@ -1902,7 +1942,7 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/dictionary-types.ts",
-      "sha256": "0554db9044235e959781d1dcd592d04c5bef31eec25410c35ad26abc3e5f03a9"
+      "sha256": "17d47dc4121ec94ed18efa02fcb7c07082c629fe462396930e520ad097e5667a"
     },
     {
       "path": "apps/web/src/lib/admin-settings/dictionary-view-model.ts",
@@ -1910,11 +1950,11 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/document-type-api.test.ts",
-      "sha256": "1915d0a0a530e4c7c02374295c594d9a3fee67c7f7a20725b26b55ed5af0cceb"
+      "sha256": "34fa05f317b8f3f94acde9607fec3c42855f94a817b1779def3a337bb0f30b11"
     },
     {
       "path": "apps/web/src/lib/admin-settings/document-type-api.ts",
-      "sha256": "e04ed78a70be424ab43bf8c5a228761c3a96f256e1d92e604a66b068e6cd6044"
+      "sha256": "84eb8b1779dac88a35fd6df1bf371ec060c618b5664a5c485ebf62762564babf"
     },
     {
       "path": "apps/web/src/lib/admin-settings/query-options.test.ts",
@@ -1922,7 +1962,7 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/query-options.ts",
-      "sha256": "f948e2e135152d35db4bcb9dac32a33965907ae769d8a51399d7eaa3a568aac0"
+      "sha256": "cc09c742a776aa4b8110e1c353bca5c19c74e500824eb270c1a350315bf90cb3"
     },
     {
       "path": "apps/web/src/lib/admin-settings/system-catalog-types.ts",
@@ -1938,39 +1978,39 @@
     },
     {
       "path": "apps/web/src/lib/admin-settings/types.ts",
-      "sha256": "6126aa2de1124f73006193b47870a2d0dc1d13541a56ef79840dc4271ac49123"
+      "sha256": "f5bf80bde0177d3868e590474d174ea985d6e2e28310795f602f51d2f77504e5"
     },
     {
       "path": "apps/web/src/lib/admin-settings/view-model.test.ts",
-      "sha256": "58cae578a6d35fcefa860b548befab99a08ef4c28a8e3232162b0f7167036c29"
+      "sha256": "1761055b2178b21092ef8b90020c4b900da1f7d8d72a6b8266837fea94773ac4"
     },
     {
       "path": "apps/web/src/lib/admin-settings/view-model.ts",
-      "sha256": "393d918710abe45f32d08c34ffe6574534542b11c54e87e4ada7aaac1935fe8d"
+      "sha256": "78702b2fca3df266bbebe4b2ff9bee5456f9a08f1fcd15c5aa297e6ace12194b"
     },
     {
       "path": "apps/web/src/lib/admin-users/api.test.ts",
-      "sha256": "14bb107e5399ba6d2c65a14051b6cd0b39f9624b629191cb4607c91395a0edb6"
+      "sha256": "1b1cfe5bb0907fa1c846899614f41a8447ceabdb4a150153d3371238c8780d8a"
     },
     {
       "path": "apps/web/src/lib/admin-users/api.ts",
-      "sha256": "e28d37f9416d5ca64cbaf3963b447f70a139745ff20ad279adfebb3c48291b37"
+      "sha256": "cd3a7797d6abe723c9a41ce6c58d0dad335db639c444cde1d334cf30c6f5187e"
     },
     {
       "path": "apps/web/src/lib/admin-users/query-options.ts",
-      "sha256": "3656eb23fb70b214653a97dab4fdae904fbb64983915c84c058c4781cf80c6b5"
+      "sha256": "0ebc3f2d0e969dfd2572115f02b2601ad033a2656478552ac2c48c44073ef0ad"
     },
     {
       "path": "apps/web/src/lib/admin-users/types.ts",
-      "sha256": "1bf58164bc56f185f870073f96305ed787619d3be142ef05c928165140b40492"
+      "sha256": "7f6c296693c558e99843761509aac3f71020526a5c2b614f011537989e8b563d"
     },
     {
       "path": "apps/web/src/lib/admin-users/view-model.test.ts",
-      "sha256": "71e72b9acb1e773c3a2faacaead24f99d7fae1390b7aee3f1f1777ad117d0bdc"
+      "sha256": "1b38afe69b456bd1dc9f100a1f03dbfece9c6416dccf2203604a3356c2ae5070"
     },
     {
       "path": "apps/web/src/lib/admin-users/view-model.ts",
-      "sha256": "24d15344b9a1cf7560a501c7cd3dc3844a2ad1611e22ef7b776004e94ac6b331"
+      "sha256": "63c28f52ff5c5d2821552df76cdf317f1ed21cbb28f7ed7cf6d09015632b6909"
     },
     {
       "path": "apps/web/src/lib/api/client.test.ts",
@@ -2138,7 +2178,7 @@
     },
     {
       "path": "apps/web/src/lib/connector-configurations/api.ts",
-      "sha256": "350ce21b7cc79b5d4e24ebbfbdf8078ca30ee8b93d5bf1773c783fc004efa853"
+      "sha256": "1cbf029c6a2c602906a61d845cdf75f0b6de809fd0a2f9ae09bc0b68faf7384d"
     },
     {
       "path": "apps/web/src/lib/connector-configurations/attribute-mappings.ts",
@@ -2194,15 +2234,15 @@
     },
     {
       "path": "apps/web/src/lib/inbox/api-mappers.ts",
-      "sha256": "58c3007716234320deebc736c5b2e2382b7d45af75b0fcafd6b0bebafda2fed9"
+      "sha256": "fbd9387c5599c87444f310840a07537b82e628dce6402dabd443e2b48d0ecd93"
     },
     {
       "path": "apps/web/src/lib/inbox/api.test.ts",
-      "sha256": "36ae1dedce73f2923fc02891ffbc3f085392fee08d71df2d97f7b2853de7afbd"
+      "sha256": "d5004eb9cbb065f9d01ee3b4fc8c07f52f6a75cfdfde2ec3e5f009855856bb3b"
     },
     {
       "path": "apps/web/src/lib/inbox/api.ts",
-      "sha256": "a2f434c25ea19d8248214bf714a985bfef36ae4a1849a775bce80bbc41a95f01"
+      "sha256": "228b1e273e3a31478096ad30d59ef2dae9837fb1ce9d90bac00745a21b596844"
     },
     {
       "path": "apps/web/src/lib/inbox/archive-url.test.ts",
@@ -2222,15 +2262,15 @@
     },
     {
       "path": "apps/web/src/lib/inbox/list-view.test.ts",
-      "sha256": "6117a4f870694728575b1d65fb6f4f9317325c202622dca584a7b4c7500dd0fe"
+      "sha256": "71a4b488a785382c453686357a0f80a913483a47331c11679948b1bc433d54c4"
     },
     {
       "path": "apps/web/src/lib/inbox/list-view.ts",
-      "sha256": "a95f0c7fb80578297929f2f6faf80e6e5a0f9570e4ac329c646a71bc05280248"
+      "sha256": "6bc9e5bde3add3715b4e0332a691d5ddb5ebe507d18583adc2d18b7e91fddfa6"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-api.test.ts",
-      "sha256": "c473ed98d97c69c8613bee0fa63851179bda06a03153d2d77a60d4c5c2c2f72e"
+      "sha256": "b58b0721f657ba9f4d58c06620235641cae74c7259fcd234c746678a253d8a4e"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-run-label.test.ts",
@@ -2242,19 +2282,19 @@
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-api.test.ts",
-      "sha256": "f70401bb67648db99eb1c45e4b8ad230b8713ba5312ddbbacbf9d7a44efde60c"
+      "sha256": "d3a611de424e435d053652ddfe8129c77db294f6829c36243953060325e5cbfa"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-api.ts",
-      "sha256": "efcb47be54139847a3c3d85f76655bd4fb8dfaee90fb79a16c2bbf68a7583ecb"
+      "sha256": "c323b87252922ef99132771268b3b78cd59d1d9c0e378c6e662305c290d83c4b"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-pipeline-runs-types.ts",
-      "sha256": "66ebc232be111a1eb2e7c35da5b98e62d2b394706ed726eaff0490ccfeeeeba8"
+      "sha256": "c124cb85eab3179fe9272fbdccdd9e0d8324003e7176fba8c43778e58abbfca4"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-run-view-model.test.ts",
-      "sha256": "eb441f594d12fe32a43e3a010fa2e720c9dd5036c3983ed447cab9c16cef7e6c"
+      "sha256": "2d42240d3e1c1088545afbe0f12472efe6e1f6f5bf010b6ca044634fd0fa38e2"
     },
     {
       "path": "apps/web/src/lib/inbox/ocr-run-view-model.ts",
@@ -2262,15 +2302,15 @@
     },
     {
       "path": "apps/web/src/lib/inbox/query-options.test.ts",
-      "sha256": "04a726fa657e9521429166472ff29abaf089acdc7c780a82f1f75577a594f1cb"
+      "sha256": "4d064d1a6dc0a40cbcf765f27d45c173b0a6467f4de4ae08f7eff3532385f07d"
     },
     {
       "path": "apps/web/src/lib/inbox/query-options.ts",
-      "sha256": "e61830be68635abcc32c4aea0fe2c328ff0d4493565d7bbede9a9dae58107221"
+      "sha256": "3a6c5012f5dc108d48c05f0353fa39ed115b4ca55b2cd710272863893340f956"
     },
     {
       "path": "apps/web/src/lib/inbox/types.ts",
-      "sha256": "b302f4118ea88d2c59a85611b8287c324e1bb1906a7f43320453a41347edb296"
+      "sha256": "00121265898ccf13db06b315a194896eb55b7c463b2e3cb799c0d98476006129"
     },
     {
       "path": "apps/web/src/lib/inbox/upload-metadata-values.test.ts",
@@ -2282,11 +2322,11 @@
     },
     {
       "path": "apps/web/src/lib/inbox/view-model.test.ts",
-      "sha256": "c4c79b00802136c1a97f9e1978f7c85d5bc17e7d1725294d42f2f7c28c6996d4"
+      "sha256": "c12c6abf4f0c417553a017a2ff556fb739ead94c814aa596a888c471c70d4892"
     },
     {
       "path": "apps/web/src/lib/inbox/view-model.ts",
-      "sha256": "5f538cfd3087304d17736651209687a80badfde52a47d383f52a0ca7537b88fc"
+      "sha256": "c28428ce6c5f4e99db88df64eab525f25c3586309216993d40b7f7130d84c538"
     },
     {
       "path": "apps/web/src/lib/navigation/route-policy.test.ts",
@@ -2314,15 +2354,15 @@
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/api-mappers.ts",
-      "sha256": "264c3631d06c9dafeeda0640e3ea6e7bb8c1ed39f57128d47a881fbe4eb2bf74"
+      "sha256": "8b48f2c98f071e39504165cf7dd53bf573cf7fc2e2cf57b4cc603c5528a8c542"
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/api.test.ts",
-      "sha256": "4effb293477df15113ecfb7e4d06212a98fbe5c7e59337d1d58ff2863edacbdf"
+      "sha256": "c5269c9833165d887fdc56480d4a353ea14bf2207a0250bdfb51594b41f70311"
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/api.ts",
-      "sha256": "8b4c46861f128281447ee265f932dc2e3224cd84225f8986158fdcce062a1225"
+      "sha256": "8c03d1c33dc5e745e80c862d68f7362bf85a08ca3b09ea31864370b4487da84e"
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/builder-form-view-model.ts",
@@ -2350,11 +2390,11 @@
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/query-options.ts",
-      "sha256": "2a491aec77f2587940df6a9fee99892e2fbf4ace3dc6af3a61b21449cd4887ae"
+      "sha256": "dff001e172b6ad0384a7f4041edf99347090d458f03bfc35a768e12a28d1e581"
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/types.ts",
-      "sha256": "62f106d45ce738079dbf2558201d1ec4c74bf9ec5bf97898a18a5f9c0a144d1e"
+      "sha256": "420cf9dd18b8c346b2cf21231ffc82b8377609579ceb22b018da5c3853878c9d"
     },
     {
       "path": "apps/web/src/lib/ocr-pipelines/view-model.test.ts",
@@ -2366,11 +2406,11 @@
     },
     {
       "path": "apps/web/src/lib/review/api-mappers.ts",
-      "sha256": "9d2e78f4fa5236e0a136991b279313f89b365684392fab9d3726d6c2b6cb09ee"
+      "sha256": "abfde76c75d378e02e59062d07d0c83a83739405e844d19906d87371b69ac3c8"
     },
     {
       "path": "apps/web/src/lib/review/api.test.ts",
-      "sha256": "75c9ebda16a0a17109f943020f395bc863247ed788b830f918b46ea413983077"
+      "sha256": "3582051812b8182b618d88552f19f63d61db951db4666cd022065ed788af89cc"
     },
     {
       "path": "apps/web/src/lib/review/api.ts",
@@ -2386,15 +2426,15 @@
     },
     {
       "path": "apps/web/src/lib/review/editor-state.test.ts",
-      "sha256": "cd382eae3d37d253f2672cba95894f4ef5dd70258e7e0868411a2736955a6111"
+      "sha256": "405458418529ed2deec77fd3b1debf3392aedc66bffe3db5002077761b6a5fab"
     },
     {
       "path": "apps/web/src/lib/review/editor-state.ts",
-      "sha256": "17ea8a7e24512bafe9162c4771802fe7ad50375809b977b06c099023c7173ca0"
+      "sha256": "488ffcc9a1074f817821dafcbdeb1cd429a7f5b5510880a5f3d42a459c717a39"
     },
     {
       "path": "apps/web/src/lib/review/field-list.test.ts",
-      "sha256": "ba1e585374b7fdbfbeaf46dde1530101ba703dbc4745d78454fc92e5844df145"
+      "sha256": "26f7dc53464e9ce5921dfac1c6d1407ef7bf93727ecfa7e3fbc2ef3a730fe810"
     },
     {
       "path": "apps/web/src/lib/review/field-list.ts",
@@ -2402,11 +2442,15 @@
     },
     {
       "path": "apps/web/src/lib/review/field-presentation.test.ts",
-      "sha256": "9d9c1772fed16d5e418d74213bcf152ec54139b9d7d2cbe8ff57f44a8560db4e"
+      "sha256": "b57498de7187e1354e31d3a6fae82cd356146ab5f154d4a2c0aebc0c1e8cc6c6"
     },
     {
       "path": "apps/web/src/lib/review/field-presentation.ts",
-      "sha256": "00989e5bff8c168ba91926e3917909af2592e07ad78054d72f831c756b8b1b09"
+      "sha256": "d22e4ce8fc07f618c8867ad48e87100e75164eef2d9d2139c35c75e6588d4782"
+    },
+    {
+      "path": "apps/web/src/lib/review/field-value-presentation.ts",
+      "sha256": "c271f75c31b76c2df42ca4c62f0b9c3e420da58d85f1f073936b0e9754e1b2e8"
     },
     {
       "path": "apps/web/src/lib/review/pdf-page-geometry.test.ts",
@@ -2418,11 +2462,11 @@
     },
     {
       "path": "apps/web/src/lib/review/pdf-page-window.test.ts",
-      "sha256": "d4220b9c57b7261161c49ae1e52d7041e50ef2d5378e8ac6315cda4803373bb2"
+      "sha256": "4b299920a404b834a074e6769e1175f03ef15c0cbda4ea13a9cd23f7a8ecfb76"
     },
     {
       "path": "apps/web/src/lib/review/pdf-page-window.ts",
-      "sha256": "2abbe199d1c4d0624f413c2b6d53c9181e20a02e4531a135a0346efbf29e5fb5"
+      "sha256": "6adad5221690f91dc59902799b87d3784b2fa3c80b1140286d6de4f78531402b"
     },
     {
       "path": "apps/web/src/lib/review/query-options.ts",
@@ -2438,11 +2482,11 @@
     },
     {
       "path": "apps/web/src/lib/review/types.ts",
-      "sha256": "b0c4b05fb663d27588b6ecb42711e300322ddec42832132a9fdfb5a136adad55"
+      "sha256": "4aa471636d7381b283c25b379b91850a97cb9e3943ddbe57f4cbc612ff64e705"
     },
     {
       "path": "apps/web/src/lib/review/view-model.test.ts",
-      "sha256": "60e65b6e7ca2f180667c561cdf087d2c454454c2e1118f7f52996cb102b4f916"
+      "sha256": "62074965aae0ac1ec3919e76b5db3474ad34ab435b2fc59fcbdefd22551ef287"
     },
     {
       "path": "apps/web/src/lib/review/view-model.ts",
@@ -2482,11 +2526,11 @@
     },
     {
       "path": "apps/web/src/messages/en.json",
-      "sha256": "f9e8b77187df2402708593b975afabb53d4ee3bae2fa0d680ea2ec49ea91e093"
+      "sha256": "1408a0d7379d619b757d0b258f769b30ad6a0c6e4a4c3d5c4150c623ba87e9d4"
     },
     {
       "path": "apps/web/src/messages/pl.json",
-      "sha256": "cc9dcb96c86c0eb6baa443d96ea9735e813162877cc139bb32d0f07fb8821fca"
+      "sha256": "f8ae45d3b1302d699fa2779952552baf820456be8d10d050105188f254586424"
     },
     {
       "path": "apps/web/src/proxy.ts",
@@ -2498,15 +2542,15 @@
     },
     {
       "path": "deployments/ps/profile.yml",
-      "sha256": "7f5123e070d83ee2eb98df84a0e5840aaba0b53bd6353310a7b85e333e28d7ef"
+      "sha256": "948454b84e7938e90eb124fa70a151af8b5827e113e62e492bc7106e5e7cf4ad"
     },
     {
       "path": "generated/profile-manifest.json",
-      "sha256": "5d993bc9746e1d8113a0e1b0054ab21a65875a6a86f0996854cb35c21de61293"
+      "sha256": "a3670c46d272a320b8432133d5b558b4b3acd31f23bbf6bbb4505d92889c93a1"
     },
     {
       "path": "generated/source-transform-manifest.json",
-      "sha256": "6ed1070e5ffe576a62862fca52230e8b7c5b0ee249371840ed5346f8f1ad8b46"
+      "sha256": "baddc48ab1ad31f3e6770a9b1e9f7f421c8e56aff25c015c476e75c5d80082d8"
     },
     {
       "path": "infra/.gitignore",
@@ -2514,11 +2558,11 @@
     },
     {
       "path": "infra/terraform/README.md",
-      "sha256": "dda54dbd19e55e5bdd244fc3b111df3d1fbb21aee217adeabb86f28386b88776"
+      "sha256": "0acde7668570723a58a633d6eea46a4275537d128d0308c2122b22fb0058f30b"
     },
     {
       "path": "infra/terraform/core/env/dev.tfvars",
-      "sha256": "6abe76e3c93fbc32ecc2b8fc1c37f4add22a53193d00494c6d75a2d79b8e159f"
+      "sha256": "d7974fb8f778347897380553c7e503d05126592e004f4a3ec68ded224c574aea"
     },
     {
       "path": "infra/terraform/core/env/dev_04.tfvars",
@@ -2526,7 +2570,7 @@
     },
     {
       "path": "infra/terraform/core/main.tf",
-      "sha256": "ff45cb34a2083cbc1ed066f8d20b6089a99861b01c36f1fc2340b7c01ad2c325"
+      "sha256": "2d158cebb71a936318c508cc4a9ec4f8fa7ae33e426a6aed3bd9accd2235f88c"
     },
     {
       "path": "infra/terraform/core/outputs.tf",
@@ -2538,7 +2582,7 @@
     },
     {
       "path": "infra/terraform/core/variables.tf",
-      "sha256": "7728c5cedd07763c13cc3844a88db6d44f6f3a4f08cffbd7d2bb646627c1c262"
+      "sha256": "41025cdb32e4171a4d8604afa1174d825095ef9360d09b28da930fa7931bd6a2"
     },
     {
       "path": "infra/terraform/core/versions.tf",
@@ -2630,7 +2674,7 @@
     },
     {
       "path": "infra/terraform/modules/container-apps/main.tf",
-      "sha256": "18d6e9394ecbf820a291a8164492f43d4695c38a66629943c1f63570bd0a532f"
+      "sha256": "d4ba450b23d627c504f864c66d75edd12acb3f444b27065a1e542176822cd147"
     },
     {
       "path": "infra/terraform/modules/container-apps/outputs.tf",
@@ -2638,7 +2682,7 @@
     },
     {
       "path": "infra/terraform/modules/container-apps/variables.tf",
-      "sha256": "8e46aae9f59ef4e0c584ca2e57991626522a00207288210f66d7c576bc7bee71"
+      "sha256": "6c116ac6b806975085171698e92e46266c00a5ce383040aa3c7475068723c997"
     },
     {
       "path": "infra/terraform/modules/container-registry/README.md",
@@ -2854,15 +2898,19 @@
     },
     {
       "path": "infra/terraform/network/env/dev.tfvars",
-      "sha256": "b1d648acf77fb10d0972081a34d81b221271aba2d694286fc11afcb60db5c39e"
+      "sha256": "9c3bb3be597d5ad90a94b8c0c30058e9a9a5904b117ebdc3116304476a684839"
     },
     {
       "path": "infra/terraform/network/env/dev_01_foundation.tfvars",
-      "sha256": "64f46ae98dcb6d936782152550cfac41ca1c70da271078be07311b0fb671697f"
+      "sha256": "926fd1f51df5205903c0371c22f8c0c43f09a28af915a3128a96fc7b1f88825d"
+    },
+    {
+      "path": "infra/terraform/network/env/test.tfvars",
+      "sha256": "9958da00e763249625ed79810a6b93efb3b4a35404f6e827fc1c3cd328b80dd8"
     },
     {
       "path": "infra/terraform/network/main.tf",
-      "sha256": "d74a733c8784d2abf65ae578e114a33e748c5fbda80ead88df84a6a63c3ff04a"
+      "sha256": "009e4769ce1a3434ccef6095e66b4335b4065221174cb93141302c669a5fd88e"
     },
     {
       "path": "infra/terraform/network/outputs.tf",
@@ -2874,7 +2922,7 @@
     },
     {
       "path": "infra/terraform/network/variables.tf",
-      "sha256": "472fb6ef5b704c38b1ac08cb5b45847fd79b17d21518a8a264027d5f027e7d7d"
+      "sha256": "c1f21c816a4987d73f10e099fe50a4fd7b94c5868548c9e2e32e37eaaa53c018"
     },
     {
       "path": "infra/terraform/network/versions.tf",
@@ -2882,7 +2930,7 @@
     },
     {
       "path": "infra/terraform/phases/dev/01-network-foundation.tfvars",
-      "sha256": "d90feff71ee33a03993f256d1e1002e157df6ebbc8d296c05411b4e6d34e7fb4"
+      "sha256": "e99d100d4e47e4af30ae8c348e17e976f5cd0b46f2031994014e41c9546c9b48"
     },
     {
       "path": "infra/terraform/phases/dev/02-uami-cmk-foundation.tfvars",
@@ -2894,23 +2942,23 @@
     },
     {
       "path": "infra/terraform/phases/dev/04-core-foundation.tfvars",
-      "sha256": "799f57739ad54ba39c2aa5cb7e1cb3e6e17338b97cd6a99321b622eed4095db8"
+      "sha256": "2acbf84e367dfbb54a19891c05b564fbbf55c5ba4bbe7ef124b01491b4b019c6"
     },
     {
       "path": "infra/terraform/phases/dev/05-network-completion.tfvars",
-      "sha256": "89333965906b8214588f5c5fb041215a4df5d52fa1b1ccf277f50a75277bd590"
+      "sha256": "42403ab51da1949f511499e6212417b345777bdb702bfdd03a326af617b4851f"
     },
     {
       "path": "infra/terraform/phases/dev/06-rbac.tfvars",
-      "sha256": "2829e416f30134fd61c1a224a71e3128496df84bbb6d1e37d2e595388dcb50a6"
+      "sha256": "67b6dd8f70767c414c4679ed11e444d177a3181d3190c47301b96aa8b4a64678"
     },
     {
       "path": "infra/terraform/phases/dev/07-core-runtime.tfvars",
-      "sha256": "bf9c99d2c7b7e02501266df19f32ec05658df6647ac307c9c2cce9b532967ea9"
+      "sha256": "b32c5e9c298b2dca0d96f32ec8cc6ab114663d99b8091638e5a7259f0d71ae2f"
     },
     {
       "path": "infra/terraform/phases/dev/README.md",
-      "sha256": "16fafdd5c3c36395a43f9ae4fc136a6b4ba3ba894d0e2beeeb5f6ae7cc74a71f"
+      "sha256": "b2f0b62d4859c41a9b55069ec2a4a267c8e6887a7c3d2e888cde1454ff5e0bd1"
     },
     {
       "path": "infra/terraform/rbac-cmk/env/dev.tfvars",
@@ -2930,7 +2978,7 @@
     },
     {
       "path": "infra/terraform/rbac-cmk/variables.tf",
-      "sha256": "5de4f7d9f2c034fccc9f0ff250693cf6ab9531a9d5a2226add864aeaa9caaec4"
+      "sha256": "c082bf44533592e8ece25db0adba582e841dd149e503c73425e016c39e86aa82"
     },
     {
       "path": "infra/terraform/rbac-cmk/versions.tf",
@@ -2938,7 +2986,7 @@
     },
     {
       "path": "infra/terraform/rbac/env/dev.tfvars",
-      "sha256": "2a9ee65239aefffa5277ac74a848937f2a2fce9b02778b1afc3f4eca70ff8fba"
+      "sha256": "a8817f13a93412834a28ddb9135074e37a637c66bafad97ee548430bbacf8c38"
     },
     {
       "path": "infra/terraform/rbac/main.tf",
@@ -2961,8 +3009,12 @@
       "sha256": "36d2e5bf8b9e41bb236926e3fac310792caff85a88369997dd787b503fe46dcd"
     },
     {
+      "path": "infra/terraform/testfile.txt",
+      "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    },
+    {
       "path": "infra/terraform/tests/proservice-phases.tests.ps1",
-      "sha256": "8e26478f09f47d00001db2ad5bcf177c3513cc297422a9fec9991b2abcf1672d"
+      "sha256": "3113ba2bfc30326069ae3720ab06e25d50367dff7bf01c8894d223dc4d4a6e4e"
     },
     {
       "path": "infra/terraform/uami-cmk/env/dev.tfvars",
@@ -2982,7 +3034,7 @@
     },
     {
       "path": "infra/terraform/uami-cmk/variables.tf",
-      "sha256": "76606cccc27b34d43e861d1caaf002743d53bca5694ae604e93ac94671f3e8bf"
+      "sha256": "20a279e0635dcb4b1d62528ecef56eb9b211ac51c4ea659c9c22317a83cfc0e5"
     },
     {
       "path": "infra/terraform/uami-cmk/versions.tf",
@@ -3122,7 +3174,7 @@
     },
     {
       "path": "packages/core/src/docmind_core/connectors/__init__.py",
-      "sha256": "6e45b3e4ec05177667eccd9b27dc385aa27a22ffea37f2d990837d79755474d8"
+      "sha256": "160b146867011b4084c35c0028a8577e075c39d5e47fd1f36d1eae4fe0019ffc"
     },
     {
       "path": "packages/core/src/docmind_core/connectors/auth.py",
@@ -3138,11 +3190,11 @@
     },
     {
       "path": "packages/core/src/docmind_core/connectors/profiles.py",
-      "sha256": "5ca99783ae1575ac6baf476c6ed0e7dd04b3b90b9e52c66bae6bd803c0679a1b"
+      "sha256": "d940a8b7d581e76aa1598335bfaca23f8ac1d7f909feef0e16cbb619e718f24b"
     },
     {
       "path": "packages/core/src/docmind_core/connectors/source_package.py",
-      "sha256": "a4b2d9b1770d5514d0ea2a7719558adb640840f56b0d81c4616473ca48d5f3ff"
+      "sha256": "8a154b77619ad1567bdf9b2437845bacdfa66a5d1ffa30c6392359cbc1cda2eb"
     },
     {
       "path": "packages/core/src/docmind_core/connectors/source_package_file_operations.py",
@@ -3151,6 +3203,10 @@
     {
       "path": "packages/core/src/docmind_core/connectors/source_package_materialization.py",
       "sha256": "0a835af36ab5b5e28eeffd4dfff30cd22030f871fc327ad6a3b8771bbb8b48da"
+    },
+    {
+      "path": "packages/core/src/docmind_core/connectors/source_package_scan.py",
+      "sha256": "1173316517d40ba933869cd53667a89428a5e4e300a0161665058c9783b737f0"
     },
     {
       "path": "packages/core/src/docmind_core/connectors/source_package_transforms.py",
@@ -3214,7 +3270,7 @@
     },
     {
       "path": "scripts/lint.ps1",
-      "sha256": "532abf5c1e0711a9294fa5a174cbbe64f1e157c826176ed839af2337dd7c3999"
+      "sha256": "ad39d7ae48475b23289140b1b573dba5aaae0b2e090f6233864746cb2c9a740a"
     },
     {
       "path": "scripts/source-package.ps1",
@@ -3230,7 +3286,7 @@
     },
     {
       "path": "services/api/alembic/env.py",
-      "sha256": "9971dce6750e4dd4deafd252478f6e568f73917f82e72950ec90650ecd91da25"
+      "sha256": "4bb45977771016a488d6cb7f6e3d253e6163496176386893f4fd78fc5bc30037"
     },
     {
       "path": "services/api/alembic/versions/20260519_0001_create_users_table.py",
@@ -3453,6 +3509,22 @@
       "sha256": "f51a258650744b8911e3bf151f849d783ed072f31c83098e04606953b07c288d"
     },
     {
+      "path": "services/api/alembic/versions/20260909_0051_create_workspace_registry.py",
+      "sha256": "f672ebed7de8a0c73eab5a5c878c596ee437e50bee18ae2ebdb106e6dd9836b4"
+    },
+    {
+      "path": "services/api/alembic/versions/20260910_0052_restrict_workspace_registry_runtime_writes.py",
+      "sha256": "305b902541e2e960f7feb6aa06710917689d7b76f24bbb95900e0c3f9fa02215"
+    },
+    {
+      "path": "services/api/alembic/workspace/env.py",
+      "sha256": "3e2e8aecd8609470d429463b1ba50e61473a8b94027e23a1e8912c780bb29dcd"
+    },
+    {
+      "path": "services/api/alembic/workspace/versions/20260910_workspace_m1.py",
+      "sha256": "ea067fd1274c7c7ea810e2a262dc3b211feb32035e66ece4476ee37b384d44b3"
+    },
+    {
       "path": "services/api/pyproject.toml",
       "sha256": "8cf53bd392c08f81e90f25002f63c4f0f36b1c89da87d4ecdcbd174f267a82f9"
     },
@@ -3482,15 +3554,15 @@
     },
     {
       "path": "services/api/src/docmind_api/api/attributes/categories_router.py",
-      "sha256": "1f71177402294a566ac7811871cb5b5e0778e5fe66cb64c762b1771722f6905d"
+      "sha256": "4acc3da66b3fbf75fda248004b782ccd2d030e71bde1155b6f529212fd0879ca"
     },
     {
       "path": "services/api/src/docmind_api/api/attributes/router.py",
-      "sha256": "44c1ca3823141ae3e834e1ac12709478e999b30481044256698b8454e0e48f45"
+      "sha256": "33a2f4398797691ecffe1831a821fc8ec49e7087c909dcf5898c0c20f37a0f07"
     },
     {
       "path": "services/api/src/docmind_api/api/attributes/schemas.py",
-      "sha256": "967f3791f1f31fbe6e379ed040146653cc41d991154b5d198d3985516a2685d6"
+      "sha256": "df168c551357beb5644ee60d590acf1b378cf9f0318e1c33701024ae7b2faa89"
     },
     {
       "path": "services/api/src/docmind_api/api/auth/__init__.py",
@@ -3510,7 +3582,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/auth/invitations_router.py",
-      "sha256": "29be96202ba0dae9068f29c4476880fd3dd1fec0fb173f4f17ba55cf7cb3e890"
+      "sha256": "ca16f93fe3e74e3640f819f9b3222d328e96c4681851aa71710a0140ae4160c3"
     },
     {
       "path": "services/api/src/docmind_api/api/auth/middleware.py",
@@ -3522,7 +3594,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/auth/schemas.py",
-      "sha256": "6d838a5a719e728ccd1b21e9259e1611d054ce1889d96e9e6a9bfcd42246008f"
+      "sha256": "e2c40ac2ff74e0c535ee6414bbeeca753d26e4ecbd2d40d9f71fda274961c36e"
     },
     {
       "path": "services/api/src/docmind_api/api/auth/session_mappers.py",
@@ -3534,7 +3606,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/auth/users_router.py",
-      "sha256": "6ad3cc52951ad6fefd20db8b13769f724cd83d60c180331c8fd19f48df5fcd70"
+      "sha256": "6160a217e90dd3c8d32385c110844fcf7c4c370730af568d6c70496d8bdb38e5"
     },
     {
       "path": "services/api/src/docmind_api/api/capabilities/__init__.py",
@@ -3546,11 +3618,11 @@
     },
     {
       "path": "services/api/src/docmind_api/api/capabilities/router.py",
-      "sha256": "4a5bb25b7bee8740c8b652241e8d1d30e08926ea9ffde173de7810506794153e"
+      "sha256": "2bff7d3d3aeae1e9f8310432bc2f02f5d67cb7921198b502f3017a03d0eff144"
     },
     {
       "path": "services/api/src/docmind_api/api/capabilities/schemas.py",
-      "sha256": "8aea48d653137daa7c70e6108822c065fa037b1a3b6631fc56e5f4cd7759b47f"
+      "sha256": "f08ca2c7585e6fea89cdddc8ca0d8c6e27b37cd26f30482c87e761a72b01bb0d"
     },
     {
       "path": "services/api/src/docmind_api/api/connector_configurations/__init__.py",
@@ -3610,15 +3682,15 @@
     },
     {
       "path": "services/api/src/docmind_api/api/dictionaries/mappers.py",
-      "sha256": "a992d656613942b544b4b6387b5e85eeb71940b3b4d1467e96d5eb1f41dc5707"
+      "sha256": "31129557bd252cc4e4c754ad8212493f681351fdfe93ddbb7c5a434ac1f15fdd"
     },
     {
       "path": "services/api/src/docmind_api/api/dictionaries/router.py",
-      "sha256": "697de76f7ec36ae4e7d8626d4850c52544367cfe808d644b28cf40225c9d15d3"
+      "sha256": "815bdc58483c95ed41d410162496041bf0c54b644b3aa4304c81ac2c61ee3f87"
     },
     {
       "path": "services/api/src/docmind_api/api/dictionaries/schemas.py",
-      "sha256": "53fd9f9c248d433ef5388c0054bf270c70c8ecefd1d8d90ca4c617ebcdd047c4"
+      "sha256": "1b1347533b5b34ceb3f4079423fb6857db71090e36f359f3dff6c577c10b7f9f"
     },
     {
       "path": "services/api/src/docmind_api/api/document_review/__init__.py",
@@ -3634,7 +3706,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/document_review/mappers.py",
-      "sha256": "232b8148dd08f24bb2dbf0976455f14f10e2939b826e85fb25f27d962c7e14a9"
+      "sha256": "49d01be2fd67cfea660dec4719c2c9fa4538d62176eb319d71997e28244367de"
     },
     {
       "path": "services/api/src/docmind_api/api/document_review/router.py",
@@ -3642,7 +3714,7 @@
     },
     {
       "path": "services/api/src/docmind_api/api/document_review/schemas.py",
-      "sha256": "497c5f8325d9f723716455c37787da7ada64253340d2a0411d219a6b587fe041"
+      "sha256": "5879d92b8907a0fe1acc005cb1ee2532e92f185a4ec843a0df5c633aa0607548"
     },
     {
       "path": "services/api/src/docmind_api/api/document_types/__init__.py",
@@ -3650,11 +3722,11 @@
     },
     {
       "path": "services/api/src/docmind_api/api/document_types/router.py",
-      "sha256": "f429be7374350d85c4213599e7be62e384b726fea346e662904b3bfd0cce40fd"
+      "sha256": "5b6300766a5832faf0998568d4948d96142152052986831098ecd78991958223"
     },
     {
       "path": "services/api/src/docmind_api/api/document_types/schemas.py",
-      "sha256": "1ea11c9f59588da2e00d044af8add87466ba0b28b0bf470b3b38ff35e16f6e9f"
+      "sha256": "b858b1c0631c99e98fa98d24d535cde81bf2577b141e05ae1cda1410baabbf6d"
     },
     {
       "path": "services/api/src/docmind_api/api/documents/__init__.py",
@@ -3662,19 +3734,19 @@
     },
     {
       "path": "services/api/src/docmind_api/api/documents/mappers.py",
-      "sha256": "2046d2ba015a94408d38fa1272a094080b2e0d028e84cea0609b13876bc9bed5"
+      "sha256": "4aff2087d314a8311a33cb9d645031fd6b043fbb78d852d5c92e96e574e04949"
     },
     {
       "path": "services/api/src/docmind_api/api/documents/request_size.py",
-      "sha256": "d982deb02bd1b131eddc074a6b3c066b18d72332176b4a39683fbdf5698097e2"
+      "sha256": "69101e29080ff84a447bc16e22e91b6548fa4e9a7d548db398797a5540076e09"
     },
     {
       "path": "services/api/src/docmind_api/api/documents/router.py",
-      "sha256": "9dc74505405e1a9c2bf9fb7096f433e0ca6bdc09ebe0c92018d2fa1d91ced7ad"
+      "sha256": "e92d399b4aa89e16dced292a0b2a9798a0b4f1c43bb79fc83f2d4fa35dd3c647"
     },
     {
       "path": "services/api/src/docmind_api/api/documents/schemas.py",
-      "sha256": "add18ab92ee3b073f61f91279db7f258f3617f3f2a184e01bc50e5781b924c79"
+      "sha256": "e7a0a35b0056bacf86814542676ec8e490af748d1d6cd9adc28a68acd1303f85"
     },
     {
       "path": "services/api/src/docmind_api/api/health/__init__.py",
@@ -3698,27 +3770,27 @@
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_mappers.py",
-      "sha256": "7186c615fb1c7a75b8c3042d1faf9c7dc17242d9b42f31daef0c5374ddb66b5a"
+      "sha256": "bcbd065eb81fee4ae61e596c737d8f92ddbc776774e5a50e5bfc45eab08b5c5f"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_router.py",
-      "sha256": "f6f0fb83e0e77959c660ba274f9ea972dd792e31b747f2fec5706baaef07ccc6"
+      "sha256": "d55e3efd47886426e2a2c8bf289885c99fe5bfd5c42eb4f2f6de2d9995b4148a"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/admin_schemas.py",
-      "sha256": "6fad1ae6884d876a7339ad0d246645a10c0174002662c04e985634f11307e7c8"
+      "sha256": "f70d9247618c7bfb48a5955efa35627639b7c6aac3c0950fdce93a5afa69d922"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/mappers.py",
-      "sha256": "5284fae1c86bd77d59d9891429c47434303fe4a1b6ccbfc2dc9c98f7f45d21e4"
+      "sha256": "3302bbadb4f89f621cac0fa5dce76a6416943cae7d719db9ad1ab95747be8592"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/router.py",
-      "sha256": "245738e6b870a28541d476c27388f52049418a812d541e012abb5d875ec4c3e4"
+      "sha256": "f5ed78ba06bd913d500fa7e7fbdd4d98474aa195463ee37ebe39f73654ab0078"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipeline_runs/schemas.py",
-      "sha256": "08088345634813a63a0c0067325527944f46f8be2e6ef9642f65ec6b81f45dde"
+      "sha256": "029da7742e80e7df054cafb8bede7d959a310a748b5326eca53be7c02fd3b841"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipelines/__init__.py",
@@ -3746,11 +3818,11 @@
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipelines/router.py",
-      "sha256": "5f2924348e9b7656b5659b17c5ade6eef4dddc01a16897aafe7d0493de171578"
+      "sha256": "a57582f25ec63ac07678081e19478aa78e81313fc8b742911871573e0e839550"
     },
     {
       "path": "services/api/src/docmind_api/api/ocr_pipelines/schemas.py",
-      "sha256": "23915a92a0de3fbe46faf11f6fa89a43efbb81711239e5303fa1f3677d4ce3f0"
+      "sha256": "13609809c1ea69772c7f1bb5bb189283e12fe9abc26d339ad4c9c4fe50bdad71"
     },
     {
       "path": "services/api/src/docmind_api/api/system/__init__.py",
@@ -3775,6 +3847,22 @@
     {
       "path": "services/api/src/docmind_api/api/system_catalogs/schemas.py",
       "sha256": "e77a075c6fd16c8efec437ead4b0d8536cd3e322b7899e52c0c503647a3a3958"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/workspaces/__init__.py",
+      "sha256": "d580fdb61aa9b373c60f283acb882558ddd5d9c67bd712d117a8782fcc10e90f"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/workspaces/mappers.py",
+      "sha256": "ef173d2102bfe1031696ebcb510afecbf2fb5ed37f42246d0ba59889f88f98b7"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/workspaces/router.py",
+      "sha256": "e14d55ea51ffc4d2c815698a1c7540d9000429531e2ac2bf87be52ae171732bd"
+    },
+    {
+      "path": "services/api/src/docmind_api/api/workspaces/schemas.py",
+      "sha256": "d224c76a08930ffc50c80ed96d75ddf7b24e80f30c46dc36d0102968d145e738"
     },
     {
       "path": "services/api/src/docmind_api/application/__init__.py",
@@ -3806,7 +3894,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/attributes/category_service.py",
-      "sha256": "a9be4dda8abb4efa6bc71083ac3378a13a8ebd11b18b3c8d07e568eaa4fbcebe"
+      "sha256": "507c6613eaccba036109137219a45d4f00104ff6536ad4c934c19b9f007bb728"
     },
     {
       "path": "services/api/src/docmind_api/application/attributes/deactivation_guards.py",
@@ -3822,7 +3910,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/attributes/service.py",
-      "sha256": "ba5820085233229fe27e45a637bd7b92ce65382b45c6dfced4ae2b7e73fd5bdd"
+      "sha256": "78cdaa1fb65f547b1142836e55b6e86f3533e119ce2eaf51b5bc13e934fd9ffe"
     },
     {
       "path": "services/api/src/docmind_api/application/auth/__init__.py",
@@ -3846,7 +3934,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/auth/invitations.py",
-      "sha256": "97fa46cfb16753c9248c37aa30e10cf692e8b9357a5cdff4551032b8745f67b7"
+      "sha256": "d2b7b35037c5990847c517778cd3ad15d01e2137e1ab8adc26f544cdbe783a44"
     },
     {
       "path": "services/api/src/docmind_api/application/auth/local_accounts.py",
@@ -3862,7 +3950,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/auth/repository_ports.py",
-      "sha256": "52d9b6d79035b1e45dc17c0a72c11e5d34f8280ccf59920de012b8c9c409ef82"
+      "sha256": "80367dcc05fba2ff0f502aba4ea4bcd8354c62e9a2bce3e31d8a02bf8fd93c64"
     },
     {
       "path": "services/api/src/docmind_api/application/auth/session_audit.py",
@@ -3878,7 +3966,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/auth/users.py",
-      "sha256": "07ec11118be6e227f361e3d737c82d5858798aa5e173313fcd38dbe9cddbb11c"
+      "sha256": "3535be4e35c84d6c440179736419e3f30c6b5a51e5aa9b85d1493db57517fb74"
     },
     {
       "path": "services/api/src/docmind_api/application/capabilities/__init__.py",
@@ -3886,7 +3974,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/capabilities/service.py",
-      "sha256": "fe9708163b9616ffd2f6f7dba747a483a2f1879c84307b651c4f64cf5dd510b3"
+      "sha256": "2114872f20f4dc5957a50f3d8b40d8ac9dd24023a907e2bf888e4075881e32fa"
     },
     {
       "path": "services/api/src/docmind_api/application/connectors/__init__.py",
@@ -3938,15 +4026,15 @@
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/commands.py",
-      "sha256": "5d409089693bc6890e0af18e2360c6966208d3fb6d4abd212d84fb4c79773ebe"
+      "sha256": "d2c0b579bb6dad21e2b8c532467516ce5b6bdcf302b928b02171c25864a047cd"
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/entry_workflow.py",
-      "sha256": "0cafaf39dce1b2ea83256c405919ad978f6b1c6bec127e1494f7466c0edd7181"
+      "sha256": "dbe99ad452659c59ad11ee844359ff1cde6d1b3299cda7a9a23ae7e549437412"
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/errors.py",
-      "sha256": "afd393cfe25e36a15c4ea5e2e4f441a4b6a5d184a0725e369f38d2ef2c00f92f"
+      "sha256": "e88c0d9079789178b3aff38b8cf2d47ed996f6e67c90cbac2b587de7d6e55dd4"
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/field_factory.py",
@@ -3958,11 +4046,11 @@
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/ports.py",
-      "sha256": "20816e67574af2e5d44643fa0c265ed8c77f7d299ee5da9b257d80689977c9c6"
+      "sha256": "20ad6c1a91e63fd818e3825f3d7ef024693e82974826cb0b4ccfb72b3ccd7a96"
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/service.py",
-      "sha256": "6ead0b93468cab98a90378fe8ec4030dfbf10c3d205653246a06296eb7e6fb88"
+      "sha256": "a1e313de4c6fd7bec144645e6ae70adc1b1f0129bcdb8a0471d582b25d8b6f55"
     },
     {
       "path": "services/api/src/docmind_api/application/dictionaries/validation.py",
@@ -3990,11 +4078,11 @@
     },
     {
       "path": "services/api/src/docmind_api/application/document_review/read_models.py",
-      "sha256": "d88bfa06b94f698bb8785ef7830c035d3706ab282daca1c072cd50a3f069a668"
+      "sha256": "2e093b11615ec6a4310b99ab0229170be25a6a0c414e05a763176156e33a1195"
     },
     {
       "path": "services/api/src/docmind_api/application/document_review/service.py",
-      "sha256": "b45a4511d78d561850f7769251b53c4a065fa8f278db69433558431216565e19"
+      "sha256": "66f21b58bb6a7b99c5f76b1ba5ddd5d7b60c3863686f5edeea769705625dc914"
     },
     {
       "path": "services/api/src/docmind_api/application/document_types/__init__.py",
@@ -4002,7 +4090,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/document_types/commands.py",
-      "sha256": "30c33a3d39e1055b043fbfe83e7cabdfc2c9424a300433b1e499a2b243c7846a"
+      "sha256": "2b3435a56ed1ec69cacd3bb0198145a549f8271fe0db23adfd127ff02716c625"
     },
     {
       "path": "services/api/src/docmind_api/application/document_types/extension_value_validation.py",
@@ -4014,7 +4102,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/document_types/service.py",
-      "sha256": "59a0bd85cc7079f685dfcf4ea239957f3f2cd47f2172ab27f020277ba124f6cf"
+      "sha256": "878844a8a423de877c2d915d4c8cdd395d30942cf283d70f598ca3c68bf31dd5"
     },
     {
       "path": "services/api/src/docmind_api/application/documents/__init__.py",
@@ -4054,15 +4142,15 @@
     },
     {
       "path": "services/api/src/docmind_api/application/documents/ports.py",
-      "sha256": "c7ad4a30247aec071f5c905de259dff666e156a7df8f942b7e21f9c14518b62a"
+      "sha256": "6993d76982c61643b09ed8c3b06a91c80a873de940b592e98c578f168d6f9b42"
     },
     {
       "path": "services/api/src/docmind_api/application/documents/read_models.py",
-      "sha256": "9eccccf0f3ecd4ac2527729cd2637d8ba798bab717d5c7d09caf5e49029af2f6"
+      "sha256": "df27e8e575fb7b0fc558f4b83c9dc48fc1675806674b11963ac8dacf4440a00e"
     },
     {
       "path": "services/api/src/docmind_api/application/documents/service.py",
-      "sha256": "6a35770b3cf5bd4cc24e53529e4896490acbc31b85520039fc77fb19f82e494f"
+      "sha256": "c9a0a3b145c9297d4328b6eae812755143a9707ba0f307355b3288d819a36b43"
     },
     {
       "path": "services/api/src/docmind_api/application/documents/service_helpers.py",
@@ -4086,7 +4174,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/listing.py",
-      "sha256": "cc802a44028834f22fc350751c90de1870e13d5c47ee978151513ba6ee1921b1"
+      "sha256": "1b24c8177511846cb054b91ce9c2b4ce9b07d68ec389104c13b5bc90ad0254b9"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/__init__.py",
@@ -4094,11 +4182,11 @@
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/admin_read_model.py",
-      "sha256": "5df0a35e0e8ea3cb8b1b2319f96928e909354d07f4a4b7ae7946bdc3a6b0d229"
+      "sha256": "bd41d0351e4ef424e88fd22dd12746ff55b9d7a707a7c48b0859b7849eeb2895"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/commands.py",
-      "sha256": "4eab59cb9375dcdcfa64d66b5254a853b65208dbe00e09c9b32f985f83485284"
+      "sha256": "145c3130d77c9f5182fb07cfe1ed8268b83a482012c23cf26e75206e1f78af8e"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/context_resolver_config.py",
@@ -4114,11 +4202,11 @@
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/ports.py",
-      "sha256": "ed8600cace0bc084e0a9b6c51180252b6e55cbdb86586fdd1a824fd53e8236ec"
+      "sha256": "f3d74b9ee45057c90cd0475a2bbc934e717ef98568e491472f5570c6bdd7c51f"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipeline_runs/service.py",
-      "sha256": "c4fbd032bb0bd86835ee8ade0035de1e7653c4b81cf3d01fcb9b597a2cf89da0"
+      "sha256": "4ff9f7ec60181f4843a6dffd17ee6bb4c6225c20f3413622ea68c7a62ee27d54"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/__init__.py",
@@ -4126,7 +4214,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/commands.py",
-      "sha256": "05153674656d6243a9773e1d0fae5875fdf4b1c1b6863f6d962dfa0000941257"
+      "sha256": "3c0c9a0588d82a30c6322bd85b93ce5ec974e9f178101689ebff58e6c0e08bb1"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/confidence_colors.py",
@@ -4154,7 +4242,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/ports.py",
-      "sha256": "196bbe02093905a7934ea89f40b177033b37f9b1168147c6e482bce7b73ef591"
+      "sha256": "5457c0de090ba37f3ba425d61a92ba4e7794446cc18a423d4612368f03b5d0a8"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/reference_validation.py",
@@ -4170,7 +4258,7 @@
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/service.py",
-      "sha256": "19821398d4a78c5429ab11030c24b71b6de2894d9106842567278ff8029d9b41"
+      "sha256": "b4f4e8554aee961ee53ca09f88a0c4fe496a2e7d927acde5d1da78f83bc7b33b"
     },
     {
       "path": "services/api/src/docmind_api/application/ocr_pipelines/validation.py",
@@ -4209,6 +4297,38 @@
       "sha256": "4f1efaa5827db3a8da3d7289cf856f599806a0a8e1cab8928207f9efeeb4c57c"
     },
     {
+      "path": "services/api/src/docmind_api/application/workspaces/__init__.py",
+      "sha256": "2489760242612b98c84eb147db1e4974187cdb22432de738c0e8982c7b6d85c5"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/commands.py",
+      "sha256": "c4bac45e8dfbf656c1f9749433d09c5ef50cb3e279396dade2401dd744e3812a"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/errors.py",
+      "sha256": "83e9a7638acf0e1e27396bf26e1b95598dcbcb3d09920f8e658501f3a3a4226b"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/ports.py",
+      "sha256": "5c9f673885eb48a5616fd595a91f6ac2fe8f26d0cbdb769bab3064eee965fc14"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/read.py",
+      "sha256": "212785b5b97b97ebdc1fc9cff4e67e8f9f0cfdd8d52153ad69e46bc57cd7f700"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/registration.py",
+      "sha256": "2be0a4437f6a56b43b7e6160656c6c59ffc8af007c85492e515e12004ae1c035"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/retry.py",
+      "sha256": "9c6aab869bc17f3aa26b0fabcfe31d09db4cfe1f2c3a42a90943e9b867d52184"
+    },
+    {
+      "path": "services/api/src/docmind_api/application/workspaces/service.py",
+      "sha256": "4faf449e3831867a27b030780a8e5bee5115b237127ddeb3490751be27e27c58"
+    },
+    {
       "path": "services/api/src/docmind_api/bootstrap/__init__.py",
       "sha256": "91aaaafc30762968c3ce12cc945734db5b550e4d19ad34c6f75286ebb3ae6eb9"
     },
@@ -4227,6 +4347,10 @@
     {
       "path": "services/api/src/docmind_api/bootstrap/commands/first_admin.py",
       "sha256": "378a9c305450bb2ea68d9626212d028c72e8ff9b507c8ed862cb2c429e6a571e"
+    },
+    {
+      "path": "services/api/src/docmind_api/bootstrap/commands/provision_workspace_schemas.py",
+      "sha256": "4d5d070bd569c730bed20f6cb3eeac0ed4122586610784c6b23dd7ad02584c42"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/dependencies/__init__.py",
@@ -4325,12 +4449,16 @@
       "sha256": "667385f8fdd10a726e28a86ec8083818ed4d02b5cc8c1790f61b076aef1665f4"
     },
     {
+      "path": "services/api/src/docmind_api/bootstrap/dependencies/workspaces.py",
+      "sha256": "3c3f8768ec3c4bea1df04a984e80e27d804570747025f62e25084787f18bb797"
+    },
+    {
       "path": "services/api/src/docmind_api/bootstrap/lifespan.py",
       "sha256": "c7956698fa0fc02ac1453ecf27f7826982a03000675466b399c2c4883f2e7297"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/__init__.py",
-      "sha256": "3881b5d143238960a22bb25744c7d6380d70b0ce760f0dac961d2c1f72ce3779"
+      "sha256": "51e7276198653348a88dad6708e2bcda90949d130f175802ed9c0ebbb8cd516e"
     },
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/attribute_requirements.py",
@@ -4399,6 +4527,10 @@
     {
       "path": "services/api/src/docmind_api/bootstrap/routes/system_catalogs.py",
       "sha256": "5e0be0d1ac1d2f8fe7016967620e079f4c4ac8af7fc0177fdee647765fe36597"
+    },
+    {
+      "path": "services/api/src/docmind_api/bootstrap/routes/workspaces.py",
+      "sha256": "2b11c003c6770b6e912f89748fbc0748cc0510a764e555f1e4bdef7d694cb4f8"
     },
     {
       "path": "services/api/src/docmind_api/domain/__init__.py",
@@ -4546,7 +4678,7 @@
     },
     {
       "path": "services/api/src/docmind_api/domain/dictionaries/usage.py",
-      "sha256": "15291411190b743c5d18eab1b49349c669ce9f6e61ab5936a4c75972bd366efa"
+      "sha256": "4fdd479b925ca57e0dbea045ed42a4248d85f5698ec965ff56b792defd1e26c4"
     },
     {
       "path": "services/api/src/docmind_api/domain/document_types/README.md",
@@ -4638,7 +4770,7 @@
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/records.py",
-      "sha256": "4afebb3063e0fb333890fd0bb02afd356fee24a74de897fd520611209b17615d"
+      "sha256": "0cb2b999499d8239e5d339705ff0987d2e94bed1b6455b3201362f2babede28f"
     },
     {
       "path": "services/api/src/docmind_api/domain/ocr_pipeline_runs/statuses.py",
@@ -4691,6 +4823,18 @@
     {
       "path": "services/api/src/docmind_api/domain/system_catalogs/models.py",
       "sha256": "4a4cbaaa93038737526ceac95e1b3c766e7e821bb7b6c85e4228a8e97ec71b71"
+    },
+    {
+      "path": "services/api/src/docmind_api/domain/workspaces/README.md",
+      "sha256": "ac91a04baf478824d22594788f4a6edc48765882cfd25bd9593b10eaaa5b6388"
+    },
+    {
+      "path": "services/api/src/docmind_api/domain/workspaces/__init__.py",
+      "sha256": "ee8ad96945f6f77e617f891479f84a34c8b5131cc033d688a7d2d0fdaae5b942"
+    },
+    {
+      "path": "services/api/src/docmind_api/domain/workspaces/models.py",
+      "sha256": "0913958a3eb8f0cb6c01e27c26355490541dc9a12a31372453e139c34fdca47a"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/__init__.py",
@@ -4806,7 +4950,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/document_review/context_resolution_mapper.py",
-      "sha256": "b0a32d4c9d36f392a02cc863a1f6fe2bbff41d206d6d77740b273f7840b8e922"
+      "sha256": "dde1cb70c9df5d6043a0d90fae0e48d716f5274f7d573766acaefeb3c5f07806"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/document_review/context_resolution_source.py",
@@ -4874,7 +5018,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/ocr_pipelines/runtime.py",
-      "sha256": "173d1677b1d14563b48fb448d04646b3b5abb7ecc7e06c12898a4def28c367b6"
+      "sha256": "dea1d3e941a730146d03185c0702c00f92c4ca5f8bf6c610eb306fe07cd15141"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/__init__.py",
@@ -4918,7 +5062,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/auth/repositories.py",
-      "sha256": "6f9c5fded22a79d64bd520e35846f9c1f622f47bee0e9015957e2a7f57f41757"
+      "sha256": "ae3d92101f3ba149d2c24df90fb21485bb47b15f5c259e94f886ac93a0031296"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/auth/session_refresh_tokens.py",
@@ -4970,15 +5114,15 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/dictionaries/repositories.py",
-      "sha256": "a8d1a22d972ea07f0e12d0ace94c6cfd89ee2bfcc7a1d2bc037bcebda1e79666"
+      "sha256": "424229e79aba65022f33906982ab064359d6b0b933945def162c2ca076b4d79e"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/dictionaries/tables.py",
-      "sha256": "f09e83bb45737f1cdc55de799a4365dcaeba0d317b57437b4760efc4ad7fd2f3"
+      "sha256": "fd94bece7e9f4b2b4ab8777c95aa11c7c32860db2034f1367b07825960be8736"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/dictionaries/usage_repositories.py",
-      "sha256": "6ec7ddc90ab952f22df0bb3f6fb611b23052fb343e46a27c2639a6bcdcdeefe2"
+      "sha256": "10f1eaf73b228abb86e14bea88570429be084e036ab5a21c8b6879f01b356deb"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_review/__init__.py",
@@ -4990,7 +5134,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_review/repositories.py",
-      "sha256": "0cfbdae99a21a9277dd697f5e9c3496bc48bf61bbd82d144e0d24d6a8ab83f79"
+      "sha256": "70b73c4a5acf27a37707afd12e80a18150cd80f085d23047d06928c2d16cf63d"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/document_review/tables.py",
@@ -5022,7 +5166,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/documents/repositories.py",
-      "sha256": "8eed5dc0413652208a553f74d315ab3c2e38347fa13742782d61703fec1fa788"
+      "sha256": "96e74c7e5b0c5871947c54d0f69b45a58d7b77ba39db0502adf15158d24ae682"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/documents/tables.py",
@@ -5038,7 +5182,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/migrations.py",
-      "sha256": "b5887bc83976f2069bd4bf65cafa73e3e90b7e88e4189c5a905ea0825c97c108"
+      "sha256": "7b54a982360fc962f7225f4ed74186f2b804c18779f3d14bffc6382f97ceffbb"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/__init__.py",
@@ -5046,7 +5190,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/admin_read_repository.py",
-      "sha256": "e5495419d2bc686be1435c7427e37d93f2aac487a85f179fdba259e9119470d2"
+      "sha256": "21e426f08a15327fa39b358189510de634ca90df3afc8ae2451256b775d3e099"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/execution_mapping.py",
@@ -5058,7 +5202,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/repositories.py",
-      "sha256": "67cb1480c8627e867ab01e09ac91ef1428e7319a0576917b6c0d1a21a0c1d176"
+      "sha256": "f4770039b61fb7479df046ed55d677d4ff16a619d9b919d2915f98fe7f2559a7"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipeline_runs/tables.py",
@@ -5078,7 +5222,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipelines/repositories.py",
-      "sha256": "e0e6c775925c0063a8c55ba1acb628f359a0197a056870f001c13e762b4ae29a"
+      "sha256": "b04e609ed0d2c96d0bcf84c3ce37944435de7da4c685935c6c214e503170f666"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/ocr_pipelines/repository_operations.py",
@@ -5090,7 +5234,7 @@
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/runtime_permissions.py",
-      "sha256": "51a4e516732ce75d76cc22b220d8d92f3c9a636036a89b24b09e0842b2250585"
+      "sha256": "28d76a4940a13029dbae84be7abe7f6715f827403b6aa9bbe056b9fc64c3de6b"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/persistence/sql.py",
@@ -5125,12 +5269,56 @@
       "sha256": "68a0ad423edb62ffad1aca07c48d7c1c290f416efcff7c6f5e44a798f99ec109"
     },
     {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/__init__.py",
+      "sha256": "a1acc5dcce4ecdd1c4ec16c3b07d07ef9f04ab69e5346b9b002b5c08470e6b57"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/mappers.py",
+      "sha256": "4dfb585d6c399e328b357e37950ab35774d21921a7c3246795e36762798a6320"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/provisioning.py",
+      "sha256": "9d156eb4e0980bdce6451e7adb277a0e273db40f31e0ece24ebf5ca745b3fdb0"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/repositories.py",
+      "sha256": "e20967971f462a30e27aa815facf43f85e429932a8d42ff36e900ae160f88a61"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/schema_baseline.py",
+      "sha256": "99fb55f93a5410dba39bafd8c25da2835c1d58702d68077b998b955e58517096"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/schema_baseline_verification.py",
+      "sha256": "d94781e9ca2fda888a263ee17c806f9c8ecbc2229791accf4d94da7e4fd3e448"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/schema_model.py",
+      "sha256": "6ff2d832af8ed431800f3dfbf7b31da43c37200bdbea03e7455383a240540455"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/schema_sql_contract.py",
+      "sha256": "27555538d37c674d474a5e20f8fe459a4fb70d01a70a991d3c9ce3c8e30d94f1"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/persistence/workspaces/tables.py",
+      "sha256": "1021a20aced4184073cc7e6db30f2732b54da50021e533de2f383b1bdfbc4e0b"
+    },
+    {
       "path": "services/api/src/docmind_api/infrastructure/system_catalogs/__init__.py",
       "sha256": "1ff45d434eb7c3a761eea656b613711d87c82f77c10e9273435a473fd29b910d"
     },
     {
       "path": "services/api/src/docmind_api/infrastructure/system_catalogs/runtime.py",
       "sha256": "b43644d94092dd92b5e6ceb9adc3d067861ad2579adb098ee5c839c23bcaa579"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/workspaces/__init__.py",
+      "sha256": "0f38c693d2a2523323776140d1b67509bb14cbe8b98fdde4569d6101b7054946"
+    },
+    {
+      "path": "services/api/src/docmind_api/infrastructure/workspaces/runtime.py",
+      "sha256": "3e6fb6f4da969f779b8051b46ac3134b90af8023ff19401286663721291221ca"
     },
     {
       "path": "services/api/src/docmind_api/main.py",
@@ -5182,7 +5370,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/api/internal_ocr/schemas.py",
-      "sha256": "8f7388c788273a4fd896874c4d721d2cab0a1ffcf0cef6c116683f7069d046d1"
+      "sha256": "4ed49044f2264ca742f39cae8b8e54be54b5bf88519c1f13ee83f383c970537a"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/__init__.py",
@@ -5250,11 +5438,11 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/async_execution.py",
-      "sha256": "e57e29e8a1b7a072a8c294a74ef3c85f1770ef2d10b856b990d5c319a8612592"
+      "sha256": "ce8ce127a607a5419529f746735c193550c4898ae894ad98ec5e2068ec770de4"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/context_resolution_result.py",
-      "sha256": "2514a136f52d536a89bf15288e608a45799de482a5806233c37bdb90b1d6aee2"
+      "sha256": "7e495351d793d2e1124a6508d2c6bbe9cc61a8d852e23dfa2b746f1a4712420d"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/invocation/contracts.py",
@@ -5302,7 +5490,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/document_view.py",
-      "sha256": "7d7b504566298021ba251afa2c2c975c5d196ce1279be39cdc75da81075f11aa"
+      "sha256": "cc425e8041e7c48e28c96a11018f9a229675102e2ca42b6958a060ea9f6e87dd"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/graph.py",
@@ -5318,7 +5506,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/projection.py",
-      "sha256": "23bf3b84b498f00d49c8bd302273ea64084fcd07b1f0350c6a7172dd32bf8f16"
+      "sha256": "3720353e4d3ecb420ea702dbc0bcf730621d8434111d4ad624c4631566ddd9e5"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/step.py",
@@ -5326,7 +5514,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/validation.py",
-      "sha256": "7c0ff730c0f5bf2be2c89571f305119594c3d9e7c3a01db123057eefbd28437f"
+      "sha256": "995bc9e2b222f46774b9237aa0798c9a6685aa10fcea73e626450c80bac3de40"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/application/pipeline/steps/document_agentic_context_resolver/values_report.py",
@@ -5622,7 +5810,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/context_resolution.py",
-      "sha256": "de2556bb982805e3ac46bc7cb0b3f48d97d5b55c3bdcf83b07a0b6bdadef8c8a"
+      "sha256": "31ec083758c7a7c624d38c499578adc7d36bf2e672b238e07a3f5b203f63cc5d"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/domain/pipeline/errors.py",
@@ -5674,7 +5862,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/ocr_pipeline_events/publisher.py",
-      "sha256": "ee198e003bad2874ca9deca1485793d1e03fe67a2b729e0d9b0708fc1abc4c31"
+      "sha256": "78c75fdc569b3aacab9988c55a88c7a1bb0b912e54c2bcb9c5ba9e0cd5993463"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/__init__.py",
@@ -5694,7 +5882,7 @@
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/agentic_context_resolver/provider_contract.py",
-      "sha256": "0654959d01d7542c1b48c8bbccb88d4b586b10923bdb68ead3c3e95795deec91"
+      "sha256": "83eef9d7011276b352a62fafa3790ec309b79a2088ad001a00514717c35beada"
     },
     {
       "path": "services/llmmagic/src/docmind_llmmagic/infrastructure/pipeline/blob_references.py",
@@ -6054,10 +6242,10 @@
     },
     {
       "path": "uv.lock",
-      "sha256": "a4f49069901bba99c24f6bd0cbe507aaf28c9759a34b16b6e5ee4d20741523d7"
+      "sha256": "f1fd8ce23ed49685b57ee17e2fbbc422ec745703f253f9b9a3f4dd881f381b5f"
     }
   ],
   "profile_id": "ps",
   "schema_version": 1,
-  "source_version": "23e528d898c716650b4b07d9afe2d6da6f75d998"
+  "source_version": "4ad705e5067900be75f3b1293ee65b310b68ca1b"
 }

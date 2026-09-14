@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
   CatalogNotice,
@@ -26,11 +26,13 @@ import {
   DataListSearchFilter,
 } from "@/components/ui/data-list-filters";
 import { Sheet } from "@/components/ui/sheet";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
 import {
   adminCatalogQueryKeys,
-  attributeCategoriesQueryOptions,
+  ADMIN_CATALOG_PAGE_SIZE,
+  attributeCategoriesPageQueryOptions,
 } from "@/lib/admin-settings/query-options";
 import type {
   AttributeCategory,
@@ -39,11 +41,12 @@ import type {
   UpdateAttributeCategoryInput,
   UpsertAttributeCategoryInput,
 } from "@/lib/admin-settings/types";
+import type { AttributeCategorySortField } from "@/lib/admin-settings/attribute-api";
 import {
   catalogStatusFilters,
   getCatalogStatusFilterCount,
 } from "@/lib/admin-settings/view-model";
-import { applyCollectionView, type SortValue } from "@/lib/collection-view";
+import type { SortState } from "@/lib/collection-view";
 
 import {
   AttributeCategoryForm,
@@ -84,20 +87,23 @@ export function AttributeCategoryCatalog() {
   const [pendingAction, setPendingAction] =
     useState<AttributeCategoryAction | null>(null);
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<SortState<AttributeCategorySortField>>({
+    column: "label",
+    direction: "asc",
+  });
   const dismissGuard = useSheetDismissGuard();
-  const query = useQuery(attributeCategoriesQueryOptions(status));
-  const categories = query.data?.data.categories ?? EMPTY_ATTRIBUTE_CATEGORIES;
-  const visibleCategories = useMemo(
-    () =>
-      applyCollectionView(categories, {
-        search,
-        searchAccessors: [
-          (category): SortValue => category.label,
-          (category): SortValue => category.externalId,
-        ],
-      }),
-    [categories, search],
+  const query = useQuery(
+    attributeCategoriesPageQueryOptions({
+      limit: ADMIN_CATALOG_PAGE_SIZE,
+      offset,
+      ...(search.trim() ? { search: search.trim() } : {}),
+      sortBy: sort.column,
+      sortDirection: sort.direction,
+      status,
+    }),
   );
+  const categories = query.data?.data.categories ?? EMPTY_ATTRIBUTE_CATEGORIES;
   const hasSearch = search.trim().length > 0;
 
   const invalidateCategories = async () => {
@@ -173,6 +179,7 @@ export function AttributeCategoryCatalog() {
   function handleStatusChange(value: string) {
     if (isCatalogStatusFilter(value)) {
       setStatus(value);
+      setOffset(0);
     }
   }
 
@@ -219,7 +226,10 @@ export function AttributeCategoryCatalog() {
 
             <DataListSearchFilter
               ariaLabel={collection("search")}
-              onValueChange={setSearch}
+              onValueChange={(value) => {
+                setSearch(value);
+                setOffset(0);
+              }}
               placeholder={collection("search")}
               value={search}
             />
@@ -250,7 +260,7 @@ export function AttributeCategoryCatalog() {
           ) : null}
 
           <AttributeCategoryTable
-            categories={visibleCategories}
+            categories={categories}
             emptyDescription={
               hasSearch ? collection("noResultsDescription") : undefined
             }
@@ -272,6 +282,19 @@ export function AttributeCategoryCatalog() {
               setPendingAction(null);
               setFormState({ item: category, kind: "edit" });
             }}
+            onSortChange={(value) => {
+              setSort(value);
+              setOffset(0);
+            }}
+            sort={sort}
+          />
+          <ListPagination
+            isPending={query.isFetching}
+            meta={query.data?.meta}
+            nextLabel={collection("pagination.next")}
+            onOffsetChange={setOffset}
+            previousLabel={collection("pagination.previous")}
+            summary={(range) => collection("pagination.summary", range)}
           />
         </DataListContent>
       </DataListPanel>

@@ -133,6 +133,28 @@ class DictionaryUsedByActiveSystemCatalogFieldError(ConflictError):
         )
 
 
+class DictionaryUsedByWorkspaceError(ConflictError):
+    """Raised when a registered workspace protects its directory dictionary."""
+
+    def __init__(self, *, dictionary_id: object, usage: DictionaryUsage) -> None:
+        super().__init__(
+            code="DICTIONARY_USED_BY_WORKSPACE",
+            message="Dictionary is configured as a bound workspace directory.",
+            details={"dictionary_id": str(dictionary_id), "usage": usage.as_details()},
+        )
+
+
+class DictionaryEntryBoundToWorkspaceError(ConflictError):
+    """Raised when generic lifecycle CRUD would orphan a workspace directory binding."""
+
+    def __init__(self, *, dictionary_id: object, entry_id: object) -> None:
+        super().__init__(
+            code="DICTIONARY_ENTRY_BOUND_TO_WORKSPACE",
+            message="Directory entry is bound to a workspace and cannot be deactivated.",
+            details={"dictionary_id": str(dictionary_id), "entry_id": str(entry_id)},
+        )
+
+
 class InactiveDictionaryMutationError(BusinessRuleError):
     """Raised when mutating fields or entries for an inactive dictionary."""
 

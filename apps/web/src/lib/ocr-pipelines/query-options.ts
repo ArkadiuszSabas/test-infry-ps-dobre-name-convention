@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { ocrPipelinesClient } from "./api";
+import type { OcrPipelineListQuery } from "./types";
 
 export const ocrPipelineQueryKeys = {
   all: ["admin", "ocr-pipelines"] as const,
@@ -9,6 +10,8 @@ export const ocrPipelineQueryKeys = {
   detail: (pipelineId: string | null) =>
     [...ocrPipelineQueryKeys.details(), pipelineId] as const,
   pipelines: () => [...ocrPipelineQueryKeys.all, "pipelines"] as const,
+  pipelinePage: (query: OcrPipelineListQuery) =>
+    [...ocrPipelineQueryKeys.pipelines(), query] as const,
 };
 
 export function ocrPipelineBlockCatalogQueryOptions() {
@@ -19,10 +22,12 @@ export function ocrPipelineBlockCatalogQueryOptions() {
   });
 }
 
-export function ocrPipelinesListQueryOptions() {
+export function ocrPipelinesListQueryOptions(query: OcrPipelineListQuery) {
   return queryOptions({
-    queryKey: ocrPipelineQueryKeys.pipelines(),
-    queryFn: ({ signal }) => ocrPipelinesClient.listPipelines({ signal }),
+    queryKey: ocrPipelineQueryKeys.pipelinePage(query),
+    queryFn: ({ signal }) =>
+      ocrPipelinesClient.listPipelines(query, { signal }),
+    placeholderData: (previousData) => previousData,
     retry: false,
   });
 }

@@ -7,10 +7,9 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,42 +38,11 @@ import {
 } from "@/components/ui/table";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import { Link } from "@/i18n/navigation";
-import {
-  applyCollectionView,
-  nextSortState,
-  type SortState,
-  type SortValue,
-} from "@/lib/collection-view";
 import { archiveFolderUrl } from "@/lib/inbox/archive-url";
-import type { InboxDocument } from "@/lib/inbox/types";
+import type { InboxDocument, InboxDocumentsSortField } from "@/lib/inbox/types";
 import { formatFileSize } from "@/lib/inbox/view-model";
 
 import { DocumentDeletionDialog } from "./document-deletion-dialog";
-
-type DocumentsSortColumn =
-  | "created"
-  | "input"
-  | "name"
-  | "size"
-  | "status"
-  | "type";
-
-const documentSortAccessors: Record<
-  DocumentsSortColumn,
-  (document: InboxDocument) => SortValue
-> = {
-  created: (document) => document.createdAt,
-  input: (document) => document.connectorName ?? document.connector,
-  name: (document) => document.name,
-  size: (document) => document.contentSizeBytes,
-  status: (document) => document.status,
-  type: (document) => document.documentTypeName ?? document.documentTypeId,
-};
-
-const defaultDocumentsSort: SortState<DocumentsSortColumn> = {
-  column: "created",
-  direction: "desc",
-};
 
 export interface DocumentsTableProps {
   canDelete: boolean;
@@ -87,12 +55,13 @@ export interface DocumentsTableProps {
     value: number,
     options?: { maximumFractionDigits?: number },
   ) => string;
-  hasMore: boolean;
-  isFetchingMore: boolean;
   isLoading: boolean;
   detailBasePath?: "/archive" | "/documents";
-  onLoadMore: () => void;
+  listSearch?: string;
   onDocumentDeleted: () => Promise<void> | void;
+  onSortChange: (sortBy: InboxDocumentsSortField) => void;
+  sortBy: InboxDocumentsSortField;
+  sortOrder: "asc" | "desc";
 }
 
 export function DocumentsTable({
@@ -103,34 +72,23 @@ export function DocumentsTable({
   emptyTitle,
   formatDate,
   formatNumber,
-  hasMore,
-  isFetchingMore,
   isLoading,
   detailBasePath = "/documents",
-  onLoadMore,
+  listSearch = "",
   onDocumentDeleted,
+  onSortChange,
+  sortBy,
+  sortOrder,
 }: DocumentsTableProps) {
   const t = useTranslations("Inbox");
   const archive = useTranslations("Archive");
   const collection = useTranslations("CollectionView");
-  const [sort, setSort] =
-    useState<SortState<DocumentsSortColumn>>(defaultDocumentsSort);
   const [documentToDelete, setDocumentToDelete] =
     useState<InboxDocument | null>(null);
-  const sortedDocuments = useMemo(
-    () =>
-      applyCollectionView(documents, {
-        sort: {
-          accessor: documentSortAccessors[sort.column],
-          direction: sort.direction,
-        },
-      }),
-    [documents, sort],
-  );
 
-  function sortLabel(column: DocumentsSortColumn, label: string) {
+  function sortLabel(column: InboxDocumentsSortField, label: string) {
     const nextDirection =
-      sort.column === column && sort.direction === "asc" ? "desc" : "asc";
+      sortBy === column && sortOrder === "asc" ? "desc" : "asc";
 
     return collection(`sort.${nextDirection}`, { column: label });
   }
@@ -141,67 +99,55 @@ export function DocumentsTable({
         <TableHeader>
           <TableRow className="border-0 hover:bg-transparent">
             <SortableTableHead
-              active={sort.column === "name"}
+              active={sortBy === "name"}
               className="w-[28%]"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "name"))
-              }
+              direction={sortOrder}
+              onSort={() => onSortChange("name")}
               sortLabel={sortLabel("name", t("table.columns.name"))}
             >
               {t("table.columns.name")}
             </SortableTableHead>
             <SortableTableHead
-              active={sort.column === "type"}
+              active={sortBy === "document_type"}
               className="w-[15%]"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "type"))
-              }
-              sortLabel={sortLabel("type", t("table.columns.type"))}
+              direction={sortOrder}
+              onSort={() => onSortChange("document_type")}
+              sortLabel={sortLabel("document_type", t("table.columns.type"))}
             >
               {t("table.columns.type")}
             </SortableTableHead>
             <SortableTableHead
-              active={sort.column === "input"}
+              active={sortBy === "source"}
               className="w-[15%]"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "input"))
-              }
-              sortLabel={sortLabel("input", t("table.columns.input"))}
+              direction={sortOrder}
+              onSort={() => onSortChange("source")}
+              sortLabel={sortLabel("source", t("table.columns.input"))}
             >
               {t("table.columns.input")}
             </SortableTableHead>
             <SortableTableHead
-              active={sort.column === "status"}
+              active={sortBy === "status"}
               className="w-52"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "status"))
-              }
+              direction={sortOrder}
+              onSort={() => onSortChange("status")}
               sortLabel={sortLabel("status", t("table.columns.status"))}
             >
               {t("table.columns.status")}
             </SortableTableHead>
             <SortableTableHead
-              active={sort.column === "size"}
+              active={sortBy === "size"}
               className="w-20"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "size"))
-              }
+              direction={sortOrder}
+              onSort={() => onSortChange("size")}
               sortLabel={sortLabel("size", t("table.columns.size"))}
             >
               {t("table.columns.size")}
             </SortableTableHead>
             <SortableTableHead
-              active={sort.column === "created"}
+              active={sortBy === "created"}
               className="w-32"
-              direction={sort.direction}
-              onSort={() =>
-                setSort((current) => nextSortState(current, "created"))
-              }
+              direction={sortOrder}
+              onSort={() => onSortChange("created")}
               sortLabel={sortLabel("created", t("table.columns.created"))}
             >
               {t("table.columns.created")}
@@ -225,13 +171,13 @@ export function DocumentsTable({
               title={emptyTitle ?? t("empty.title")}
             />
           ) : null}
-          {sortedDocuments.map((document) => (
+          {documents.map((document) => (
             <DataListRow key={document.id}>
               <TableCell className="w-[28%]">
                 <Link
                   aria-label={t("table.preview", { name: document.name })}
                   className="flex min-w-0 flex-col gap-1 rounded-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  href={`${detailBasePath}/${document.id}`}
+                  href={detailHref(detailBasePath, document.id, listSearch)}
                 >
                   <TruncatedTableText
                     className="font-medium"
@@ -283,7 +229,13 @@ export function DocumentsTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`${detailBasePath}/${document.id}`}>
+                        <Link
+                          href={detailHref(
+                            detailBasePath,
+                            document.id,
+                            listSearch,
+                          )}
+                        >
                           <EyeIcon />
                           {t("table.previewMenu")}
                         </Link>
@@ -318,7 +270,7 @@ export function DocumentsTable({
                       aria-label={t("table.previewAction", {
                         name: document.name,
                       })}
-                      href={`${detailBasePath}/${document.id}`}
+                      href={detailHref(detailBasePath, document.id, listSearch)}
                     >
                       <EyeIcon />
                     </Link>
@@ -327,22 +279,6 @@ export function DocumentsTable({
               </TableCell>
             </DataListRow>
           ))}
-          {!isLoading && hasMore ? (
-            <TableRow className="border-0 hover:bg-transparent">
-              <TableCell className="text-center" colSpan={7}>
-                <Button
-                  disabled={isFetchingMore}
-                  onClick={onLoadMore}
-                  type="button"
-                  variant="outline"
-                >
-                  {isFetchingMore
-                    ? t("table.loadingMore")
-                    : t("table.loadMore")}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ) : null}
         </TableBody>
       </DataListTable>
       <DocumentDeletionDialog
@@ -357,6 +293,14 @@ export function DocumentsTable({
       />
     </>
   );
+}
+
+function detailHref(
+  detailBasePath: "/archive" | "/documents",
+  documentId: string,
+  listSearch: string,
+): string {
+  return `${detailBasePath}/${documentId}${listSearch ? `?${listSearch}` : ""}`;
 }
 
 function ArchiveLinkMenuItem({

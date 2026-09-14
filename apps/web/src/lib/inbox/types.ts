@@ -1,6 +1,13 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type {
+  ListPageMeta,
+  ListPageMetaDto,
+  ListQuery,
+} from "@/lib/api/list-contract";
 
 export type {
+  DocumentOcrRunListQuery,
+  DocumentOcrRunSortField,
   OcrPipelineRun,
   OcrPipelineRunDiagnostic,
   OcrPipelineRunDiagnosticDto,
@@ -38,6 +45,22 @@ export type {
 
 export type DocumentStatus = "received" | (string & {});
 export type DocumentSource = "manual_upload" | (string & {});
+export type InboxDocumentsSortField =
+  | "created"
+  | "document_type"
+  | "name"
+  | "size"
+  | "source"
+  | "status";
+
+export type InboxDocumentListQuery = ListQuery<
+  InboxDocumentsSortField,
+  {
+    archived: boolean;
+    documentTypeId?: string;
+    status?: DocumentStatus;
+  }
+>;
 
 export interface InboxDocumentDto {
   archive_url?: string | null;
@@ -175,20 +198,26 @@ export type DocumentDeletionImpactEnvelope =
   ApiEnvelope<DocumentDeletionImpact>;
 export type DocumentDeletionEnvelope = ApiEnvelope<DocumentDeletionOperation>;
 
-export interface InboxDocumentListMetaDto {
-  returned_count: number;
-  source: DocumentSource | null;
-  limit: number;
-  offset: number;
-  has_more: boolean;
+export interface InboxDocumentListFacetDto {
+  count: number;
+  value: string;
 }
 
-export interface InboxDocumentListMeta {
-  returnedCount: number;
+export interface InboxDocumentListFacet {
+  count: number;
+  value: string;
+}
+
+export interface InboxDocumentListMetaDto extends ListPageMetaDto {
   source: DocumentSource | null;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
+  status_facets: InboxDocumentListFacetDto[];
+  document_type_facets: InboxDocumentListFacetDto[];
+}
+
+export interface InboxDocumentListMeta extends ListPageMeta {
+  source: DocumentSource | null;
+  statusFacets: InboxDocumentListFacet[];
+  documentTypeFacets: InboxDocumentListFacet[];
 }
 
 export interface ManualUploadDocumentTypeDto {
@@ -363,21 +392,9 @@ export interface ManualUploadDictionaryEntryList {
   entries: ManualUploadDictionaryEntry[];
 }
 
-export interface ManualUploadDictionaryEntryListMetaDto {
-  returned_count: number;
-  total_count: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
-}
+export type ManualUploadDictionaryEntryListMetaDto = ListPageMetaDto;
 
-export interface ManualUploadDictionaryEntryListMeta {
-  returnedCount: number;
-  totalCount: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-}
+export type ManualUploadDictionaryEntryListMeta = ListPageMeta;
 
 export type InboxDocumentEnvelopeDto = ApiEnvelope<InboxDocumentDto>;
 export type InboxDocumentEnvelope = ApiEnvelope<InboxDocument>;

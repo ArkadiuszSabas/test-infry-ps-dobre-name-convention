@@ -52,6 +52,7 @@ export function mapDocumentReviewEnvelope(
         dataType: field.data_type,
         displayOrder: field.display_order,
         displayValue: field.display_value,
+        presentationRows: field.presentation_rows ?? [],
         id: field.id,
         kind: field.kind,
         label: field.label,

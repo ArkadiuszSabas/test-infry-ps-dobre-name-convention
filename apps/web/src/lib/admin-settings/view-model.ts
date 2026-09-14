@@ -72,7 +72,7 @@ export function getDocumentTypeMetrics(
   meta: CatalogListMeta | undefined,
 ): CatalogMetric[] {
   return [
-    { id: "total", value: meta?.totalCount ?? 0 },
+    { id: "total", value: meta?.total ?? 0 },
     { id: "active", value: meta?.activeCount ?? 0 },
     { id: "inactive", value: meta?.inactiveCount ?? 0 },
   ];
@@ -94,7 +94,7 @@ export function getCatalogStatusFilterCount(
     return meta.inactiveCount;
   }
 
-  return meta.totalCount;
+  return meta.activeCount + meta.inactiveCount;
 }
 
 export function filterAttributesByStatus(
@@ -113,7 +113,7 @@ export function getAttributeMetrics(
   meta: AttributeListMeta | undefined,
 ): CatalogMetric[] {
   return [
-    { id: "total", value: meta?.totalCount ?? attributes.length },
+    { id: "total", value: meta?.total ?? attributes.length },
     {
       id: "active",
       value: attributes.filter((attribute) => attribute.status === "active")

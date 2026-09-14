@@ -568,6 +568,7 @@ def _attribute_to_json(field: DocumentReviewAttribute) -> dict[str, object]:
         "consistency": _consistency_to_json(field.consistency),
         "value_source": field.value_source.value,
         "manually_edited": field.manually_edited,
+        "presentation_rows": [list(row) for row in field.presentation_rows],
     }
 
 
@@ -592,7 +593,25 @@ def _attribute_from_json(value: Mapping[str, Any]) -> DocumentReviewAttribute:
         consistency=_consistency_from_json(value.get("consistency")),
         value_source=DocumentReviewValueSource(str(value["value_source"])),
         manually_edited=bool(value["manually_edited"]),
+        presentation_rows=_presentation_rows_from_json(value.get("presentation_rows")),
     )
+
+
+def _presentation_rows_from_json(value: object) -> tuple[tuple[str, ...], ...]:
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes | bytearray):
+        return ()
+    rows: list[tuple[str, ...]] = []
+    for raw_row in cast(Sequence[object], value)[:100]:
+        if not isinstance(raw_row, Sequence) or isinstance(raw_row, str | bytes | bytearray):
+            continue
+        cells = tuple(
+            cell.strip()[:1_000]
+            for cell in cast(Sequence[object], raw_row)[:16]
+            if isinstance(cell, str) and cell.strip()
+        )
+        if cells:
+            rows.append(cells)
+    return tuple(rows)
 
 
 def _consistency_to_json(consistency: DocumentReviewConsistency) -> dict[str, object]:

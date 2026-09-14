@@ -25,7 +25,7 @@ test("admin catalog client manages custom dictionaries, fields, and paged entrie
           },
         ],
       },
-      meta: { total_count: 1 },
+      meta: { total: 1 },
     }),
     jsonResponse({
       data: {
@@ -72,7 +72,7 @@ test("admin catalog client manages custom dictionaries, fields, and paged entrie
         limit: 25,
         offset: 0,
         returned_count: 1,
-        total_count: 1,
+        total: 1,
       },
     }),
     jsonResponse({
@@ -114,7 +114,11 @@ test("admin catalog client manages custom dictionaries, fields, and paged entrie
   t.after(fetchMock.restore);
 
   const dictionaries = await adminCatalogClient.listDictionaries({
+    limit: 50,
+    offset: 0,
     search: "pion",
+    sortBy: "name",
+    sortDirection: "asc",
     status: "active",
   });
   const fields = await adminCatalogClient.listDictionaryFields(dictionaryId);
@@ -153,7 +157,7 @@ test("admin catalog client manages custom dictionaries, fields, and paged entrie
   assert.equal(entries.data.entries[0]?.values.code, "FIN");
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/dictionaries?search=pion&status=active",
+    "/api/docmind/dictionaries?limit=50&offset=0&sort_by=name&sort_direction=asc&search=pion&status=active",
   );
   assert.equal(
     fetchMock.calls[2]?.input,

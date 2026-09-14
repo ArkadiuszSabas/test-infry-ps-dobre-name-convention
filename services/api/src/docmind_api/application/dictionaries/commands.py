@@ -4,8 +4,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from uuid import UUID
 
+from docmind_api.application.listing import ListPage, ListSortDirection
 from docmind_api.domain.attributes.models import AttributeConstraints, AttributeDataType
 from docmind_api.domain.dictionaries.models import (
+    Dictionary,
     DictionaryEntry,
     DictionaryEntryScalar,
     DictionaryStatus,
@@ -27,12 +29,32 @@ class DictionaryListStatus(StrEnum):
     ALL = "all"
 
 
+class DictionarySortField(StrEnum):
+    """Safe sort keys exposed by the dictionary catalog."""
+
+    NAME = "name"
+    EXTERNAL_ID = "external_id"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
+
+
 class DictionaryEntryListStatus(StrEnum):
     """Dictionary entry lifecycle filter accepted by lookup use cases."""
 
     ACTIVE = "active"
     INACTIVE = "inactive"
     ALL = "all"
+
+
+class DictionaryEntrySortField(StrEnum):
+    """Safe sort keys exposed by the dictionary-entry collection."""
+
+    CREATED_AT = "created_at"
+    EXTERNAL_ID = "external_id"
+    LABEL = "label"
+    SORT_ORDER = "sort_order"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,6 +72,20 @@ class ListDictionariesQuery:
 
     status: DictionaryListStatus = DictionaryListStatus.ACTIVE
     search: str | None = None
+    sort_by: DictionarySortField = DictionarySortField.NAME
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
+
+
+@dataclass(frozen=True, slots=True)
+class DictionaryListPageResult:
+    """Paged dictionary catalog plus lifecycle facets."""
+
+    page: ListPage[Dictionary]
+    active_count: int
+    inactive_count: int
+    status: DictionaryListStatus
 
 
 class PreserveDictionaryField:
@@ -178,6 +214,8 @@ class ListDictionaryEntriesQuery:
     search: str | None = None
     limit: int = DICTIONARY_ENTRY_LIST_DEFAULT_LIMIT
     offset: int = 0
+    sort_by: DictionaryEntrySortField = DictionaryEntrySortField.SORT_ORDER
+    sort_direction: ListSortDirection = ListSortDirection.ASC
 
 
 @dataclass(frozen=True, slots=True)

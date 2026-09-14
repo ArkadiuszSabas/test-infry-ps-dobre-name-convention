@@ -5,6 +5,10 @@ from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
+from docmind_api.application.documents.read_models import (
+    DocumentListEntry,
+    DocumentListQuery,
+)
 from docmind_api.domain.documents.models import DocumentRecord, DocumentSource, StorageLocator
 
 
@@ -75,12 +79,13 @@ class DocumentRegistryRepository(Protocol):
         changed_at: datetime,
     ) -> DocumentRecord | None: ...
 
-    async def list(
+    async def list(self, query: DocumentListQuery) -> tuple[DocumentListEntry, ...]: ...
+
+    async def count(self, query: DocumentListQuery) -> int: ...
+
+    async def count_statuses(self, query: DocumentListQuery) -> tuple[tuple[str, int], ...]: ...
+
+    async def count_document_types(
         self,
-        *,
-        source: str | None = None,
-        connector: str | None = None,
-        archived: bool | None = None,
-        limit: int = 50,
-        offset: int = 0,
-    ) -> tuple[DocumentRecord, ...]: ...
+        query: DocumentListQuery,
+    ) -> tuple[tuple[UUID, int], ...]: ...

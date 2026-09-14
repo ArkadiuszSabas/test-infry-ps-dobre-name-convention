@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Edit3Icon, Link2Icon, PowerIcon, Trash2Icon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
@@ -21,36 +20,9 @@ import {
   TableRow,
   TruncatedTableText,
 } from "@/components/ui/table";
-import type {
-  AttributeDefinition,
-  AttributeStatusFilter,
-} from "@/lib/admin-settings/types";
-import { filterAttributesByStatus } from "@/lib/admin-settings/view-model";
-import {
-  applyCollectionView,
-  nextSortState,
-  type SortState,
-  type SortValue,
-} from "@/lib/collection-view";
-
-type AttributeSortColumn =
-  | "category"
-  | "name"
-  | "schema"
-  | "status"
-  | "updatedAt";
-
-const attributeSortAccessors: Record<
-  AttributeSortColumn,
-  (attribute: AttributeDefinition) => SortValue
-> = {
-  category: (attribute) => attribute.category,
-  name: (attribute) => attribute.name,
-  schema: (attribute) =>
-    `${attribute.dataType} ${attribute.source} ${attribute.valueSource} ${attribute.schemaVersion}`,
-  status: (attribute) => attribute.status,
-  updatedAt: (attribute) => attribute.updatedAt,
-};
+import type { AttributeDefinition } from "@/lib/admin-settings/types";
+import type { AttributeSortField } from "@/lib/admin-settings/attribute-api";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 
 interface AttributeCatalogTableProps {
   attributes: readonly AttributeDefinition[];
@@ -60,8 +32,9 @@ interface AttributeCatalogTableProps {
   onDelete: (attribute: AttributeDefinition) => void;
   onEdit: (attribute: AttributeDefinition) => void;
   onAssignments: (attribute: AttributeDefinition) => void;
+  onSortChange: (sort: SortState<AttributeSortField>) => void;
   search: string;
-  status: AttributeStatusFilter;
+  sort: SortState<AttributeSortField>;
 }
 
 export function AttributeCatalogTable({
@@ -72,37 +45,17 @@ export function AttributeCatalogTable({
   onDelete,
   onEdit,
   onAssignments,
+  onSortChange,
   search,
-  status,
+  sort,
 }: AttributeCatalogTableProps) {
   const t = useTranslations("AdminSettings.attributes");
   const common = useTranslations("AdminSettings.common");
   const collection = useTranslations("CollectionView");
   const format = useFormatter();
-  const [sort, setSort] = useState<SortState<AttributeSortColumn>>({
-    column: "name",
-    direction: "asc",
-  });
-  const visibleAttributes = useMemo(
-    () =>
-      applyCollectionView(filterAttributesByStatus(attributes, status), {
-        search,
-        searchAccessors: [
-          (attribute): SortValue => attribute.name,
-          (attribute): SortValue => attribute.category,
-          (attribute): SortValue => attribute.comment,
-          (attribute): SortValue => attribute.externalId,
-        ],
-        sort: {
-          accessor: attributeSortAccessors[sort.column],
-          direction: sort.direction,
-        },
-      }),
-    [attributes, search, sort, status],
-  );
   const hasSearch = search.trim().length > 0;
 
-  function sortLabel(column: AttributeSortColumn, label: string) {
+  function sortLabel(column: AttributeSortField, label: string) {
     const nextDirection =
       sort.column === column && sort.direction === "asc" ? "desc" : "asc";
 
@@ -117,7 +70,7 @@ export function AttributeCatalogTable({
             active={sort.column === "name"}
             className="w-[26%]"
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "name"))}
+            onSort={() => onSortChange(nextSortState(sort, "name"))}
             sortLabel={sortLabel("name", t("columns.name"))}
           >
             {t("columns.name")}
@@ -126,9 +79,7 @@ export function AttributeCatalogTable({
             active={sort.column === "category"}
             className="w-[16%]"
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "category"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "category"))}
             sortLabel={sortLabel("category", t("columns.category"))}
           >
             {t("columns.category")}
@@ -137,9 +88,7 @@ export function AttributeCatalogTable({
             active={sort.column === "schema"}
             className="w-[22%]"
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "schema"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "schema"))}
             sortLabel={sortLabel("schema", t("columns.schema"))}
           >
             {t("columns.schema")}
@@ -148,21 +97,17 @@ export function AttributeCatalogTable({
             active={sort.column === "status"}
             className="w-24"
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "status"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
             sortLabel={sortLabel("status", t("columns.status"))}
           >
             {t("columns.status")}
           </SortableTableHead>
           <SortableTableHead
-            active={sort.column === "updatedAt"}
+            active={sort.column === "updated_at"}
             className="w-28"
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "updatedAt"))
-            }
-            sortLabel={sortLabel("updatedAt", t("columns.updatedAt"))}
+            onSort={() => onSortChange(nextSortState(sort, "updated_at"))}
+            sortLabel={sortLabel("updated_at", t("columns.updatedAt"))}
           >
             {t("columns.updatedAt")}
           </SortableTableHead>
@@ -173,7 +118,7 @@ export function AttributeCatalogTable({
       </TableHeader>
       <TableBody>
         {isPending ? <LoadingTableRows columns={6} /> : null}
-        {!isPending && !isError && visibleAttributes.length === 0 ? (
+        {!isPending && !isError && attributes.length === 0 ? (
           <TableEmptyState
             columns={6}
             description={
@@ -184,7 +129,7 @@ export function AttributeCatalogTable({
             title={hasSearch ? collection("noResults") : t("emptyTitle")}
           />
         ) : null}
-        {visibleAttributes.map((attribute) => (
+        {attributes.map((attribute) => (
           <DataListRow key={attribute.id}>
             <TableCell className="w-[26%] font-medium">
               <div className="flex min-w-0 flex-col gap-1">

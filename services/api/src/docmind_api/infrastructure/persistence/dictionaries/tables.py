@@ -10,6 +10,7 @@ from sqlalchemy import (
     Integer,
     String,
     Table,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 
@@ -122,6 +123,11 @@ dictionary_entries_table = Table(
         name="sort_order_non_negative",
     ),
     CheckConstraint("created_at <= updated_at", name="updated_at_not_before_created_at"),
+    UniqueConstraint(
+        "id",
+        "dictionary_id",
+        name="uq_dictionary_entries_id_dictionary_id",
+    ),
     Index(
         "uq_dictionary_entries_dictionary_external_id",
         "dictionary_id",

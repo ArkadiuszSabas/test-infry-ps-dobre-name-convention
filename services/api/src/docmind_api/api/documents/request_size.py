@@ -6,6 +6,8 @@ from typing import cast
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from docmind_backend_runtime.errors import ApplicationError
+
 _DOCUMENT_INGEST_PATH = "/documents/ingest"
 _DOCUMENT_MANUAL_UPLOAD_PATH = "/documents/manual-upload"
 _CONNECTOR_PATH_PREFIX = "/connectors/"
@@ -13,8 +15,16 @@ _DOCUMENT_CONTENT_PATHS = frozenset({_DOCUMENT_INGEST_PATH, _DOCUMENT_MANUAL_UPL
 _DEFAULT_MANUAL_UPLOAD_REQUEST_OVERHEAD_BYTES = 1024 * 1024
 
 
-class DocumentRequestTooLargeError(Exception):
+class DocumentRequestTooLargeError(ApplicationError):
     """Raised when a guarded request body exceeds the configured limit."""
+
+    def __init__(self, *, max_request_bytes: int) -> None:
+        super().__init__(
+            code="DOCUMENT_REQUEST_TOO_LARGE",
+            message="Document request exceeds the configured maximum size.",
+            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            details={"max_request_bytes": max_request_bytes},
+        )
 
 
 class DocumentContentTooLargeError(Exception):
@@ -45,7 +55,10 @@ class DocumentContentRequestSizeLimitMiddleware:
             return
 
         content_length = _content_length(scope)
-        if content_length is not None and content_length > self._max_request_bytes:
+        declared_request_too_large = (
+            content_length is not None and content_length > self._max_request_bytes
+        )
+        if declared_request_too_large and not _is_connector_path(scope):
             await self._reject(scope, receive, send)
             return
         if (
@@ -64,6 +77,10 @@ class DocumentContentRequestSizeLimitMiddleware:
 
         async def limited_receive() -> Message:
             nonlocal received_bytes
+            if declared_request_too_large:
+                raise DocumentRequestTooLargeError(
+                    max_request_bytes=self._max_request_bytes,
+                )
             message = await receive()
             if message["type"] != "http.request":
                 return message
@@ -76,7 +93,9 @@ class DocumentContentRequestSizeLimitMiddleware:
             ):
                 raise DocumentContentTooLargeError()
             if received_bytes > self._max_request_bytes:
-                raise DocumentRequestTooLargeError()
+                raise DocumentRequestTooLargeError(
+                    max_request_bytes=self._max_request_bytes,
+                )
 
             return message
 
@@ -98,13 +117,16 @@ class DocumentContentRequestSizeLimitMiddleware:
         )
 
     async def _reject(self, scope: Scope, receive: Receive, send: Send) -> None:
+        error = DocumentRequestTooLargeError(
+            max_request_bytes=self._max_request_bytes,
+        )
         response = JSONResponse(
-            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            status_code=error.status_code,
             content={
                 "error": {
-                    "code": "DOCUMENT_REQUEST_TOO_LARGE",
-                    "message": "Document request exceeds the configured maximum size.",
-                    "details": {"max_request_bytes": self._max_request_bytes},
+                    "code": error.code,
+                    "message": error.message,
+                    "details": dict(error.details),
                 },
             },
         )
@@ -139,3 +161,7 @@ def _content_length(scope: Scope) -> int | None:
             return None
 
     return None
+
+
+def _is_connector_path(scope: Scope) -> bool:
+    return str(scope.get("path", "")).startswith(_CONNECTOR_PATH_PREFIX)

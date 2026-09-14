@@ -1,5 +1,6 @@
 import { apiFetch, apiFetchBinary, buildApiUrl } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { toListSearchParams } from "@/lib/api/list-contract";
 
 import {
   OCR_PIPELINE_RUN_HISTORY_LIMIT,
@@ -23,6 +24,7 @@ import type {
   InboxDocumentEnvelopeDto,
   InboxDocumentListEnvelope,
   InboxDocumentListEnvelopeDto,
+  InboxDocumentListQuery,
   DocumentTypeChangeEnvelope,
   DocumentTypeChangeEnvelopeDto,
   ManualUploadDictionaryEntry,
@@ -46,11 +48,8 @@ export interface InboxRequestOptions {
   csrfToken?: string | null;
 }
 
-export interface InboxDocumentListRequestOptions extends InboxRequestOptions {
-  archived?: boolean;
-  limit?: number;
-  offset?: number;
-}
+export type InboxDocumentListRequestOptions = Partial<InboxDocumentListQuery> &
+  InboxRequestOptions;
 
 export interface ManualUploadDictionaryLookupRequestOptions extends InboxRequestOptions {
   limit?: number;
@@ -62,11 +61,21 @@ export const inboxClient = {
   async listDocuments(
     options: InboxDocumentListRequestOptions = {},
   ): Promise<InboxDocumentListEnvelope> {
-    const params = new URLSearchParams({
-      archived: String(options.archived ?? false),
-      limit: String(options.limit ?? INBOX_DOCUMENT_LIST_LIMIT),
-      offset: String(options.offset ?? 0),
-    });
+    const query: InboxDocumentListQuery = {
+      archived: options.archived ?? false,
+      documentTypeId: options.documentTypeId,
+      limit: options.limit ?? INBOX_DOCUMENT_LIST_LIMIT,
+      offset: options.offset ?? 0,
+      search: options.search,
+      sortBy: options.sortBy ?? "created",
+      sortDirection: options.sortDirection ?? "desc",
+      status: options.status,
+    };
+    const params = toListSearchParams(query, (query) => ({
+      archived: query.archived,
+      document_type_id: query.documentTypeId,
+      status: query.status,
+    }));
 
     return mapInboxDocumentListEnvelope(
       await apiFetch<InboxDocumentListEnvelopeDto>(
@@ -88,7 +97,7 @@ export const inboxClient = {
 
     for (;;) {
       const page = await inboxClient.listDocuments({
-        archived: options.archived,
+        ...options,
         limit: INBOX_DOCUMENT_DETAIL_LOOKUP_LIMIT,
         offset,
         signal: options.signal,
@@ -259,7 +268,7 @@ export const inboxClient = {
         limit,
         offset: initialOffset,
         returnedCount: entries.length,
-        totalCount: lastMeta?.totalCount ?? entries.length,
+        total: lastMeta?.total ?? entries.length,
       },
     };
   },

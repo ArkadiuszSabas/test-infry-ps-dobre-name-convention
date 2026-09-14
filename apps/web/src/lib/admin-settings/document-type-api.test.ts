@@ -41,16 +41,23 @@ test("admin catalog client lists document types by lifecycle status", async (t) 
       },
       meta: {
         active_count: 1,
+        has_more: false,
         inactive_count: 0,
+        limit: 50,
+        offset: 0,
         returned_count: 1,
         status: "active",
-        total_count: 1,
+        total: 1,
       },
     }),
   ]);
   t.after(fetchMock.restore);
 
   const result = await adminCatalogClient.listDocumentTypes({
+    limit: 50,
+    offset: 0,
+    sortBy: "display_label",
+    sortDirection: "asc",
     status: "active",
   });
 
@@ -67,7 +74,7 @@ test("admin catalog client lists document types by lifecycle status", async (t) 
   assert.equal(result.data.documentTypes[0]?.parameters[0]?.value, "Finance");
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/document-types?status=active",
+    "/api/docmind/document-types?limit=50&offset=0&sort_by=display_label&sort_direction=asc&status=active",
   );
   assert.equal(fetchMock.calls[0]?.init.method, "GET");
 });

@@ -30,13 +30,16 @@ describe("admin settings view model", () => {
     const meta = {
       activeCount: 3,
       inactiveCount: 2,
-      returnedCount: 5,
-      status: "all" as const,
-      totalCount: 5,
+      hasMore: false,
+      limit: 50,
+      offset: 0,
+      returnedCount: 3,
+      status: "active" as const,
+      total: 3,
     };
 
     assert.deepEqual(getDocumentTypeMetrics(meta), [
-      { id: "total", value: 5 },
+      { id: "total", value: 3 },
       { id: "active", value: 3 },
       { id: "inactive", value: 2 },
     ]);
@@ -68,11 +71,19 @@ describe("admin settings view model", () => {
     assert.equal(getAttributeFilterCount(attributes, "all"), 2);
     assert.deepEqual(
       getAttributeCategoryOptions({
+        activeCount: 1,
+        catalogCount: 2,
         categoryCounts: [
           { category: "Financial data", count: 1 },
           { category: "Contract data", count: 1 },
         ],
-        totalCount: 2,
+        hasMore: false,
+        inactiveCount: 1,
+        limit: 50,
+        offset: 0,
+        returnedCount: 2,
+        status: "all",
+        total: 2,
       }).map((category) => category.category),
       ["Contract data", "Financial data"],
     );

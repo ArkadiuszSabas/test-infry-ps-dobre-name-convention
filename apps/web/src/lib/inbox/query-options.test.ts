@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   documentOcrPipelineRunsQueryOptions,
+  inboxDocumentsQueryOptions,
+  inboxQueryKeys,
   ocrPipelineRunResultQueryOptions,
 } from "./query-options";
 
@@ -24,4 +26,61 @@ test("OCR result query performs one terminal fetch without polling", () => {
 
   assert.equal(options.enabled, true);
   assert.equal(options.refetchInterval, undefined);
+});
+
+test("document list query key includes every backend-owned criterion", () => {
+  const options = inboxDocumentsQueryOptions({
+    archived: true,
+    documentTypeId: "type-1",
+    limit: 50,
+    offset: 100,
+    search: "invoice",
+    sortBy: "name",
+    sortDirection: "asc",
+    status: "received",
+  });
+
+  assert.deepEqual(options.queryKey, [
+    "inbox",
+    "documents",
+    "list",
+    {
+      archived: true,
+      documentTypeId: "type-1",
+      limit: 50,
+      offset: 100,
+      search: "invoice",
+      sortBy: "name",
+      sortDirection: "asc",
+      status: "received",
+    },
+  ]);
+});
+
+test("document list and context prefixes invalidate every query variant", () => {
+  const query = {
+    archived: true,
+    limit: 50,
+    offset: 100,
+    sortBy: "name" as const,
+    sortDirection: "asc" as const,
+  };
+
+  assert.deepEqual(inboxQueryKeys.documentLists(), [
+    "inbox",
+    "documents",
+    "list",
+  ]);
+  assert.deepEqual(inboxQueryKeys.documentContexts(), [
+    "inbox",
+    "documents",
+    "context",
+  ]);
+  assert.deepEqual(inboxQueryKeys.documentContext("document-1", query), [
+    "inbox",
+    "documents",
+    "context",
+    "document-1",
+    query,
+  ]);
 });

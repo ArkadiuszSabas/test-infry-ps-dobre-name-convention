@@ -1,12 +1,32 @@
 """Command and result DTOs for OCR pipeline application workflows."""
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 from uuid import UUID
 
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.domain.ocr_pipelines.models import (
     OcrPipelineDefinitionRecord,
     OcrPipelineStepDefinition,
 )
+
+
+class OcrPipelineLifecycleFilter(StrEnum):
+    """Lifecycle facets supported by the pipeline list."""
+
+    ALL = "all"
+    ARCHIVED = "archived"
+    DRAFT = "draft"
+    PUBLISHED = "published"
+
+
+class OcrPipelineSortField(StrEnum):
+    """Safe sort keys supported by pipeline persistence."""
+
+    CREATED_AT = "created_at"
+    LIFECYCLE = "lifecycle"
+    NAME = "name"
+    UPDATED_AT = "updated_at"
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,6 +42,13 @@ class CreateOcrPipelineCommand:
 @dataclass(frozen=True, slots=True)
 class ListOcrPipelinesQuery:
     """Input for listing OCR pipeline definitions."""
+
+    lifecycle: OcrPipelineLifecycleFilter = OcrPipelineLifecycleFilter.ALL
+    search: str | None = None
+    sort_by: OcrPipelineSortField = OcrPipelineSortField.NAME
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,3 +132,16 @@ class OcrPipelineDefinitionList:
     """List result for OCR pipeline definitions."""
 
     pipelines: tuple[OcrPipelineDefinitionRecord, ...]
+    total: int
+    limit: int
+    offset: int
+    lifecycle_counts: dict[str, int]
+    routing_status: str
+
+    @property
+    def returned_count(self) -> int:
+        return len(self.pipelines)
+
+    @property
+    def has_more(self) -> bool:
+        return self.offset + self.returned_count < self.total

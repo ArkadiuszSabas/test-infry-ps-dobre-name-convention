@@ -1,5 +1,10 @@
 import { apiFetch } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import {
+  mapListPageMeta,
+  toListSearchParams,
+  type ListQuery,
+} from "@/lib/api/list-contract";
 
 import type {
   CreateManagedLocalUserInput,
@@ -7,12 +12,16 @@ import type {
   DeleteManagedUserEnvelope,
   ManagedUserEnvelope,
   ManagedUserListEnvelope,
+  ManagedUserListEnvelopeDto,
+  ManagedUserStatus,
   SetManagedUserPasswordEnvelope,
   SetManagedUserPasswordInput,
   UpdateManagedUserInput,
   UserInvitation,
   UserInvitationEnvelope,
   UserInvitationListEnvelope,
+  UserInvitationListEnvelopeDto,
+  InvitationStatus,
 } from "./types";
 
 export interface AdminUsersRequestOptions {
@@ -20,16 +29,57 @@ export interface AdminUsersRequestOptions {
   csrfToken?: string | null;
 }
 
-export const adminUsersClient = {
-  listUsers(
-    options: AdminUsersRequestOptions & { includeDeleted?: boolean } = {},
-  ): Promise<ManagedUserListEnvelope> {
-    const query = options.includeDeleted ? "?include_deleted=true" : "";
+export type ManagedUserSortField =
+  | "auth_providers"
+  | "display_name"
+  | "email"
+  | "roles"
+  | "status"
+  | "updated_at";
+export type UserInvitationSortField =
+  | "created_at"
+  | "email"
+  | "expires_at"
+  | "roles"
+  | "status";
 
-    return apiFetch<ManagedUserListEnvelope>(`/auth/users${query}`, {
-      method: "GET",
-      signal: options.signal,
-    });
+export type ManagedUserListOptions = AdminUsersRequestOptions &
+  ListQuery<ManagedUserSortField> & {
+    includeDeleted: boolean;
+    status: ManagedUserStatus | "all";
+  };
+export type UserInvitationListOptions = AdminUsersRequestOptions &
+  ListQuery<UserInvitationSortField> & {
+    status: InvitationStatus | "all";
+  };
+
+export const adminUsersClient = {
+  async listUsers(
+    options: ManagedUserListOptions,
+  ): Promise<ManagedUserListEnvelope> {
+    const params = toListSearchParams(options, (query) => ({
+      include_deleted: query.includeDeleted,
+      status: query.status,
+    }));
+    const envelope = await apiFetch<ManagedUserListEnvelopeDto>(
+      `/auth/users?${params.toString()}`,
+      {
+        method: "GET",
+        signal: options.signal,
+      },
+    );
+    return {
+      data: envelope.data,
+      meta: {
+        ...mapListPageMeta(envelope.meta),
+        activeCount: envelope.meta.active_count,
+        deletedCount: envelope.meta.deleted_count,
+        evaluated_at: envelope.meta.evaluated_at,
+        inactiveCount: envelope.meta.inactive_count,
+        include_deleted: envelope.meta.include_deleted,
+        status: envelope.meta.status,
+      },
+    };
   },
 
   async createUser(
@@ -90,13 +140,31 @@ export const adminUsersClient = {
     );
   },
 
-  listInvitations(
-    options: AdminUsersRequestOptions = {},
+  async listInvitations(
+    options: UserInvitationListOptions,
   ): Promise<UserInvitationListEnvelope> {
-    return apiFetch<UserInvitationListEnvelope>("/auth/invitations", {
-      method: "GET",
-      signal: options.signal,
-    });
+    const params = toListSearchParams(options, (query) => ({
+      status: query.status,
+    }));
+    const envelope = await apiFetch<UserInvitationListEnvelopeDto>(
+      `/auth/invitations?${params.toString()}`,
+      {
+        method: "GET",
+        signal: options.signal,
+      },
+    );
+    return {
+      data: envelope.data,
+      meta: {
+        ...mapListPageMeta(envelope.meta),
+        acceptedCount: envelope.meta.accepted_count,
+        cancelledCount: envelope.meta.cancelled_count,
+        delivery_available: envelope.meta.delivery_available,
+        evaluated_at: envelope.meta.evaluated_at,
+        pendingCount: envelope.meta.pending_count,
+        status: envelope.meta.status,
+      },
+    };
   },
 
   async createInvitation(

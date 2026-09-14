@@ -100,9 +100,8 @@ def to_entry_list_envelope(
         meta=DictionaryEntryListMeta(
             dictionary_id=dictionary_id,
             returned_count=page.returned_count,
-            total_count=page.total_count,
+            total=page.total_count,
             limit=page.limit,
             offset=page.offset,
-            has_more=page.has_more,
         ),
     )

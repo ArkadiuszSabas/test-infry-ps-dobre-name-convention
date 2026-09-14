@@ -1,6 +1,7 @@
 """Read models for document registry list views."""
 
 from dataclasses import dataclass
+from enum import StrEnum
 from uuid import UUID
 
 from docmind_api.domain.attributes.models import (
@@ -12,7 +13,51 @@ from docmind_api.domain.document_types.models import DocumentType
 from docmind_api.domain.documents.models import DocumentRecord
 
 DOCUMENT_LIST_DEFAULT_LIMIT = 50
-DOCUMENT_LIST_MAX_LIMIT = 100
+DOCUMENT_LIST_MAX_LIMIT = 200
+
+
+class DocumentListSortField(StrEnum):
+    """Closed persistence sort fields for document registry collections."""
+
+    CREATED = "created"
+    NAME = "name"
+    DOCUMENT_TYPE = "document_type"
+    SOURCE = "source"
+    STATUS = "status"
+    SIZE = "size"
+
+
+class DocumentListSortOrder(StrEnum):
+    """Sort directions understood by the document registry repository."""
+
+    ASC = "asc"
+    DESC = "desc"
+
+
+class DocumentListStatus(StrEnum):
+    """Canonical processing status displayed and queried by document lists."""
+
+    RECEIVED = "received"
+    WAITING_FOR_REVIEW = "waiting_for_review"
+    IN_REVIEW = "in_review"
+    APPROVED = "approved"
+    FAILED = "failed"
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentListQuery:
+    """Framework-free document list criteria applied before pagination."""
+
+    source: str | None
+    connector: str | None
+    archived: bool | None
+    search: str | None
+    status: DocumentListStatus | None
+    document_type_id: UUID | None
+    sort_by: DocumentListSortField
+    sort_order: DocumentListSortOrder
+    limit: int
+    offset: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,7 +68,16 @@ class DocumentListItem:
     document_type_name: str
     document_type_external_id: str | None
     connector_name: str
+    status: DocumentListStatus
     archive_url: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentListEntry:
+    """One persistence list row with its canonical OCR-aware status."""
+
+    document: DocumentRecord
+    status: DocumentListStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +97,9 @@ class DocumentListResult:
 
     items: tuple[DocumentListItem, ...]
     source: str | None
+    total_count: int
+    status_counts: tuple[tuple[str, int], ...]
+    document_type_counts: tuple[tuple[UUID, int], ...]
     limit: int
     offset: int
     has_more: bool

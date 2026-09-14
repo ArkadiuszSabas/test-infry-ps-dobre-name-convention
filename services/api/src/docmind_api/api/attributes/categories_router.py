@@ -11,6 +11,7 @@ from docmind_api.api.attributes.schemas import (
     AttributeCategoryEnvelope,
     AttributeCategoryListEnvelope,
     AttributeCategoryListMeta,
+    AttributeCategoryListQuery,
     AttributeCategoryListSchema,
     AttributeCategorySchema,
     CreateAttributeCategoryRequest,
@@ -27,10 +28,10 @@ from docmind_api.application.attributes.category_service import (
     AttributeCategoryCatalogService,
     AttributeCategoryFlagsUpdate,
     AttributeCategoryLabelUpdate,
-    AttributeCategoryListStatus,
     CreateAttributeCategoryCommand,
     DeactivateAttributeCategoryCommand,
     DeleteAttributeCategoryCommand,
+    ListAttributeCategoriesPageQuery,
     UpdateAttributeCategoryCommand,
 )
 from docmind_api.application.auth.sessions import UserSessionService
@@ -79,23 +80,31 @@ def create_attribute_categories_router(
             AttributeCategoryCatalogService,
             Depends(attribute_category_catalog_dependency),
         ],
-        status: Annotated[
-            AttributeCategoryListStatus,
-            Query(description="Filter attribute categories by lifecycle status."),
-        ] = AttributeCategoryListStatus.ACTIVE,
+        query: Annotated[AttributeCategoryListQuery, Query()],
     ) -> AttributeCategoryListEnvelope:
-        result = await catalog.list_attribute_categories(status=status)
+        result = await catalog.list_attribute_category_page(
+            ListAttributeCategoriesPageQuery(
+                status=query.status,
+                search=query.search,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+        )
         return AttributeCategoryListEnvelope(
             data=AttributeCategoryListSchema(
                 categories=[
-                    _to_attribute_category_schema(category) for category in result.categories
+                    _to_attribute_category_schema(category) for category in result.page.items
                 ],
             ),
             meta=AttributeCategoryListMeta(
-                total_count=result.total_count,
+                total=result.page.total,
                 active_count=result.active_count,
                 inactive_count=result.inactive_count,
-                returned_count=result.returned_count,
+                returned_count=result.page.returned_count,
+                limit=query.limit,
+                offset=query.offset,
                 status=result.status,
             ),
         )

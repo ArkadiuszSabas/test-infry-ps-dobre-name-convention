@@ -21,6 +21,7 @@ from docmind_api.infrastructure.persistence.system_catalogs.tables import (
     document_type_extension_values_table,
     system_catalog_extension_fields_table,
 )
+from docmind_api.infrastructure.persistence.workspaces.tables import workspaces_table
 
 
 class SqlAlchemyDictionaryUsageRepository(DictionaryUsageRepository):
@@ -60,12 +61,18 @@ class SqlAlchemyDictionaryUsageRepository(DictionaryUsageRepository):
                 dictionary_entries_table.c.dictionary_id == normalized_id,
             ),
         )
+        workspace_bindings = await self._session.scalar(
+            select(func.count(workspaces_table.c.id)).where(
+                workspaces_table.c.directory_dictionary_id == normalized_id,
+            ),
+        )
         return DictionaryUsage(
             attribute_bindings=attribute_bindings or 0,
             active_attribute_bindings=active_attribute_bindings or 0,
             system_catalog_fields=system_catalog_fields or 0,
             active_system_catalog_fields=active_system_catalog_fields or 0,
             entries=entries or 0,
+            workspace_bindings=workspace_bindings or 0,
         )
 
     async def get_entry_usage(
@@ -108,9 +115,22 @@ class SqlAlchemyDictionaryUsageRepository(DictionaryUsageRepository):
                 .scalar_subquery(),
             ),
         )
+        workspace_bindings = await self._session.scalar(
+            select(func.count(workspaces_table.c.id)).where(
+                workspaces_table.c.directory_dictionary_id == normalized_id,
+                workspaces_table.c.directory_entry_id
+                == select(dictionary_entries_table.c.id)
+                .where(
+                    dictionary_entries_table.c.dictionary_id == normalized_id,
+                    dictionary_entries_table.c.external_id == entry_external_id,
+                )
+                .scalar_subquery(),
+            ),
+        )
         return DictionaryEntryUsage(
             document_metadata_values=referenced_documents or 0,
             document_type_extension_values=document_type_extension_values or 0,
+            workspace_bindings=workspace_bindings or 0,
         )
 
 

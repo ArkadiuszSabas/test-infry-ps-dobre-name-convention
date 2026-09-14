@@ -36,10 +36,11 @@ import type { ReviewSourceSelection } from "@/lib/review/types";
 import { getReviewFieldLocatableSources } from "@/lib/review/source-location";
 import {
   getDisplayedConfidencePercent,
-  getReviewFieldDisplayValues,
+  getReviewFieldDisplayValuePresentations,
   getReviewReasonCodePresentations,
   REVIEW_REASON_BADGE_VARIANTS,
 } from "@/lib/review/field-presentation";
+import type { ReviewFieldDisplayValuePresentation } from "@/lib/review/field-presentation";
 import { cn } from "@/lib/utils";
 
 const EMPTY_BOOLEAN = "__empty__";
@@ -71,7 +72,7 @@ export function ReviewFieldRow({
     field.validations.some((validation) => validation.severity === "error") ||
     ["conflicting", "missing"].includes(field.status);
   const confidencePercent = getDisplayedConfidencePercent(field);
-  const displayValues = getReviewFieldDisplayValues(field);
+  const displayValues = getReviewFieldDisplayValuePresentations(field);
   const sources = getReviewFieldLocatableSources(field);
   const reviewReasonCodePresentations = getReviewReasonCodePresentations(
     field.reviewReasonCodes,
@@ -277,13 +278,18 @@ function ReviewFieldDisplayValues({
   values,
 }: {
   fallback: string;
-  values: readonly string[];
+  values: readonly ReviewFieldDisplayValuePresentation[];
 }) {
   if (values.length === 0) return fallback;
   return (
-    <span className="flex flex-col">
-      {values.map((value, index) => (
-        <span key={`${value}-${index}`}>{value}</span>
+    <span className="flex flex-col gap-1">
+      {values.map(({ isNumbered, value }, index) => (
+        <span
+          className={isNumbered ? "pl-5 -indent-5" : undefined}
+          key={`${value}-${index}`}
+        >
+          {value}
+        </span>
       ))}
     </span>
   );

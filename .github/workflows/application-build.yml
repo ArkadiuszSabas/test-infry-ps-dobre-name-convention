@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$DEPLOYMENT_ENVIRONMENT" in
-            dev|uat|prd) ;;
+            dev|test|prod) ;;
             *) echo "::error::Unsupported environment: $DEPLOYMENT_ENVIRONMENT"; exit 1 ;;
           esac
           [[ "$TF_REF_PROTECTED" == "true" && "$GITHUB_REF_TYPE" == "branch" && "$GITHUB_REF_NAME" == "main" ]] || {

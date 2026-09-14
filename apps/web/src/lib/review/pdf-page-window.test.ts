@@ -5,6 +5,7 @@ import {
   createEstimatedPdfPageSizes,
   getActivePdfPageNumbers,
   getNearbyPdfPageNumbers,
+  getPdfPageScrollBehavior,
   getVisiblePdfPageNumber,
 } from "./pdf-page-window";
 
@@ -64,5 +65,32 @@ test("bounds rendered pages and prioritizes the selected source page", () => {
       (first, second) => first - second,
     ),
     [3, 4, 5, 7],
+  );
+});
+
+test("uses motion only for nearby page navigation when allowed", () => {
+  assert.equal(
+    getPdfPageScrollBehavior({
+      currentPageNumber: 2,
+      prefersReducedMotion: false,
+      targetPageNumber: 3,
+    }),
+    "smooth",
+  );
+  assert.equal(
+    getPdfPageScrollBehavior({
+      currentPageNumber: 1,
+      prefersReducedMotion: false,
+      targetPageNumber: 5,
+    }),
+    "auto",
+  );
+  assert.equal(
+    getPdfPageScrollBehavior({
+      currentPageNumber: 2,
+      prefersReducedMotion: true,
+      targetPageNumber: 3,
+    }),
+    "auto",
   );
 });

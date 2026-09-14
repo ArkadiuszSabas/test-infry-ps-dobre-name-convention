@@ -62,11 +62,13 @@ export function CustomDictionaryDetailPage({
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const {
     handleSearchChange,
+    handleSortChange,
     handleStatusChange,
     normalizedSearch,
     offset,
     search,
     setOffset,
+    sort,
     status,
   } = useDictionaryEntryFilters();
   const [editingFields, setEditingFields] = useState(false);
@@ -81,6 +83,8 @@ export function CustomDictionaryDetailPage({
       dictionaryId,
       offset,
       search: normalizedSearch,
+      sortBy: sort.column,
+      sortDirection: sort.direction,
       status,
     }),
   );
@@ -93,7 +97,7 @@ export function CustomDictionaryDetailPage({
     }),
   );
   const getEntryFilterCount = useDictionaryEntryFilterCounts({
-    activeTotalCount: entriesQuery.data?.meta.totalCount,
+    activeTotalCount: entriesQuery.data?.meta.total,
     dictionaryId,
     search: normalizedSearch,
     status,
@@ -295,6 +299,8 @@ export function CustomDictionaryDetailPage({
               setPendingAction(null);
               setEntryFormState({ item: entry, kind: "edit" });
             }}
+            onSortChange={handleSortChange}
+            sort={sort}
           />
 
           <DictionaryEntryPagination
@@ -303,7 +309,7 @@ export function CustomDictionaryDetailPage({
             offset={offset}
             returnedCount={entriesQuery.data?.meta.returnedCount ?? 0}
             setOffset={setOffset}
-            totalCount={entriesQuery.data?.meta.totalCount ?? 0}
+            totalCount={entriesQuery.data?.meta.total ?? 0}
           />
         </DataListContent>
       </DataListPanel>
@@ -320,7 +326,7 @@ export function CustomDictionaryDetailPage({
         <CatalogFormSheetContent size="wide">
           {editingFields ? (
             <DictionaryFieldsForm
-              entryTotalCount={allEntriesQuery.data?.meta.totalCount ?? null}
+              entryTotalCount={allEntriesQuery.data?.meta.total ?? null}
               error={fieldsMutation.error}
               fields={fields}
               isPending={fieldsMutation.isPending}

@@ -67,16 +67,10 @@ def process_bounded_list[ItemT, SortFieldT: StrEnum](
     Null primary values are always last; the unique identity is the stable tie-breaker.
     """
 
-    normalized_search = request.search.casefold() if request.search is not None else None
-    matching_items = tuple(
-        item
-        for item in items
-        if normalized_search is None
-        or any(
-            normalized_search in str(value).casefold()
-            for value in search_values(item)
-            if value is not None
-        )
+    matching_items = filter_bounded_list(
+        items,
+        search=request.search,
+        search_values=search_values,
     )
     ordered_items = sorted(
         matching_items,
@@ -95,6 +89,27 @@ def process_bounded_list[ItemT, SortFieldT: StrEnum](
         total=len(matching_items),
         limit=request.limit,
         offset=request.offset,
+    )
+
+
+def filter_bounded_list[ItemT](
+    items: Iterable[ItemT],
+    *,
+    search: str | None,
+    search_values: Callable[[ItemT], Sequence[object | None]],
+) -> tuple[ItemT, ...]:
+    """Return all bounded items matching the shared case-insensitive search contract."""
+
+    normalized_search = search.casefold() if search is not None else None
+    return tuple(
+        item
+        for item in items
+        if normalized_search is None
+        or any(
+            normalized_search in str(value).casefold()
+            for value in search_values(item)
+            if value is not None
+        )
     )
 
 

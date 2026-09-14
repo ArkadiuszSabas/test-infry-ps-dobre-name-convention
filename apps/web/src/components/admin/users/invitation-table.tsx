@@ -2,7 +2,6 @@
 
 import { CircleXIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { DataListRow, DataListTable } from "@/components/ui/data-list";
@@ -19,31 +18,20 @@ import {
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import type { UserInvitation } from "@/lib/admin-users/types";
 import { sortInvitationRoles } from "@/lib/admin-users/view-model";
-import {
-  applyCollectionView,
-  nextSortState,
-  type SortState,
-  type SortValue,
-} from "@/lib/collection-view";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 
 import { InvitationStatusBadge, LoadingTableRows } from "./invitation-shared";
 
-type InvitationSortColumn =
+export type InvitationSortColumn =
   | "createdAt"
   | "email"
   | "expiresAt"
   | "roles"
   | "status";
 
-const invitationSortAccessors: Record<
-  InvitationSortColumn,
-  (invitation: UserInvitation) => SortValue
-> = {
-  createdAt: (invitation) => invitation.created_at,
-  email: (invitation) => invitation.email,
-  expiresAt: (invitation) => invitation.expires_at,
-  roles: (invitation) => sortInvitationRoles(invitation.roles).join(" "),
-  status: (invitation) => invitation.status,
+export const defaultInvitationSort: SortState<InvitationSortColumn> = {
+  column: "email",
+  direction: "asc",
 };
 
 interface InvitationTableProps {
@@ -54,7 +42,9 @@ interface InvitationTableProps {
   isError: boolean;
   isPending: boolean;
   onCancel: (invitation: UserInvitation) => void;
+  onSortChange: (sort: SortState<InvitationSortColumn>) => void;
   pendingCancelId: string | null;
+  sort: SortState<InvitationSortColumn>;
 }
 
 export function InvitationTable({
@@ -65,27 +55,14 @@ export function InvitationTable({
   isError,
   isPending,
   onCancel,
+  onSortChange,
   pendingCancelId,
+  sort,
 }: InvitationTableProps) {
   const t = useTranslations("AdminUsers.invitations");
   const collection = useTranslations("CollectionView");
   const roleLabels = useTranslations("Shell.roles");
   const format = useFormatter();
-  const [sort, setSort] = useState<SortState<InvitationSortColumn>>({
-    column: "email",
-    direction: "asc",
-  });
-  const sortedInvitations = useMemo(
-    () =>
-      applyCollectionView(invitations, {
-        sort: {
-          accessor: invitationSortAccessors[sort.column],
-          direction: sort.direction,
-        },
-      }),
-    [invitations, sort],
-  );
-
   function sortLabel(column: InvitationSortColumn, label: string) {
     const nextDirection =
       sort.column === column && sort.direction === "asc" ? "desc" : "asc";
@@ -100,7 +77,7 @@ export function InvitationTable({
           <SortableTableHead
             active={sort.column === "email"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "email"))}
+            onSort={() => onSortChange(nextSortState(sort, "email"))}
             sortLabel={sortLabel("email", t("columns.email"))}
           >
             {t("columns.email")}
@@ -108,7 +85,7 @@ export function InvitationTable({
           <SortableTableHead
             active={sort.column === "roles"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "roles"))}
+            onSort={() => onSortChange(nextSortState(sort, "roles"))}
             sortLabel={sortLabel("roles", t("columns.roles"))}
           >
             {t("columns.roles")}
@@ -116,9 +93,7 @@ export function InvitationTable({
           <SortableTableHead
             active={sort.column === "status"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "status"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
             sortLabel={sortLabel("status", t("columns.status"))}
           >
             {t("columns.status")}
@@ -126,9 +101,7 @@ export function InvitationTable({
           <SortableTableHead
             active={sort.column === "createdAt"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "createdAt"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "createdAt"))}
             sortLabel={sortLabel("createdAt", t("columns.createdAt"))}
           >
             {t("columns.createdAt")}
@@ -136,9 +109,7 @@ export function InvitationTable({
           <SortableTableHead
             active={sort.column === "expiresAt"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "expiresAt"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "expiresAt"))}
             sortLabel={sortLabel("expiresAt", t("columns.expiresAt"))}
           >
             {t("columns.expiresAt")}
@@ -155,7 +126,7 @@ export function InvitationTable({
             title={emptyTitle ?? t("emptyTitle")}
           />
         ) : null}
-        {sortedInvitations.map((invitation) => (
+        {invitations.map((invitation) => (
           <DataListRow key={invitation.id}>
             <TableCell className="font-medium">
               <TruncatedTableText value={invitation.email} />

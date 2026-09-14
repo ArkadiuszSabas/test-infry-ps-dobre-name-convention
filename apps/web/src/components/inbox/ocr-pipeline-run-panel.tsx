@@ -17,8 +17,10 @@ import { OcrPipelineSelector } from "@/components/inbox/ocr-pipeline-selector";
 import { Button } from "@/components/ui/button";
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { useCurrentActor } from "@/hooks/auth/use-current-actor";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
+import { invalidateAdminOcrRunLists } from "@/lib/admin-ocr-runs/query-options";
 import { inboxClient } from "@/lib/inbox/api";
 import {
   documentOcrPipelineRunsQueryOptions,
@@ -59,6 +61,7 @@ export function OcrPipelineRunPanel({
   readOnly = false,
 }: OcrPipelineRunPanelProps) {
   const t = useTranslations("Inbox.ocrRun");
+  const collection = useTranslations("CollectionView");
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const { actor } = useCurrentActor();
@@ -74,15 +77,30 @@ export function OcrPipelineRunPanel({
     documentId: string;
     pipelineId: string;
   } | null>(null);
+  const [historyPage, setHistoryPage] = useState({
+    documentId: document.id,
+    offset: 0,
+  });
+  const historyOffset =
+    historyPage.documentId === document.id ? historyPage.offset : 0;
   const canCreateRuns = Boolean(
     actor?.permissions.includes("documents.create"),
   );
   const selectedRunId =
     selectedRun?.documentId === document.id ? selectedRun.runId : null;
 
-  const historyQuery = useQuery(
-    documentOcrPipelineRunsQueryOptions(document.id, false),
+  const latestHistoryQuery = useQuery(
+    documentOcrPipelineRunsQueryOptions(document.id, false, 0),
   );
+  const pagedHistoryQuery = useQuery(
+    documentOcrPipelineRunsQueryOptions(
+      document.id,
+      historyOffset > 0,
+      historyOffset,
+    ),
+  );
+  const historyQuery =
+    historyOffset === 0 ? latestHistoryQuery : pagedHistoryQuery;
   const pipelinesQuery = useQuery(
     publishedOcrPipelinesQueryOptions(canCreateRuns && !readOnly),
   );
@@ -100,6 +118,8 @@ export function OcrPipelineRunPanel({
       ? selectedPipeline.pipelineId
       : (defaultPipeline?.id ?? null);
   const historyRuns = historyQuery.data?.data.runs ?? EMPTY_OCR_PIPELINE_RUNS;
+  const latestHistoryRuns =
+    latestHistoryQuery.data?.data.runs ?? EMPTY_OCR_PIPELINE_RUNS;
   const selectedHistoryRun = useMemo(
     () =>
       selectedRunId
@@ -108,12 +128,12 @@ export function OcrPipelineRunPanel({
     [historyRuns, selectedRunId],
   );
   const activeHistoryRun = useMemo(
-    () => selectActiveOcrPipelineRun(historyRuns),
-    [historyRuns],
+    () => selectActiveOcrPipelineRun(latestHistoryRuns),
+    [latestHistoryRuns],
   );
   const latestHistoryRun = useMemo(
-    () => selectLatestOcrPipelineRun(historyRuns),
-    [historyRuns],
+    () => selectLatestOcrPipelineRun(latestHistoryRuns),
+    [latestHistoryRuns],
   );
   const selectedRunPendingHistoryId =
     selectedRunId && !selectedHistoryRun ? selectedRunId : null;
@@ -122,7 +142,9 @@ export function OcrPipelineRunPanel({
   const activeRunId =
     selectedRunPendingHistoryId ?? preferredHistoryRun?.id ?? "";
   const currentRun =
-    historyRuns.find((run) => run.id === activeRunId) ?? preferredHistoryRun;
+    historyRuns.find((run) => run.id === activeRunId) ??
+    latestHistoryRuns.find((run) => run.id === activeRunId) ??
+    preferredHistoryRun;
   const isTerminalRun = currentRun
     ? isTerminalOcrPipelineRunStatus(currentRun.status)
     : false;
@@ -142,9 +164,12 @@ export function OcrPipelineRunPanel({
       ),
     onSuccess: async (run) => {
       setSelectedRun({ documentId: document.id, runId: run.id });
-      await queryClient.invalidateQueries({
-        queryKey: inboxQueryKeys.documentOcrPipelineRuns(document.id),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: inboxQueryKeys.documentOcrPipelineRuns(document.id),
+        }),
+        invalidateAdminOcrRunLists(queryClient),
+      ]);
     },
   });
 
@@ -156,8 +181,8 @@ export function OcrPipelineRunPanel({
     onSuccess: (run) => {
       setCancelDialogTarget(null);
       setSelectedRun({ documentId: document.id, runId: run.id });
-      queryClient.setQueryData<OcrPipelineRunListEnvelope>(
-        inboxQueryKeys.documentOcrPipelineRuns(document.id),
+      queryClient.setQueriesData<OcrPipelineRunListEnvelope>(
+        { queryKey: inboxQueryKeys.documentOcrPipelineRuns(document.id) },
         (current) => replaceOcrPipelineRunInHistory(current, run),
       );
       void queryClient.invalidateQueries({
@@ -175,10 +200,10 @@ export function OcrPipelineRunPanel({
 
   const knownRuns = useMemo(
     () =>
-      currentRun && !historyRuns.some((run) => run.id === currentRun.id)
-        ? [currentRun, ...historyRuns]
-        : historyRuns,
-    [currentRun, historyRuns],
+      currentRun && !latestHistoryRuns.some((run) => run.id === currentRun.id)
+        ? [currentRun, ...latestHistoryRuns]
+        : latestHistoryRuns,
+    [currentRun, latestHistoryRuns],
   );
   const activeRunInProgress = hasActiveOcrPipelineRun(knownRuns);
   const startDisabledReason = getOcrPipelineRunStartDisabledReason({
@@ -350,7 +375,7 @@ export function OcrPipelineRunPanel({
         </div>
       ) : null}
 
-      {historyRuns.length > 1 ? (
+      {(historyQuery.data?.meta.total ?? 0) > 1 ? (
         <RunHistoryList
           activeRunId={activeRunId}
           formatDate={formatDate}
@@ -360,6 +385,17 @@ export function OcrPipelineRunPanel({
           runs={historyRuns}
         />
       ) : null}
+      <ListPagination
+        isPending={historyQuery.isFetching}
+        meta={historyQuery.data?.meta}
+        nextLabel={collection("pagination.next")}
+        onOffsetChange={(nextOffset) => {
+          setSelectedRun(null);
+          setHistoryPage({ documentId: document.id, offset: nextOffset });
+        }}
+        previousLabel={collection("pagination.previous")}
+        summary={(range) => collection("pagination.summary", range)}
+      />
 
       <ConfirmActionDialog
         cancelLabel={t("actions.keepRun")}

@@ -106,10 +106,10 @@ def to_run_list_envelope(page: OcrPipelineRunList) -> OcrPipelineRunListEnvelope
         data=OcrPipelineRunListSchema(runs=[to_run_schema(run) for run in page.runs]),
         meta=OcrPipelineRunListMeta(
             document_id=page.document_id,
+            total=page.total,
             returned_count=page.returned_count,
             limit=page.limit,
             offset=page.offset,
-            has_more=page.has_more,
         ),
     )
 

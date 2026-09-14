@@ -2,7 +2,6 @@
 
 import { Edit3Icon, PowerIcon, Trash2Icon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
 
 import {
   CatalogStatusBadge,
@@ -21,31 +20,12 @@ import {
 } from "@/components/ui/table";
 import { TableEmptyState } from "@/components/ui/table-empty-state";
 import type { AttributeCategory } from "@/lib/admin-settings/types";
-import {
-  applyCollectionView,
-  nextSortState,
-  type SortState,
-  type SortValue,
-} from "@/lib/collection-view";
+import type { AttributeCategorySortField } from "@/lib/admin-settings/attribute-api";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 
 import { AttributeCategoryFlagBadges } from "./attribute-category-flag-badges";
 
 const DEFAULT_ATTRIBUTE_CATEGORY_EXTERNAL_ID = "bez_kategorii";
-type AttributeCategorySortColumn = "flags" | "name" | "status" | "updatedAt";
-
-const attributeCategorySortAccessors: Record<
-  AttributeCategorySortColumn,
-  (category: AttributeCategory) => SortValue
-> = {
-  flags: (category) =>
-    Object.keys(category.flags)
-      .filter((key) => category.flags[key])
-      .join(" "),
-  name: (category) => category.label,
-  status: (category) => category.status,
-  updatedAt: (category) => category.updatedAt,
-};
-
 interface AttributeCategoryTableProps {
   categories: AttributeCategory[];
   emptyDescription?: string;
@@ -55,6 +35,8 @@ interface AttributeCategoryTableProps {
   onDeactivate: (category: AttributeCategory) => void;
   onDelete: (category: AttributeCategory) => void;
   onEdit: (category: AttributeCategory) => void;
+  onSortChange: (sort: SortState<AttributeCategorySortField>) => void;
+  sort: SortState<AttributeCategorySortField>;
 }
 
 export function AttributeCategoryTable({
@@ -66,27 +48,14 @@ export function AttributeCategoryTable({
   onDeactivate,
   onDelete,
   onEdit,
+  onSortChange,
+  sort,
 }: AttributeCategoryTableProps) {
   const t = useTranslations("AdminSettings.attributeCategories");
   const common = useTranslations("AdminSettings.common");
   const collection = useTranslations("CollectionView");
   const format = useFormatter();
-  const [sort, setSort] = useState<SortState<AttributeCategorySortColumn>>({
-    column: "name",
-    direction: "asc",
-  });
-  const sortedCategories = useMemo(
-    () =>
-      applyCollectionView(categories, {
-        sort: {
-          accessor: attributeCategorySortAccessors[sort.column],
-          direction: sort.direction,
-        },
-      }),
-    [categories, sort],
-  );
-
-  function sortLabel(column: AttributeCategorySortColumn, label: string) {
+  function sortLabel(column: AttributeCategorySortField, label: string) {
     const nextDirection =
       sort.column === column && sort.direction === "asc" ? "desc" : "asc";
 
@@ -98,17 +67,17 @@ export function AttributeCategoryTable({
       <TableHeader>
         <TableRow className="border-0 hover:bg-transparent">
           <SortableTableHead
-            active={sort.column === "name"}
+            active={sort.column === "label"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "name"))}
-            sortLabel={sortLabel("name", t("columns.name"))}
+            onSort={() => onSortChange(nextSortState(sort, "label"))}
+            sortLabel={sortLabel("label", t("columns.name"))}
           >
             {t("columns.name")}
           </SortableTableHead>
           <SortableTableHead
             active={sort.column === "flags"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "flags"))}
+            onSort={() => onSortChange(nextSortState(sort, "flags"))}
             sortLabel={sortLabel("flags", t("columns.flags"))}
           >
             {t("columns.flags")}
@@ -116,20 +85,16 @@ export function AttributeCategoryTable({
           <SortableTableHead
             active={sort.column === "status"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "status"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
             sortLabel={sortLabel("status", t("columns.status"))}
           >
             {t("columns.status")}
           </SortableTableHead>
           <SortableTableHead
-            active={sort.column === "updatedAt"}
+            active={sort.column === "updated_at"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "updatedAt"))
-            }
-            sortLabel={sortLabel("updatedAt", t("columns.updatedAt"))}
+            onSort={() => onSortChange(nextSortState(sort, "updated_at"))}
+            sortLabel={sortLabel("updated_at", t("columns.updatedAt"))}
           >
             {t("columns.updatedAt")}
           </SortableTableHead>
@@ -145,7 +110,7 @@ export function AttributeCategoryTable({
             title={emptyTitle ?? t("emptyTitle")}
           />
         ) : null}
-        {sortedCategories.map((category) => {
+        {categories.map((category) => {
           const isDefaultCategory =
             category.externalId === DEFAULT_ATTRIBUTE_CATEGORY_EXTERNAL_ID;
 

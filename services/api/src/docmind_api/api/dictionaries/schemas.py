@@ -6,8 +6,14 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from docmind_api.api.attributes.schemas import AttributeConstraintsRequest, AttributeDataTypeRequest
+from docmind_api.api.list_contract import ListPageMeta, ListQueryParams
 from docmind_api.application.dictionaries.commands import (
     DICTIONARY_ENTRY_LIST_DEFAULT_LIMIT,
+    DICTIONARY_ENTRY_LIST_MAX_LIMIT,
+    DictionaryEntryListStatus,
+    DictionaryEntrySortField,
+    DictionaryListStatus,
+    DictionarySortField,
 )
 from docmind_api.domain.attributes.models import AttributeDataType
 from docmind_api.domain.dictionaries.models import (
@@ -67,16 +73,38 @@ class DictionaryEnvelope(BaseModel):
     meta: dict[str, str] = Field(default_factory=dict)
 
 
+class DictionaryListQuery(ListQueryParams[DictionarySortField]):
+    """Filtered, sorted, paged dictionary catalog query."""
+
+    sort_by: DictionarySortField = DictionarySortField.NAME
+    status: DictionaryListStatus = DictionaryListStatus.ACTIVE
+
+
+class DictionaryEntryListQuery(ListQueryParams[DictionaryEntrySortField]):
+    """Filtered, sorted, paged dictionary entry query."""
+
+    sort_by: DictionaryEntrySortField = DictionaryEntrySortField.SORT_ORDER
+    status: DictionaryEntryListStatus = DictionaryEntryListStatus.ACTIVE
+    limit: int = Field(
+        default=DICTIONARY_ENTRY_LIST_DEFAULT_LIMIT,
+        ge=1,
+        le=DICTIONARY_ENTRY_LIST_MAX_LIMIT,
+        description="Page size, capped at 100 entries for dictionary lookup.",
+    )
+
+
 class DictionaryListSchema(BaseModel):
     """HTTP schema for dictionary lists."""
 
     dictionaries: list[DictionarySchema]
 
 
-class DictionaryListMeta(BaseModel):
+class DictionaryListMeta(ListPageMeta):
     """HTTP metadata for dictionary lists."""
 
-    total_count: int
+    active_count: int
+    inactive_count: int
+    status: DictionaryListStatus
 
 
 class DictionaryListEnvelope(BaseModel):
@@ -242,15 +270,10 @@ class DictionaryEntryListSchema(BaseModel):
     entries: list[DictionaryEntrySchema]
 
 
-class DictionaryEntryListMeta(BaseModel):
+class DictionaryEntryListMeta(ListPageMeta):
     """HTTP metadata for paged dictionary entry lookup."""
 
     dictionary_id: UUID
-    returned_count: int
-    total_count: int
-    limit: int = DICTIONARY_ENTRY_LIST_DEFAULT_LIMIT
-    offset: int = 0
-    has_more: bool
 
 
 class DictionaryEntryListEnvelope(BaseModel):

@@ -68,6 +68,11 @@
     "allFilter": "All: {label}",
     "noResults": "No results",
     "noResultsDescription": "Adjust the search text or clear it to show all items.",
+    "pagination": {
+      "next": "Next",
+      "previous": "Previous",
+      "summary": "Showing {first}–{last} of {total} documents"
+    },
     "sort": {
       "asc": "Sort {column} ascending",
       "desc": "Sort {column} descending"
@@ -108,7 +113,7 @@
       "allDocumentTypesLabel": "All document types",
       "displayMode": "Display mode",
       "status": "Status",
-      "allStatuses": "All statuses ({count})",
+      "allStatuses": "All statuses",
       "statusValue": "{status} ({count})"
     },
     "upload": {
@@ -232,6 +237,8 @@
         "zoomIn": "Zoom in",
         "zoomOut": "Zoom out",
         "resetZoom": "Reset zoom",
+        "download": "Download PDF",
+        "print": "Print PDF",
         "previousPage": "Previous page",
         "nextPage": "Next page",
         "page": "Page {current} of {total}"
@@ -954,7 +961,7 @@
     "emptyDescription": "Runs will appear here after documents are submitted for OCR.",
     "emptyFiltered": "No runs match these filters",
     "emptyFilteredDescription": "Change or clear the filters to see more OCR runs.",
-    "pageSummary": "Records on this page: {count}",
+    "pageSummary": "Records {from}–{to} of {total}",
     "previous": "Previous",
     "next": "Next",
     "tabs": {
@@ -1914,9 +1921,11 @@
         "unassigned": "Unassigned",
         "required": "Required",
         "optional": "Optional",
-        "missingAction": "Missing required action",
+        "missingAction": "Required-value policy",
         "blockApproval": "Block approval",
+        "blockApprovalDescription": "A missing required value prevents document approval.",
         "requireReview": "Require review",
+        "requireReviewDescription": "A missing required value stays flagged for review but does not block approval.",
         "contextResolver": "Include in Context Resolver",
         "conflict": "Assignments changed on the server. Reload the current state before saving again.",
         "reload": "Reload current state",
@@ -2430,8 +2439,11 @@
         "required": "Required"
       },
       "missingActions": {
+        "label": "Required-value policy",
         "block_approval": "Block approval",
+        "block_approvalDescription": "A missing required value prevents document approval.",
         "require_review": "Require review",
+        "require_reviewDescription": "A missing required value stays flagged for review but does not block approval.",
         "notApplicable": "Not used"
       },
       "validation": {

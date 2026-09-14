@@ -1,4 +1,5 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type { ListPageMeta, ListPageMetaDto } from "@/lib/api/list-contract";
 
 import type {
   CatalogStatus,
@@ -41,12 +42,16 @@ export interface DictionaryListData {
   dictionaries: CustomDictionary[];
 }
 
-export interface DictionaryListMetaDto {
-  total_count: number;
+export interface DictionaryListMetaDto extends ListPageMetaDto {
+  active_count: number;
+  inactive_count: number;
+  status: DictionaryStatusFilter;
 }
 
-export interface DictionaryListMeta {
-  totalCount: number;
+export interface DictionaryListMeta extends ListPageMeta {
+  activeCount: number;
+  inactiveCount: number;
+  status: DictionaryStatusFilter;
 }
 
 export interface UpsertDictionaryInput {
@@ -152,22 +157,12 @@ export interface DictionaryEntryListData {
   entries: DictionaryEntry[];
 }
 
-export interface DictionaryEntryListMetaDto {
+export interface DictionaryEntryListMetaDto extends ListPageMetaDto {
   dictionary_id: string;
-  returned_count: number;
-  total_count: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
 }
 
-export interface DictionaryEntryListMeta {
+export interface DictionaryEntryListMeta extends ListPageMeta {
   dictionaryId: string;
-  returnedCount: number;
-  totalCount: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
 }
 
 export interface UpsertDictionaryEntryInput {

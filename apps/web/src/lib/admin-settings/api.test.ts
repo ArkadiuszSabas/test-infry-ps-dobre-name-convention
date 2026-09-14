@@ -37,8 +37,16 @@ test("admin catalog client lists attributes by category and updates typed metada
         ],
       },
       meta: {
+        active_count: 1,
+        catalog_count: 1,
         category_counts: [{ category: "Contract data", count: 1 }],
-        total_count: 1,
+        has_more: false,
+        inactive_count: 0,
+        limit: 50,
+        offset: 0,
+        returned_count: 1,
+        status: "all",
+        total: 1,
       },
     }),
     jsonResponse({
@@ -68,6 +76,11 @@ test("admin catalog client lists attributes by category and updates typed metada
 
   const result = await adminCatalogClient.listAttributes({
     category: "Contract data",
+    limit: 50,
+    offset: 0,
+    sortBy: "name",
+    sortDirection: "asc",
+    status: "all",
   });
   await adminCatalogClient.updateAttribute(
     CONTRACT_NUMBER_ID,
@@ -98,7 +111,7 @@ test("admin catalog client lists attributes by category and updates typed metada
   );
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/attributes?category=Contract+data",
+    "/api/docmind/attributes?limit=50&offset=0&sort_by=name&sort_direction=asc&category=Contract+data&status=all",
   );
   assert.equal(fetchMock.calls[1]?.init.method, "PATCH");
   assert.deepEqual(JSON.parse(String(fetchMock.calls[1]?.init.body)), {
@@ -131,10 +144,13 @@ test("admin catalog client manages attribute categories", async (t) => {
       data: { categories: [categoryBody] },
       meta: {
         active_count: 1,
+        has_more: false,
         inactive_count: 0,
+        limit: 50,
+        offset: 0,
         returned_count: 1,
         status: "all",
-        total_count: 1,
+        total: 1,
       },
     }),
     jsonResponse({ data: categoryBody, meta: {} }, { status: 201 }),
@@ -151,6 +167,10 @@ test("admin catalog client manages attribute categories", async (t) => {
   t.after(fetchMock.restore);
 
   const result = await adminCatalogClient.listAttributeCategories({
+    limit: 50,
+    offset: 0,
+    sortBy: "label",
+    sortDirection: "asc",
     status: "all",
   });
   await adminCatalogClient.createAttributeCategory(
@@ -178,10 +198,10 @@ test("admin catalog client manages attribute categories", async (t) => {
 
   assert.equal(result.data.categories[0]?.id, ATTRIBUTE_CATEGORY_ID);
   assert.equal(result.data.categories[0]?.label, "Metadata");
-  assert.equal(result.meta.totalCount, 1);
+  assert.equal(result.meta.total, 1);
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/attributes/categories?status=all",
+    "/api/docmind/attributes/categories?limit=50&offset=0&sort_by=label&sort_direction=asc&status=all",
   );
   assert.equal(fetchMock.calls[1]?.init.method, "POST");
   assert.equal(fetchMock.calls[2]?.init.method, "PATCH");

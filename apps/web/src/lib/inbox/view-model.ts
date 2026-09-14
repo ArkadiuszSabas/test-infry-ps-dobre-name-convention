@@ -8,8 +8,6 @@ import type {
   ManualUploadMetadataField,
   MetadataDataType,
   MetadataScalar,
-  DocumentStatus,
-  OcrPipelineRunStatus,
 } from "./types";
 
 export type InboxPreviewState =
@@ -217,13 +215,6 @@ export function getInboxPreviewState(
   }
 
   return { kind: "unavailable" };
-}
-
-export function getInboxDocumentStatus(
-  documentStatus: DocumentStatus,
-  latestOcrRunStatus: OcrPipelineRunStatus | undefined,
-): DocumentStatus {
-  return latestOcrRunStatus === "failed" ? "failed" : documentStatus;
 }
 
 function toDocumentParameterItem({

@@ -1,4 +1,5 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta, type ListPageMetaDto } from "@/lib/api/list-contract";
 
 import type {
   DeleteOcrPipelineResult,
@@ -112,8 +113,9 @@ export interface OcrPipelineListEnvelopeDto {
     pipelines: OcrPipelineSummaryDto[];
   };
   meta: {
-    total_count: number;
-  };
+    lifecycle_counts: Record<OcrPipelineLifecycle, number>;
+    routing_status: "noDefault" | "noPipelines" | "noPublished" | "ready";
+  } & ListPageMetaDto;
 }
 
 export interface DeleteOcrPipelineEnvelopeDto {
@@ -153,7 +155,9 @@ export function mapListEnvelope(
       pipelines: envelope.data.pipelines.map(mapSummary),
     },
     meta: {
-      totalCount: envelope.meta.total_count,
+      ...mapListPageMeta(envelope.meta),
+      lifecycleCounts: envelope.meta.lifecycle_counts,
+      routingStatus: envelope.meta.routing_status,
     },
   };
 }

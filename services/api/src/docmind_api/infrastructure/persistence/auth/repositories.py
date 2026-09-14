@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Any, cast
 from uuid import UUID
 
-from sqlalchemy import case, delete, func, insert, select, update
+from sqlalchemy import case, delete, func, insert, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -648,6 +648,24 @@ class SqlAlchemyUserInvitationRepository(UserInvitationRepository):
             .where(
                 user_invitations_table.c.status == InvitationStatus.PENDING.value,
                 user_invitations_table.c.expires_at > evaluated_at,
+            )
+            .order_by(
+                user_invitations_table.c.created_at.desc(),
+                user_invitations_table.c.email.asc(),
+            ),
+        )
+        return tuple(_user_invitation_from_row(row) for row in result.mappings())
+
+    async def list_all(self, *, evaluated_at: datetime) -> tuple[UserInvitation, ...]:
+        """Return completed invitations and pending invitations that are still active."""
+
+        result = await self._session.execute(
+            select(user_invitations_table)
+            .where(
+                or_(
+                    user_invitations_table.c.status != InvitationStatus.PENDING.value,
+                    user_invitations_table.c.expires_at > evaluated_at,
+                ),
             )
             .order_by(
                 user_invitations_table.c.created_at.desc(),

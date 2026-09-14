@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from docmind_api.api.list_contract import ListPageMeta
 from docmind_api.api.ocr_pipeline_runs.schemas import (
     OcrPipelineRunDiagnosticSchema,
     OcrPipelineRunErrorSchema,
@@ -61,11 +62,20 @@ class AdminOcrRunListData(BaseModel):
     runs: list[AdminOcrRunSummarySchema]
 
 
-class AdminOcrRunListMeta(BaseModel):
-    returned_count: int
-    limit: int
-    offset: int
-    has_more: bool
+class AdminOcrRunFacetOptionSchema(BaseModel):
+    value: str
+    label: str
+
+
+class AdminOcrRunFacetsSchema(BaseModel):
+    status_total: int
+    status_counts: dict[OcrPipelineRunStatus, int]
+    sources: list[AdminOcrRunFacetOptionSchema]
+    connectors: list[AdminOcrRunFacetOptionSchema]
+
+
+class AdminOcrRunListMeta(ListPageMeta):
+    facets: AdminOcrRunFacetsSchema
 
 
 class AdminOcrRunListEnvelope(BaseModel):

@@ -10,17 +10,35 @@ test("admin users client lists pending invitations", async (t) => {
         invitations: [invitationResponseBody()],
       },
       meta: {
+        accepted_count: 0,
+        cancelled_count: 0,
         delivery_available: false,
         evaluated_at: "2026-06-11T12:10:00Z",
+        has_more: false,
+        limit: 50,
+        offset: 0,
+        pending_count: 1,
+        returned_count: 1,
+        status: "all",
+        total: 1,
       },
     }),
   ]);
   t.after(fetchMock.restore);
 
-  const result = await adminUsersClient.listInvitations();
+  const result = await adminUsersClient.listInvitations({
+    limit: 50,
+    offset: 0,
+    sortBy: "email",
+    sortDirection: "asc",
+    status: "all",
+  });
 
   assert.equal(result.data.invitations[0]?.email, "invited.user@example.com");
-  assert.equal(fetchMock.calls[0]?.input, "/api/docmind/auth/invitations");
+  assert.equal(
+    fetchMock.calls[0]?.input,
+    "/api/docmind/auth/invitations?limit=50&offset=0&sort_by=email&sort_direction=asc&status=all",
+  );
   assert.equal(fetchMock.calls[0]?.init.method, "GET");
 });
 
@@ -32,9 +50,16 @@ test("admin users client manages users through CSRF protected routes", async (t)
       },
       meta: {
         evaluated_at: "2026-06-24T12:00:00Z",
+        active_count: 1,
+        deleted_count: 0,
+        has_more: false,
         include_deleted: false,
+        inactive_count: 0,
+        limit: 50,
+        offset: 0,
         returned_count: 1,
-        total_count: 1,
+        status: "all",
+        total: 1,
       },
     }),
     jsonResponse(
@@ -80,7 +105,14 @@ test("admin users client manages users through CSRF protected routes", async (t)
   ]);
   t.after(fetchMock.restore);
 
-  await adminUsersClient.listUsers();
+  await adminUsersClient.listUsers({
+    includeDeleted: false,
+    limit: 50,
+    offset: 0,
+    sortBy: "display_name",
+    sortDirection: "asc",
+    status: "all",
+  });
   await adminUsersClient.createUser(
     {
       display_name: "Created User",
@@ -105,7 +137,10 @@ test("admin users client manages users through CSRF protected routes", async (t)
     { csrfToken: "raw-csrf-token" },
   );
 
-  assert.equal(fetchMock.calls[0]?.input, "/api/docmind/auth/users");
+  assert.equal(
+    fetchMock.calls[0]?.input,
+    "/api/docmind/auth/users?limit=50&offset=0&sort_by=display_name&sort_direction=asc&include_deleted=false&status=all",
+  );
   assert.equal(fetchMock.calls[1]?.input, "/api/docmind/auth/users");
   assert.equal(
     fetchMock.calls[2]?.input,

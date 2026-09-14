@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useInfiniteQuery,
   useMutation,
   useQueries,
   useQuery,
@@ -9,10 +8,11 @@ import {
 } from "@tanstack/react-query";
 import { ArchiveIcon, InboxIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import { DataListContent, DataListPanel } from "@/components/ui/data-list";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/page-shell";
 import { useCurrentActor } from "@/hooks/auth/use-current-actor";
@@ -20,7 +20,6 @@ import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { inboxClient } from "@/lib/inbox/api";
 import {
   dictionaryLookupEntriesQueryOptions,
-  documentOcrPipelineRunsQueryOptions,
   inboxDocumentsQueryOptions,
   inboxQueryKeys,
   manualUploadMetadataSchemaQueryOptions,
@@ -33,18 +32,17 @@ import type {
 import {
   getActiveDocumentTypeId,
   getDocumentTypeFilterOptions,
-  getInboxDocumentStatus,
   getInboxErrorMessage,
   getManualUploadDictionaryIds,
 } from "@/lib/inbox/view-model";
 import {
   ALL_DOCUMENT_TYPES_VALUE,
   ALL_STATUSES_VALUE,
-  getDocumentTypeFilters,
-  getStatusFilters,
-  getVisibleInboxDocuments,
-  type InboxStatusFilter,
+  nextInboxDocumentsSort,
+  parseInboxDocumentListUrlState,
+  toInboxDocumentListSearchParams,
 } from "@/lib/inbox/list-view";
+import type { InboxDocumentsSortField } from "@/lib/inbox/types";
 
 import { DocumentsTable } from "./inbox-documents-table";
 import { InboxNotice } from "./inbox-notice";
@@ -63,6 +61,8 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
   const collection = useTranslations("CollectionView");
   const format = useFormatter();
   const queryClient = useQueryClient();
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { actor } = useCurrentActor();
   const runCsrfProtectedAction = useCsrfProtectedAction();
@@ -70,14 +70,9 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
     boolean | null
   >(null);
   const [selectedDocumentTypeId, setSelectedDocumentTypeId] = useState("");
-  const [documentTypeFilter, setDocumentTypeFilter] = useState(
-    ALL_DOCUMENT_TYPES_VALUE,
-  );
-  const [statusFilter, setStatusFilter] =
-    useState<InboxStatusFilter>(ALL_STATUSES_VALUE);
-  const [search, setSearch] = useState("");
   const [uploadError, setUploadError] = useState<string | null>(null);
   const isArchive = mode === "archive";
+  const listState = parseInboxDocumentListUrlState(searchParams, isArchive);
   const canUpload =
     !isArchive && Boolean(actor?.permissions.includes("documents.create"));
   const canDelete = Boolean(actor?.permissions.includes("documents.delete"));
@@ -87,75 +82,41 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
   const canReadSystemCatalogOptions = Boolean(
     actor?.permissions.includes("documents.read"),
   );
-  const documentsQuery = useInfiniteQuery(
-    inboxDocumentsQueryOptions(isArchive),
-  );
+  const documentsQuery = useQuery(inboxDocumentsQueryOptions(listState));
   const documentTypeConfiguration = useInboxDocumentTypeConfiguration({
     canReadSystemCatalogOptions,
     canUpload,
   });
-  const documentPages = documentsQuery.data?.pages;
-  const documents = useMemo(
-    () =>
-      documentPages?.flatMap((page) => page.data.documents) ??
-      EMPTY_INBOX_DOCUMENTS,
-    [documentPages],
-  );
-  const pipelineRunQueries = useQueries({
-    queries: documents.map((document) =>
-      documentOcrPipelineRunsQueryOptions(
-        document.id,
-        !isArchive && canReadSystemCatalogOptions,
-      ),
-    ),
-  });
-  const documentsWithOcrFailure = useMemo(
-    () =>
-      documents.map((document, index) => ({
-        ...document,
-        status: getInboxDocumentStatus(
-          document.status,
-          pipelineRunQueries[index]?.data?.data.runs[0]?.status,
-        ),
-      })),
-    [documents, pipelineRunQueries],
-  );
+  const documents =
+    documentsQuery.data?.data.documents ?? EMPTY_INBOX_DOCUMENTS;
   const {
     documentTypeDefinition,
     documentTypeOptions,
     uploadDocumentTypeOptions,
   } = documentTypeConfiguration;
-  const hasMoreDocuments = documentsQuery.hasNextPage;
-  const isFetchingMoreDocuments = documentsQuery.isFetchingNextPage;
-  const fetchNextDocumentsPage = documentsQuery.fetchNextPage;
-  const hasSearch = search.trim().length > 0;
-  const documentTypeFilters = getDocumentTypeFilters(documentsWithOcrFailure);
+  const hasSearch = Boolean(listState.search);
+  const documentTypeFilters = useMemo(
+    () => documentsQuery.data?.meta.documentTypeFacets ?? [],
+    [documentsQuery.data?.meta.documentTypeFacets],
+  );
   const documentTypeFilterOptions = useMemo(
     () =>
       getDocumentTypeFilterOptions({
-        documentTypeFilters,
+        documentTypeFilters: documentTypeFilters.map((facet) => ({
+          id: facet.value,
+          name: facet.value,
+        })),
         documentTypes: documentTypeOptions,
       }),
     [documentTypeFilters, documentTypeOptions],
   );
-  const statusFilters = getStatusFilters(documentsWithOcrFailure);
-  const visibleDocuments = useMemo(
-    () =>
-      getVisibleInboxDocuments(
-        documentsWithOcrFailure,
-        documentTypeFilter,
-        statusFilter,
-        search,
-        (document) => t(`status.${document.status}`),
-      ),
-    [documentTypeFilter, documentsWithOcrFailure, search, statusFilter, t],
+  const statusFilters = (documentsQuery.data?.meta.statusFacets ?? []).map(
+    (facet) => ({ count: facet.count, status: facet.value }),
   );
   const hasActiveFilters =
-    documentTypeFilter !== ALL_DOCUMENT_TYPES_VALUE ||
-    statusFilter !== ALL_STATUSES_VALUE ||
+    listState.documentTypeFilter !== ALL_DOCUMENT_TYPES_VALUE ||
+    listState.statusFilter !== ALL_STATUSES_VALUE ||
     hasSearch;
-  const isCompletingDocumentCollection =
-    hasMoreDocuments || isFetchingMoreDocuments;
   const uploadDocumentTypesPending =
     canUpload && documentTypeConfiguration.uploadDocumentTypesPending;
   const uploadDocumentTypesError =
@@ -238,7 +199,7 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
       setUploadError(null);
       setUploadSheetOverride(false);
       await queryClient.invalidateQueries({
-        queryKey: inboxQueryKeys.documentList(),
+        queryKey: inboxQueryKeys.documentLists(),
       });
     },
     onError: (error) => {
@@ -251,24 +212,6 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
     metadataOptionsPending ||
     Boolean(optionsErrorMessage) ||
     !hasUploadDocumentTypes;
-
-  useEffect(() => {
-    if (
-      documentsQuery.isError ||
-      documentsQuery.isPending ||
-      isFetchingMoreDocuments ||
-      !hasMoreDocuments
-    ) {
-      return;
-    }
-    void fetchNextDocumentsPage();
-  }, [
-    documentsQuery.isError,
-    documentsQuery.isPending,
-    fetchNextDocumentsPage,
-    hasMoreDocuments,
-    isFetchingMoreDocuments,
-  ]);
 
   function handleUploadSheetOpenChange(open: boolean) {
     if (!open && uploadMutation.isPending) {
@@ -296,22 +239,44 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
     uploadMutation.mutate(draft);
   }
 
-  function handleDocumentTypeFilterChange(value: string) {
-    if (
-      value === ALL_DOCUMENT_TYPES_VALUE ||
-      documentTypeFilters.some((filter) => filter.id === value)
-    ) {
-      setDocumentTypeFilter(value);
+  function updateListState(patch: Partial<typeof listState>) {
+    const nextState = { ...listState, ...patch };
+    const params = new URLSearchParams(searchParams.toString());
+    const listParams = toInboxDocumentListSearchParams(nextState);
+
+    for (const key of [
+      "document_type_id",
+      "limit",
+      "offset",
+      "search",
+      "sort_by",
+      "sort_direction",
+      "status",
+    ]) {
+      const value = listParams.get(key);
+      if (value === null) params.delete(key);
+      else params.set(key, value);
     }
+
+    router.replace(`${pathname}${params.size ? `?${params.toString()}` : ""}`, {
+      scroll: false,
+    });
+  }
+
+  function handleDocumentTypeFilterChange(value: string) {
+    updateListState({
+      documentTypeFilter: value,
+      documentTypeId: value === ALL_DOCUMENT_TYPES_VALUE ? undefined : value,
+      offset: 0,
+    });
   }
 
   function handleStatusFilterChange(value: string) {
-    if (
-      value === ALL_STATUSES_VALUE ||
-      statusFilters.some((filter) => filter.status === value)
-    ) {
-      setStatusFilter(value as InboxStatusFilter);
-    }
+    updateListState({
+      statusFilter: value,
+      status: value === ALL_STATUSES_VALUE ? undefined : value,
+      offset: 0,
+    });
   }
 
   return (
@@ -330,8 +295,7 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
         <InboxToolbar
           activeDocumentTypeId={activeDocumentTypeId}
           canUpload={canUpload}
-          documentCount={documents.length}
-          documentTypeFilter={documentTypeFilter}
+          documentTypeFilter={listState.documentTypeFilter}
           documentTypeFilterOptions={documentTypeFilterOptions}
           documentTypeDefinition={documentTypeDefinition}
           documentTypeOptions={uploadDocumentTypeOptions}
@@ -346,12 +310,12 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
           onDocumentTypeChange={setSelectedDocumentTypeId}
           onDocumentTypeFilterChange={handleDocumentTypeFilterChange}
           onOpenChange={handleUploadSheetOpenChange}
-          onSearchChange={setSearch}
+          onSearchChange={(search) => updateListState({ search, offset: 0 })}
           onStatusFilterChange={handleStatusFilterChange}
           onUpload={handleUpload}
           optionsError={optionsErrorMessage}
-          search={search}
-          statusFilter={statusFilter}
+          search={listState.search ?? ""}
+          statusFilter={listState.statusFilter}
           statusFilters={statusFilters}
           uploadDisabled={uploadDisabled}
           uploadError={uploadError}
@@ -368,53 +332,69 @@ export function InboxPage({ mode = "inbox" }: InboxPageProps) {
               tone="danger"
             />
           ) : (
-            <DocumentsTable
-              canDelete={canDelete}
-              canUpload={canUploadDocuments}
-              detailBasePath={isArchive ? "/archive" : "/documents"}
-              documents={visibleDocuments}
-              emptyDescription={
-                hasSearch
-                  ? collection("noResultsDescription")
-                  : hasActiveFilters
-                    ? t("empty.filteredDescription")
-                    : isArchive
-                      ? archive("empty.description")
-                      : undefined
-              }
-              emptyTitle={
-                hasSearch
-                  ? collection("noResults")
-                  : hasActiveFilters
-                    ? t("empty.filteredTitle")
-                    : isArchive
-                      ? archive("empty.title")
-                      : undefined
-              }
-              formatDate={(value) =>
-                format.dateTime(new Date(value), {
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })
-              }
-              formatNumber={format.number}
-              hasMore={hasMoreDocuments}
-              isFetchingMore={isFetchingMoreDocuments}
-              isLoading={
-                documentsQuery.isPending || isCompletingDocumentCollection
-              }
-              onLoadMore={() => {
-                void fetchNextDocumentsPage();
-              }}
-              onDocumentDeleted={() =>
-                queryClient.invalidateQueries({
-                  queryKey: inboxQueryKeys.documents(),
-                })
-              }
-            />
+            <>
+              <DocumentsTable
+                canDelete={canDelete}
+                canUpload={canUploadDocuments}
+                detailBasePath={isArchive ? "/archive" : "/documents"}
+                documents={documents}
+                emptyDescription={
+                  hasSearch
+                    ? collection("noResultsDescription")
+                    : hasActiveFilters
+                      ? t("empty.filteredDescription")
+                      : isArchive
+                        ? archive("empty.description")
+                        : undefined
+                }
+                emptyTitle={
+                  hasSearch
+                    ? collection("noResults")
+                    : hasActiveFilters
+                      ? t("empty.filteredTitle")
+                      : isArchive
+                        ? archive("empty.title")
+                        : undefined
+                }
+                formatDate={(value) =>
+                  format.dateTime(new Date(value), {
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })
+                }
+                formatNumber={format.number}
+                isLoading={documentsQuery.isPending}
+                listSearch={searchParams.toString()}
+                onDocumentDeleted={() =>
+                  queryClient.invalidateQueries({
+                    queryKey: inboxQueryKeys.documents(),
+                  })
+                }
+                onSortChange={(sortBy: InboxDocumentsSortField) =>
+                  updateListState({
+                    ...nextInboxDocumentsSort(
+                      listState.sortBy,
+                      listState.sortDirection,
+                      sortBy,
+                    ),
+                    offset: 0,
+                  })
+                }
+                sortBy={listState.sortBy}
+                sortOrder={listState.sortDirection}
+              />
+              <ListPagination
+                isPending={documentsQuery.isFetching}
+                meta={documentsQuery.data?.meta}
+                nextLabel={collection("pagination.next")}
+                onOffsetChange={(offset) => updateListState({ offset })}
+                previousLabel={collection("pagination.previous")}
+                summary={(range) => collection("pagination.summary", range)}
+              />
+            </>
           )}
         </DataListContent>
       </DataListPanel>

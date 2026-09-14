@@ -1,4 +1,9 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type {
+  ListPageMeta,
+  ListPageMetaDto,
+  ListQuery,
+} from "@/lib/api/list-contract";
 
 export type OcrPipelineRunStatus =
   | "pending"
@@ -138,21 +143,24 @@ export interface OcrPipelineRunList {
   runs: OcrPipelineRun[];
 }
 
-export interface OcrPipelineRunListMetaDto {
+export interface OcrPipelineRunListMetaDto extends ListPageMetaDto {
   document_id: string;
-  returned_count: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
 }
 
-export interface OcrPipelineRunListMeta {
+export interface OcrPipelineRunListMeta extends ListPageMeta {
   documentId: string;
-  returnedCount: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
 }
+
+export type DocumentOcrRunSortField =
+  | "completed_at"
+  | "created_at"
+  | "pipeline_name"
+  | "status"
+  | "updated_at";
+
+export type DocumentOcrRunListQuery = ListQuery<DocumentOcrRunSortField> & {
+  status?: OcrPipelineRunStatus;
+};
 
 export interface OcrPipelineRunOcrPageResultDto {
   page_number: number;

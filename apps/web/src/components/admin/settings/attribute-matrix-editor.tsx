@@ -8,16 +8,11 @@ import { useUnsavedChangesRegistration } from "@/components/system-catalogs/unsa
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
-import { updateAttributeRequirementMatrixCache } from "@/lib/admin-settings/attribute-requirements-cache";
 import {
   adminCatalogQueryKeys,
   attributeRequirementsQueryOptions,
   documentTypesQueryOptions,
 } from "@/lib/admin-settings/query-options";
-import type {
-  AttributeDefinition,
-  AttributeRequirementMatrixEnvelope,
-} from "@/lib/admin-settings/types";
 import { systemCatalogDefinitionQueryOptions } from "@/lib/system-catalogs/query-options";
 import {
   buildAttributeRequirementDraftRows,
@@ -29,10 +24,7 @@ import {
   hasAttributeRequirementDraftChanges,
   toSaveAttributeRequirementInput,
 } from "@/lib/admin-settings/view-model";
-import type {
-  AttributeRequirementDraftRow,
-  AttributeRequirementState,
-} from "@/lib/admin-settings/view-model";
+import type { AttributeRequirementDraftRow } from "@/lib/admin-settings/view-model";
 
 import {
   CatalogNotice,
@@ -43,9 +35,13 @@ import { AttributeEditDrawer } from "./attribute-edit-drawer";
 import {
   ALL_ATTRIBUTE_CATEGORIES_VALUE,
   AttributeMatrixToolbar,
-  attributeMatrixRequirementFilters,
+  isAttributeMatrixRequirementFilter,
   type AttributeMatrixRequirementFilter,
 } from "./attribute-matrix-toolbar";
+import {
+  type AttributeMatrixDraft,
+  useAttributeMatrixDraftActions,
+} from "./use-attribute-matrix-draft-actions";
 
 interface AttributeMatrixEditorProps {
   initialDocumentTypeId?: string | null;
@@ -75,10 +71,7 @@ export function AttributeMatrixEditor({
     ALL_ATTRIBUTE_CATEGORIES_VALUE,
   );
   const [search, setSearch] = useState("");
-  const [draft, setDraft] = useState<{
-    documentTypeId: string;
-    rows: AttributeRequirementDraftRow[];
-  } | null>(null);
+  const [draft, setDraft] = useState<AttributeMatrixDraft | null>(null);
   const [pendingDocumentTypeId, setPendingDocumentTypeId] = useState<
     string | null
   >(null);
@@ -109,7 +102,6 @@ export function AttributeMatrixEditor({
     draft?.documentTypeId === effectiveDocumentTypeId
       ? draft.rows
       : baselineRows;
-
   const saveMutation = useMutation({
     mutationFn: (variables: {
       documentTypeId: string;
@@ -134,6 +126,18 @@ export function AttributeMatrixEditor({
         queryKey: adminCatalogQueryKeys.attributeRequirements(),
       });
     },
+  });
+  const {
+    applyAttributeUpdate,
+    updateMetadataInclusion,
+    updateMissingRequiredAction,
+    updateRowState,
+  } = useAttributeMatrixDraftActions({
+    documentTypeId: effectiveDocumentTypeId,
+    queryClient,
+    resetSaveError: saveMutation.reset,
+    rows,
+    setDraft,
   });
 
   const matrixDocumentType =
@@ -266,86 +270,9 @@ export function AttributeMatrixEditor({
     }
   }
 
-  function updateRowState(
-    attributeId: string,
-    state: AttributeRequirementState,
-  ) {
-    saveMutation.reset();
-    if (!effectiveDocumentTypeId) {
-      return;
-    }
-
-    setDraft({
-      documentTypeId: effectiveDocumentTypeId,
-      rows: rows.map((row) =>
-        row.attribute.id === attributeId ? { ...row, state } : row,
-      ),
-    });
-  }
-
-  function updateMetadataInclusion(attributeId: string, checked: boolean) {
-    saveMutation.reset();
-    if (!effectiveDocumentTypeId) {
-      return;
-    }
-    setDraft({
-      documentTypeId: effectiveDocumentTypeId,
-      rows: rows.map((row) =>
-        row.attribute.id === attributeId
-          ? { ...row, includeMetadataInContextResolver: checked }
-          : row,
-      ),
-    });
-  }
-
   function resetDraft() {
     saveMutation.reset();
     setDraft(null);
-  }
-
-  function applyAttributeUpdate(
-    attribute: AttributeDefinition,
-    isMetadata: boolean,
-  ) {
-    const updateDraftAttribute = (row: AttributeRequirementDraftRow) =>
-      row.attribute.id === attribute.id
-        ? {
-            ...row,
-            attribute: {
-              ...row.attribute,
-              category: attribute.category,
-              externalId: attribute.externalId,
-              isMetadata,
-              name: attribute.name,
-              status: attribute.status,
-            },
-            includeMetadataInContextResolver: isMetadata
-              ? row.includeMetadataInContextResolver
-              : false,
-          }
-        : row;
-
-    setDraft((current) =>
-      current?.documentTypeId === effectiveDocumentTypeId
-        ? { ...current, rows: current.rows.map(updateDraftAttribute) }
-        : current,
-    );
-
-    if (effectiveDocumentTypeId) {
-      queryClient.setQueryData<AttributeRequirementMatrixEnvelope>(
-        adminCatalogQueryKeys.attributeRequirementsDetail(
-          effectiveDocumentTypeId,
-        ),
-        (current) =>
-          current
-            ? updateAttributeRequirementMatrixCache(
-                current,
-                attribute,
-                isMetadata,
-              )
-            : current,
-      );
-    }
   }
 
   function discardChangesAndChangeDocumentType() {
@@ -441,6 +368,7 @@ export function AttributeMatrixEditor({
               isSaving={saveMutation.isPending}
               matrixDocumentType={matrixDocumentType}
               onEdit={setEditAttributeId}
+              onMissingRequiredActionChange={updateMissingRequiredAction}
               onStateChange={updateRowState}
               onMetadataInclusionChange={updateMetadataInclusion}
               rows={visibleRows}
@@ -469,10 +397,4 @@ export function AttributeMatrixEditor({
       />
     </section>
   );
-}
-
-function isAttributeMatrixRequirementFilter(
-  value: string,
-): value is AttributeMatrixRequirementFilter {
-  return attributeMatrixRequirementFilters.some((filter) => filter === value);
 }

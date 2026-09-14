@@ -46,6 +46,8 @@ MAX_CONTEXT_RESOLUTION_SOURCE_COUNT = 16
 MAX_CONTEXT_RESOLUTION_REASON_CODE_COUNT = 16
 MAX_CONTEXT_RESOLUTION_TEXT_LENGTH = 1_000
 MAX_CONTEXT_RESOLUTION_VALUE_LENGTH = 4_000
+MAX_CONTEXT_RESOLUTION_PRESENTATION_ROW_COUNT = 100
+MAX_CONTEXT_RESOLUTION_PRESENTATION_CELL_COUNT = 16
 
 
 def _empty_int_list() -> list[int]:
@@ -408,6 +410,15 @@ class PipelineRunContextResolutionAttributeSchema(BaseModel):
     )
     confidence_before: float | None = Field(default=None, ge=0, le=1)
     confidence_after: float | None = Field(default=None, ge=0, le=1)
+    presentation_rows: list[
+        Annotated[
+            list[Annotated[str, Field(max_length=MAX_CONTEXT_RESOLUTION_TEXT_LENGTH)]],
+            Field(max_length=MAX_CONTEXT_RESOLUTION_PRESENTATION_CELL_COUNT),
+        ]
+    ] = Field(
+        default_factory=list[list[str]],
+        max_length=MAX_CONTEXT_RESOLUTION_PRESENTATION_ROW_COUNT,
+    )
 
 
 class PipelineRunContextResolutionResultSchema(BaseModel):

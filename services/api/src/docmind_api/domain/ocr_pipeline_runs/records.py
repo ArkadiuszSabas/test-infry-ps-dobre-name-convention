@@ -263,10 +263,14 @@ class OcrPipelineRunList:
     document_id: UUID
     limit: int
     offset: int
-    has_more: bool
+    total: int
 
     @property
     def returned_count(self) -> int:
         """Return the number of runs included in this page."""
 
         return len(self.runs)
+
+    @property
+    def has_more(self) -> bool:
+        return self.offset + self.returned_count < self.total

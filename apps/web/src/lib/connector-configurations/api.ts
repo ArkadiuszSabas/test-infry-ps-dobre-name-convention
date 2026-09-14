@@ -1,4 +1,11 @@
 import { apiFetch } from "@/lib/api/client";
+import {
+  mapListPageMeta,
+  toListSearchParams,
+  type ListPage,
+  type ListPageMetaDto,
+  type ListQuery,
+} from "@/lib/api/list-contract";
 
 export interface ConnectorInstanceDto {
   connector_instance_id: string;
@@ -7,8 +14,12 @@ export interface ConnectorInstanceDto {
   safe_metadata: { label: string; description: string | null };
 }
 
-interface CapabilitiesEnvelope {
+type ConnectorInstanceSortField = "instance_id" | "label" | "status";
+export type ConnectorInstanceListQuery = ListQuery<ConnectorInstanceSortField>;
+
+interface ConnectorInstanceListEnvelopeDto {
   data: { connector_instances: ConnectorInstanceDto[] };
+  meta: ListPageMetaDto;
 }
 
 export interface ConnectorConfiguration {
@@ -72,13 +83,15 @@ interface ConnectorConfigurationTestEnvelope {
   };
 }
 
-export async function listConfigurableConnectorInstances(): Promise<
-  ConnectorInstanceDto[]
-> {
-  const response = await apiFetch<CapabilitiesEnvelope>("/capabilities");
-  return response.data.connector_instances.filter(
-    (item) => item.module_id !== null,
+export async function listConfigurableConnectorInstances(
+  query: ConnectorInstanceListQuery,
+  signal?: AbortSignal,
+): Promise<ListPage<{ connector_instances: ConnectorInstanceDto[] }>> {
+  const response = await apiFetch<ConnectorInstanceListEnvelopeDto>(
+    `/capabilities/connectors?${toListSearchParams(query, () => ({ configurable_only: true }))}`,
+    { signal },
   );
+  return { data: response.data, meta: mapListPageMeta(response.meta) };
 }
 
 export async function getConnectorConfiguration(

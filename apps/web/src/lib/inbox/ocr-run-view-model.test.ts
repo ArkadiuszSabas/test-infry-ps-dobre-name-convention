@@ -24,6 +24,7 @@ test("OCR cancellation response replaces the cached history run immediately", ()
       limit: 20,
       offset: 0,
       returnedCount: 2,
+      total: 2,
     },
   };
   const cancelling = ocrRunFixture({ id: "run-1", status: "cancelling" });

@@ -61,7 +61,11 @@ from docmind_api.application.documents.read_models import (
     DOCUMENT_LIST_DEFAULT_LIMIT,
     DocumentDetail,
     DocumentListItem,
+    DocumentListQuery,
     DocumentListResult,
+    DocumentListSortField,
+    DocumentListSortOrder,
+    DocumentListStatus,
     DocumentPdfPreview,
     ManualUploadMetadataSchema,
 )
@@ -281,6 +285,11 @@ class DocumentRegistryService:
         *,
         source: str | None = None,
         archived: bool | None = None,
+        search: str | None = None,
+        status: str | None = None,
+        document_type_id: UUID | None = None,
+        sort_by: DocumentListSortField = DocumentListSortField.CREATED,
+        sort_order: DocumentListSortOrder = DocumentListSortOrder.DESC,
         limit: int = DOCUMENT_LIST_DEFAULT_LIMIT,
         offset: int = 0,
     ) -> DocumentListResult:
@@ -288,15 +297,23 @@ class DocumentRegistryService:
 
         validate_list_window(limit=limit, offset=offset)
         connector = MANUAL_UPLOAD_CONNECTOR if source == MANUAL_UPLOAD_SOURCE else None
-        documents = await self._repository.list(
+        query = DocumentListQuery(
             source=source,
             connector=connector,
             archived=archived,
-            limit=limit + 1,
+            search=search,
+            status=DocumentListStatus(status) if status is not None else None,
+            document_type_id=document_type_id,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            limit=limit,
             offset=offset,
         )
-        has_more = len(documents) > limit
-        returned_documents = documents[:limit]
+        entries = await self._repository.list(query)
+        total_count = await self._repository.count(query)
+        status_counts = await self._repository.count_statuses(query)
+        document_type_counts = await self._repository.count_document_types(query)
+        returned_documents = tuple(entry.document for entry in entries)
         document_type_details = await self._document_type_details()
         archive_urls = await self._archive_repository.get_succeeded_web_urls(
             tuple(document.id for document in returned_documents),
@@ -304,27 +321,31 @@ class DocumentRegistryService:
         return DocumentListResult(
             items=tuple(
                 DocumentListItem(
-                    document=document,
+                    document=entry.document,
                     document_type_name=document_type_name(
                         document_type_details,
-                        document.document_type_id,
+                        entry.document.document_type_id,
                     ),
                     document_type_external_id=document_type_external_id(
                         document_type_details,
-                        document.document_type_id,
+                        entry.document.document_type_id,
                     ),
-                    archive_url=archive_urls.get(document.id),
+                    archive_url=archive_urls.get(entry.document.id),
                     connector_name=self._connector_catalog.display_name_for(
-                        document.source.source,
-                        document.source.connector,
+                        entry.document.source.source,
+                        entry.document.source.connector,
                     ),
+                    status=entry.status,
                 )
-                for document in returned_documents
+                for entry in entries
             ),
             source=source,
+            total_count=total_count,
+            status_counts=status_counts,
+            document_type_counts=document_type_counts,
             limit=limit,
             offset=offset,
-            has_more=has_more,
+            has_more=offset + len(returned_documents) < total_count,
         )
 
     async def list_manual_upload_document_types(self) -> tuple[DocumentType, ...]:

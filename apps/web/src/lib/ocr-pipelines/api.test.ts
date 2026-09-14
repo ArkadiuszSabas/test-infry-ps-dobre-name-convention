@@ -30,13 +30,27 @@ test("OCR pipeline client maps catalog and pipeline list envelopes", async (t) =
           },
         ],
       },
-      meta: { total_count: 1 },
+      meta: {
+        has_more: false,
+        lifecycle_counts: { archived: 0, draft: 0, published: 1 },
+        limit: 25,
+        offset: 0,
+        returned_count: 1,
+        routing_status: "ready",
+        total: 1,
+      },
     }),
   ]);
   t.after(fetchMock.restore);
 
   const catalog = await ocrPipelinesClient.listBlockCatalog();
-  const pipelines = await ocrPipelinesClient.listPipelines();
+  const pipelines = await ocrPipelinesClient.listPipelines({
+    lifecycle: "all",
+    limit: 25,
+    offset: 0,
+    sortBy: "name",
+    sortDirection: "asc",
+  });
 
   assert.equal(
     catalog.data.blocks[0]?.implementationId,
@@ -48,7 +62,10 @@ test("OCR pipeline client maps catalog and pipeline list envelopes", async (t) =
     fetchMock.calls[0]?.input,
     "/api/docmind/admin/ocr/pipeline-blocks",
   );
-  assert.equal(fetchMock.calls[1]?.input, "/api/docmind/admin/ocr/pipelines");
+  assert.equal(
+    fetchMock.calls[1]?.input,
+    "/api/docmind/admin/ocr/pipelines?limit=25&offset=0&sort_by=name&sort_direction=asc&lifecycle=all",
+  );
 });
 
 test("OCR pipeline client sends CSRF protected create and draft update payloads", async (t) => {

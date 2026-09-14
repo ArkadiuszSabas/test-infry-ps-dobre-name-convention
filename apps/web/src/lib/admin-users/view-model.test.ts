@@ -319,8 +319,17 @@ function invitationEnvelope(): UserInvitationListEnvelope {
       ],
     },
     meta: {
+      acceptedCount: 0,
+      cancelledCount: 0,
       delivery_available: false,
       evaluated_at: NOW,
+      hasMore: false,
+      limit: 50,
+      offset: 0,
+      pendingCount: 2,
+      returnedCount: 2,
+      status: "all",
+      total: 2,
     },
   };
 }
@@ -334,10 +343,17 @@ function managedUserEnvelope(): ManagedUserListEnvelope {
       ],
     },
     meta: {
+      activeCount: 1,
+      deletedCount: 1,
       evaluated_at: NOW,
+      hasMore: false,
       include_deleted: false,
-      returned_count: 2,
-      total_count: 3,
+      inactiveCount: 1,
+      limit: 50,
+      offset: 0,
+      returnedCount: 2,
+      status: "all",
+      total: 3,
     },
   };
 }

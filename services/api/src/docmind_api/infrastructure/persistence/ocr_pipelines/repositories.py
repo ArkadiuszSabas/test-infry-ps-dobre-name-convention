@@ -3,14 +3,22 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
+from docmind_api.application.ocr_pipelines.commands import (
+    ListOcrPipelinesQuery,
+    OcrPipelineDefinitionList,
+    OcrPipelineLifecycleFilter,
+    OcrPipelineSortField,
+)
 from docmind_api.domain.ocr_pipelines.models import (
     OcrPipelineAuditAction,
     OcrPipelineDefinitionRecord,
 )
+from docmind_api.infrastructure.persistence.list_sorting import stable_order_by
 from docmind_api.infrastructure.persistence.ocr_pipelines.repository_operations import (
     add_audit_event,
     clean_actor_id,
@@ -140,12 +148,47 @@ class SqlAlchemyOcrPipelineDefinitionRepository:
             return None
         return await record_from_id(self._session, pipeline_id)
 
-    async def list(self) -> tuple[OcrPipelineDefinitionRecord, ...]:
-        """Return pipelines ordered for administration display."""
+    async def list(self, query: ListOcrPipelinesQuery) -> OcrPipelineDefinitionList:
+        """Filter, sort, and page pipelines in persistence."""
 
-        statement = select(ocr_pipeline_definitions_table).order_by(
-            ocr_pipeline_definitions_table.c.display_name.asc(),
-            ocr_pipeline_definitions_table.c.id.asc(),
+        search_condition = None
+        if query.search is not None:
+            pattern = f"%{query.search}%"
+            search_condition = or_(
+                ocr_pipeline_definitions_table.c.display_name.ilike(pattern),
+                ocr_pipeline_definitions_table.c.description.ilike(pattern),
+            )
+        conditions: list[ColumnElement[bool]] = []
+        if search_condition is not None:
+            conditions.append(search_condition)
+        if query.lifecycle is not OcrPipelineLifecycleFilter.ALL:
+            conditions.append(ocr_pipeline_definitions_table.c.lifecycle == query.lifecycle.value)
+
+        statement = select(ocr_pipeline_definitions_table)
+        count_statement = select(func.count(ocr_pipeline_definitions_table.c.id))
+        if conditions:
+            statement = statement.where(*conditions)
+            count_statement = count_statement.where(*conditions)
+        statement = (
+            statement.order_by(
+                *stable_order_by(
+                    sort_by=query.sort_by,
+                    direction=query.sort_direction,
+                    allowlist={
+                        OcrPipelineSortField.CREATED_AT: (
+                            ocr_pipeline_definitions_table.c.created_at
+                        ),
+                        OcrPipelineSortField.LIFECYCLE: ocr_pipeline_definitions_table.c.lifecycle,
+                        OcrPipelineSortField.NAME: ocr_pipeline_definitions_table.c.display_name,
+                        OcrPipelineSortField.UPDATED_AT: (
+                            ocr_pipeline_definitions_table.c.updated_at
+                        ),
+                    },
+                    identity=ocr_pipeline_definitions_table.c.id,
+                )
+            )
+            .limit(query.limit)
+            .offset(query.offset)
         )
         result = await self._session.execute(statement)
         records: list[OcrPipelineDefinitionRecord] = []
@@ -153,7 +196,54 @@ class SqlAlchemyOcrPipelineDefinitionRepository:
             record = await record_from_definition_row(self._session, row)
             if record is not None:
                 records.append(record)
-        return tuple(records)
+        lifecycle_count_statement = select(
+            ocr_pipeline_definitions_table.c.lifecycle,
+            func.count(ocr_pipeline_definitions_table.c.id),
+        )
+        if search_condition is not None:
+            lifecycle_count_statement = lifecycle_count_statement.where(search_condition)
+        lifecycle_count_statement = lifecycle_count_statement.group_by(
+            ocr_pipeline_definitions_table.c.lifecycle
+        )
+        lifecycle_counts = {
+            "draft": 0,
+            "published": 0,
+            "archived": 0,
+        }
+        for lifecycle, count in (await self._session.execute(lifecycle_count_statement)).all():
+            lifecycle_counts[str(lifecycle)] = int(count)
+
+        global_counts = (
+            await self._session.execute(
+                select(
+                    func.count(ocr_pipeline_definitions_table.c.id),
+                    func.count(ocr_pipeline_definitions_table.c.id).filter(
+                        ocr_pipeline_definitions_table.c.lifecycle == "published"
+                    ),
+                    func.count(ocr_pipeline_definitions_table.c.id).filter(
+                        ocr_pipeline_definitions_table.c.is_default.is_(True)
+                    ),
+                )
+            )
+        ).one()
+        global_total, published_total, default_total = (int(value) for value in global_counts)
+        routing_status = (
+            "noPipelines"
+            if global_total == 0
+            else "noPublished"
+            if published_total == 0
+            else "noDefault"
+            if default_total == 0
+            else "ready"
+        )
+        return OcrPipelineDefinitionList(
+            pipelines=tuple(records),
+            total=int(await self._session.scalar(count_statement) or 0),
+            limit=query.limit,
+            offset=query.offset,
+            lifecycle_counts=lifecycle_counts,
+            routing_status=routing_status,
+        )
 
     async def delete_by_id(
         self,

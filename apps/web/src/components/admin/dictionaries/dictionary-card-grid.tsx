@@ -108,23 +108,7 @@ export function DictionaryCardGrid({
         : [],
     [normalizedSearch, showSystem, t],
   );
-  const visibleCustomDictionaries = useMemo(
-    () =>
-      showCustom
-        ? dictionaries.filter((dictionary) =>
-            matchesDictionarySearch(
-              [
-                dictionary.name,
-                dictionary.externalId,
-                dictionary.description,
-                dictionary.status,
-              ],
-              normalizedSearch,
-            ),
-          )
-        : [],
-    [dictionaries, normalizedSearch, showCustom],
-  );
+  const visibleCustomDictionaries = showCustom ? dictionaries : [];
   const hasVisibleCards =
     visibleSystemEntries.length > 0 ||
     visibleCustomDictionaries.length > 0 ||

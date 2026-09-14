@@ -12,6 +12,7 @@ class DictionaryUsage:
     system_catalog_fields: int = 0
     active_system_catalog_fields: int = 0
     entries: int = 0
+    workspace_bindings: int = 0
 
     def __post_init__(self) -> None:
         for field_name, value in self.as_details().items():
@@ -22,7 +23,12 @@ class DictionaryUsage:
     def has_blocking_dependencies(self) -> bool:
         """Return whether any dependency blocks permanent deletion."""
 
-        return self.attribute_bindings > 0 or self.system_catalog_fields > 0 or self.entries > 0
+        return (
+            self.attribute_bindings > 0
+            or self.system_catalog_fields > 0
+            or self.entries > 0
+            or self.workspace_bindings > 0
+        )
 
     @property
     def blocking_dependencies(self) -> tuple[str, ...]:
@@ -35,6 +41,8 @@ class DictionaryUsage:
             dependencies.append("system_catalog_fields")
         if self.entries:
             dependencies.append("entries")
+        if self.workspace_bindings:
+            dependencies.append("workspace_bindings")
         return tuple(dependencies)
 
     def as_details(self) -> dict[str, int]:
@@ -46,6 +54,7 @@ class DictionaryUsage:
             "system_catalog_fields": self.system_catalog_fields,
             "active_system_catalog_fields": self.active_system_catalog_fields,
             "entries": self.entries,
+            "workspace_bindings": self.workspace_bindings,
         }
 
 
@@ -55,6 +64,7 @@ class DictionaryEntryUsage:
 
     document_metadata_values: int = 0
     document_type_extension_values: int = 0
+    workspace_bindings: int = 0
 
     def __post_init__(self) -> None:
         for field_name, value in self.as_details().items():
@@ -65,7 +75,11 @@ class DictionaryEntryUsage:
     def has_blocking_dependencies(self) -> bool:
         """Return whether any dependency blocks permanent deletion."""
 
-        return self.document_metadata_values > 0 or self.document_type_extension_values > 0
+        return (
+            self.document_metadata_values > 0
+            or self.document_type_extension_values > 0
+            or self.workspace_bindings > 0
+        )
 
     @property
     def blocking_dependencies(self) -> tuple[str, ...]:
@@ -76,6 +90,8 @@ class DictionaryEntryUsage:
             dependencies.append("document_metadata_values")
         if self.document_type_extension_values:
             dependencies.append("document_type_extension_values")
+        if self.workspace_bindings:
+            dependencies.append("workspace_bindings")
         return tuple(dependencies)
 
     def as_details(self) -> dict[str, int]:
@@ -84,4 +100,5 @@ class DictionaryEntryUsage:
         return {
             "document_metadata_values": self.document_metadata_values,
             "document_type_extension_values": self.document_type_extension_values,
+            "workspace_bindings": self.workspace_bindings,
         }

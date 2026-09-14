@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminOcrRunsClient } from "@/lib/admin-ocr-runs/api";
-import { adminOcrRunQueryKeys } from "@/lib/admin-ocr-runs/query-options";
+import { invalidateAdminOcrRunLists } from "@/lib/admin-ocr-runs/query-options";
 import type { AdminOcrRunSummaryDto } from "@/lib/admin-ocr-runs/types";
 
 export type QueueFeedback =
@@ -46,9 +46,7 @@ export function useAdminOcrRunQueueActions() {
     },
     onSuccess: async () => {
       setFeedback({ failed: 0, kind: "success", queued: 1 });
-      await queryClient.invalidateQueries({
-        queryKey: adminOcrRunQueryKeys.lists(),
-      });
+      await invalidateAdminOcrRunLists(queryClient);
     },
     onError: () => setFeedback({ failed: 1, kind: "error", queued: 0 }),
     onSettled: (_data, _error, { run }) => {
@@ -98,9 +96,7 @@ export function useAdminOcrRunQueueActions() {
         return next;
       });
       if (queued > 0) {
-        await queryClient.invalidateQueries({
-          queryKey: adminOcrRunQueryKeys.lists(),
-        });
+        await invalidateAdminOcrRunLists(queryClient);
       }
     },
     onError: (_error, { runs }) =>

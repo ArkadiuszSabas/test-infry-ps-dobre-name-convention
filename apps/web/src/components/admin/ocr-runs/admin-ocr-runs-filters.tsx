@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/data-list-filters";
 import { Input } from "@/components/ui/input";
 import type {
-  AdminOcrRunSummaryDto,
+  AdminOcrRunFacetsDto,
   OcrRunStatus,
   PublishedOcrPipelineOption,
 } from "@/lib/admin-ocr-runs/types";
@@ -25,11 +25,8 @@ import {
   type AdminOcrRunDatePreset,
   type AdminOcrRunUrlState,
   adminOcrRunStatusesByView,
-  buildConnectorFilterOptions,
   buildPipelineFilterOptions,
-  buildSourceFilterOptions,
   getAdminOcrRunDatePresetRange,
-  getAdminOcrRunStatusCount,
 } from "@/lib/admin-ocr-runs/view-model";
 import type { SystemCatalogOption } from "@/lib/system-catalogs/types";
 
@@ -42,17 +39,17 @@ interface AdminOcrRunsFiltersProps {
   onChange: (patch: Partial<AdminOcrRunUrlState>) => void;
   pipelines: readonly PublishedOcrPipelineOption[];
   pipelinesLoading: boolean;
-  runs: readonly AdminOcrRunSummaryDto[];
+  facets?: AdminOcrRunFacetsDto;
   state: AdminOcrRunUrlState;
 }
 
 export function AdminOcrRunsFilters({
   documentTypes,
   documentTypesLoading,
+  facets,
   onChange,
   pipelines,
   pipelinesLoading,
-  runs,
   state,
 }: AdminOcrRunsFiltersProps) {
   const t = useTranslations("AdminOcrRuns");
@@ -76,12 +73,12 @@ export function AdminOcrRunsFilters({
         }
         options={[
           {
-            count: getAdminOcrRunStatusCount(runs),
+            count: facets?.status_total,
             label: t("filters.allStatuses"),
             value: ALL_VALUE,
           },
           ...statuses.map((status) => ({
-            count: getAdminOcrRunStatusCount(runs, status),
+            count: facets?.status_counts[status],
             label: t(`statuses.${status}`),
             value: status,
           })),
@@ -142,7 +139,7 @@ export function AdminOcrRunsFilters({
         }
         options={[
           { label: t("filters.allSources"), value: ALL_VALUE },
-          ...buildSourceFilterOptions(runs, state.source),
+          ...facetOptions(facets?.sources, state.source),
         ]}
         placeholder={t("filters.allSources")}
         searchPlaceholder={t("filters.searchOptions")}
@@ -159,7 +156,7 @@ export function AdminOcrRunsFilters({
         }
         options={[
           { label: t("filters.allConnectors"), value: ALL_VALUE },
-          ...buildConnectorFilterOptions(runs, state.connector),
+          ...facetOptions(facets?.connectors, state.connector),
         ]}
         placeholder={t("filters.allConnectors")}
         searchPlaceholder={t("filters.searchOptions")}
@@ -195,6 +192,19 @@ export function AdminOcrRunsFilters({
       />
     </DataListFilters>
   );
+}
+
+function facetOptions(
+  options: readonly { label: string; value: string }[] | undefined,
+  selected?: string,
+) {
+  const byValue = new Map(
+    (options ?? []).map((option) => [option.value, option]),
+  );
+  if (selected && !byValue.has(selected)) {
+    byValue.set(selected, { label: selected, value: selected });
+  }
+  return [...byValue.values()];
 }
 
 function DebouncedSearchFilter({

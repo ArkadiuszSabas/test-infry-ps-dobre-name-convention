@@ -271,46 +271,58 @@ export function AttributeDocumentTypeAssignmentsDrawer({
                   </SelectContent>
                 </Select>
                 {(draft[row.documentType.id] ?? row.state) === "required" ? (
-                  <Select
-                    disabled={save.isPending}
-                    value={
-                      missingActions[row.documentType.id] ??
-                      row.missingRequiredAction ??
-                      "block_approval"
-                    }
-                    onValueChange={(value) =>
-                      setMissingActions((current) => {
-                        const original =
-                          row.missingRequiredAction ?? "block_approval";
-                        if (value === original) {
-                          const next = { ...current };
-                          delete next[row.documentType.id];
-                          return next;
-                        }
-                        return {
-                          ...current,
-                          [row.documentType.id]: value as
-                            | "block_approval"
-                            | "require_review",
-                        };
-                      })
-                    }
-                  >
-                    <SelectTrigger
-                      aria-label={t("missingAction")}
-                      className="w-full"
+                  <div className="grid gap-1.5">
+                    <p className="text-sm font-medium">{t("missingAction")}</p>
+                    <Select
+                      disabled={save.isPending}
+                      value={
+                        missingActions[row.documentType.id] ??
+                        row.missingRequiredAction ??
+                        "block_approval"
+                      }
+                      onValueChange={(value) =>
+                        setMissingActions((current) => {
+                          const original =
+                            row.missingRequiredAction ?? "block_approval";
+                          if (value === original) {
+                            const next = { ...current };
+                            delete next[row.documentType.id];
+                            return next;
+                          }
+                          return {
+                            ...current,
+                            [row.documentType.id]: value as
+                              | "block_approval"
+                              | "require_review",
+                          };
+                        })
+                      }
                     >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="block_approval">
-                        {t("blockApproval")}
-                      </SelectItem>
-                      <SelectItem value="require_review">
-                        {t("requireReview")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <SelectTrigger
+                        aria-label={t("missingAction")}
+                        className="w-full"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="block_approval">
+                          {t("blockApproval")}
+                        </SelectItem>
+                        <SelectItem value="require_review">
+                          {t("requireReview")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {t(
+                        (missingActions[row.documentType.id] ??
+                          row.missingRequiredAction ??
+                          "block_approval") === "block_approval"
+                          ? "blockApprovalDescription"
+                          : "requireReviewDescription",
+                      )}
+                    </p>
+                  </div>
                 ) : null}
                 {isMetadata &&
                 (draft[row.documentType.id] ?? row.state) !== "unassigned" ? (

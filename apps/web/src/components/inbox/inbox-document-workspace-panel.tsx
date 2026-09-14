@@ -339,7 +339,10 @@ function DocumentTypeChangeControl({
           queryKey: inboxQueryKeys.documentDetail(document.id),
         }),
         queryClient.invalidateQueries({
-          queryKey: inboxQueryKeys.documentContext(document.id),
+          queryKey: inboxQueryKeys.documentContexts(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: inboxQueryKeys.documentLists(),
         }),
         queryClient.invalidateQueries({
           queryKey: inboxQueryKeys.documentOcrPipelineRuns(document.id),

@@ -103,6 +103,8 @@ export function buildListParams(filters: AdminOcrRunListFilters): string {
     );
   }
   append(params, "search", filters.search);
+  append(params, "sort_by", filters.sortBy);
+  append(params, "sort_direction", filters.sortDirection);
   return params.toString();
 }
 

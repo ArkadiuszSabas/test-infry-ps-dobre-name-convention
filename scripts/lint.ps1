@@ -48,11 +48,16 @@ $RepoRoot = Split-Path -Parent $ScriptRoot
 $PowerShellExecutable = (Get-Process -Id $PID).Path
 $SectionRule = "-" * 80
 $PreviousPyrightGlobalNode = $env:PYRIGHT_PYTHON_GLOBAL_NODE
+$PreviousPyrightForceVersion = $env:PYRIGHT_PYTHON_FORCE_VERSION
 
 # The Python pyright launcher defaults to a global Node.js binary. On Windows it can select
 # WindowsApps or user shim binaries that fail under subprocess with WinError 5. Use pyright's
 # managed nodeenv path so the repository gate is independent of developer PATH ordering.
 $env:PYRIGHT_PYTHON_GLOBAL_NODE = "false"
+
+# The gate treats any warning as a failure. Keep Pyright on its current engine version so its
+# self-update notice cannot turn a clean type check into a failed CI run.
+$env:PYRIGHT_PYTHON_FORCE_VERSION = "latest"
 
 $ConnectorSourcePaths = @(
     "packages/connectors/src"
@@ -741,6 +746,12 @@ finally {
     }
     else {
         $env:PYRIGHT_PYTHON_GLOBAL_NODE = $PreviousPyrightGlobalNode
+    }
+    if ($null -eq $PreviousPyrightForceVersion) {
+        Remove-Item Env:\PYRIGHT_PYTHON_FORCE_VERSION -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:PYRIGHT_PYTHON_FORCE_VERSION = $PreviousPyrightForceVersion
     }
 }
 

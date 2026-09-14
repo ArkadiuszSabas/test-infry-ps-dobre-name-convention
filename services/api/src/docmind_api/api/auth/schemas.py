@@ -6,6 +6,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from docmind_api.api.list_contract import ListPageMeta, ListQueryParams
+from docmind_api.application.auth.invitations import (
+    UserInvitationListStatus,
+    UserInvitationSortField,
+)
+from docmind_api.application.auth.users import ManagedUserListStatus, ManagedUserSortField
 from docmind_api.domain.auth.actors import AuthProvider, Permission, Role
 from docmind_api.domain.auth.invitations import InvitationStatus
 from docmind_api.domain.auth.sessions import SessionRevocationReason, UserSessionStatus
@@ -151,6 +157,13 @@ class UserInvitationCreateRequest(BaseModel):
     roles: list[Role]
 
 
+class UserInvitationListQuery(ListQueryParams[UserInvitationSortField]):
+    """Filtered, sorted, paged invitation list query."""
+
+    sort_by: UserInvitationSortField = UserInvitationSortField.CREATED_AT
+    status: UserInvitationListStatus = UserInvitationListStatus.ALL
+
+
 class UserInvitationSchema(BaseModel):
     """HTTP schema for an admin-managed user invitation."""
 
@@ -169,7 +182,7 @@ class UserInvitationSchema(BaseModel):
 
 
 class UserInvitationListSchema(BaseModel):
-    """HTTP schema returned when listing pending invitations."""
+    """HTTP schema returned when listing invitations."""
 
     invitations: list[UserInvitationSchema]
 
@@ -181,11 +194,22 @@ class UserInvitationEnvelope(BaseModel):
     meta: dict[str, datetime | bool] = Field(default_factory=dict)
 
 
+class UserInvitationListMetaSchema(ListPageMeta):
+    """HTTP metadata for admin-managed invitation lists."""
+
+    delivery_available: bool
+    evaluated_at: datetime
+    pending_count: int
+    cancelled_count: int
+    accepted_count: int
+    status: UserInvitationListStatus
+
+
 class UserInvitationListEnvelope(BaseModel):
     """Standard API response envelope for invitation lists."""
 
     data: UserInvitationListSchema
-    meta: dict[str, datetime | bool] = Field(default_factory=dict)
+    meta: UserInvitationListMetaSchema
 
 
 class ManagedUserSchema(BaseModel):
@@ -208,19 +232,29 @@ class ManagedUserWritableStatus(StrEnum):
     INACTIVE = UserStatus.INACTIVE.value
 
 
+class ManagedUserListQuery(ListQueryParams[ManagedUserSortField]):
+    """Filtered, sorted, paged managed-user list query."""
+
+    sort_by: ManagedUserSortField = ManagedUserSortField.DISPLAY_NAME
+    status: ManagedUserListStatus = ManagedUserListStatus.ALL
+    include_deleted: bool = False
+
+
 class ManagedUserListSchema(BaseModel):
     """HTTP schema returned when listing admin-managed users."""
 
     users: list[ManagedUserSchema]
 
 
-class ManagedUserListMetaSchema(BaseModel):
+class ManagedUserListMetaSchema(ListPageMeta):
     """HTTP metadata for admin-managed user lists."""
 
     evaluated_at: datetime
-    total_count: int
-    returned_count: int
     include_deleted: bool
+    active_count: int
+    inactive_count: int
+    deleted_count: int
+    status: ManagedUserListStatus
 
 
 class ManagedUserOperationMetaSchema(BaseModel):

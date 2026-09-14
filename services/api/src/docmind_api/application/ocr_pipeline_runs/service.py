@@ -210,6 +210,10 @@ class OcrPipelineRunService:
             query.document_id,
             limit=query.limit,
             offset=query.offset,
+            search=query.search,
+            status=query.status,
+            sort_by=query.sort_by,
+            sort_direction=query.sort_direction,
         )
 
     async def _get_run(self, run_id: UUID | str) -> OcrPipelineRunRecord:

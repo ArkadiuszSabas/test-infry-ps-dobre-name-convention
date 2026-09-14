@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass
 from importlib.util import find_spec
@@ -14,6 +13,12 @@ from docmind_core.connectors.profiles import (
     ProfileManifest,
     ProfileValidationError,
     manifest_to_mapping,
+)
+from docmind_core.connectors.source_package_scan import (
+    contains_forbidden_term,
+    is_probably_binary,
+    normalize_for_scan,
+    normalized_terms,
 )
 
 
@@ -285,11 +290,11 @@ def _scan_metadata_entries(
     forbidden_terms: tuple[str, ...],
 ) -> tuple[SourcePackageScanViolation, ...]:
     violations: list[SourcePackageScanViolation] = []
-    normalized_terms = _normalized_terms(forbidden_terms)
+    terms_for_scan = normalized_terms(forbidden_terms)
     for entry in entries:
-        normalized_path = _normalize_for_scan(entry.path)
-        for raw_term, normalized_term in normalized_terms:
-            if normalized_term and normalized_term in normalized_path:
+        normalized_path = normalize_for_scan(entry.path)
+        for raw_term, normalized_term in terms_for_scan:
+            if contains_forbidden_term(normalized_path, normalized_term):
                 violations.append(
                     SourcePackageScanViolation(
                         path=entry.path,
@@ -298,9 +303,9 @@ def _scan_metadata_entries(
                     ),
                 )
         for line_number, line in enumerate(entry.content.splitlines(), start=1):
-            normalized_line = _normalize_for_scan(line)
-            for raw_term, normalized_term in normalized_terms:
-                if normalized_term and normalized_term in normalized_line:
+            normalized_line = normalize_for_scan(line)
+            for raw_term, normalized_term in terms_for_scan:
+                if contains_forbidden_term(normalized_line, normalized_term):
                     violations.append(
                         SourcePackageScanViolation(
                             path=entry.path,
@@ -311,15 +316,6 @@ def _scan_metadata_entries(
     return tuple(violations)
 
 
-def _normalized_terms(forbidden_terms: tuple[str, ...]) -> tuple[tuple[str, str], ...]:
-    return tuple((term, _normalize_for_scan(term)) for term in forbidden_terms if term)
-
-
-def _normalize_for_scan(value: str) -> str:
-    normalized = unicodedata.normalize("NFKD", value.casefold())
-    return "".join(character for character in normalized if not unicodedata.combining(character))
-
-
 def _scan_files(
     *,
     repo_root: Path,
@@ -327,12 +323,12 @@ def _scan_files(
     forbidden_terms: tuple[str, ...],
 ) -> tuple[SourcePackageScanViolation, ...]:
     violations: list[SourcePackageScanViolation] = []
-    normalized_terms = _normalized_terms(forbidden_terms)
+    terms_for_scan = normalized_terms(forbidden_terms)
     for relative_path in files:
         path_text = relative_path.as_posix()
-        normalized_path = _normalize_for_scan(path_text)
-        for raw_term, normalized_term in normalized_terms:
-            if normalized_term and normalized_term in normalized_path:
+        normalized_path = normalize_for_scan(path_text)
+        for raw_term, normalized_term in terms_for_scan:
+            if contains_forbidden_term(normalized_path, normalized_term):
                 violations.append(
                     SourcePackageScanViolation(
                         path=path_text,
@@ -340,11 +336,17 @@ def _scan_files(
                         location="path",
                     ),
                 )
-        content = (repo_root / relative_path).read_text(encoding="utf-8", errors="ignore")
+        raw_content = (repo_root / relative_path).read_bytes()
+        content = raw_content.decode(encoding="utf-8", errors="ignore")
+        scan_short_aliases = not is_probably_binary(raw_content)
         for line_number, line in enumerate(content.splitlines(), start=1):
-            normalized_line = _normalize_for_scan(line)
-            for raw_term, normalized_term in normalized_terms:
-                if normalized_term and normalized_term in normalized_line:
+            normalized_line = normalize_for_scan(line)
+            for raw_term, normalized_term in terms_for_scan:
+                if contains_forbidden_term(
+                    normalized_line,
+                    normalized_term,
+                    scan_short_aliases=scan_short_aliases,
+                ):
                     violations.append(
                         SourcePackageScanViolation(
                             path=path_text,
@@ -379,9 +381,7 @@ def _expand_include_paths(*, repo_root: Path, include_paths: tuple[str, ...]) ->
 
 
 def _is_source_snapshot_file(path: Path) -> bool:
-    if path.suffix in {".pyc", ".pyo"}:
-        return False
-    return "__pycache__" not in path.parts
+    return path.suffix not in {".pyc", ".pyo"} and "__pycache__" not in path.parts
 
 
 def raise_for_source_snapshot_violations(snapshot: SourceSnapshotManifest) -> None:

@@ -21,6 +21,7 @@ from docmind_api.bootstrap.routes.ocr_pipeline_runs import get_ocr_pipeline_runs
 from docmind_api.bootstrap.routes.ocr_pipelines import get_ocr_pipelines_router
 from docmind_api.bootstrap.routes.system import get_system_router
 from docmind_api.bootstrap.routes.system_catalogs import get_system_catalogs_router
+from docmind_api.bootstrap.routes.workspaces import get_workspaces_router
 from docmind_api.settings import BrowserSecuritySettings
 from docmind_backend_runtime import RuntimeSettings
 
@@ -43,6 +44,7 @@ def get_api_routers(
         get_attribute_requirements_router(browser_security_settings=browser_security_settings),
         get_attributes_router(browser_security_settings=browser_security_settings),
         get_dictionaries_router(browser_security_settings=browser_security_settings),
+        get_workspaces_router(browser_security_settings=browser_security_settings),
         get_system_catalogs_router(browser_security_settings=browser_security_settings),
         get_dashboard_router(),
         get_documents_router(browser_security_settings=browser_security_settings),

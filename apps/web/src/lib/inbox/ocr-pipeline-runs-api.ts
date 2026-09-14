@@ -1,8 +1,10 @@
 import { apiFetch } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta, toListSearchParams } from "@/lib/api/list-contract";
 
 import type {
   OcrPipelineRun,
+  DocumentOcrRunListQuery,
   OcrPipelineRunDto,
   OcrPipelineRunEnvelopeDto,
   OcrPipelineRunListEnvelope,
@@ -31,6 +33,10 @@ interface OcrPipelineRunRequestOptions {
 export interface OcrPipelineRunListRequestOptions extends OcrPipelineRunRequestOptions {
   limit?: number;
   offset?: number;
+  search?: string;
+  sortBy?: DocumentOcrRunListQuery["sortBy"];
+  sortDirection?: DocumentOcrRunListQuery["sortDirection"];
+  status?: DocumentOcrRunListQuery["status"];
 }
 
 export const ocrPipelineRunClient = {
@@ -79,10 +85,17 @@ export const ocrPipelineRunClient = {
     documentId: string,
     options: OcrPipelineRunListRequestOptions = {},
   ): Promise<OcrPipelineRunListEnvelope> {
-    const params = new URLSearchParams({
-      limit: String(options.limit ?? OCR_PIPELINE_RUN_LIST_LIMIT),
-      offset: String(options.offset ?? 0),
-    });
+    const params = toListSearchParams(
+      {
+        limit: options.limit ?? OCR_PIPELINE_RUN_LIST_LIMIT,
+        offset: options.offset ?? 0,
+        search: options.search,
+        sortBy: options.sortBy ?? "created_at",
+        sortDirection: options.sortDirection ?? "desc",
+        status: options.status,
+      },
+      (query) => ({ status: query.status }),
+    );
 
     return mapOcrPipelineRunListEnvelope(
       await apiFetch<OcrPipelineRunListEnvelopeDto>(
@@ -169,11 +182,8 @@ function mapOcrPipelineRunListEnvelope(
       runs: envelope.data.runs.map(mapOcrPipelineRun),
     },
     meta: {
+      ...mapListPageMeta(envelope.meta),
       documentId: envelope.meta.document_id,
-      hasMore: envelope.meta.has_more,
-      limit: envelope.meta.limit,
-      offset: envelope.meta.offset,
-      returnedCount: envelope.meta.returned_count,
     },
   };
 }

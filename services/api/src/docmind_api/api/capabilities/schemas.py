@@ -2,6 +2,9 @@
 
 from pydantic import BaseModel, Field
 
+from docmind_api.api.list_contract import ListPageMeta, ListQueryParams
+from docmind_api.application.capabilities.service import ConnectorInstanceSortField
+
 
 class SafeMetadataSchema(BaseModel):
     """Display-safe metadata exposed to API/UI clients."""
@@ -74,3 +77,23 @@ class CapabilityRegistryEnvelope(BaseModel):
 
     data: CapabilityRegistrySchema
     meta: CapabilityRegistryMetaSchema
+
+
+class ConnectorInstanceListData(BaseModel):
+    """Page data for configurable connector instances."""
+
+    connector_instances: list[ConnectorInstanceSchema]
+
+
+class ConnectorInstanceListEnvelope(BaseModel):
+    """Shared list envelope for connector administration."""
+
+    data: ConnectorInstanceListData
+    meta: ListPageMeta
+
+
+class ConnectorInstanceListQuery(ListQueryParams[ConnectorInstanceSortField]):
+    """Validated connector-instance list transport query."""
+
+    sort_by: ConnectorInstanceSortField = ConnectorInstanceSortField.LABEL
+    configurable_only: bool = True

@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { DictionaryStatusFilter } from "@/lib/admin-settings/types";
+import type { DictionaryEntrySortField } from "@/lib/admin-settings/dictionary-api";
+import type { SortState } from "@/lib/collection-view";
 
 import {
   isDictionaryStatusFilter,
@@ -14,6 +16,10 @@ export function useDictionaryEntryFilters() {
   const [status, setStatus] = useState<DictionaryStatusFilter>("active");
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<SortState<DictionaryEntrySortField>>({
+    column: "sort_order",
+    direction: "asc",
+  });
   const debouncedSearch = useDebouncedValue(search, 250);
   const normalizedSearch = normalizeDictionaryEntrySearch(debouncedSearch);
 
@@ -29,13 +35,20 @@ export function useDictionaryEntryFilters() {
     setSearch(value);
   }
 
+  function handleSortChange(value: SortState<DictionaryEntrySortField>) {
+    setOffset(0);
+    setSort(value);
+  }
+
   return {
     handleSearchChange,
+    handleSortChange,
     handleStatusChange,
     normalizedSearch,
     offset,
     search,
     setOffset,
+    sort,
     status,
   };
 }

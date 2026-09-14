@@ -27,6 +27,7 @@ next-env.d.ts
 out/
 dist/
 coverage/
+.local/
 .turbo/
 
 # IDE and OS

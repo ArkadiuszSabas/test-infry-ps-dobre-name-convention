@@ -10,6 +10,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { DocumentDeletionDialog } from "@/components/inbox/document-deletion-dialog";
@@ -50,6 +51,7 @@ import {
   documentOcrPipelineRunsQueryOptions,
   inboxQueryKeys,
 } from "@/lib/inbox/query-options";
+import { parseInboxDocumentListUrlState } from "@/lib/inbox/list-view";
 import type { InboxDocument, OcrPipelineRunStatus } from "@/lib/inbox/types";
 import {
   documentReviewQueryOptions,
@@ -91,6 +93,7 @@ export function InboxDocumentDetailPage({
   const format = useFormatter();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { actor } = useCurrentActor();
   const [isDeletionDialogOpen, setIsDeletionDialogOpen] = useState(false);
   const [selectedReviewSources, setSelectedReviewSources] = useState<{
@@ -105,11 +108,15 @@ export function InboxDocumentDetailPage({
   } | null>(null);
   const isArchive = mode === "archive";
   const collectionPath = isArchive ? "/archive" : "/documents";
+  const collectionHref = `${collectionPath}${
+    searchParams.size ? `?${searchParams.toString()}` : ""
+  }`;
+  const listState = parseInboxDocumentListUrlState(searchParams, isArchive);
   const documentsQuery = useQuery({
-    queryKey: inboxQueryKeys.documentContext(documentId, isArchive),
+    queryKey: inboxQueryKeys.documentContext(documentId, listState),
     queryFn: ({ signal }) =>
       inboxClient.findDocumentContext(documentId, {
-        archived: isArchive,
+        ...listState,
         signal,
       }),
     retry: false,
@@ -272,7 +279,7 @@ export function InboxDocumentDetailPage({
     <PageShell
       className="max-w-[1520px]"
       navigation={
-        <PageBackLink href={collectionPath}>
+        <PageBackLink href={collectionHref}>
           {isArchive ? archive("back") : t("detail.back")}
         </PageBackLink>
       }
@@ -301,11 +308,13 @@ export function InboxDocumentDetailPage({
             </Badge>
             <NavigationButton
               basePath={collectionPath}
+              listSearch={searchParams.toString()}
               direction="previous"
               document={previousDocument}
             />
             <NavigationButton
               basePath={collectionPath}
+              listSearch={searchParams.toString()}
               direction="next"
               document={nextDocument}
             />
@@ -371,7 +380,7 @@ export function InboxDocumentDetailPage({
           await queryClient.invalidateQueries({
             queryKey: inboxQueryKeys.documents(),
           });
-          router.push(collectionPath);
+          router.push(collectionHref);
         }}
         onOpenChange={setIsDeletionDialogOpen}
         open={isDeletionDialogOpen}
@@ -413,12 +422,14 @@ interface NavigationButtonProps {
   basePath: "/archive" | "/documents";
   direction: "previous" | "next";
   document: InboxDocument | null;
+  listSearch: string;
 }
 
 function NavigationButton({
   basePath,
   direction,
   document,
+  listSearch,
 }: NavigationButtonProps) {
   const t = useTranslations("Inbox.detail");
   const review = useTranslations("ReviewWorkspace.navigation");
@@ -442,7 +453,10 @@ function NavigationButton({
 
   return (
     <Button asChild size="sm" variant="ghost">
-      <Link aria-label={ariaLabel} href={`${basePath}/${document.id}`}>
+      <Link
+        aria-label={ariaLabel}
+        href={`${basePath}/${document.id}${listSearch ? `?${listSearch}` : ""}`}
+      >
         {isPrevious ? <ChevronLeftIcon data-icon="inline-start" /> : null}
         {label}
         {!isPrevious ? <ChevronRightIcon data-icon="inline-end" /> : null}

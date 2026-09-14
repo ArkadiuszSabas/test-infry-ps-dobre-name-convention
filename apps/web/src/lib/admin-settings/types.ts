@@ -1,19 +1,18 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type { ListPageMeta, ListPageMetaDto } from "@/lib/api/list-contract";
 import type { SystemCatalogExtensionValueType } from "@/lib/system-catalogs/types";
 
 export type CatalogStatus = "active" | "inactive";
 export type CatalogStatusFilter = CatalogStatus | "all";
 
-export interface CatalogListMetaDto {
-  total_count: number;
+export interface CatalogListMetaDto extends ListPageMetaDto {
   active_count: number;
   inactive_count: number;
   returned_count: number;
   status: CatalogStatusFilter;
 }
 
-export interface CatalogListMeta {
-  totalCount: number;
+export interface CatalogListMeta extends ListPageMeta {
   activeCount: number;
   inactiveCount: number;
   returnedCount: number;
@@ -240,14 +239,20 @@ export interface AttributeListData {
   attributes: AttributeDefinition[];
 }
 
-export interface AttributeListMetaDto {
-  total_count: number;
+export interface AttributeListMetaDto extends ListPageMetaDto {
   category_counts: AttributeCategoryCount[];
+  status: AttributeStatusFilter;
+  catalog_count: number;
+  active_count: number;
+  inactive_count: number;
 }
 
-export interface AttributeListMeta {
-  totalCount: number;
+export interface AttributeListMeta extends ListPageMeta {
   categoryCounts: AttributeCategoryCount[];
+  status: AttributeStatusFilter;
+  catalogCount: number;
+  activeCount: number;
+  inactiveCount: number;
 }
 
 interface AttributeWriteInput {

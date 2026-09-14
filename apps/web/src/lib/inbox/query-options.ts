@@ -1,18 +1,41 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 
 import {
   inboxClient,
   INBOX_DOCUMENT_LIST_LIMIT,
   OCR_PIPELINE_RUN_HISTORY_LIMIT,
 } from "./api";
+import type { InboxDocumentListQuery } from "./types";
+
+function defaultDocumentListQuery(archived = false): InboxDocumentListQuery {
+  return {
+    archived,
+    limit: INBOX_DOCUMENT_LIST_LIMIT,
+    offset: 0,
+    sortBy: "created",
+    sortDirection: "desc",
+  };
+}
 
 export const inboxQueryKeys = {
   all: ["inbox"] as const,
   documents: () => [...inboxQueryKeys.all, "documents"] as const,
-  documentList: (archived = false) =>
-    [...inboxQueryKeys.documents(), "list", { archived }] as const,
-  documentContext: (documentId: string, archived = false) =>
-    [...inboxQueryKeys.documentList(archived), "context", documentId] as const,
+  documentLists: () => [...inboxQueryKeys.documents(), "list"] as const,
+  documentContexts: () => [...inboxQueryKeys.documents(), "context"] as const,
+  documentList: (query: InboxDocumentListQuery | boolean = false) =>
+    [
+      ...inboxQueryKeys.documentLists(),
+      typeof query === "boolean" ? defaultDocumentListQuery(query) : query,
+    ] as const,
+  documentContext: (
+    documentId: string,
+    query: InboxDocumentListQuery | boolean = false,
+  ) =>
+    [
+      ...inboxQueryKeys.documentContexts(),
+      documentId,
+      typeof query === "boolean" ? defaultDocumentListQuery(query) : query,
+    ] as const,
   documentDetail: (documentId: string) =>
     [...inboxQueryKeys.documents(), "detail", documentId] as const,
   ocrPipelineRuns: () => [...inboxQueryKeys.all, "ocr-pipeline-runs"] as const,
@@ -20,6 +43,15 @@ export const inboxQueryKeys = {
     [...inboxQueryKeys.ocrPipelineRuns(), "published-pipelines"] as const,
   documentOcrPipelineRuns: (documentId: string) =>
     [...inboxQueryKeys.ocrPipelineRuns(), "document", documentId] as const,
+  documentOcrPipelineRunsPage: (
+    documentId: string,
+    query: {
+      limit: number;
+      offset: number;
+      sortBy: string;
+      sortDirection: string;
+    },
+  ) => [...inboxQueryKeys.documentOcrPipelineRuns(documentId), query] as const,
   ocrPipelineRun: (runId: string) =>
     [...inboxQueryKeys.ocrPipelineRuns(), "run", runId] as const,
   ocrPipelineRunResult: (runId: string) =>
@@ -48,21 +80,19 @@ export const inboxQueryKeys = {
     ] as const,
 };
 
-export function inboxDocumentsQueryOptions(archived = false) {
-  return infiniteQueryOptions({
-    queryKey: inboxQueryKeys.documentList(archived),
-    queryFn: ({ pageParam, signal }) =>
+export function inboxDocumentsQueryOptions(
+  query: InboxDocumentListQuery | boolean = false,
+) {
+  const listQuery =
+    typeof query === "boolean" ? defaultDocumentListQuery(query) : query;
+
+  return queryOptions({
+    queryKey: inboxQueryKeys.documentList(listQuery),
+    queryFn: ({ signal }) =>
       inboxClient.listDocuments({
-        archived,
-        limit: INBOX_DOCUMENT_LIST_LIMIT,
-        offset: pageParam,
+        ...listQuery,
         signal,
       }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) =>
-      lastPage.meta.hasMore && lastPage.meta.returnedCount > 0
-        ? lastPage.meta.offset + lastPage.meta.returnedCount
-        : undefined,
     retry: false,
   });
 }
@@ -149,16 +179,23 @@ export function dictionaryLookupEntryQueryOptions(
 export function documentOcrPipelineRunsQueryOptions(
   documentId: string,
   enabled = true,
+  offset = 0,
 ) {
+  const query = {
+    limit: OCR_PIPELINE_RUN_HISTORY_LIMIT,
+    offset,
+    sortBy: "created_at" as const,
+    sortDirection: "desc" as const,
+  };
   return queryOptions({
     enabled: enabled && Boolean(documentId),
-    queryKey: inboxQueryKeys.documentOcrPipelineRuns(documentId),
+    queryKey: inboxQueryKeys.documentOcrPipelineRunsPage(documentId, query),
     queryFn: ({ signal }) =>
       inboxClient.listDocumentOcrPipelineRuns(documentId, {
-        limit: OCR_PIPELINE_RUN_HISTORY_LIMIT,
-        offset: 0,
+        ...query,
         signal,
       }),
+    placeholderData: (previousData) => previousData,
     retry: false,
   });
 }

@@ -36,7 +36,7 @@ export function useDictionaryEntryFilterCounts({
     );
 
     return (
-      entryCountQueries[queryIndex]?.data?.meta.totalCount ??
+      entryCountQueries[queryIndex]?.data?.meta.total ??
       (filter === status ? activeTotalCount : undefined) ??
       0
     );

@@ -94,6 +94,20 @@ class RuntimePoliciesProfile:
 
 
 @dataclass(frozen=True, slots=True)
+class WorkspaceDirectoryProfile:
+    """Profile-selected dynamic directory for workspace registration."""
+
+    dictionary_external_id: str
+    administration_enabled: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.dictionary_external_id.strip():
+            raise ProfileValidationError(
+                "workspace_directory.dictionary_external_id must not be empty.",
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class DeploymentProfile:
     """Versioned deployment profile loaded from `deployments/<profile>/profile.yml`."""
 
@@ -107,6 +121,7 @@ class DeploymentProfile:
     migration_bundles: tuple[ConnectorMigrationBundleDescriptor, ...] = ()
     source_package: SourcePackageProfile = field(default_factory=SourcePackageProfile)
     runtime_policies: RuntimePoliciesProfile = field(default_factory=RuntimePoliciesProfile)
+    workspace_directory: WorkspaceDirectoryProfile | None = None
 
     def __post_init__(self) -> None:
         if self.schema_version != SUPPORTED_PROFILE_SCHEMA_VERSION:
@@ -139,6 +154,7 @@ class ProfileManifest:
     migration_bundles: tuple[ConnectorMigrationBundleDescriptor, ...]
     source_package: SourcePackageProfile
     runtime_policies: RuntimePoliciesProfile
+    workspace_directory: WorkspaceDirectoryProfile | None = None
 
 
 ConnectorModuleLoader = Callable[[str], ConnectorModuleDescriptor]
@@ -196,6 +212,7 @@ def deployment_profile_to_mapping(
             for bundle in profile.migration_bundles
         ],
         "runtime_policies": _runtime_policies_to_mapping(profile.runtime_policies),
+        "workspace_directory": _workspace_directory_to_mapping(profile.workspace_directory),
     }
     if include_source_package:
         payload["source_package"] = {
@@ -238,6 +255,9 @@ def deployment_profile_from_mapping(payload: Mapping[str, object]) -> Deployment
     runtime_policies = _runtime_policies_from_mapping(
         _optional_mapping(payload.get("runtime_policies")),
     )
+    workspace_directory = _workspace_directory_from_mapping(
+        _optional_mapping(payload.get("workspace_directory")),
+    )
 
     profile = DeploymentProfile(
         schema_version=schema_version,
@@ -250,6 +270,7 @@ def deployment_profile_from_mapping(payload: Mapping[str, object]) -> Deployment
         migration_bundles=migration_bundles,
         source_package=source_package,
         runtime_policies=runtime_policies,
+        workspace_directory=workspace_directory,
     )
     _validate_profile_references(profile)
     return profile
@@ -291,6 +312,7 @@ def generate_profile_manifest(
             migration_bundles=profile.migration_bundles,
             source_package=profile.source_package,
             runtime_policies=profile.runtime_policies,
+            workspace_directory=profile.workspace_directory,
         ),
     )
     _validate_module_descriptors(
@@ -340,6 +362,7 @@ def generate_profile_manifest(
         migration_bundles=migration_bundles,
         source_package=profile.source_package,
         runtime_policies=profile.runtime_policies,
+        workspace_directory=profile.workspace_directory,
     )
 
 
@@ -433,6 +456,7 @@ def manifest_to_mapping(manifest: ProfileManifest) -> Mapping[str, object]:
             for bundle in manifest.migration_bundles
         ],
         "runtime_policies": _runtime_policies_to_mapping(manifest.runtime_policies),
+        "workspace_directory": _workspace_directory_to_mapping(manifest.workspace_directory),
     }
 
 
@@ -943,6 +967,17 @@ def _runtime_policies_from_mapping(payload: Mapping[str, object]) -> RuntimePoli
     )
 
 
+def _workspace_directory_from_mapping(
+    payload: Mapping[str, object],
+) -> WorkspaceDirectoryProfile | None:
+    if not payload:
+        return None
+    return WorkspaceDirectoryProfile(
+        dictionary_external_id=_required_str(payload, "dictionary_external_id"),
+        administration_enabled=_optional_bool(payload, "administration_enabled", default=False),
+    )
+
+
 def _safe_metadata_from_mapping(payload: Mapping[str, object]) -> SafeMetadata:
     metadata = _optional_mapping(payload.get("safe_metadata"))
     label = _optional_str(metadata, "label") or _required_str(payload, "display_name")
@@ -1015,6 +1050,17 @@ def _runtime_policies_to_mapping(policies: RuntimePoliciesProfile) -> Mapping[st
             "kind": _METADATA_BOOLEAN_MAKES_ALL_OPTIONAL,
             "trigger_metadata_key": policy.trigger_metadata_key,
         },
+    }
+
+
+def _workspace_directory_to_mapping(
+    directory: WorkspaceDirectoryProfile | None,
+) -> Mapping[str, object]:
+    if directory is None:
+        return {}
+    return {
+        "dictionary_external_id": directory.dictionary_external_id,
+        "administration_enabled": directory.administration_enabled,
     }
 
 

@@ -44,7 +44,7 @@ jobs:
           TF_REF_PROTECTED: ${{ github.ref_protected }}
         run: |
           case "$TF_ENVIRONMENT" in
-            dev|uat|prd) ;;
+            dev|test|prod) ;;
             *) echo "::error::Unsupported environment: $TF_ENVIRONMENT"; exit 1 ;;
           esac
           test -f "env/${TF_ENVIRONMENT}.tfvars" || {

@@ -5,6 +5,13 @@ from datetime import UTC, datetime
 from threading import RLock
 from uuid import UUID, uuid4
 
+from docmind_api.application.listing import ListRequest, process_bounded_list
+from docmind_api.application.ocr_pipelines.commands import (
+    ListOcrPipelinesQuery,
+    OcrPipelineDefinitionList,
+    OcrPipelineLifecycleFilter,
+    OcrPipelineSortField,
+)
 from docmind_api.domain.attributes.models import ATTRIBUTE_LLM_CONTEXT_MAX_LENGTH
 from docmind_api.domain.ocr_pipelines.models import (
     OcrPipelineAuditAction,
@@ -97,19 +104,81 @@ class InMemoryOcrPipelineDefinitionRepository:
                     return record
         return None
 
-    async def list(self) -> tuple[OcrPipelineDefinitionRecord, ...]:
-        """Return pipelines ordered for administration display."""
+    async def list(self, query: ListOcrPipelinesQuery) -> OcrPipelineDefinitionList:
+        """Apply the list contract to the bounded process-local catalog."""
 
         with self._lock:
-            return tuple(
-                sorted(
-                    self._records.values(),
-                    key=lambda record: (
-                        record.display_definition.name if record.display_definition else "",
-                        str(record.id),
-                    ),
-                ),
+            records = tuple(self._records.values())
+        searched = tuple(
+            record
+            for record in records
+            if query.search is None
+            or query.search.casefold()
+            in " ".join(
+                value
+                for value in (
+                    record.display_definition.name if record.display_definition else "",
+                    record.display_definition.description
+                    if record.display_definition and record.display_definition.description
+                    else "",
+                )
+                if value
+            ).casefold()
+        )
+        lifecycle_counts = {
+            lifecycle.value: sum(record.lifecycle is lifecycle for record in searched)
+            for lifecycle in OcrPipelineLifecycle
+        }
+        scoped = (
+            searched
+            if query.lifecycle is OcrPipelineLifecycleFilter.ALL
+            else tuple(
+                record for record in searched if record.lifecycle.value == query.lifecycle.value
             )
+        )
+        page = process_bounded_list(
+            scoped,
+            request=ListRequest(
+                search=None,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+            search_values=lambda record: (),
+            sort_value=lambda record, field: (
+                record.created_at
+                if field is OcrPipelineSortField.CREATED_AT
+                else record.lifecycle.value
+                if field is OcrPipelineSortField.LIFECYCLE
+                else record.updated_at
+                if field is OcrPipelineSortField.UPDATED_AT
+                else record.display_definition.name
+                if record.display_definition
+                else None
+            ),
+            identity=lambda record: record.id,
+        )
+        published = tuple(
+            record for record in records if record.lifecycle is OcrPipelineLifecycle.PUBLISHED
+        )
+        routing_status = (
+            "noPipelines"
+            if not records
+            else "noPublished"
+            if not published
+            else "noDefault"
+            if not any(record.is_default for record in published)
+            else "ready"
+        )
+        return OcrPipelineDefinitionList(
+            pipelines=page.items,
+            total=page.total,
+            limit=page.limit,
+            offset=page.offset,
+            lifecycle_counts=lifecycle_counts,
+            routing_status=routing_status,
+        )
 
     async def delete_by_id(
         self,

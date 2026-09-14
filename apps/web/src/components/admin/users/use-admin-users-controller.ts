@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { useCurrentActor } from "@/hooks/auth/use-current-actor";
 import { adminUsersClient } from "@/lib/admin-users/api";
+import type { ManagedUserListOptions } from "@/lib/admin-users/api";
 import {
   adminUsersQueryKeys,
   managedUsersQueryOptions,
@@ -37,21 +38,22 @@ type ManagedUserSaveVariables =
 
 interface AdminUsersControllerOptions {
   getPasswordSuccessMessage: (user: ManagedUser) => string;
+  listQuery: Omit<ManagedUserListOptions, "signal" | "csrfToken">;
 }
 
 export function useAdminUsersController({
   getPasswordSuccessMessage,
+  listQuery,
 }: AdminUsersControllerOptions) {
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const { actor } = useCurrentActor();
-  const [includeDeleted, setIncludeDeleted] = useState(false);
   const [formState, setFormState] = useState<ManagedUserFormState | null>(null);
   const [passwordUser, setPasswordUser] = useState<ManagedUser | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [pendingAction, setPendingAction] =
     useState<ConfirmedManagedUserAction | null>(null);
-  const usersQuery = useQuery(managedUsersQueryOptions(includeDeleted));
+  const usersQuery = useQuery(managedUsersQueryOptions(listQuery));
   const users = usersQuery.data?.data.users ?? [];
   const userMetrics = getManagedUserMetrics(usersQuery.data);
 
@@ -165,7 +167,6 @@ export function useAdminUsersController({
     },
     formState,
     handleUserAction,
-    includeDeleted,
     openCreateForm,
     openEditForm,
     passwordMutation,
@@ -178,7 +179,6 @@ export function useAdminUsersController({
         passwordMutation.mutate({ draft, user: passwordUser });
       }
     },
-    toggleIncludeDeleted: () => setIncludeDeleted((current) => !current),
     userActionMutation,
     userMetrics,
     users,

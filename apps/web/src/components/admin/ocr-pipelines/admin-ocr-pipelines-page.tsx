@@ -23,7 +23,11 @@ import {
   DataListPanel,
   DataListToolbar,
 } from "@/components/ui/data-list";
-import { DataListChipFilter } from "@/components/ui/data-list-filters";
+import {
+  DataListChipFilter,
+  DataListSearchFilter,
+} from "@/components/ui/data-list-filters";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { PageBackLink } from "@/components/ui/page-back-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/page-shell";
@@ -40,11 +44,7 @@ import {
   type ConfidenceColorBand,
   type ConfidenceColorSettings,
 } from "@/lib/confidence-colors/types";
-import { getOcrPipelineRoutingStatus } from "@/lib/ocr-pipelines/diagnostics-view-model";
-import {
-  getOcrPipelineFilterCount,
-  ocrPipelineLifecycleFilters,
-} from "@/lib/ocr-pipelines/view-model";
+import { ocrPipelineLifecycleFilters } from "@/lib/ocr-pipelines/view-model";
 
 interface ConfidenceColorFormSession {
   id: number;
@@ -59,6 +59,7 @@ interface ConfidenceColorMutationInput {
 export function AdminOcrPipelinesPage() {
   const t = useTranslations("AdminOcrPipelines");
   const common = useTranslations("AdminSettings.common");
+  const collection = useTranslations("CollectionView");
   const controller = useOcrPipelinesController();
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
@@ -127,7 +128,7 @@ export function AdminOcrPipelinesPage() {
           t("detail.publishFailed"),
         )
       : null;
-  const routingStatus = getOcrPipelineRoutingStatus(controller.pipelines);
+  const routingStatus = controller.routingStatus;
   const showRoutingStatus =
     !loadError &&
     !controller.pipelinesQuery.isPending &&
@@ -177,12 +178,24 @@ export function AdminOcrPipelinesPage() {
       <DataListPanel>
         <DataListToolbar>
           <DataListFilters>
+            <DataListSearchFilter
+              ariaLabel={collection("search")}
+              onValueChange={controller.handleSearchChange}
+              placeholder={collection("search")}
+              value={controller.search}
+            />
             <DataListChipFilter
               ariaLabel={t("filters.label")}
               onValueChange={controller.handleFilterChange}
               options={ocrPipelineLifecycleFilters.map((item) => ({
                 label: t(`filters.${item}`, {
-                  count: getOcrPipelineFilterCount(controller.pipelines, item),
+                  count:
+                    item === "all"
+                      ? Object.values(controller.filterCounts ?? {}).reduce(
+                          (sum, count) => sum + count,
+                          0,
+                        )
+                      : (controller.filterCounts?.[item] ?? 0),
                 }),
                 value: item,
               }))}
@@ -228,8 +241,10 @@ export function AdminOcrPipelinesPage() {
             <PipelineList
               isLoading={controller.pipelinesQuery.isPending}
               onAction={controller.handlePipelineAction}
+              onSortChange={controller.handleSortChange}
               pipelines={controller.filteredPipelines}
               selectedPipelineId={controller.effectiveSelectedPipelineId}
+              sort={controller.sort}
             />
             <PipelineDetailPanel
               detail={controller.displayDetail}
@@ -247,6 +262,14 @@ export function AdminOcrPipelinesPage() {
               validatePending={controller.validateMutation.isPending}
             />
           </div>
+          <ListPagination
+            isPending={controller.pipelinesQuery.isFetching}
+            meta={controller.listMeta}
+            nextLabel={collection("pagination.next")}
+            onOffsetChange={controller.setOffset}
+            previousLabel={collection("pagination.previous")}
+            summary={(range) => collection("pagination.summary", range)}
+          />
         </DataListContent>
       </DataListPanel>
 

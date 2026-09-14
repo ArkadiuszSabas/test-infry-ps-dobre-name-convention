@@ -5,6 +5,7 @@ from enum import StrEnum
 from uuid import UUID
 
 from docmind_api.application.document_types.ports import DocumentTypeExtensionValuePayload
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.domain.document_types.models import DocumentType, DocumentTypeUsage
 from docmind_backend_runtime.errors import (
     ConflictError,
@@ -95,6 +96,28 @@ class DocumentTypeListStatus(StrEnum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     ALL = "all"
+
+
+class DocumentTypeSortField(StrEnum):
+    """Safe sort keys exposed by the document type catalog."""
+
+    DISPLAY_LABEL = "display_label"
+    NAME = "name"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
+
+
+@dataclass(frozen=True, slots=True)
+class ListDocumentTypesPageQuery:
+    """Criteria for the paged document type catalog."""
+
+    status: DocumentTypeListStatus = DocumentTypeListStatus.ACTIVE
+    search: str | None = None
+    parameter_filters: tuple[tuple[str, str], ...] = ()
+    sort_by: DocumentTypeSortField = DocumentTypeSortField.DISPLAY_LABEL
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
 
 
 @dataclass(frozen=True, slots=True)

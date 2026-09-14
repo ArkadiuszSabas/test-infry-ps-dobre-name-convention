@@ -14,6 +14,7 @@ test("review client maps GET fields, validation, sources and approval", async (t
   assert.equal(result.schemaVersion, 2);
   assert.equal(result.version, 2);
   assert.equal(result.fields[0]?.attributeExternalId, "nip");
+  assert.deepEqual(result.fields[0]?.presentationRows, [["1", "NIP", "123"]]);
   assert.equal(result.fields[0]?.confidence, 0.96);
   assert.equal(result.fields[0]?.validations[0]?.message, "Invalid value");
   assert.equal(result.fields[0]?.sources[0]?.pageNumber, 1);
@@ -132,6 +133,7 @@ function reviewEnvelope() {
           display_order: 10,
           value: "123",
           display_value: "123",
+          presentation_rows: [["1", "NIP", "123"]],
           confidence: 0.96,
           status: "present",
           requires_review: true,

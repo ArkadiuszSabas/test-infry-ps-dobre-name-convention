@@ -1,4 +1,5 @@
 import type { ApiEnvelope } from "@/lib/api/envelope";
+import type { ListPageMeta, ListPageMetaDto } from "@/lib/api/list-contract";
 import type { AuthProvider, KnownRole, Role } from "@/lib/auth/types";
 
 export type ManagedUserStatus = "active" | "inactive" | "deleted";
@@ -19,11 +20,22 @@ export interface ManagedUserListData {
   users: ManagedUser[];
 }
 
-export interface ManagedUserListMeta extends Record<string, unknown> {
+export interface ManagedUserListMeta extends ListPageMeta {
   evaluated_at: string;
-  total_count: number;
-  returned_count: number;
   include_deleted: boolean;
+  activeCount: number;
+  inactiveCount: number;
+  deletedCount: number;
+  status: ManagedUserStatus | "all";
+}
+
+export interface ManagedUserListMetaDto extends ListPageMetaDto {
+  evaluated_at: string;
+  include_deleted: boolean;
+  active_count: number;
+  inactive_count: number;
+  deleted_count: number;
+  status: ManagedUserStatus | "all";
 }
 
 export interface ManagedUserOperationMeta extends Record<string, unknown> {
@@ -85,6 +97,24 @@ export interface UserInvitationMeta extends Record<string, unknown> {
   evaluated_at: string;
 }
 
+export interface UserInvitationListMeta extends ListPageMeta {
+  delivery_available: boolean;
+  evaluated_at: string;
+  pendingCount: number;
+  cancelledCount: number;
+  acceptedCount: number;
+  status: InvitationStatus | "all";
+}
+
+export interface UserInvitationListMetaDto extends ListPageMetaDto {
+  delivery_available: boolean;
+  evaluated_at: string;
+  pending_count: number;
+  cancelled_count: number;
+  accepted_count: number;
+  status: InvitationStatus | "all";
+}
+
 export interface CreateUserInvitationInput {
   email: string;
   roles: KnownRole[];
@@ -96,7 +126,11 @@ export type UserInvitationEnvelope = ApiEnvelope<
 >;
 export type UserInvitationListEnvelope = ApiEnvelope<
   UserInvitationListData,
-  UserInvitationMeta
+  UserInvitationListMeta
+>;
+export type UserInvitationListEnvelopeDto = ApiEnvelope<
+  UserInvitationListData,
+  UserInvitationListMetaDto
 >;
 export type ManagedUserEnvelope = ApiEnvelope<
   ManagedUser,
@@ -105,6 +139,10 @@ export type ManagedUserEnvelope = ApiEnvelope<
 export type ManagedUserListEnvelope = ApiEnvelope<
   ManagedUserListData,
   ManagedUserListMeta
+>;
+export type ManagedUserListEnvelopeDto = ApiEnvelope<
+  ManagedUserListData,
+  ManagedUserListMetaDto
 >;
 export type DeleteManagedUserEnvelope = ApiEnvelope<
   DeleteManagedUserResult,

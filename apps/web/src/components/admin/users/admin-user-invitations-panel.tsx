@@ -3,10 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
+import { ListPagination } from "@/components/ui/list-pagination";
 import {
   DataListActions,
   DataListContent,
@@ -27,7 +28,9 @@ import {
 } from "@/components/ui/sheet";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminUsersClient } from "@/lib/admin-users/api";
+import type { UserInvitationSortField } from "@/lib/admin-users/api";
 import {
+  ADMIN_USERS_PAGE_SIZE,
   adminUsersQueryKeys,
   invitationsQueryOptions,
 } from "@/lib/admin-users/query-options";
@@ -35,12 +38,15 @@ import type {
   CreateUserInvitationInput,
   InvitationStatus,
   UserInvitation,
+  UserInvitationListMeta,
 } from "@/lib/admin-users/types";
-import { sortInvitationRoles } from "@/lib/admin-users/view-model";
-import { applyCollectionView, type SortValue } from "@/lib/collection-view";
 
 import { InvitationForm } from "./invitation-form";
-import { InvitationTable } from "./invitation-table";
+import {
+  defaultInvitationSort,
+  InvitationTable,
+  type InvitationSortColumn,
+} from "./invitation-table";
 import {
   getInvitationErrorMessage,
   InvitationNotice,
@@ -60,7 +66,6 @@ const EMPTY_INVITATIONS: UserInvitation[] = [];
 export function AdminUserInvitationsPanel() {
   const t = useTranslations("AdminUsers");
   const collection = useTranslations("CollectionView");
-  const roleLabels = useTranslations("Shell.roles");
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const [formVersion, setFormVersion] = useState(0);
@@ -68,29 +73,23 @@ export function AdminUserInvitationsPanel() {
   const [statusFilter, setStatusFilter] =
     useState<InvitationStatusFilter>("all");
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState(defaultInvitationSort);
   const [pendingCancel, setPendingCancel] = useState<UserInvitation | null>(
     null,
   );
-  const query = useQuery(invitationsQueryOptions());
-  const invitations = query.data?.data.invitations ?? EMPTY_INVITATIONS;
-  const visibleInvitations = useMemo(
-    () =>
-      applyCollectionView(filterInvitations(invitations, statusFilter), {
-        search,
-        searchAccessors: [
-          (invitation): SortValue => invitation.email,
-          (invitation): SortValue => invitation.status,
-          (invitation): SortValue =>
-            t(`invitations.status.${invitation.status}`),
-          (invitation): SortValue => invitation.roles.join(" "),
-          (invitation): SortValue =>
-            sortInvitationRoles(invitation.roles)
-              .map((role) => roleLabels(role))
-              .join(" "),
-        ],
-      }),
-    [invitations, roleLabels, search, statusFilter, t],
+  const query = useQuery(
+    invitationsQueryOptions({
+      limit: ADMIN_USERS_PAGE_SIZE,
+      offset,
+      search,
+      sortBy: invitationSortField(sort.column),
+      sortDirection: sort.direction,
+      status: statusFilter,
+    }),
   );
+  const invitations = query.data?.data.invitations ?? EMPTY_INVITATIONS;
+  const meta = query.data?.meta;
   const hasSearch = search.trim().length > 0;
   const emptyDescription = hasSearch
     ? collection("noResultsDescription")
@@ -135,6 +134,7 @@ export function AdminUserInvitationsPanel() {
   function handleStatusFilterChange(value: string) {
     if (isInvitationStatusFilter(value)) {
       setStatusFilter(value);
+      setOffset(0);
     }
   }
 
@@ -148,7 +148,7 @@ export function AdminUserInvitationsPanel() {
               onValueChange={handleStatusFilterChange}
               options={invitationStatusFilters.map((filter) => ({
                 label: t(`invitations.filters.${filter}`, {
-                  count: getInvitationFilterCount(invitations, filter),
+                  count: getInvitationFilterCount(meta, filter),
                 }),
                 value: filter,
               }))}
@@ -157,7 +157,10 @@ export function AdminUserInvitationsPanel() {
 
             <DataListSearchFilter
               ariaLabel={collection("search")}
-              onValueChange={setSearch}
+              onValueChange={(value) => {
+                setSearch(value);
+                setOffset(0);
+              }}
               placeholder={collection("search")}
               value={search}
             />
@@ -194,7 +197,7 @@ export function AdminUserInvitationsPanel() {
             cancelActionsDisabled={cancelMutation.isPending}
             emptyDescription={emptyDescription}
             emptyTitle={emptyTitle}
-            invitations={visibleInvitations}
+            invitations={invitations}
             isError={query.isError}
             isPending={query.isPending}
             onCancel={(invitation) => {
@@ -205,9 +208,22 @@ export function AdminUserInvitationsPanel() {
               cancelMutation.reset();
               setPendingCancel(invitation);
             }}
+            onSortChange={(nextSort) => {
+              setSort(nextSort);
+              setOffset(0);
+            }}
             pendingCancelId={
               cancelMutation.isPending ? (pendingCancel?.id ?? null) : null
             }
+            sort={sort}
+          />
+          <ListPagination
+            isPending={query.isFetching}
+            meta={meta}
+            nextLabel={collection("pagination.next")}
+            onOffsetChange={setOffset}
+            previousLabel={collection("pagination.previous")}
+            summary={(range) => collection("pagination.summary", range)}
           />
         </DataListContent>
       </DataListPanel>
@@ -280,26 +296,27 @@ export function AdminUserInvitationsPanel() {
   );
 }
 
-function filterInvitations(
-  invitations: readonly UserInvitation[],
-  filter: InvitationStatusFilter,
-): UserInvitation[] {
-  if (filter === "all") {
-    return [...invitations];
-  }
-
-  return invitations.filter((invitation) => invitation.status === filter);
-}
-
 function getInvitationFilterCount(
-  invitations: readonly UserInvitation[],
+  meta: UserInvitationListMeta | undefined,
   filter: InvitationStatusFilter,
 ): number {
-  return filterInvitations(invitations, filter).length;
+  if (!meta) return 0;
+  if (filter === "pending") return meta.pendingCount;
+  if (filter === "cancelled") return meta.cancelledCount;
+  if (filter === "accepted") return meta.acceptedCount;
+  return meta.pendingCount + meta.cancelledCount + meta.acceptedCount;
 }
 
 function isInvitationStatusFilter(
   value: string,
 ): value is InvitationStatusFilter {
   return invitationStatusFilters.some((filter) => filter === value);
+}
+
+function invitationSortField(
+  column: InvitationSortColumn,
+): UserInvitationSortField {
+  if (column === "createdAt") return "created_at";
+  if (column === "expiresAt") return "expires_at";
+  return column;
 }

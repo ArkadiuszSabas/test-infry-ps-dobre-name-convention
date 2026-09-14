@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from enum import StrEnum
 from typing import Protocol
 from uuid import UUID
 
@@ -10,6 +11,13 @@ from docmind_api.application.auth.ports import (
     InvitationTokenGenerator,
     InvitationTokenHasher,
     UserInvitationRepository,
+)
+from docmind_api.application.listing import (
+    ListPage,
+    ListRequest,
+    ListSortDirection,
+    filter_bounded_list,
+    process_bounded_list,
 )
 from docmind_api.domain.auth.actors import AuthenticatedActor, Role
 from docmind_api.domain.auth.invitations import (
@@ -31,10 +39,42 @@ class CreateUserInvitationCommand:
 
 
 @dataclass(frozen=True, slots=True)
-class ListPendingUserInvitationsCommand:
-    """Input for listing pending user invitations."""
+class ListUserInvitationsCommand:
+    """Input for listing user invitations."""
 
     actor: AuthenticatedActor
+
+
+class UserInvitationListStatus(StrEnum):
+    """Lifecycle filters supported by the invitation list."""
+
+    PENDING = InvitationStatus.PENDING.value
+    CANCELLED = InvitationStatus.CANCELLED.value
+    ACCEPTED = InvitationStatus.ACCEPTED.value
+    ALL = "all"
+
+
+class UserInvitationSortField(StrEnum):
+    """Safe sort keys exposed by the invitation list."""
+
+    EMAIL = "email"
+    ROLES = "roles"
+    STATUS = "status"
+    EXPIRES_AT = "expires_at"
+    CREATED_AT = "created_at"
+
+
+@dataclass(frozen=True, slots=True)
+class ListUserInvitationsPageCommand:
+    """Input for a searched, faceted, and paged invitation list."""
+
+    actor: AuthenticatedActor
+    status: UserInvitationListStatus = UserInvitationListStatus.ALL
+    search: str | None = None
+    sort_by: UserInvitationSortField = UserInvitationSortField.CREATED_AT
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,11 +96,24 @@ class UserInvitationResult:
 
 @dataclass(frozen=True, slots=True)
 class UserInvitationListResult:
-    """Application result for a pending invitation list."""
+    """Application result for an invitation list."""
 
     invitations: tuple[UserInvitation, ...]
     delivery_available: bool
     evaluated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class UserInvitationPageResult:
+    """Paged invitations plus lifecycle facets."""
+
+    page: ListPage[UserInvitation]
+    delivery_available: bool
+    evaluated_at: datetime
+    pending_count: int
+    cancelled_count: int
+    accepted_count: int
+    status: UserInvitationListStatus
 
 
 class PendingInvitationAlreadyExistsError(ApplicationError):
@@ -162,17 +215,69 @@ class UserInvitationService:
             evaluated_at=now,
         )
 
-    async def list_pending_invitations(
+    async def list_invitations(
         self,
-        _command: ListPendingUserInvitationsCommand,
+        _command: ListUserInvitationsCommand,
     ) -> UserInvitationListResult:
-        """List active pending invitations newest first."""
+        """List active pending and completed invitations newest first."""
 
         now = self._clock.now()
         return UserInvitationListResult(
-            invitations=await self._repository.list_pending(evaluated_at=now),
+            invitations=await self._repository.list_all(evaluated_at=now),
             delivery_available=self._delivery_available,
             evaluated_at=now,
+        )
+
+    async def list_invitation_page(
+        self,
+        command: ListUserInvitationsPageCommand,
+    ) -> UserInvitationPageResult:
+        """Search, facet, sort, and page invitations inside the application boundary."""
+
+        now = self._clock.now()
+        invitations = await self._repository.list_all(evaluated_at=now)
+        matching_invitations = filter_bounded_list(
+            invitations,
+            search=command.search,
+            search_values=lambda invitation: (
+                invitation.email,
+                invitation.status.value,
+                *(role.value for role in invitation.roles),
+            ),
+        )
+        pending_count = sum(
+            invitation.status is InvitationStatus.PENDING for invitation in matching_invitations
+        )
+        cancelled_count = sum(
+            invitation.status is InvitationStatus.CANCELLED for invitation in matching_invitations
+        )
+        status_filtered = tuple(
+            invitation
+            for invitation in matching_invitations
+            if command.status is UserInvitationListStatus.ALL
+            or invitation.status.value == command.status.value
+        )
+        page = process_bounded_list(
+            status_filtered,
+            request=ListRequest(
+                search=None,
+                sort_by=command.sort_by,
+                sort_direction=command.sort_direction,
+                limit=command.limit,
+                offset=command.offset,
+            ),
+            search_values=lambda _invitation: (),
+            sort_value=_invitation_sort_value,
+            identity=lambda invitation: invitation.id,
+        )
+        return UserInvitationPageResult(
+            page=page,
+            delivery_available=self._delivery_available,
+            evaluated_at=now,
+            pending_count=pending_count,
+            cancelled_count=cancelled_count,
+            accepted_count=len(matching_invitations) - pending_count - cancelled_count,
+            status=command.status,
         )
 
     async def cancel_invitation(
@@ -195,3 +300,18 @@ class UserInvitationService:
             delivery_available=self._delivery_available,
             evaluated_at=now,
         )
+
+
+def _invitation_sort_value(
+    invitation: UserInvitation,
+    sort_by: UserInvitationSortField,
+) -> str | datetime:
+    if sort_by is UserInvitationSortField.EMAIL:
+        return invitation.email
+    if sort_by is UserInvitationSortField.ROLES:
+        return " ".join(role.value for role in invitation.roles)
+    if sort_by is UserInvitationSortField.STATUS:
+        return invitation.status.value
+    if sort_by is UserInvitationSortField.EXPIRES_AT:
+        return invitation.expires_at
+    return invitation.created_at

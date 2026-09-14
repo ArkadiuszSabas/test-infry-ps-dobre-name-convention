@@ -1,6 +1,7 @@
 """Attribute category catalog application use cases."""
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import StrEnum
 from re import sub
 from unicodedata import category as unicode_category
@@ -19,6 +20,13 @@ from docmind_api.application.attributes.ports import (
     AttributeCategoryRepository,
     AttributeCategoryUsageRepository,
     Clock,
+)
+from docmind_api.application.listing import (
+    ListPage,
+    ListRequest,
+    ListSortDirection,
+    filter_bounded_list,
+    process_bounded_list,
 )
 from docmind_api.domain.attributes.models import (
     ATTRIBUTE_CATEGORY_DEFAULT_EXTERNAL_ID,
@@ -79,6 +87,28 @@ class AttributeCategoryListStatus(StrEnum):
     ALL = "all"
 
 
+class AttributeCategorySortField(StrEnum):
+    """Safe sort keys exposed by the attribute category list."""
+
+    LABEL = "label"
+    EXTERNAL_ID = "external_id"
+    FLAGS = "flags"
+    STATUS = "status"
+    UPDATED_AT = "updated_at"
+
+
+@dataclass(frozen=True, slots=True)
+class ListAttributeCategoriesPageQuery:
+    """Criteria for the paged attribute category catalog."""
+
+    status: AttributeCategoryListStatus = AttributeCategoryListStatus.ACTIVE
+    search: str | None = None
+    sort_by: AttributeCategorySortField = AttributeCategorySortField.LABEL
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
+
+
 @dataclass(frozen=True, slots=True)
 class AttributeCategoryList:
     categories: tuple[AttributeCategory, ...]
@@ -90,6 +120,16 @@ class AttributeCategoryList:
     @property
     def returned_count(self) -> int:
         return len(self.categories)
+
+
+@dataclass(frozen=True, slots=True)
+class AttributeCategoryPageResult:
+    """Paged categories plus lifecycle facets."""
+
+    page: ListPage[AttributeCategory]
+    active_count: int
+    inactive_count: int
+    status: AttributeCategoryListStatus
 
 
 class AttributeCategoryCatalogService:
@@ -227,6 +267,65 @@ class AttributeCategoryCatalogService:
             inactive_count=len(inactive_categories),
             status=status,
         )
+
+    async def list_attribute_category_page(
+        self,
+        query: ListAttributeCategoriesPageQuery,
+    ) -> AttributeCategoryPageResult:
+        """Search, facet, sort, and page categories inside the application boundary."""
+
+        categories = await self._category_repository.list(active_only=False)
+        matching_categories = filter_bounded_list(
+            categories,
+            search=query.search,
+            search_values=lambda category: (
+                category.label,
+                category.external_id,
+                category.status.value,
+                *category.flags.keys(),
+            ),
+        )
+        active_count = sum(category.is_active for category in matching_categories)
+        status_filtered = tuple(
+            category
+            for category in matching_categories
+            if query.status is AttributeCategoryListStatus.ALL
+            or category.status.value == query.status.value
+        )
+        page = process_bounded_list(
+            status_filtered,
+            request=ListRequest(
+                search=None,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+            search_values=lambda _category: (),
+            sort_value=_attribute_category_sort_value,
+            identity=lambda category: category.id,
+        )
+        return AttributeCategoryPageResult(
+            page=page,
+            active_count=active_count,
+            inactive_count=len(matching_categories) - active_count,
+            status=query.status,
+        )
+
+
+def _attribute_category_sort_value(
+    category: AttributeCategory,
+    sort_by: AttributeCategorySortField,
+) -> str | datetime:
+    if sort_by is AttributeCategorySortField.EXTERNAL_ID:
+        return category.external_id
+    if sort_by is AttributeCategorySortField.FLAGS:
+        return " ".join(key for key, enabled in category.flags.items() if enabled)
+    if sort_by is AttributeCategorySortField.STATUS:
+        return category.status.value
+    if sort_by is AttributeCategorySortField.UPDATED_AT:
+        return category.updated_at
+    return category.label
 
 
 def _validated_attribute_category_id(category_id: str | UUID) -> UUID | str:

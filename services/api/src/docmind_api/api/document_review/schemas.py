@@ -100,6 +100,12 @@ class DocumentReviewAttributeSchema(BaseModel):
     consistency: DocumentReviewConsistencySchema
     value_source: DocumentReviewValueSource
     manually_edited: bool
+    presentation_rows: list[
+        Annotated[list[Annotated[str, Field(max_length=1_000)]], Field(max_length=16)]
+    ] = Field(
+        default_factory=list[list[str]],
+        max_length=100,
+    )
 
 
 class DocumentReviewValidationSchema(BaseModel):

@@ -68,6 +68,11 @@
     "allFilter": "Wszystkie: {label}",
     "noResults": "Brak wyników",
     "noResultsDescription": "Zmień wyszukiwaną frazę albo wyczyść pole, aby zobaczyć wszystkie elementy.",
+    "pagination": {
+      "next": "Następna",
+      "previous": "Poprzednia",
+      "summary": "Wyświetlono {first}–{last} z {total} dokumentów"
+    },
     "sort": {
       "asc": "Sortuj {column} rosnąco",
       "desc": "Sortuj {column} malejąco"
@@ -108,7 +113,7 @@
       "allDocumentTypesLabel": "Wszystkie typy",
       "displayMode": "Sposób wyświetlania",
       "status": "Status",
-      "allStatuses": "Wszystkie statusy ({count})",
+      "allStatuses": "Wszystkie statusy",
       "statusValue": "{status} ({count})"
     },
     "upload": {
@@ -232,6 +237,8 @@
         "zoomIn": "Powiększ",
         "zoomOut": "Pomniejsz",
         "resetZoom": "Resetuj skalę",
+        "download": "Pobierz PDF",
+        "print": "Drukuj PDF",
         "previousPage": "Poprzednia strona",
         "nextPage": "Następna strona",
         "page": "Strona {current} z {total}"
@@ -954,7 +961,7 @@
     "emptyDescription": "Runy pojawią się tutaj po przekazaniu dokumentów do OCR.",
     "emptyFiltered": "Brak runów dla tych filtrów",
     "emptyFilteredDescription": "Zmień lub wyczyść filtry, aby zobaczyć więcej runów OCR.",
-    "pageSummary": "Rekordy na stronie: {count}",
+    "pageSummary": "Rekordy {from}–{to} z {total}",
     "previous": "Poprzednia",
     "next": "Następna",
     "tabs": {
@@ -1914,9 +1921,11 @@
         "unassigned": "Nieprzypisane",
         "required": "Wymagane",
         "optional": "Opcjonalne",
-        "missingAction": "Akcja dla braku wymaganej wartości",
+        "missingAction": "Polityka braku wymaganej wartości",
         "blockApproval": "Zablokuj akceptację",
+        "blockApprovalDescription": "Brak wymaganej wartości blokuje akceptację dokumentu.",
         "requireReview": "Wymagaj weryfikacji",
+        "requireReviewDescription": "Brak wymaganej wartości pozostaje oznaczony do weryfikacji, ale nie blokuje akceptacji.",
         "contextResolver": "Uwzględnij w Context Resolver",
         "conflict": "Przypisania zmieniły się na serwerze. Wczytaj aktualny stan przed ponownym zapisem.",
         "reload": "Wczytaj aktualny stan",
@@ -2430,8 +2439,11 @@
         "required": "Wymagany"
       },
       "missingActions": {
+        "label": "Polityka braku wymaganej wartości",
         "block_approval": "Blokuj akceptację",
+        "block_approvalDescription": "Brak wymaganej wartości blokuje akceptację dokumentu.",
         "require_review": "Wymagaj weryfikacji",
+        "require_reviewDescription": "Brak wymaganej wartości pozostaje oznaczony do weryfikacji, ale nie blokuje akceptacji.",
         "notApplicable": "Nie dotyczy"
       },
       "validation": {

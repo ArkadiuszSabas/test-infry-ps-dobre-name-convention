@@ -1,4 +1,9 @@
 import type { ReviewFieldItem } from "./types";
+export {
+  getReviewFieldDisplayValuePresentations,
+  getReviewFieldDisplayValues,
+  type ReviewFieldDisplayValuePresentation,
+} from "./field-value-presentation";
 
 export const KNOWN_REVIEW_REASON_CODES = [
   "CONFLICTING_VALUES",
@@ -99,20 +104,6 @@ type ConfidenceField = Pick<
   "confidence" | "required" | "value"
 >;
 
-export function getReviewFieldDisplayValues(
-  field: Pick<ReviewFieldItem, "displayValue" | "value">,
-): string[] {
-  const displayValue = field.displayValue ?? field.value;
-  if (displayValue === null) return [];
-
-  return displayValue.includes("|")
-    ? displayValue
-        .split("|")
-        .map((value) => value.trim())
-        .filter(Boolean)
-    : [displayValue];
-}
-
 export function isMissingRequiredReviewField(
   field: RequiredValueField,
 ): boolean {
@@ -120,9 +111,32 @@ export function isMissingRequiredReviewField(
 }
 
 export function getBlockingRequiredFieldIds(
-  fields: readonly Pick<ReviewFieldItem, "id" | "required" | "value">[],
+  fields: readonly Pick<
+    ReviewFieldItem,
+    "id" | "required" | "reviewReasonCodes" | "value"
+  >[],
 ): string[] {
-  return fields.filter(isMissingRequiredReviewField).map((field) => field.id);
+  return fields
+    .filter(isBlockingMissingRequiredReviewField)
+    .map((field) => field.id);
+}
+
+function isBlockingMissingRequiredReviewField(
+  field: Pick<ReviewFieldItem, "required" | "reviewReasonCodes" | "value">,
+): boolean {
+  if (!isMissingRequiredReviewField(field)) {
+    return false;
+  }
+
+  const reasonCodes = new Set(field.reviewReasonCodes);
+  if (
+    reasonCodes.has("MISSING_REQUIRED_BLOCK_APPROVAL") ||
+    reasonCodes.has("MISSING_REQUIRED_VALUE")
+  ) {
+    return true;
+  }
+
+  return !reasonCodes.has("MISSING_REQUIRED_REVIEW");
 }
 
 export function getDisplayedConfidencePercent(

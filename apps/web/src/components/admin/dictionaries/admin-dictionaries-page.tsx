@@ -22,11 +22,13 @@ import { PageBackLink } from "@/components/ui/page-back-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/page-shell";
 import { Sheet } from "@/components/ui/sheet";
+import { ListPagination } from "@/components/ui/list-pagination";
 import { useCsrfProtectedAction } from "@/hooks/auth/use-csrf-protected-action";
 import { adminCatalogClient } from "@/lib/admin-settings/api";
 import {
   adminCatalogQueryKeys,
-  dictionariesQueryOptions,
+  ADMIN_CATALOG_PAGE_SIZE,
+  dictionariesPageQueryOptions,
 } from "@/lib/admin-settings/query-options";
 import type {
   CustomDictionary,
@@ -69,15 +71,26 @@ export function AdminDictionariesPage() {
   const t = useTranslations("AdminDictionaries");
   const custom = useTranslations("AdminSettings.customDictionaries");
   const common = useTranslations("AdminSettings.common");
+  const pagination = useTranslations("CollectionView.pagination");
   const queryClient = useQueryClient();
   const runCsrfProtectedAction = useCsrfProtectedAction();
   const [filter, setFilter] = useState<DictionaryCardFilter>("all");
   const [search, setSearch] = useState("");
+  const [offset, setOffset] = useState(0);
   const [formState, setFormState] = useState<DictionaryFormState | null>(null);
   const [pendingAction, setPendingAction] = useState<DictionaryAction | null>(
     null,
   );
-  const dictionariesQuery = useQuery(dictionariesQueryOptions("all", null));
+  const dictionariesQuery = useQuery(
+    dictionariesPageQueryOptions({
+      limit: ADMIN_CATALOG_PAGE_SIZE,
+      offset,
+      ...(search.trim() ? { search: search.trim() } : {}),
+      sortBy: "name",
+      sortDirection: "asc",
+      status: "all",
+    }),
+  );
   const dictionaries = dictionariesQuery.data?.data.dictionaries ?? [];
 
   const invalidateDictionaries = async () => {
@@ -150,6 +163,7 @@ export function AdminDictionariesPage() {
   function handleFilterChange(value: string) {
     if (isDictionaryCardFilter(value)) {
       setFilter(value);
+      setOffset(0);
     }
   }
 
@@ -180,7 +194,7 @@ export function AdminDictionariesPage() {
                 label: t(`filters.${item}`, {
                   count: getDictionaryCardFilterCount(
                     item,
-                    dictionaries.length,
+                    dictionariesQuery.data?.meta.total ?? 0,
                   ),
                 }),
                 value: item,
@@ -189,7 +203,10 @@ export function AdminDictionariesPage() {
             />
             <DataListSearchFilter
               ariaLabel={t("search")}
-              onValueChange={setSearch}
+              onValueChange={(value) => {
+                setSearch(value);
+                setOffset(0);
+              }}
               placeholder={t("search")}
               value={search}
             />
@@ -243,6 +260,17 @@ export function AdminDictionariesPage() {
             }}
             search={search}
           />
+
+          {filter !== "system" ? (
+            <ListPagination
+              isPending={dictionariesQuery.isFetching}
+              meta={dictionariesQuery.data?.meta}
+              nextLabel={pagination("next")}
+              onOffsetChange={setOffset}
+              previousLabel={pagination("previous")}
+              summary={(range) => pagination("summary", range)}
+            />
+          ) : null}
 
           {filter === "custom" &&
           search.trim().length === 0 &&

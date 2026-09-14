@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import StrEnum
 from uuid import UUID
 
 from docmind_api.application.auth.local_accounts import (
@@ -13,6 +14,13 @@ from docmind_api.application.auth.ports import (
     ManagedUserRepository,
     PasswordHasher,
     UserSessionBulkRevoker,
+)
+from docmind_api.application.listing import (
+    ListPage,
+    ListRequest,
+    ListSortDirection,
+    filter_bounded_list,
+    process_bounded_list,
 )
 from docmind_api.domain.auth.actors import AuthenticatedActor, AuthProvider, Role
 from docmind_api.domain.auth.local_accounts import LocalUserStatus, normalize_roles
@@ -31,6 +39,40 @@ class ListUsersCommand:
 
     actor: AuthenticatedActor
     include_deleted: bool = False
+
+
+class ManagedUserListStatus(StrEnum):
+    """Lifecycle filters supported by the managed-user list."""
+
+    ACTIVE = UserStatus.ACTIVE.value
+    INACTIVE = UserStatus.INACTIVE.value
+    DELETED = UserStatus.DELETED.value
+    ALL = "all"
+
+
+class ManagedUserSortField(StrEnum):
+    """Safe sort keys exposed by the managed-user list."""
+
+    DISPLAY_NAME = "display_name"
+    EMAIL = "email"
+    ROLES = "roles"
+    STATUS = "status"
+    AUTH_PROVIDERS = "auth_providers"
+    UPDATED_AT = "updated_at"
+
+
+@dataclass(frozen=True, slots=True)
+class ListUsersPageCommand:
+    """Input for a searched, faceted, and paged managed-user list."""
+
+    actor: AuthenticatedActor
+    include_deleted: bool = False
+    status: ManagedUserListStatus = ManagedUserListStatus.ALL
+    search: str | None = None
+    sort_by: ManagedUserSortField = ManagedUserSortField.DISPLAY_NAME
+    sort_direction: ListSortDirection = ListSortDirection.ASC
+    limit: int = 50
+    offset: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +140,19 @@ class ManagedUserListResult:
     evaluated_at: datetime
     total_count: int
     returned_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class ManagedUserPageResult:
+    """Paged managed users plus lifecycle facets."""
+
+    page: ListPage[ManagedUser]
+    evaluated_at: datetime
+    include_deleted: bool
+    active_count: int
+    inactive_count: int
+    deleted_count: int
+    status: ManagedUserListStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -197,6 +252,56 @@ class UserAdministrationService:
             evaluated_at=self._clock.now(),
             total_count=len(users),
             returned_count=len(users),
+        )
+
+    async def list_user_page(self, command: ListUsersPageCommand) -> ManagedUserPageResult:
+        """Search, facet, sort, and page managed users inside the application boundary."""
+
+        users = await self._users.list_users(include_deleted=True)
+        search_matches = filter_bounded_list(
+            users,
+            search=command.search,
+            search_values=lambda user: (
+                user.display_name,
+                user.email,
+                user.status.value,
+                *(role.value for role in user.roles),
+                *(provider.value for provider in user.auth_providers),
+            ),
+        )
+        active_count = sum(user.status is UserStatus.ACTIVE for user in search_matches)
+        inactive_count = sum(user.status is UserStatus.INACTIVE for user in search_matches)
+        include_deleted = command.include_deleted or command.status is ManagedUserListStatus.DELETED
+        visible_users = tuple(
+            user
+            for user in search_matches
+            if (include_deleted or user.status is not UserStatus.DELETED)
+            and (
+                command.status is ManagedUserListStatus.ALL
+                or user.status.value == command.status.value
+            )
+        )
+        page = process_bounded_list(
+            visible_users,
+            request=ListRequest(
+                search=None,
+                sort_by=command.sort_by,
+                sort_direction=command.sort_direction,
+                limit=command.limit,
+                offset=command.offset,
+            ),
+            search_values=lambda _user: (),
+            sort_value=_managed_user_sort_value,
+            identity=lambda user: user.id,
+        )
+        return ManagedUserPageResult(
+            page=page,
+            evaluated_at=self._clock.now(),
+            include_deleted=include_deleted,
+            active_count=active_count,
+            inactive_count=inactive_count,
+            deleted_count=len(search_matches) - active_count - inactive_count,
+            status=command.status,
         )
 
     async def get_user(self, command: GetUserCommand) -> ManagedUserResult:
@@ -373,6 +478,23 @@ class UserAdministrationService:
     def _guard_self_password_set(self, actor: AuthenticatedActor, user_id: UUID) -> None:
         if str(user_id) == actor.actor_id:
             raise SelfPasswordManagementForbiddenError()
+
+
+def _managed_user_sort_value(
+    user: ManagedUser,
+    sort_by: ManagedUserSortField,
+) -> str | datetime | None:
+    if sort_by is ManagedUserSortField.EMAIL:
+        return user.email
+    if sort_by is ManagedUserSortField.ROLES:
+        return " ".join(role.value for role in user.roles)
+    if sort_by is ManagedUserSortField.STATUS:
+        return user.status.value
+    if sort_by is ManagedUserSortField.AUTH_PROVIDERS:
+        return " ".join(provider.value for provider in user.auth_providers)
+    if sort_by is ManagedUserSortField.UPDATED_AT:
+        return user.updated_at
+    return user.display_name
 
 
 def _normalize_optional_roles(roles: tuple[Role, ...] | None) -> tuple[Role, ...] | None:

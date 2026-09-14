@@ -33,6 +33,7 @@ from docmind_api.infrastructure.persistence.runtime_permissions import (
 )
 from docmind_api.infrastructure.persistence.sql import create_database_engine
 from docmind_api.infrastructure.persistence.system_catalogs import tables as system_catalog_tables
+from docmind_api.infrastructure.persistence.workspaces import tables as workspace_tables
 from docmind_api.settings import (
     DatabaseSettings,
     get_database_migration_settings,
@@ -90,6 +91,10 @@ if system_catalog_tables.system_catalog_display_modes_table.metadata is not targ
     raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
 if system_catalog_tables.system_catalog_display_mode_parts_table.metadata is not target_metadata:
     raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
+if workspace_tables.workspaces_table.metadata is not target_metadata:
+    raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
+if workspace_tables.workspace_provisioning_requests_table.metadata is not target_metadata:
+    raise RuntimeError("API SQLAlchemy metadata registry is inconsistent.")
 
 
 def _database_url() -> str:
@@ -130,14 +135,39 @@ def run_migrations_offline() -> None:
 def do_run_migrations(connection: Connection) -> None:
     """Configure Alembic against a synchronous connection proxy."""
 
-    context.configure(
-        connection=connection,
-        target_metadata=target_metadata,
-        compare_type=True,
-    )
+    workspace_schema_attribute = config.attributes.get("workspace_schema")
+    workspace_version_table_attribute = config.attributes.get("workspace_version_table")
+    if workspace_schema_attribute is None:
+        workspace_schema: str | None = None
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+        )
+    else:
+        if not isinstance(workspace_schema_attribute, str) or not isinstance(
+            workspace_version_table_attribute, str
+        ):
+            raise RuntimeError(
+                "Workspace migrations require schema and version-table configuration."
+            )
+        workspace_schema = workspace_schema_attribute
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+            version_table=workspace_version_table_attribute,
+            version_table_schema=workspace_schema,
+        )
+
+    if config.attributes.get("caller_owns_transaction"):
+        context.run_migrations()
+        return
 
     with context.begin_transaction():
         context.run_migrations()
+        if workspace_schema is not None:
+            return
         migration_settings = get_database_migration_settings()
         apply_runtime_database_permissions(
             connection,
@@ -162,6 +192,11 @@ async def run_async_migrations() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations with a live database connection."""
+
+    supplied_connection = config.attributes.get("connection")
+    if isinstance(supplied_connection, Connection):
+        do_run_migrations(supplied_connection)
+        return
 
     asyncio.run(run_async_migrations())
 

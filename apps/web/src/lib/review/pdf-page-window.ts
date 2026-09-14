@@ -85,3 +85,19 @@ export function getVisiblePdfPageNumber({
 
   return visiblePages[0]?.pageNumber ?? null;
 }
+
+export function getPdfPageScrollBehavior({
+  currentPageNumber,
+  prefersReducedMotion,
+  targetPageNumber,
+}: {
+  currentPageNumber: number;
+  prefersReducedMotion: boolean;
+  targetPageNumber: number;
+}): ScrollBehavior {
+  if (prefersReducedMotion) return "auto";
+
+  return Math.abs(targetPageNumber - currentPageNumber) <= 1
+    ? "smooth"
+    : "auto";
+}

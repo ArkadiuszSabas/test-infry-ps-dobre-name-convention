@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
+import { toListSearchParams } from "@/lib/api/list-contract";
 
 import {
   mapBlockCatalogEnvelope,
@@ -18,6 +19,7 @@ import type {
   OcrPipelineBlockCatalogEnvelope,
   OcrPipelineDetailEnvelope,
   OcrPipelineListEnvelope,
+  OcrPipelineListQuery,
   OcrPipelineRequestOptions,
   OcrPipelineValidationEnvelope,
   UpdateOcrPipelineDraftInput,
@@ -39,13 +41,17 @@ export const ocrPipelinesClient = {
   },
 
   async listPipelines(
+    query: OcrPipelineListQuery,
     options: OcrPipelineRequestOptions = {},
   ): Promise<OcrPipelineListEnvelope> {
     return mapListEnvelope(
-      await apiFetch<OcrPipelineListEnvelopeDto>("/admin/ocr/pipelines", {
-        method: "GET",
-        signal: options.signal,
-      }),
+      await apiFetch<OcrPipelineListEnvelopeDto>(
+        `/admin/ocr/pipelines?${toListSearchParams(query, (criteria) => ({ lifecycle: criteria.lifecycle }))}`,
+        {
+          method: "GET",
+          signal: options.signal,
+        },
+      ),
     );
   },
 

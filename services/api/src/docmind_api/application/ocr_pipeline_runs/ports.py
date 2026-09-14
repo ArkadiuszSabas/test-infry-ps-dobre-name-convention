@@ -8,6 +8,8 @@ from datetime import datetime
 from typing import Any, Protocol
 from uuid import UUID
 
+from docmind_api.application.listing import ListSortDirection
+from docmind_api.application.ocr_pipeline_runs.commands import DocumentOcrRunSortField
 from docmind_api.domain.ocr_pipeline_runs.models import (
     JsonObject,
     MetricValue,
@@ -81,6 +83,10 @@ class OcrPipelineRunRepository(Protocol):
         *,
         limit: int,
         offset: int,
+        search: str | None = None,
+        status: OcrPipelineRunStatus | None = None,
+        sort_by: DocumentOcrRunSortField = DocumentOcrRunSortField.CREATED_AT,
+        sort_direction: ListSortDirection = ListSortDirection.DESC,
     ) -> OcrPipelineRunList: ...
 
 

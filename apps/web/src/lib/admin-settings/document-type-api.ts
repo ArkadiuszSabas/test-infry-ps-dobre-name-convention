@@ -1,9 +1,11 @@
 import { apiFetch } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta } from "@/lib/api/list-contract";
 
 import {
-  withSearchParams,
   type AdminCatalogRequestOptions,
+  type AdminListOptions,
+  withListSearchParams,
 } from "./api-helpers";
 import type {
   CatalogStatusFilter,
@@ -20,7 +22,14 @@ import type {
   UpsertDocumentTypeInput,
 } from "./types";
 
-export interface ListDocumentTypesOptions extends AdminCatalogRequestOptions {
+export type DocumentTypeSortField =
+  | "display_label"
+  | "name"
+  | "status"
+  | "updated_at";
+
+export interface ListDocumentTypesOptions extends AdminListOptions<DocumentTypeSortField> {
+  parameterFilters?: Readonly<Record<string, string | null>>;
   status: CatalogStatusFilter;
 }
 
@@ -30,7 +39,12 @@ export const documentTypeCatalogClient = {
   ): Promise<DocumentTypeListEnvelope> {
     return mapDocumentTypeListEnvelope(
       await apiFetch<DocumentTypeListEnvelopeDto>(
-        withSearchParams("/document-types", { status: options.status }),
+        withListSearchParams("/document-types", options, (query) => ({
+          parameter: Object.entries(query.parameterFilters ?? {}).flatMap(
+            ([code, value]) => (value ? [`${code}=${value}`] : []),
+          ),
+          status: query.status,
+        })),
         {
           method: "GET",
           signal: options.signal,
@@ -138,11 +152,10 @@ function mapDocumentTypeListEnvelope(
       ),
     },
     meta: {
+      ...mapListPageMeta(envelope.meta),
       activeCount: envelope.meta.active_count,
       inactiveCount: envelope.meta.inactive_count,
-      returnedCount: envelope.meta.returned_count,
       status: envelope.meta.status,
-      totalCount: envelope.meta.total_count,
     },
   };
 }

@@ -34,3 +34,6 @@ connector_instances:
 ui_extensions: []
 migration_bundles: []
 runtime_policies: {}
+workspace_directory:
+  dictionary_external_id: tfi
+  administration_enabled: true

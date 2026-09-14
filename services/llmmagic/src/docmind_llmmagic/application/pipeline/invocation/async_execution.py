@@ -43,6 +43,9 @@ class RetryableCompletionError(RuntimeError):
     """A transient completion failure eligible for the bounded retry policy."""
 
 
+_COMPLETION_RETRY_DELAYS_SECONDS = (0, 1, 2, 4, 8)
+
+
 @dataclass(frozen=True, slots=True)
 class RunKey:
     run_id: str
@@ -312,7 +315,7 @@ class AsyncOcrExecutionService:
         result: PipelineInvocationResult,
         trace_context: PipelineTraceContext,
     ) -> bool:
-        for attempt, delay in enumerate((0, 1, 2), start=1):
+        for attempt, delay in enumerate(_COMPLETION_RETRY_DELAYS_SECONDS, start=1):
             if delay:
                 await asyncio.sleep(delay)
             try:
@@ -322,7 +325,7 @@ class AsyncOcrExecutionService:
             except StaleCompletionError:
                 return False
             except RetryableCompletionError:
-                if attempt == 3:
+                if attempt == len(_COMPLETION_RETRY_DELAYS_SECONDS):
                     _LOGGER.warning(
                         "OCR completion failed after retries.", extra={"run_id": key.run_id}
                     )

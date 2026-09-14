@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from docmind_api.api.auth.dependencies import (
     require_cookie_csrf_protection,
@@ -26,10 +26,12 @@ from docmind_api.api.dictionaries.schemas import (
     DeleteDictionarySchema,
     DictionaryEntryEnvelope,
     DictionaryEntryListEnvelope,
+    DictionaryEntryListQuery,
     DictionaryEnvelope,
     DictionaryFieldsEnvelope,
     DictionaryListEnvelope,
     DictionaryListMeta,
+    DictionaryListQuery,
     DictionaryListSchema,
     SaveDictionaryFieldsRequest,
     UpdateDictionaryEntryRequest,
@@ -47,10 +49,8 @@ from docmind_api.application.dictionaries.commands import (
     DictionaryDescriptionUpdate,
     DictionaryEntryExternalIdUpdate,
     DictionaryEntryLabelUpdate,
-    DictionaryEntryListStatus,
     DictionaryEntrySortOrderUpdate,
     DictionaryEntryValuesUpdate,
-    DictionaryListStatus,
     DictionaryNameUpdate,
     ListDictionariesQuery,
     ListDictionaryEntriesQuery,
@@ -99,17 +99,31 @@ def create_dictionaries_router(
     async def list_dictionaries(
         _actor: Annotated[AuthenticatedActor, Depends(require_admin_settings_manage)],
         catalog: Annotated[DictionaryCatalogService, Depends(dictionary_catalog_dependency)],
-        status: DictionaryListStatus = DictionaryListStatus.ACTIVE,
-        search: str | None = None,
+        query: Annotated[DictionaryListQuery, Query()],
     ) -> DictionaryListEnvelope:
-        dictionaries = await catalog.list_dictionaries(
-            ListDictionariesQuery(status=status, search=search),
+        result = await catalog.list_dictionary_page(
+            ListDictionariesQuery(
+                status=query.status,
+                search=query.search,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
         )
         return DictionaryListEnvelope(
             data=DictionaryListSchema(
-                dictionaries=[to_dictionary_schema(dictionary) for dictionary in dictionaries],
+                dictionaries=[to_dictionary_schema(dictionary) for dictionary in result.page.items],
             ),
-            meta=DictionaryListMeta(total_count=len(dictionaries)),
+            meta=DictionaryListMeta(
+                total=result.page.total,
+                returned_count=result.page.returned_count,
+                limit=query.limit,
+                offset=query.offset,
+                active_count=result.active_count,
+                inactive_count=result.inactive_count,
+                status=result.status,
+            ),
         )
 
     async def update_dictionary(
@@ -208,18 +222,17 @@ def create_dictionaries_router(
         dictionary_id: UUID,
         _actor: Annotated[AuthenticatedActor, Depends(require_admin_settings_manage)],
         catalog: Annotated[DictionaryCatalogService, Depends(dictionary_catalog_dependency)],
-        status: DictionaryEntryListStatus = DictionaryEntryListStatus.ACTIVE,
-        search: str | None = None,
-        limit: int = 50,
-        offset: int = 0,
+        query: Annotated[DictionaryEntryListQuery, Query()],
     ) -> DictionaryEntryListEnvelope:
         page = await catalog.list_entries(
             ListDictionaryEntriesQuery(
                 dictionary_id=dictionary_id,
-                status=status,
-                search=search,
-                limit=limit,
-                offset=offset,
+                status=query.status,
+                search=query.search,
+                limit=query.limit,
+                offset=query.offset,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
             ),
         )
         return to_entry_list_envelope(dictionary_id=dictionary_id, page=page)

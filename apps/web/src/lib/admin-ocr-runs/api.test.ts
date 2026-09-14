@@ -9,18 +9,26 @@ test("admin OCR client maps filters and uses bounded admin routes", async (t) =>
   const fetchMock = installFetchMock([
     jsonResponse({
       data: { runs: [] },
-      meta: { has_more: false, limit: 25, offset: 25, returned_count: 0 },
+      meta: {
+        has_more: false,
+        limit: 25,
+        offset: 25,
+        returned_count: 0,
+        total: 25,
+      },
     }),
     jsonResponse({ data: detailFixture(), meta: {} }),
   ]);
   t.after(fetchMock.restore);
 
   await adminOcrRunsClient.list({
-    connector: "km-primary",
+    connector: "primary-connector",
     documentTypeId: "type-7",
     limit: 25,
     offset: 25,
     search: "invoice 7",
+    sortBy: "document_name",
+    sortDirection: "desc",
     status: "running",
     view: "active",
   });
@@ -39,6 +47,14 @@ test("admin OCR client maps filters and uses bounded admin routes", async (t) =>
   assert.equal(
     new URL(`https://test${listUrl}`).searchParams.get("document_type_id"),
     "type-7",
+  );
+  assert.equal(
+    new URL(`https://test${listUrl}`).searchParams.get("sort_by"),
+    "document_name",
+  );
+  assert.equal(
+    new URL(`https://test${listUrl}`).searchParams.get("sort_direction"),
+    "desc",
   );
   assert.equal(
     fetchMock.calls[1]?.input,

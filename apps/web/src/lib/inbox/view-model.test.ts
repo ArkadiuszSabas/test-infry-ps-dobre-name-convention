@@ -10,22 +10,10 @@ import {
   formatFileSize,
   getActiveDocumentTypeId,
   getDocumentTypeFilterOptions,
-  getInboxDocumentStatus,
   getInboxPreviewState,
   getManualUploadDictionaryIds,
   getUploadDocumentTypeOptions,
 } from "./view-model";
-
-test("inbox status exposes a failed latest OCR run", () => {
-  assert.equal(
-    getInboxDocumentStatus("waiting_for_review", "failed"),
-    "failed",
-  );
-  assert.equal(
-    getInboxDocumentStatus("waiting_for_review", "running"),
-    "waiting_for_review",
-  );
-});
 
 test("file size formatter uses compact byte units", () => {
   const formatNumber = (value: number, options?: Intl.NumberFormatOptions) =>

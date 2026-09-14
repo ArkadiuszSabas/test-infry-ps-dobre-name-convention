@@ -1,102 +1,73 @@
-import { applyCollectionView, type SortValue } from "@/lib/collection-view";
+import {
+  parseListQuery,
+  toListSearchParams,
+  type ListSortDirection,
+} from "@/lib/api/list-contract";
 
-import type { DocumentStatus, InboxDocument } from "./types";
+import type {
+  DocumentStatus,
+  InboxDocumentListQuery,
+  InboxDocumentsSortField,
+} from "./types";
 
 export const ALL_DOCUMENT_TYPES_VALUE = "__all-document-types";
 export const ALL_STATUSES_VALUE = "__all-statuses";
 
 export type InboxStatusFilter = typeof ALL_STATUSES_VALUE | DocumentStatus;
 
-export function getVisibleInboxDocuments(
-  documents: readonly InboxDocument[],
-  documentTypeFilter: string,
-  statusFilter: InboxStatusFilter,
-  search: string,
-  getStatusLabel?: (document: InboxDocument) => SortValue,
-): InboxDocument[] {
-  const searchAccessors: Array<(document: InboxDocument) => SortValue> = [
-    (document): SortValue => document.name,
-    (document): SortValue => document.originalFilename,
-    (document): SortValue => document.documentTypeName,
-    (document): SortValue => document.documentTypeId,
-    (document): SortValue => document.connectorName,
-    (document): SortValue => document.connector,
-    (document): SortValue => document.status,
-  ];
+const INBOX_DOCUMENT_SORT_FIELDS = [
+  "created",
+  "document_type",
+  "name",
+  "size",
+  "source",
+  "status",
+] as const satisfies readonly InboxDocumentsSortField[];
 
-  if (getStatusLabel) {
-    searchAccessors.push(getStatusLabel);
-  }
-
-  return applyCollectionView(
-    filterDocuments(documents, documentTypeFilter, statusFilter),
-    {
-      search,
-      searchAccessors,
-    },
-  );
+export interface InboxDocumentListUrlState extends InboxDocumentListQuery {
+  documentTypeFilter: string;
+  statusFilter: InboxStatusFilter;
 }
 
-function filterDocuments(
-  documents: readonly InboxDocument[],
-  documentTypeFilter: string,
-  statusFilter: InboxStatusFilter,
-): InboxDocument[] {
-  return documents.filter((document) => {
-    const matchesDocumentType =
-      documentTypeFilter === ALL_DOCUMENT_TYPES_VALUE ||
-      document.documentTypeId === documentTypeFilter;
-    const matchesStatus =
-      statusFilter === ALL_STATUSES_VALUE || document.status === statusFilter;
-
-    return matchesDocumentType && matchesStatus;
+export function parseInboxDocumentListUrlState(
+  params: Pick<URLSearchParams, "get">,
+  archived: boolean,
+): InboxDocumentListUrlState {
+  const query = parseListQuery(params, {
+    defaultSortBy: "created",
+    defaultSortDirection: "desc",
+    sortFields: INBOX_DOCUMENT_SORT_FIELDS,
   });
+  const documentTypeId = params.get("document_type_id")?.trim();
+  const status = params.get("status")?.trim();
+
+  return {
+    ...query,
+    archived,
+    documentTypeFilter: documentTypeId || ALL_DOCUMENT_TYPES_VALUE,
+    ...(documentTypeId ? { documentTypeId } : {}),
+    statusFilter: status || ALL_STATUSES_VALUE,
+    ...(status ? { status } : {}),
+  };
 }
 
-export function getDocumentTypeFilters(documents: readonly InboxDocument[]) {
-  const counts = new Map<string, { count: number; id: string; name: string }>();
-
-  for (const document of documents) {
-    const current = counts.get(document.documentTypeId);
-
-    if (current) {
-      current.count += 1;
-      continue;
-    }
-
-    counts.set(document.documentTypeId, {
-      count: 1,
-      id: document.documentTypeId,
-      name: document.documentTypeName ?? document.documentTypeId,
-    });
-  }
-
-  return [...counts.values()].sort((first, second) =>
-    first.name.localeCompare(second.name),
-  );
+export function toInboxDocumentListSearchParams(
+  state: InboxDocumentListUrlState,
+): URLSearchParams {
+  return toListSearchParams(state, (query) => ({
+    document_type_id: query.documentTypeId,
+    status: query.status,
+  }));
 }
 
-export function getStatusFilters(documents: readonly InboxDocument[]) {
-  const counts = new Map<
-    DocumentStatus,
-    { count: number; status: DocumentStatus }
-  >();
-
-  for (const document of documents) {
-    const current = counts.get(document.status);
-
-    if (current) {
-      current.count += 1;
-      continue;
-    }
-
-    counts.set(document.status, {
-      count: 1,
-      status: document.status,
-    });
-  }
-
-  return [...counts.values()].sort((first, second) =>
-    first.status.localeCompare(second.status),
-  );
+export function nextInboxDocumentsSort(
+  sortBy: InboxDocumentsSortField,
+  sortDirection: ListSortDirection,
+  nextSortBy: InboxDocumentsSortField,
+): Pick<InboxDocumentListUrlState, "sortBy" | "sortDirection"> {
+  return {
+    sortBy: nextSortBy,
+    sortDirection:
+      sortBy === nextSortBy && sortDirection === "asc" ? "desc" : "asc",
+  };
 }

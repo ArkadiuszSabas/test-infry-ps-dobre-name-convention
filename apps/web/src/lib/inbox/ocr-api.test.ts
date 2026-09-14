@@ -13,6 +13,7 @@ test("inbox client lists document OCR pipeline runs", async (t) => {
         limit: 10,
         offset: 0,
         has_more: false,
+        total: 1,
       },
     }),
   ]);
@@ -27,7 +28,7 @@ test("inbox client lists document OCR pipeline runs", async (t) => {
   assert.equal(result.meta.documentId, "33333333-3333-3333-3333-333333333333");
   assert.equal(
     fetchMock.calls[0]?.input,
-    "/api/docmind/documents/33333333-3333-3333-3333-333333333333/ocr/pipeline-runs?limit=10&offset=0",
+    "/api/docmind/documents/33333333-3333-3333-3333-333333333333/ocr/pipeline-runs?limit=10&offset=0&sort_by=created_at&sort_direction=desc",
   );
 });
 

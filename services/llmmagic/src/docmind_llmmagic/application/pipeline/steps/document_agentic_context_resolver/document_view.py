@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -53,6 +54,10 @@ class DocumentSource:
     key_value_index: int | None = None
     confidence: float | None = None
     bounding_polygon: tuple[float, ...] = ()
+    table_id: str | None = None
+    table_row_index: int | None = None
+    table_column_index: int | None = None
+    table_cell_text: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -323,14 +328,18 @@ def build_document_view(
                         (
                             cell
                             for cell in table.cells
-                            if cell.row_index == row_index
+                            if cell.row_index <= row_index < cell.row_index + cell.row_span
                             and page.page_number in _cell_page_numbers(cell, table)
                         ),
                         key=lambda cell: cell.column_index,
                     )
-                    row = " | ".join(cell.content.strip() for cell in cells)
-                    if not row.strip(" |"):
+                    cell_values = [cell.content.strip() for cell in cells]
+                    if not any(cell_values):
                         continue
+                    row = (
+                        f"Table {table_number}, row {row_index + 1}, cells: "
+                        f"{json.dumps(cell_values, ensure_ascii=False)}"
+                    )
                     sources = tuple(
                         DocumentSource(
                             kind="ocr_table_cell",
@@ -342,6 +351,10 @@ def build_document_view(
                                 _cell_polygon_for_page(cell, page_number=page.page_number),
                                 page=page,
                             ),
+                            table_id=f"{page.page_number}:{table_number}",
+                            table_row_index=row_index,
+                            table_column_index=cell.column_index,
+                            table_cell_text=cell.content.strip(),
                         )
                         for cell in cells
                     )

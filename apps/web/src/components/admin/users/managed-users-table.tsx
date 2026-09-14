@@ -9,7 +9,6 @@ import {
   UserRoundIcon,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { DataListRow, DataListTable } from "@/components/ui/data-list";
@@ -31,12 +30,7 @@ import {
   getManagedUserActions,
   sortManagedUserRoles,
 } from "@/lib/admin-users/view-model";
-import {
-  applyCollectionView,
-  nextSortState,
-  type SortState,
-  type SortValue,
-} from "@/lib/collection-view";
+import { nextSortState, type SortState } from "@/lib/collection-view";
 
 import {
   getInvitationErrorMessage,
@@ -44,22 +38,16 @@ import {
   LoadingTableRows,
 } from "./invitation-shared";
 
-type ManagedUserSortColumn =
+export type ManagedUserSortColumn =
   | "providers"
   | "roles"
   | "status"
   | "updatedAt"
   | "user";
 
-const managedUserSortAccessors: Record<
-  ManagedUserSortColumn,
-  (user: ManagedUser) => SortValue
-> = {
-  providers: (user) => user.auth_providers.join(" "),
-  roles: (user) => sortManagedUserRoles(user.roles).join(" "),
-  status: (user) => user.status,
-  updatedAt: (user) => user.updated_at,
-  user: (user) => user.display_name,
+export const defaultManagedUserSort: SortState<ManagedUserSortColumn> = {
+  column: "user",
+  direction: "asc",
 };
 
 export type ManagedUserActionRequest =
@@ -78,6 +66,8 @@ interface ManagedUsersTableProps {
   users: ManagedUser[];
   onAction: (action: ManagedUserActionRequest) => void;
   onEdit: (user: ManagedUser) => void;
+  onSortChange: (sort: SortState<ManagedUserSortColumn>) => void;
+  sort: SortState<ManagedUserSortColumn>;
 }
 
 export function ManagedUsersTable({
@@ -90,6 +80,8 @@ export function ManagedUsersTable({
   isPending,
   onAction,
   onEdit,
+  onSortChange,
+  sort,
   users,
 }: ManagedUsersTableProps) {
   const t = useTranslations("AdminUsers.users");
@@ -97,21 +89,6 @@ export function ManagedUsersTable({
   const collection = useTranslations("CollectionView");
   const roleLabels = useTranslations("Shell.roles");
   const format = useFormatter();
-  const [sort, setSort] = useState<SortState<ManagedUserSortColumn>>({
-    column: "user",
-    direction: "asc",
-  });
-  const sortedUsers = useMemo(
-    () =>
-      applyCollectionView(users, {
-        sort: {
-          accessor: managedUserSortAccessors[sort.column],
-          direction: sort.direction,
-        },
-      }),
-    [sort, users],
-  );
-
   function sortLabel(column: ManagedUserSortColumn, label: string) {
     const nextDirection =
       sort.column === column && sort.direction === "asc" ? "desc" : "asc";
@@ -136,7 +113,7 @@ export function ManagedUsersTable({
           <SortableTableHead
             active={sort.column === "user"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "user"))}
+            onSort={() => onSortChange(nextSortState(sort, "user"))}
             sortLabel={sortLabel("user", t("columns.user"))}
           >
             {t("columns.user")}
@@ -144,9 +121,7 @@ export function ManagedUsersTable({
           <SortableTableHead
             active={sort.column === "status"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "status"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "status"))}
             sortLabel={sortLabel("status", t("columns.status"))}
           >
             {t("columns.status")}
@@ -154,7 +129,7 @@ export function ManagedUsersTable({
           <SortableTableHead
             active={sort.column === "roles"}
             direction={sort.direction}
-            onSort={() => setSort((current) => nextSortState(current, "roles"))}
+            onSort={() => onSortChange(nextSortState(sort, "roles"))}
             sortLabel={sortLabel("roles", t("columns.roles"))}
           >
             {t("columns.roles")}
@@ -162,9 +137,7 @@ export function ManagedUsersTable({
           <SortableTableHead
             active={sort.column === "providers"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "providers"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "providers"))}
             sortLabel={sortLabel("providers", t("columns.providers"))}
           >
             {t("columns.providers")}
@@ -172,9 +145,7 @@ export function ManagedUsersTable({
           <SortableTableHead
             active={sort.column === "updatedAt"}
             direction={sort.direction}
-            onSort={() =>
-              setSort((current) => nextSortState(current, "updatedAt"))
-            }
+            onSort={() => onSortChange(nextSortState(sort, "updatedAt"))}
             sortLabel={sortLabel("updatedAt", t("columns.updatedAt"))}
           >
             {t("columns.updatedAt")}
@@ -193,7 +164,7 @@ export function ManagedUsersTable({
           />
         ) : null}
 
-        {sortedUsers.map((user) => {
+        {users.map((user) => {
           const actions = getManagedUserActions(user, actor);
           const isActionPending = actionPendingUserId === user.id;
           const displayEmail = user.email ?? common("notSet");

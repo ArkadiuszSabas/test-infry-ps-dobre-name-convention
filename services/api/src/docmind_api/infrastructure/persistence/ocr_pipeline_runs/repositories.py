@@ -6,10 +6,13 @@ from datetime import UTC, datetime, timedelta
 from typing import cast
 from uuid import UUID, uuid4
 
-from sqlalchemy import func, select, update
+from sqlalchemy import String, func, or_, select, update
+from sqlalchemy import cast as sql_cast
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from docmind_api.application.listing import ListSortDirection
+from docmind_api.application.ocr_pipeline_runs.commands import DocumentOcrRunSortField
 from docmind_api.application.ocr_pipeline_runs.ports import (
     OcrCancellationResult,
     OcrEventCompletion,
@@ -38,6 +41,7 @@ from docmind_api.infrastructure.persistence.documents.deletion_tables import (
     document_is_not_deleting,
 )
 from docmind_api.infrastructure.persistence.documents.tables import documents_table
+from docmind_api.infrastructure.persistence.list_sorting import stable_order_by
 from docmind_api.infrastructure.persistence.ocr_pipeline_runs.execution_mapping import (
     mutable_run_values,
 )
@@ -1313,26 +1317,64 @@ class SqlAlchemyOcrPipelineRunRepository:
         *,
         limit: int,
         offset: int,
+        search: str | None = None,
+        status: OcrPipelineRunStatus | None = None,
+        sort_by: DocumentOcrRunSortField = DocumentOcrRunSortField.CREATED_AT,
+        sort_direction: ListSortDirection = ListSortDirection.DESC,
     ) -> OcrPipelineRunList:
-        """Return runs for one document ordered newest first."""
+        """Filter, sort, and page runs for one document."""
 
-        result = await self._session.execute(
-            _run_select()
-            .where(ocr_pipeline_runs_table.c.document_id == document_id)
-            .order_by(
-                ocr_pipeline_runs_table.c.created_at.desc(),
-                ocr_pipeline_runs_table.c.id.desc(),
+        conditions = [ocr_pipeline_runs_table.c.document_id == document_id]
+        if status is not None:
+            conditions.append(ocr_pipeline_runs_table.c.status == status.value)
+        if search is not None:
+            pattern = f"%{search}%"
+            conditions.append(
+                or_(
+                    sql_cast(ocr_pipeline_runs_table.c.id, String).ilike(pattern),
+                    ocr_pipeline_definitions_table.c.display_name.ilike(pattern),
+                )
             )
-            .limit(limit + 1)
-            .offset(offset),
+        statement = (
+            _run_select()
+            .where(*conditions)
+            .order_by(
+                *stable_order_by(
+                    sort_by=sort_by,
+                    direction=sort_direction,
+                    allowlist={
+                        DocumentOcrRunSortField.COMPLETED_AT: (
+                            ocr_pipeline_runs_table.c.completed_at
+                        ),
+                        DocumentOcrRunSortField.CREATED_AT: ocr_pipeline_runs_table.c.created_at,
+                        DocumentOcrRunSortField.PIPELINE_NAME: (
+                            ocr_pipeline_definitions_table.c.display_name
+                        ),
+                        DocumentOcrRunSortField.STATUS: ocr_pipeline_runs_table.c.status,
+                        DocumentOcrRunSortField.UPDATED_AT: ocr_pipeline_runs_table.c.updated_at,
+                    },
+                    identity=ocr_pipeline_runs_table.c.id,
+                )
+            )
         )
+        count_statement = (
+            select(func.count(ocr_pipeline_runs_table.c.id))
+            .select_from(
+                ocr_pipeline_runs_table.join(
+                    ocr_pipeline_definitions_table,
+                    ocr_pipeline_definitions_table.c.id == ocr_pipeline_runs_table.c.pipeline_id,
+                )
+            )
+            .where(*conditions)
+        )
+        result = await self._session.execute(statement.limit(limit).offset(offset))
         records = tuple(record_from_row(row) for row in result.mappings())
         return OcrPipelineRunList(
-            runs=records[:limit],
+            runs=records,
             document_id=document_id,
             limit=limit,
             offset=offset,
-            has_more=len(records) > limit,
+            total=int(await self._session.scalar(count_statement) or 0),
         )
 
 

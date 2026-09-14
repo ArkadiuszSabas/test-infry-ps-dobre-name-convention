@@ -1,5 +1,6 @@
 """Document type catalog application use cases."""
 
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
@@ -19,7 +20,9 @@ from docmind_api.application.document_types.commands import (
     DocumentTypeListResult,
     DocumentTypeListStatus,
     DocumentTypeNotFoundError,
+    DocumentTypeSortField,
     DocumentTypeValidationError,
+    ListDocumentTypesPageQuery,
     PreserveDocumentTypeDescription,
     PreserveDocumentTypeExtensionValues,
     PreserveDocumentTypeExternalId,
@@ -38,6 +41,12 @@ from docmind_api.application.document_types.ports import (
     DocumentTypeReadModel,
     DocumentTypeUsageRepository,
     SystemCatalogOptionReadModel,
+)
+from docmind_api.application.listing import (
+    ListPage,
+    ListRequest,
+    filter_bounded_list,
+    process_bounded_list,
 )
 from docmind_api.domain.document_types.models import (
     DocumentType,
@@ -66,12 +75,25 @@ __all__ = (
     "DocumentTypeListResult",
     "DocumentTypeListStatus",
     "DocumentTypeNotFoundError",
+    "DocumentTypePageResult",
+    "DocumentTypeSortField",
     "DocumentTypeValidationError",
+    "ListDocumentTypesPageQuery",
     "PreserveDocumentTypeDescription",
     "PreserveDocumentTypeExtensionValues",
     "PreserveDocumentTypeExternalId",
     "UpdateDocumentTypeCommand",
 )
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentTypePageResult:
+    """Paged document type read models plus lifecycle facets."""
+
+    page: ListPage[DocumentTypeReadModel]
+    active_count: int
+    inactive_count: int
+    status: DocumentTypeListStatus
 
 
 class DocumentTypeCatalogService:
@@ -266,6 +288,63 @@ class DocumentTypeCatalogService:
             status=status,
         )
 
+    async def list_document_type_page(
+        self,
+        query: ListDocumentTypesPageQuery,
+    ) -> DocumentTypePageResult:
+        """Build, facet, sort, and page document types inside the application boundary."""
+
+        read_models = await self.build_read_models(await self._repository.list_all())
+        parameter_filters = dict(query.parameter_filters)
+        parameter_matches = tuple(
+            read_model
+            for read_model in read_models
+            if _matches_parameter_filters(read_model, parameter_filters)
+        )
+        matching_read_models = filter_bounded_list(
+            parameter_matches,
+            search=query.search,
+            search_values=lambda read_model: (
+                read_model.display_label,
+                read_model.document_type.name,
+                read_model.document_type.external_id,
+                read_model.document_type.description,
+                read_model.document_type.status.value,
+                *(
+                    f"{parameter.label} {parameter.value or ''}"
+                    for parameter in read_model.parameters
+                ),
+            ),
+        )
+        active_count = sum(
+            read_model.document_type.is_active for read_model in matching_read_models
+        )
+        status_filtered = tuple(
+            read_model
+            for read_model in matching_read_models
+            if query.status is DocumentTypeListStatus.ALL
+            or read_model.document_type.status.value == query.status.value
+        )
+        page = process_bounded_list(
+            status_filtered,
+            request=ListRequest(
+                search=None,
+                sort_by=query.sort_by,
+                sort_direction=query.sort_direction,
+                limit=query.limit,
+                offset=query.offset,
+            ),
+            search_values=lambda _read_model: (),
+            sort_value=_document_type_sort_value,
+            identity=lambda read_model: read_model.document_type.id,
+        )
+        return DocumentTypePageResult(
+            page=page,
+            active_count=active_count,
+            inactive_count=len(matching_read_models) - active_count,
+            status=query.status,
+        )
+
     async def build_read_models(
         self,
         document_types: tuple[DocumentType, ...],
@@ -328,6 +407,27 @@ class DocumentTypeCatalogService:
             document_type_id=UUID(str(document_type_id)),
             values=values,
         )
+
+
+def _matches_parameter_filters(
+    read_model: DocumentTypeReadModel,
+    filters: dict[str, str],
+) -> bool:
+    values_by_code = {parameter.code: parameter.value for parameter in read_model.parameters}
+    return all(values_by_code.get(code) == expected for code, expected in filters.items())
+
+
+def _document_type_sort_value(
+    read_model: DocumentTypeReadModel,
+    sort_by: DocumentTypeSortField,
+) -> str | datetime:
+    if sort_by is DocumentTypeSortField.NAME:
+        return read_model.document_type.name
+    if sort_by is DocumentTypeSortField.STATUS:
+        return read_model.document_type.status.value
+    if sort_by is DocumentTypeSortField.UPDATED_AT:
+        return read_model.document_type.updated_at
+    return read_model.display_label
 
 
 def _validated_document_type_id(document_type_id: str | UUID) -> UUID | str:

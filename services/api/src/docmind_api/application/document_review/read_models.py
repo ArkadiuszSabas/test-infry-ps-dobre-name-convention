@@ -144,6 +144,7 @@ class DocumentReviewAttribute:
     consistency: DocumentReviewConsistency = field(default_factory=not_available_consistency)
     value_source: DocumentReviewValueSource = DocumentReviewValueSource.PIPELINE
     manually_edited: bool = False
+    presentation_rows: tuple[tuple[str, ...], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,5 +1,6 @@
 import type {
   AdminOcrRunListFilters,
+  AdminOcrRunSortField,
   AdminOcrRunSummaryDto,
   AdminOcrRunView,
   OcrRunStatus,
@@ -15,6 +16,14 @@ const statuses = new Set<OcrRunStatus>([
   "partial_failed",
   "failed",
   "cancelled",
+]);
+const sortFields = new Set<AdminOcrRunSortField>([
+  "completed_at",
+  "created_at",
+  "document_name",
+  "pipeline_name",
+  "status",
+  "updated_at",
 ]);
 const staleDurations: Record<string, number> = {
   "15m": 15 * 60_000,
@@ -49,6 +58,8 @@ export interface AdminOcrRunUrlState {
   createdTo?: string;
   stale?: string;
   search?: string;
+  sortBy?: AdminOcrRunSortField;
+  sortDirection?: "asc" | "desc";
   offset: number;
 }
 
@@ -56,6 +67,7 @@ export function parseAdminOcrRunUrlState(
   params: Pick<URLSearchParams, "get">,
 ): AdminOcrRunUrlState {
   const status = params.get("status");
+  const sortDirection = params.get("sort_direction");
   const offset = Number.parseInt(params.get("offset") ?? "0", 10);
   return {
     connector: text(params.get("connector")),
@@ -65,6 +77,11 @@ export function parseAdminOcrRunUrlState(
     offset: Number.isFinite(offset) && offset >= 0 ? offset : 0,
     pipelineId: text(params.get("pipeline_id")),
     search: text(params.get("search")),
+    sortBy: sortField(params.get("sort_by")),
+    sortDirection:
+      sortDirection === "asc" || sortDirection === "desc"
+        ? sortDirection
+        : undefined,
     source: text(params.get("source")),
     stale: text(params.get("stale")),
     status:
@@ -88,6 +105,10 @@ export function toListFilters(
     offset: state.offset,
     pipelineId: state.pipelineId,
     search: state.search,
+    sortBy:
+      state.sortBy ?? (state.view === "active" ? "updated_at" : "completed_at"),
+    sortDirection:
+      state.sortDirection ?? (state.view === "active" ? "asc" : "desc"),
     source: state.source,
     staleMs: duration,
     status: state.status,
@@ -143,15 +164,6 @@ export function hasActiveAdminOcrRunFilters(
   );
 }
 
-export function getAdminOcrRunStatusCount(
-  runs: readonly AdminOcrRunSummaryDto[],
-  status?: OcrRunStatus,
-): number {
-  return status
-    ? runs.filter((run) => run.status === status).length
-    : runs.length;
-}
-
 export function buildPipelineFilterOptions(
   pipelines: readonly PublishedOcrPipelineOption[],
 ): AdminOcrRunFilterOption[] {
@@ -159,41 +171,6 @@ export function buildPipelineFilterOptions(
     label: `${pipeline.name} · v${pipeline.publishedVersion}`,
     value: pipeline.id,
   }));
-}
-
-export function buildSourceFilterOptions(
-  runs: readonly AdminOcrRunSummaryDto[],
-  selected?: string,
-): AdminOcrRunFilterOption[] {
-  return uniqueOptions(
-    runs.flatMap((run) =>
-      run.document_source
-        ? [{ label: run.document_source, value: run.document_source }]
-        : [],
-    ),
-    selected,
-  );
-}
-
-export function buildConnectorFilterOptions(
-  runs: readonly AdminOcrRunSummaryDto[],
-  selected?: string,
-): AdminOcrRunFilterOption[] {
-  return uniqueOptions(
-    runs.flatMap((run) => {
-      const value = run.connector_instance_id ?? run.document_connector;
-      if (!value) return [];
-      return [
-        {
-          label: run.connector_display_name
-            ? `${run.connector_display_name} · ${value}`
-            : value,
-          value,
-        },
-      ];
-    }),
-    selected,
-  );
 }
 
 export function getAdminOcrRunDatePresetRange(
@@ -260,19 +237,6 @@ export function uniqueSelectableRuns(
   return [...byDocument.values()];
 }
 
-function uniqueOptions(
-  options: readonly AdminOcrRunFilterOption[],
-  selected?: string,
-): AdminOcrRunFilterOption[] {
-  const byValue = new Map(options.map((option) => [option.value, option]));
-  if (selected && !byValue.has(selected)) {
-    byValue.set(selected, { label: selected, value: selected });
-  }
-  return [...byValue.values()].sort((left, right) =>
-    left.label.localeCompare(right.label),
-  );
-}
-
 function formatDateInput(value: Date): string {
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, "0");
@@ -283,6 +247,12 @@ function formatDateInput(value: Date): string {
 function text(value: string | null): string | undefined {
   const normalized = value?.trim();
   return normalized || undefined;
+}
+
+function sortField(value: string | null): AdminOcrRunSortField | undefined {
+  return value && sortFields.has(value as AdminOcrRunSortField)
+    ? (value as AdminOcrRunSortField)
+    : undefined;
 }
 
 function dateBoundary(

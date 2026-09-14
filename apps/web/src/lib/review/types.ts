@@ -48,6 +48,7 @@ export interface DocumentReviewAttributeDto {
   display_order: number;
   value: string | null;
   display_value: string | null;
+  presentation_rows: string[][];
   confidence: number | null;
   status: ReviewAttributeStatus;
   requires_review: boolean;
@@ -141,6 +142,7 @@ export interface ReviewFieldItem {
   dataType: ReviewDataType;
   displayOrder: number;
   displayValue: string | null;
+  presentationRows: string[][];
   id: string;
   kind: ReviewAttributeKind;
   label: string;

@@ -123,14 +123,18 @@ export function getManagedUserMetrics(
   const users = envelope?.data.users ?? [];
 
   return [
-    { id: "total", value: envelope?.meta.total_count ?? users.length },
+    { id: "total", value: envelope?.meta.total ?? users.length },
     {
       id: "active",
-      value: users.filter((user) => user.status === "active").length,
+      value:
+        envelope?.meta.activeCount ??
+        users.filter((user) => user.status === "active").length,
     },
     {
       id: "inactive",
-      value: users.filter((user) => user.status === "inactive").length,
+      value:
+        envelope?.meta.inactiveCount ??
+        users.filter((user) => user.status === "inactive").length,
     },
   ];
 }

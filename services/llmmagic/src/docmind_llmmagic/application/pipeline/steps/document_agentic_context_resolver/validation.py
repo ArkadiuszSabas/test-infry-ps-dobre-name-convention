@@ -360,7 +360,7 @@ def _validated_candidate(
     if attribute.metadata_value is not None:
         derivation_cap = 1.0
     elif strong_aggregate:
-        derivation_cap = 0.8
+        derivation_cap = 1.0
     elif semantic_boolean:
         derivation_cap = 0.7
     else:
@@ -612,11 +612,12 @@ def _rejected_derivation(
 
 
 def _polish_word_number(value: str) -> int | None:
-    matches = [
-        _POLISH_NUMBERS[word.casefold()]
-        for word in _WORD.findall(value)
-        if word.casefold() in _POLISH_NUMBERS
-    ]
+    numbers_by_token = {
+        tokens[0]: number
+        for spelling, number in _POLISH_NUMBERS.items()
+        if len(tokens := _word_tokens(spelling)) == 1
+    }
+    matches = [numbers_by_token[word] for word in _word_tokens(value) if word in numbers_by_token]
     return matches[0] if len(set(matches)) == 1 and matches else None
 
 

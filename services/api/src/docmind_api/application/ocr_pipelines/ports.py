@@ -4,6 +4,10 @@ from datetime import datetime
 from typing import Protocol
 from uuid import UUID
 
+from docmind_api.application.ocr_pipelines.commands import (
+    ListOcrPipelinesQuery,
+    OcrPipelineDefinitionList,
+)
 from docmind_api.domain.attributes.models import AttributeDefinition
 from docmind_api.domain.document_types.models import DocumentType
 from docmind_api.domain.ocr_pipelines.confidence_colors import (
@@ -53,7 +57,7 @@ class OcrPipelineDefinitionRepository(Protocol):
 
     async def get_by_name(self, name: str) -> OcrPipelineDefinitionRecord | None: ...
 
-    async def list(self) -> tuple[OcrPipelineDefinitionRecord, ...]: ...
+    async def list(self, query: ListOcrPipelinesQuery) -> OcrPipelineDefinitionList: ...
 
     async def delete_by_id(
         self,

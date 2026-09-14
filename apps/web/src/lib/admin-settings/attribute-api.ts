@@ -1,9 +1,11 @@
 import { apiFetch } from "@/lib/api/client";
 import { unwrapEnvelope } from "@/lib/api/envelope";
+import { mapListPageMeta } from "@/lib/api/list-contract";
 
 import {
-  withSearchParams,
+  withListSearchParams,
   type AdminCatalogRequestOptions,
+  type AdminListOptions,
 } from "./api-helpers";
 import type {
   AttributeCategory,
@@ -16,6 +18,7 @@ import type {
   AttributeEnvelopeDto,
   AttributeListEnvelope,
   AttributeListEnvelopeDto,
+  AttributeStatusFilter,
   CatalogStatusFilter,
   DeleteCatalogEntryEnvelope,
   DeleteCatalogEntryResult,
@@ -25,21 +28,40 @@ import type {
   UpsertAttributeInput,
 } from "./types";
 
-export interface ListAttributesOptions extends AdminCatalogRequestOptions {
+export type AttributeSortField =
+  | "category"
+  | "data_type"
+  | "name"
+  | "schema"
+  | "source"
+  | "status"
+  | "updated_at";
+export type AttributeCategorySortField =
+  | "external_id"
+  | "flags"
+  | "label"
+  | "status"
+  | "updated_at";
+
+export interface ListAttributesOptions extends AdminListOptions<AttributeSortField> {
   category?: string | null;
+  status: AttributeStatusFilter;
 }
 
-export interface ListAttributeCategoriesOptions extends AdminCatalogRequestOptions {
+export interface ListAttributeCategoriesOptions extends AdminListOptions<AttributeCategorySortField> {
   status: CatalogStatusFilter;
 }
 
 export const attributeCatalogClient = {
   async listAttributes(
-    options: ListAttributesOptions = {},
+    options: ListAttributesOptions,
   ): Promise<AttributeListEnvelope> {
     return mapAttributeListEnvelope(
       await apiFetch<AttributeListEnvelopeDto>(
-        withSearchParams("/attributes", { category: options.category }),
+        withListSearchParams("/attributes", options, (query) => ({
+          category: query.category,
+          status: query.status,
+        })),
         {
           method: "GET",
           signal: options.signal,
@@ -53,7 +75,9 @@ export const attributeCatalogClient = {
   ): Promise<AttributeCategoryListEnvelope> {
     return mapAttributeCategoryListEnvelope(
       await apiFetch<AttributeCategoryListEnvelopeDto>(
-        withSearchParams("/attributes/categories", { status: options.status }),
+        withListSearchParams("/attributes/categories", options, (query) => ({
+          status: query.status,
+        })),
         {
           method: "GET",
           signal: options.signal,
@@ -244,8 +268,12 @@ function mapAttributeListEnvelope(
       attributes: envelope.data.attributes.map(mapAttributeDefinition),
     },
     meta: {
+      ...mapListPageMeta(envelope.meta),
       categoryCounts: envelope.meta.category_counts,
-      totalCount: envelope.meta.total_count,
+      status: envelope.meta.status,
+      catalogCount: envelope.meta.catalog_count,
+      activeCount: envelope.meta.active_count,
+      inactiveCount: envelope.meta.inactive_count,
     },
   };
 }
@@ -282,11 +310,10 @@ function mapAttributeCategoryListEnvelope(
       categories: envelope.data.categories.map(mapAttributeCategory),
     },
     meta: {
+      ...mapListPageMeta(envelope.meta),
       activeCount: envelope.meta.active_count,
       inactiveCount: envelope.meta.inactive_count,
-      returnedCount: envelope.meta.returned_count,
       status: envelope.meta.status,
-      totalCount: envelope.meta.total_count,
     },
   };
 }

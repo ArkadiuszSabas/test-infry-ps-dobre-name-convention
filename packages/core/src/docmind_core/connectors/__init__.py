@@ -56,6 +56,7 @@ from docmind_core.connectors.profiles import (
     ProfileManifest,
     ProfileValidationError,
     SourcePackageDeliveryTarget,
+    WorkspaceDirectoryProfile,
     generate_profile_manifest,
     load_deployment_profile,
 )
@@ -112,6 +113,7 @@ __all__ = [
     "ProfileValidationError",
     "SafeMetadata",
     "SourcePackageDeliveryTarget",
+    "WorkspaceDirectoryProfile",
     "generate_profile_manifest",
     "load_deployment_profile",
 ]

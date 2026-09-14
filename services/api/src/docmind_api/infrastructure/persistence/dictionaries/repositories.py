@@ -6,10 +6,12 @@ from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from docmind_api.application.dictionaries.commands import DictionaryEntrySortField
 from docmind_api.application.dictionaries.ports import (
     DictionaryEntrySearchResult,
     DictionaryRepository,
 )
+from docmind_api.application.listing import ListSortDirection
 from docmind_api.domain.dictionaries.models import (
     Dictionary,
     DictionaryEntry,
@@ -27,6 +29,7 @@ from docmind_api.infrastructure.persistence.dictionaries.tables import (
     dictionary_entries_table,
     dictionary_fields_table,
 )
+from docmind_api.infrastructure.persistence.list_sorting import stable_order_by
 
 
 class SqlAlchemyDictionaryRepository(DictionaryRepository):
@@ -53,21 +56,56 @@ class SqlAlchemyDictionaryRepository(DictionaryRepository):
         return result.scalar_one_or_none() is not None
 
     async def get_dictionary_by_id(self, dictionary_id: UUID | str) -> Dictionary | None:
+        return await self._get_dictionary_by_id(dictionary_id, for_update=False)
+
+    async def get_dictionary_by_id_for_update(
+        self,
+        dictionary_id: UUID | str,
+    ) -> Dictionary | None:
+        return await self._get_dictionary_by_id(dictionary_id, for_update=True)
+
+    async def _get_dictionary_by_id(
+        self,
+        dictionary_id: UUID | str,
+        *,
+        for_update: bool,
+    ) -> Dictionary | None:
         normalized_id = coerce_uuid(dictionary_id)
         if normalized_id is not None:
             statement = select(dictionaries_table).where(dictionaries_table.c.id == normalized_id)
+            if for_update:
+                statement = statement.with_for_update()
             result = await self._session.execute(statement)
             row = result.mappings().one_or_none()
             if row is not None:
                 return dictionary_from_row(row)
             return None
 
-        return await self.get_dictionary_by_external_id(str(dictionary_id))
+        return await self._get_dictionary_by_external_id(
+            str(dictionary_id),
+            for_update=for_update,
+        )
 
     async def get_dictionary_by_external_id(self, external_id: str) -> Dictionary | None:
+        return await self._get_dictionary_by_external_id(external_id, for_update=False)
+
+    async def get_dictionary_by_external_id_for_update(
+        self,
+        external_id: str,
+    ) -> Dictionary | None:
+        return await self._get_dictionary_by_external_id(external_id, for_update=True)
+
+    async def _get_dictionary_by_external_id(
+        self,
+        external_id: str,
+        *,
+        for_update: bool,
+    ) -> Dictionary | None:
         statement = select(dictionaries_table).where(
             dictionaries_table.c.external_id == external_id,
         )
+        if for_update:
+            statement = statement.with_for_update()
         result = await self._session.execute(statement)
         row = result.mappings().one_or_none()
         if row is None:
@@ -252,6 +290,30 @@ class SqlAlchemyDictionaryRepository(DictionaryRepository):
         dictionary_id: UUID | str,
         entry_id: UUID | str,
     ) -> DictionaryEntry | None:
+        return await self._get_entry_by_id(
+            dictionary_id,
+            entry_id,
+            for_update=False,
+        )
+
+    async def get_entry_by_id_for_update(
+        self,
+        dictionary_id: UUID | str,
+        entry_id: UUID | str,
+    ) -> DictionaryEntry | None:
+        return await self._get_entry_by_id(
+            dictionary_id,
+            entry_id,
+            for_update=True,
+        )
+
+    async def _get_entry_by_id(
+        self,
+        dictionary_id: UUID | str,
+        entry_id: UUID | str,
+        *,
+        for_update: bool,
+    ) -> DictionaryEntry | None:
         normalized_dictionary_id = await self._resolve_dictionary_id(dictionary_id)
         normalized_entry_id = coerce_uuid(entry_id)
         if normalized_dictionary_id is None or normalized_entry_id is None:
@@ -260,6 +322,8 @@ class SqlAlchemyDictionaryRepository(DictionaryRepository):
             dictionary_entries_table.c.dictionary_id == normalized_dictionary_id,
             dictionary_entries_table.c.id == normalized_entry_id,
         )
+        if for_update:
+            statement = statement.with_for_update()
         result = await self._session.execute(statement)
         row = result.mappings().one_or_none()
         if row is None:
@@ -292,6 +356,8 @@ class SqlAlchemyDictionaryRepository(DictionaryRepository):
         search: str | None = None,
         limit: int = 50,
         offset: int = 0,
+        sort_by: DictionaryEntrySortField = DictionaryEntrySortField.SORT_ORDER,
+        sort_direction: ListSortDirection = ListSortDirection.ASC,
     ) -> DictionaryEntrySearchResult:
         normalized_dictionary_id = await self._resolve_dictionary_id(dictionary_id)
         if normalized_dictionary_id is None:
@@ -316,9 +382,19 @@ class SqlAlchemyDictionaryRepository(DictionaryRepository):
             statement = statement.where(search_filter)
             count_statement = count_statement.where(search_filter)
         statement = statement.order_by(
-            dictionary_entries_table.c.sort_order.asc().nullslast(),
-            dictionary_entries_table.c.label.asc(),
-            dictionary_entries_table.c.external_id.asc(),
+            *stable_order_by(
+                sort_by=sort_by,
+                direction=sort_direction,
+                allowlist={
+                    DictionaryEntrySortField.CREATED_AT: dictionary_entries_table.c.created_at,
+                    DictionaryEntrySortField.EXTERNAL_ID: dictionary_entries_table.c.external_id,
+                    DictionaryEntrySortField.LABEL: dictionary_entries_table.c.label,
+                    DictionaryEntrySortField.SORT_ORDER: dictionary_entries_table.c.sort_order,
+                    DictionaryEntrySortField.STATUS: dictionary_entries_table.c.status,
+                    DictionaryEntrySortField.UPDATED_AT: dictionary_entries_table.c.updated_at,
+                },
+                identity=dictionary_entries_table.c.id,
+            )
         )
         if limit > 0:
             statement = statement.limit(limit).offset(offset)

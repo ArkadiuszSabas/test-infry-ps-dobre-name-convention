@@ -14,7 +14,17 @@ import {
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AttributeRequirementDocumentType } from "@/lib/admin-settings/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type {
+  AttributeRequirementDocumentType,
+  MissingRequiredAction,
+} from "@/lib/admin-settings/types";
 import {
   getAttributeRequirementRowErrorMessages,
   type AttributeRequirementDraftRow,
@@ -37,6 +47,10 @@ interface AttributeMatrixTableProps {
   isSaving: boolean;
   matrixDocumentType: AttributeRequirementDocumentType | null;
   onEdit: (attributeId: string) => void;
+  onMissingRequiredActionChange: (
+    attributeId: string,
+    missingRequiredAction: MissingRequiredAction,
+  ) => void;
   onStateChange: (
     attributeId: string,
     state: AttributeRequirementState,
@@ -56,6 +70,7 @@ export function AttributeMatrixTable({
   isSaving,
   matrixDocumentType,
   onEdit,
+  onMissingRequiredActionChange,
   onStateChange,
   onMetadataInclusionChange,
   rows,
@@ -177,6 +192,45 @@ export function AttributeMatrixTable({
                           {t("includeMetadataInContextResolver")}
                         </label>
                       ) : null}
+                      {row.state === "required" ? (
+                        <div className="mt-3 grid gap-1.5">
+                          <p className="text-sm font-medium">
+                            {t("missingActions.label")}
+                          </p>
+                          <Select
+                            disabled={isSaving}
+                            onValueChange={(value) => {
+                              if (isMissingRequiredAction(value)) {
+                                onMissingRequiredActionChange(
+                                  row.attribute.id,
+                                  value,
+                                );
+                              }
+                            }}
+                            value={row.missingRequiredAction}
+                          >
+                            <SelectTrigger
+                              aria-label={t("missingActions.label")}
+                              className="w-full sm:max-w-sm"
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="block_approval">
+                                {t("missingActions.block_approval")}
+                              </SelectItem>
+                              <SelectItem value="require_review">
+                                {t("missingActions.require_review")}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            {t(
+                              `missingActions.${row.missingRequiredAction}Description`,
+                            )}
+                          </p>
+                        </div>
+                      ) : null}
                       {rowErrors.length > 0 ? (
                         <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
                           <div className="flex flex-col gap-1">
@@ -198,6 +252,12 @@ export function AttributeMatrixTable({
       ) : null}
     </div>
   );
+}
+
+function isMissingRequiredAction(
+  value: string,
+): value is MissingRequiredAction {
+  return value === "block_approval" || value === "require_review";
 }
 
 function groupRowsByCategory(rows: readonly AttributeRequirementDraftRow[]) {

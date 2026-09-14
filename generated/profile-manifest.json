@@ -45,5 +45,9 @@
   "runtime_policies": {},
   "schema_version": 1,
   "ui_extensions": [],
-  "worker_hooks": []
+  "worker_hooks": [],
+  "workspace_directory": {
+    "administration_enabled": true,
+    "dictionary_external_id": "tfi"
+  }
 }
