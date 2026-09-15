@@ -22,7 +22,7 @@ permissions:
 jobs:
   read-object-id:
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, "${{ inputs.environment }}"]
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:

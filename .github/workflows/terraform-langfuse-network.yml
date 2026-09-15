@@ -20,7 +20,7 @@ permissions:
 jobs:
   plan:
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, "${{ inputs.environment }}"]
     concurrency:
       group: proservice-langfuse-network-${{ inputs.environment }}
       cancel-in-progress: false
@@ -82,7 +82,7 @@ jobs:
     needs: plan
     if: inputs.apply
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, "${{ inputs.environment }}"]
     concurrency:
       group: proservice-langfuse-network-${{ inputs.environment }}
       cancel-in-progress: false

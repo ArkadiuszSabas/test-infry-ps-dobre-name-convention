@@ -28,7 +28,7 @@ permissions:
 jobs:
   bootstrap:
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, "${{ inputs.environment }}"]
     concurrency:
       group: proservice-application-${{ inputs.environment }}
       cancel-in-progress: false

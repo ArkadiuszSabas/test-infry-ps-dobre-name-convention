@@ -16,7 +16,7 @@ permissions:
 jobs:
   build:
     environment: ${{ inputs.environment || 'dev' }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, "${{ inputs.environment }}"]
     concurrency:
       group: proservice-application-build-${{ inputs.environment || 'dev' }}
       cancel-in-progress: false
