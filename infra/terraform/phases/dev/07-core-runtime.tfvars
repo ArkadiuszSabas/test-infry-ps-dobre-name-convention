@@ -24,7 +24,7 @@ runtime_dependencies_ready      = true
 foundry_enabled                 = true
 langfuse_tracing = {
   # Langfuse Core must already be deployed for this environment.
-  enabled = true
+  enabled = false
 }
 
 workload_identity_workloads = [
