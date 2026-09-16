@@ -27,6 +27,11 @@ additional_container_apps_private_dns_locations = []
 # Replace target IDs from phase 04 private_endpoint_targets and zone IDs from phase 01
 # private_dns_zone_ids. This is the complete cumulative endpoint desired state.
 private_endpoints = {
+  container-registry = {
+    private_connection_resource_id = "/subscriptions/ade38c32-9ade-4049-a9e1-bce6d1692438/resourceGroups/rg-ocr-test/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrtest01"
+    subresource_names              = ["registry"]
+    private_dns_zone_ids           = ["/subscriptions/0ef4ac67-4582-47b0-a6a4-c4a354246268/resourceGroups/rg-private-dns-zone/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io"]
+  }
   key-vault = {
     private_connection_resource_id = "/subscriptions/ade38c32-9ade-4049-a9e1-bce6d1692438/resourceGroups/rg-ocr-test/providers/Microsoft.KeyVault/vaults/ee7c45kvocrapptest01"
     subresource_names              = ["vault"]

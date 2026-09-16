@@ -1,6 +1,6 @@
-subscription_id                 = "fe31d3c8-576f-4c09-913c-635306834ff0"
-private_dns_subscription_id     = "0ef4ac67-4582-47b0-a6a4-c4a354246268" # hub subscription
-location                        = "swedencentral"
+subscription_id             = "fe31d3c8-576f-4c09-913c-635306834ff0"
+private_dns_subscription_id = "0ef4ac67-4582-47b0-a6a4-c4a354246268" # hub subscription
+location                    = "swedencentral"
 
 environment                     = "dev"
 tenant_prefix                   = "ee7c45"
@@ -27,6 +27,11 @@ additional_container_apps_private_dns_locations = []
 # Replace target IDs from phase 04 private_endpoint_targets and zone IDs from phase 01
 # private_dns_zone_ids. This is the complete cumulative endpoint desired state.
 private_endpoints = {
+  container-registry = {
+    private_connection_resource_id = "REPLACE_PHASE_04_TARGET_CONTAINER_REGISTRY"
+    subresource_names              = ["registry"]
+    private_dns_zone_ids           = ["REPLACE_PHASE_01_DNS_ZONE_CONTAINER_REGISTRY"]
+  }
   key-vault = {
     private_connection_resource_id = "REPLACE_PHASE_04_TARGET_KEY_VAULT"
     subresource_names              = ["vault"]
