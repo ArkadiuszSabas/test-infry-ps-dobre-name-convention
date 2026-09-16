@@ -2,17 +2,16 @@ subscription_id             = "fe31d3c8-576f-4c09-913c-635306834ff0"
 private_dns_subscription_id = "0ef4ac67-4582-47b0-a6a4-c4a354246268"
 location                    = "swedencentral"
 
-environment        = "dev"
-region_code        = "sdc"
-organization_token = "psf"
-tenant_prefix      = "ee7c45"
-app_id             = "ocr"
-instance_number    = "01"
-
+environment                     = "dev"
+tenant_prefix                   = "ee7c45"
+app_id                          = "ocr"
+instance_number                 = "01"
 network_resource_group_name     = "rg-ocr-dev-net"
 application_resource_group_name = "rg-ocr-dev"
 private_dns_resource_group_name = "rg-private-dns-zone"
 
+
+# Keep false until ProService approves the completed Private Endpoint and DNS design.
 network_design_approved = true
 
 virtual_network_name           = "vnet-ocr-dev"
@@ -25,6 +24,8 @@ expected_private_endpoint_subnet_cidr              = "10.33.28.0/24"
 
 additional_container_apps_private_dns_locations = []
 
+# Replace target IDs from phase 04 private_endpoint_targets and zone IDs from phase 01
+# private_dns_zone_ids. This is the complete cumulative endpoint desired state.
 private_endpoints = {
   container-registry = {
     private_connection_resource_id = "/subscriptions/fe31d3c8-576f-4c09-913c-635306834ff0/resourceGroups/rg-ocr-dev/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrdev01"

@@ -19,16 +19,6 @@ variable "environment" {
   type        = string
 }
 
-variable "region_code" {
-  description = "Short Azure region identifier used by the naming convention."
-  type        = string
-}
-
-variable "organization_token" {
-  description = "Organization identifier used by the naming convention."
-  type        = string
-}
-
 variable "tenant_prefix" {
   description = "Tenant prefix used by the naming convention."
   type        = string
