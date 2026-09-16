@@ -306,7 +306,7 @@ module "storage" {
   name                              = local.resource_names.storage_account
   location                          = var.location
   resource_group_name               = data.azurerm_resource_group.environment.name
-  replication_type                  = var.environment == "prd" ? "GRS" : "LRS"
+  replication_type                  = var.environment == "prod" ? "GRS" : "LRS"
   containers                        = var.storage_containers
   blob_data_contributor_assignments = {}
   shared_access_key_enabled         = false
@@ -336,7 +336,7 @@ module "observability" {
   application_insights_name    = local.resource_names.application_insights
   location                     = var.location
   resource_group_name          = data.azurerm_resource_group.environment.name
-  retention_in_days            = var.environment == "prd" ? 90 : 30
+  retention_in_days            = var.environment == "prod" ? 90 : 30
   tags                         = var.tags
 }
 
@@ -404,11 +404,11 @@ module "postgresql" {
   resource_group_name           = data.azurerm_resource_group.environment.name
   tenant_id                     = data.azurerm_client_config.current.tenant_id
   postgresql_version            = "16"
-  sku_name                      = var.environment == "prd" ? "GP_Standard_D2s_v3" : "B_Standard_B2s"
+  sku_name                      = var.environment == "prod" ? "GP_Standard_D2s_v3" : "B_Standard_B2s"
   zone                          = "1"
-  storage_mb                    = var.environment == "prd" ? 65536 : 32768
-  backup_retention_days         = var.environment == "prd" ? 35 : 7
-  geo_redundant_backup_enabled  = var.environment == "prd"
+  storage_mb                    = var.environment == "prod" ? 65536 : 32768
+  backup_retention_days         = var.environment == "prod" ? 35 : 7
+  geo_redundant_backup_enabled  = var.environment == "prod"
   database_names                = local.postgresql_database_names
   firewall_ip_addresses         = []
   public_network_access_enabled = false
