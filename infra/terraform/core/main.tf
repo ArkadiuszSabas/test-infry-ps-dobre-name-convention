@@ -399,16 +399,18 @@ module "ai_services" {
 module "postgresql" {
   source = "../modules/postgresql"
 
-  name                          = local.resource_names.postgresql
-  location                      = var.location
-  resource_group_name           = data.azurerm_resource_group.environment.name
-  tenant_id                     = data.azurerm_client_config.current.tenant_id
-  postgresql_version            = "16"
-  sku_name                      = var.environment == "prod" ? "GP_Standard_D2s_v3" : "B_Standard_B2s"
-  zone                          = "1"
-  storage_mb                    = var.environment == "prod" ? 65536 : 32768
-  backup_retention_days         = var.environment == "prod" ? 35 : 7
-  geo_redundant_backup_enabled  = var.environment == "prod"
+  name                  = local.resource_names.postgresql
+  location              = var.location
+  resource_group_name   = data.azurerm_resource_group.environment.name
+  tenant_id             = data.azurerm_client_config.current.tenant_id
+  postgresql_version    = "16"
+  sku_name              = var.environment == "prod" ? "GP_Standard_D2s_v3" : "B_Standard_B2s"
+  zone                  = "1"
+  storage_mb            = var.environment == "prod" ? 65536 : 32768
+  backup_retention_days = var.environment == "prod" ? 35 : 7
+  # Geo-redundant backup with CMK requires a separate key and UAMI in the paired region.
+  # It is intentionally disabled until that regional CMK configuration is introduced.
+  geo_redundant_backup_enabled  = false
   database_names                = local.postgresql_database_names
   firewall_ip_addresses         = []
   public_network_access_enabled = false
