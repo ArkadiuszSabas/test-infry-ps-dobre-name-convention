@@ -23,7 +23,7 @@ runtime_dependencies_ready      = true
 foundry_enabled                 = true
 langfuse_tracing = {
   # Runtime tracing is enabled only in phase 07, after Langfuse Core is deployed.
-  enabled = false
+  enabled = true
 }
 
 workload_identity_workloads = [
