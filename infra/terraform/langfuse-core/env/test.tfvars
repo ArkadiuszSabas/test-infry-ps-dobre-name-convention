@@ -22,8 +22,8 @@ valkey_version     = "8.1.8-alpine"
 
 # Foundation phase. Change both values to true only after the Langfuse RBAC
 # and Network Completion workflows have succeeded.
-runtime_enabled            = false
-runtime_dependencies_ready = false
+runtime_enabled            = true
+runtime_dependencies_ready = true
 
 tags = {
   application  = "ocr"
