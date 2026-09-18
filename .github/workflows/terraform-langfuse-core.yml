@@ -1,4 +1,5 @@
 name: Terraform Langfuse Core
+run-name: Terraform Langfuse Core · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 "on":
   workflow_dispatch:

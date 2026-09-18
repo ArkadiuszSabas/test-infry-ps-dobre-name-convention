@@ -1,4 +1,5 @@
 name: Terraform network
+run-name: Terraform network · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 on:
   workflow_dispatch:

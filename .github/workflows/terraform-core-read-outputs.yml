@@ -1,4 +1,5 @@
 name: Read Terraform Core outputs
+run-name: Read Terraform Core outputs · ${{ inputs.environment }}
 
 on:
   workflow_dispatch:

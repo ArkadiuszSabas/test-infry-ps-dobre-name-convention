@@ -1,4 +1,5 @@
 name: Terraform core
+run-name: Terraform core · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 on:
   workflow_dispatch:

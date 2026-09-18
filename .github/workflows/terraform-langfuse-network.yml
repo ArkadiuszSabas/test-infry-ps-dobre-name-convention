@@ -1,4 +1,5 @@
 name: Terraform Langfuse Network
+run-name: Terraform Langfuse Network · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 "on":
   workflow_dispatch:

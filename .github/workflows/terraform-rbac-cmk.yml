@@ -1,4 +1,5 @@
 name: Terraform RBAC CMK
+run-name: Terraform RBAC CMK · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 on:
   workflow_dispatch:

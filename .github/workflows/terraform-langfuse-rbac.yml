@@ -1,4 +1,5 @@
 name: Terraform Langfuse RBAC
+run-name: Terraform Langfuse RBAC · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 "on":
   workflow_dispatch:

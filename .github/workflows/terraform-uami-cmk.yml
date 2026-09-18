@@ -1,4 +1,5 @@
 name: Terraform UAMI CMK
+run-name: Terraform UAMI CMK · ${{ inputs.environment }} · ${{ inputs.apply && 'plan + apply' || 'plan' }}
 
 on:
   workflow_dispatch:

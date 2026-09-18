@@ -6,12 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
-from hatchling.builders.wheel import WheelBuilderConfig
 
 _CONNECTOR_NAMESPACE_ROOT = Path("src") / "docmind_connectors"
 
 
-class CustomBuildHook(BuildHookInterface[WheelBuilderConfig]):
+class CustomBuildHook(BuildHookInterface):
     """Merge connector-owned Python packages into the shared connector wheel."""
 
     def initialize(self, version: str, build_data: dict[str, Any]) -> None:
