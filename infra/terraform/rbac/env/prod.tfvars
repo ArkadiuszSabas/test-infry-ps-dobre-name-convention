@@ -28,7 +28,7 @@ role_assignments = {
   github-deploy-acr-pull       = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
   github-deploy-container-apps = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod", role_definition_name = "Container Apps Contributor", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
 
-  
+
   arkadiusz-private-endpoint-recovery = {
     scope                = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod-net"
     role_definition_name = "Network Contributor"
