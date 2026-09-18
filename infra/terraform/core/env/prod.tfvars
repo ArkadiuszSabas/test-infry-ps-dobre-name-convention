@@ -23,7 +23,7 @@ runtime_dependencies_ready      = true
 foundry_enabled                 = true
 langfuse_tracing = {
   # Enable only after Langfuse Core is deployed in PROD.
-  enabled = false
+  enabled = true
 }
 
 workload_identity_workloads = [
