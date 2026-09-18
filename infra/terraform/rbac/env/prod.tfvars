@@ -1,0 +1,61 @@
+subscription_id = "832f8765-ba78-4d5b-8330-e8edd672152f"
+app_id          = "ocr"
+environment     = "prod"
+instance_number = "01"
+
+application_resource_group_name = "rg-ocr-prod"
+
+workload_identity_workloads = [
+  "web",
+  "api",
+  "api-migrator",
+  "dapr-servicebus-api",
+  "dapr-servicebus-worker",
+  "dapr-servicebus-llmmagic",
+  "llmmagic",
+  "worker",
+]
+
+role_assignments = {
+  acr-pull-web          = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", workload_identity_key = "web", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  acr-pull-api          = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", workload_identity_key = "api", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  acr-pull-api-migrator = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", workload_identity_key = "api-migrator", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  acr-pull-llmmagic     = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  acr-pull-worker       = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+
+  github-build-acr-push        = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPush", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  github-build-acr-read        = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "Reader", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  github-deploy-acr-pull       = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ContainerRegistry/registries/ee7c45crocrprod01", role_definition_name = "AcrPull", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  github-deploy-container-apps = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod", role_definition_name = "Container Apps Contributor", principal_id = "e40dd153-f0c9-409a-99ac-69474333b6d3", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+
+  
+  arkadiusz-private-endpoint-recovery = {
+    scope                = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod-net"
+    role_definition_name = "Network Contributor"
+    principal_id         = "c549ce05-71ca-4df3-b0e2-2863117e41fd"
+    principal_type       = "User"
+  }
+
+  api-inbox              = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/inbox", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "api", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-inbox         = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/inbox", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-ocr-artifacts = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/ocr-artifacts", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-preprocessed  = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/preprocessed", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-previews      = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/previews", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-quarantine    = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/quarantine", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-archive         = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/archive", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-inbox           = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/inbox", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-ocr-artifacts   = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/ocr-artifacts", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-preprocessed    = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/preprocessed", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-previews        = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/previews", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  worker-quarantine      = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01/blobServices/default/containers/quarantine", role_definition_name = "Storage Blob Data Contributor", workload_identity_key = "worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+
+  document-intelligence-storage-read      = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.Storage/storageAccounts/ee7c45stocrdocprod01", role_definition_name = "Storage Blob Data Reader", principal_id = "75f394a8-a68d-4abe-929c-3320db305758", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-document-intelligence          = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.CognitiveServices/accounts/ee7c45diocrprod01", role_definition_name = "Cognitive Services User", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-foundry-user                   = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.CognitiveServices/accounts/ais-ocr-prod-01", role_definition_name = "Cognitive Services User", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  llmmagic-foundry-openai                 = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.CognitiveServices/accounts/ais-ocr-prod-01", role_definition_name = "Cognitive Services OpenAI User", workload_identity_key = "llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  dapr-api-send-document-processing       = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrprod01/queues/document-processing", role_definition_name = "Azure Service Bus Data Sender", workload_identity_key = "dapr-servicebus-api", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  dapr-api-receive-processing-results     = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrprod01/queues/processing-results", role_definition_name = "Azure Service Bus Data Receiver", workload_identity_key = "dapr-servicebus-api", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  dapr-worker-receive-document-processing = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrprod01/queues/document-processing", role_definition_name = "Azure Service Bus Data Receiver", workload_identity_key = "dapr-servicebus-worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  dapr-worker-send-processing-results     = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrprod01/queues/processing-results", role_definition_name = "Azure Service Bus Data Sender", workload_identity_key = "dapr-servicebus-worker", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+  dapr-llmmagic-send-processing-results   = { scope = "/subscriptions/832f8765-ba78-4d5b-8330-e8edd672152f/resourceGroups/rg-ocr-prod/providers/Microsoft.ServiceBus/namespaces/ee7c45sbnsocrprod01/queues/processing-results", role_definition_name = "Azure Service Bus Data Sender", workload_identity_key = "dapr-servicebus-llmmagic", principal_type = "ServicePrincipal", skip_service_principal_aad_check = true }
+}
