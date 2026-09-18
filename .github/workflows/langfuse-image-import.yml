@@ -52,6 +52,12 @@ jobs:
               echo "::error::Missing GitHub Environment variable: ${variable_name}"; exit 1;
             }
           done
+          command -v docker >/dev/null || {
+            echo "::error::Docker is required on the self-hosted runner."; exit 1;
+          }
+          docker info >/dev/null || {
+            echo "::error::The runner cannot access the Docker daemon."; exit 1;
+          }
 
       - uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
         with:
@@ -59,13 +65,20 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Import approved Langfuse images
+      - name: Mirror approved Langfuse images through runner
         run: |
           set -euo pipefail
 
-          import_image() {
+          login_server="$(az acr show --name "$ACR_NAME" --query loginServer --output tsv)"
+          [[ -n "$login_server" ]] || {
+            echo "::error::Could not resolve the ACR login server."; exit 1;
+          }
+          az acr login --name "$ACR_NAME"
+
+          mirror_image() {
             local source_image="$1"
             local target_image="$2"
+            local target_reference="${login_server}/${target_image}"
             local digest=""
 
             if az acr repository show --name "$ACR_NAME" --image "$target_image" --query digest --output tsv >/dev/null 2>&1; then
@@ -73,10 +86,12 @@ jobs:
                 echo "Target image already exists; skipping: ${target_image}"
                 return
               fi
-              az acr import --name "$ACR_NAME" --source "$source_image" --image "$target_image" --force
-            else
-              az acr import --name "$ACR_NAME" --source "$source_image" --image "$target_image"
             fi
+
+            # Docker Hub is contacted by this self-hosted runner, not by the ACR Import service.
+            docker pull --platform linux/amd64 "$source_image"
+            docker tag "$source_image" "$target_reference"
+            docker push "$target_reference"
 
             digest="$(az acr repository show --name "$ACR_NAME" --image "$target_image" --query digest --output tsv)"
             [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
@@ -85,8 +100,8 @@ jobs:
             echo "${target_image}@${digest}" | tee -a "$GITHUB_STEP_SUMMARY"
           }
 
-          import_image "docker.io/langfuse/langfuse:3.185.0" "langfuse/langfuse:3.185.0"
-          import_image "docker.io/langfuse/langfuse-worker:3.185.0" "langfuse/worker:3.185.0"
-          import_image "docker.io/clickhouse/clickhouse-server:25.11" "langfuse/clickhouse:25.11"
-          import_image "docker.io/library/postgres:16.14-alpine" "langfuse/postgres:16.14-alpine"
-          import_image "docker.io/valkey/valkey:8.1.8-alpine" "langfuse/valkey:8.1.8-alpine"
+          mirror_image "docker.io/langfuse/langfuse:3.185.0" "langfuse/langfuse:3.185.0"
+          mirror_image "docker.io/langfuse/langfuse-worker:3.185.0" "langfuse/worker:3.185.0"
+          mirror_image "docker.io/clickhouse/clickhouse-server:25.11" "langfuse/clickhouse:25.11"
+          mirror_image "docker.io/library/postgres:16.14-alpine" "langfuse/postgres:16.14-alpine"
+          mirror_image "docker.io/valkey/valkey:8.1.8-alpine" "langfuse/valkey:8.1.8-alpine"
