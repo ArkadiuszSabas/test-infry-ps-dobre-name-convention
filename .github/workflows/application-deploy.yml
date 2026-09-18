@@ -1,4 +1,5 @@
 name: Application deploy
+run-name: Application deploy · ${{ inputs.environment }} · ${{ inputs.image_tag }}
 
 on:
   workflow_dispatch:

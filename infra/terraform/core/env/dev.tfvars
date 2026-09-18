@@ -7,14 +7,15 @@ instance_number                 = "01"
 application_resource_group_name = "rg-ocr-dev"
 network_resource_group_name     = "rg-ocr-dev-net"
 
+virtual_network_name                      = "vnet-ocr-dev"
+container_apps_infrastructure_subnet_name = "snet-ocr-dev-aca"
+
 cmk = {
   storage_key_id               = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-storage-01/d9e421f1bc034958aa5989d2137d3402"
   document_intelligence_key_id = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-docint-01/373716851d784358b4f05336c5833c36"
   postgresql_key_id            = "https://ee7c45-kv-ocr-dev-01.vault.azure.net/keys/cmk-ocr-dev-postgres-01/d87d4fbc26ab4918ba531bffc80b29f6"
 }
 
-virtual_network_name                      = "vnet-ocr-dev"
-container_apps_infrastructure_subnet_name = "snet-ocr-dev-aca"
 
 security_design_approved        = true
 resource_provider_list_verified = true
