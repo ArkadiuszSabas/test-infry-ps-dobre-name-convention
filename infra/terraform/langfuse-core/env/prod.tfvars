@@ -22,8 +22,8 @@ valkey_version     = "8.1.8-alpine"
 
 # Foundation phase. Enable runtime only after Langfuse RBAC, the two Langfuse
 # Private Endpoints, and the eight Key Vault secrets have been created.
-runtime_enabled            = false
-runtime_dependencies_ready = false
+runtime_enabled            = true
+runtime_dependencies_ready = true
 
 tags = {
   application  = "ocr"
